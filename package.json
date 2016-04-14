@@ -1,12 +1,22 @@
 {
   "name": "react-native-camera-kit",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wix/react-native-camera-kit.git"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
   "version": "0.0.1",
-  "private": true,
+  "description": "Advanced native camera control with pre-defined aspect ratio, crop, etc",
+  "author": "Nataliia Hrankina <nataliag@wix.com>",
+  "nativePackage": true,
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start"
   },
   "dependencies": {
     "react": "^0.14.8",
     "react-native": "^0.23.1"
-  }
+  },
+  "license": "MIT"
 }
