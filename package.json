@@ -7,7 +7,7 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Advanced native camera control with pre-defined aspect ratio, crop, etc",
   "author": "Nataliia Hrankina <nataliag@wix.com>",
   "nativePackage": true,
