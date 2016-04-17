@@ -11,9 +11,16 @@
   "description": "Advanced native camera control with pre-defined aspect ratio, crop, etc",
   "author": "Nataliia Hrankina <nataliag@wix.com>",
   "nativePackage": true,
+  "bugs": {
+    "url": "https://github.com/wix/react-native-camera-kit/issues"
+  },
   "scripts": {
   },
   "dependencies": {
   },
-  "license": "MIT"
+  "license": "MIT",
+  "peerDependencies": {
+    "react-native": ">=0.19.0"
+  },
+  "homepage": "https://github.com/wix/react-native-camera-kit"
 }
