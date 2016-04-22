@@ -7,11 +7,11 @@
 	objects = {
 
 /* Begin PBXAggregateTarget section */
-		D196CE611CC8E94A0048EC75 /* ReactNativeCameraKit-Universal */ = {
+		D1A94EDE1CCA1E5F00AA6EF7 /* ReactNativeCameraKit-Universal */ = {
 			isa = PBXAggregateTarget;
-			buildConfigurationList = D196CE651CC8E94A0048EC75 /* Build configuration list for PBXAggregateTarget "ReactNativeCameraKit-Universal" */;
+			buildConfigurationList = D1A94EE21CCA1E5F00AA6EF7 /* Build configuration list for PBXAggregateTarget "ReactNativeCameraKit-Universal" */;
 			buildPhases = (
-				D196CE661CC8E96D0048EC75 /* ShellScript */,
+				D1A94EE31CCA1E6C00AA6EF7 /* ShellScript */,
 			);
 			dependencies = (
 			);
@@ -21,8 +21,8 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		BA66357241066F0BB65938FE /* Pods_ReactNativeCameraKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3DAA801FB78413BDC44F6405 /* Pods_ReactNativeCameraKit.framework */; };
-		D196CEAF1CC914720048EC75 /* ImagePickerSheetController.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D196CEAE1CC914720048EC75 /* ImagePickerSheetController.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		BA66357241066F0BB65938FE /* Pods_ReactNativeCameraKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3DAA801FB78413BDC44F6405 /* Pods_ReactNativeCameraKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		D1A94ED81CCA195F00AA6EF7 /* libReact.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D1A94ED61CCA174C00AA6EF7 /* libReact.a */; };
 		D1BAAEAA1CC675DB00A2B083 /* ReactNativeCameraKit.h in Headers */ = {isa = PBXBuildFile; fileRef = D1BAAEA91CC675DB00A2B083 /* ReactNativeCameraKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D1BAAEBA1CC676D900A2B083 /* CameraSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1BAAEB11CC676D900A2B083 /* CameraSessionManager.swift */; };
 		D1BAAEBB1CC676D900A2B083 /* CameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1BAAEB21CC676D900A2B083 /* CameraViewController.swift */; };
@@ -31,13 +31,12 @@
 		D1BAAEBE1CC676D900A2B083 /* PhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1BAAEB51CC676D900A2B083 /* PhotoViewController.swift */; };
 		D1BAAEBF1CC676D900A2B083 /* PhotoViewControllerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1BAAEB61CC676D900A2B083 /* PhotoViewControllerDelegate.swift */; };
 		D1BAAEC21CC676D900A2B083 /* ReactNativeCameraKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1BAAEB91CC676D900A2B083 /* ReactNativeCameraKit.swift */; };
-		D1F867CB1CC7BE4300BF18B0 /* libReact.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D1F867CA1CC7BD1D00BF18B0 /* libReact.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		D1F867C91CC7BD1D00BF18B0 /* PBXContainerItemProxy */ = {
+		D1A94ED51CCA174C00AA6EF7 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = D1F867C51CC7BD1D00BF18B0 /* React.xcodeproj */;
+			containerPortal = D1A94ED11CCA174C00AA6EF7 /* React.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 83CBBA2E1A601D0E00E9B192;
 			remoteInfo = React;
@@ -51,7 +50,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				D196CEAF1CC914720048EC75 /* ImagePickerSheetController.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -61,7 +59,7 @@
 		3DAA801FB78413BDC44F6405 /* Pods_ReactNativeCameraKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ReactNativeCameraKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		AD3B7ABF4FBBA3C6E4FB0FC1 /* Pods-ReactNativeCameraKit.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ReactNativeCameraKit.release.xcconfig"; path = "Pods/Target Support Files/Pods-ReactNativeCameraKit/Pods-ReactNativeCameraKit.release.xcconfig"; sourceTree = "<group>"; };
 		B8CC214AAA792FC552EDF81B /* Pods-ReactNativeCameraKit.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ReactNativeCameraKit.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ReactNativeCameraKit/Pods-ReactNativeCameraKit.debug.xcconfig"; sourceTree = "<group>"; };
-		D196CEAE1CC914720048EC75 /* ImagePickerSheetController.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = ImagePickerSheetController.framework; sourceTree = SOURCE_ROOT; };
+		D1A94ED11CCA174C00AA6EF7 /* React.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = React.xcodeproj; path = "node_modules/react-native/React/React.xcodeproj"; sourceTree = "<group>"; };
 		D1BAAEA61CC675DB00A2B083 /* ReactNativeCameraKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ReactNativeCameraKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D1BAAEA91CC675DB00A2B083 /* ReactNativeCameraKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReactNativeCameraKit.h; sourceTree = "<group>"; };
 		D1BAAEAB1CC675DB00A2B083 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -72,7 +70,6 @@
 		D1BAAEB51CC676D900A2B083 /* PhotoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoViewController.swift; sourceTree = "<group>"; };
 		D1BAAEB61CC676D900A2B083 /* PhotoViewControllerDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoViewControllerDelegate.swift; sourceTree = "<group>"; };
 		D1BAAEB91CC676D900A2B083 /* ReactNativeCameraKit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReactNativeCameraKit.swift; sourceTree = "<group>"; };
-		D1F867C51CC7BD1D00BF18B0 /* React.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = React.xcodeproj; path = "node_modules/react-native/React/React.xcodeproj"; sourceTree = "<group>"; };
 		D1F867DA1CC7D19B00BF18B0 /* module.map */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.module-map"; path = module.map; sourceTree = "<group>"; };
 		D1F8687B1CC8E05300BF18B0 /* ImagePickerSheetController.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ImagePickerSheetController.framework; path = "../../../Library/Developer/Xcode/DerivedData/ReactNativeCameraKit-fpljzkihqxhizzahurjedegfhsyg/Build/Products/Debug-iphonesimulator/ImagePickerSheetController.framework"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -82,7 +79,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D1F867CB1CC7BE4300BF18B0 /* libReact.a in Frameworks */,
+				D1A94ED81CCA195F00AA6EF7 /* libReact.a in Frameworks */,
 				BA66357241066F0BB65938FE /* Pods_ReactNativeCameraKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -108,10 +105,17 @@
 			name = Pods;
 			sourceTree = "<group>";
 		};
+		D1A94ED21CCA174C00AA6EF7 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D1A94ED61CCA174C00AA6EF7 /* libReact.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		D1BAAE9C1CC675DA00A2B083 = {
 			isa = PBXGroup;
 			children = (
-				D196CEAE1CC914720048EC75 /* ImagePickerSheetController.framework */,
 				D1BAAEE81CC76EBB00A2B083 /* Libraries */,
 				D1BAAEA81CC675DB00A2B083 /* ReactNativeCameraKit */,
 				D1BAAEA71CC675DB00A2B083 /* Products */,
@@ -148,17 +152,9 @@
 		D1BAAEE81CC76EBB00A2B083 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
-				D1F867C51CC7BD1D00BF18B0 /* React.xcodeproj */,
+				D1A94ED11CCA174C00AA6EF7 /* React.xcodeproj */,
 			);
 			name = Libraries;
-			sourceTree = "<group>";
-		};
-		D1F867C61CC7BD1D00BF18B0 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				D1F867CA1CC7BD1D00BF18B0 /* libReact.a */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		D1F867DB1CC7D27B00BF18B0 /* RCTBridgeModule */ = {
@@ -213,7 +209,7 @@
 				LastUpgradeCheck = 0730;
 				ORGANIZATIONNAME = "Natalia Grankina";
 				TargetAttributes = {
-					D196CE611CC8E94A0048EC75 = {
+					D1A94EDE1CCA1E5F00AA6EF7 = {
 						CreatedOnToolsVersion = 7.3;
 						DevelopmentTeam = FALU6K28DC;
 					};
@@ -235,24 +231,24 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = D1F867C61CC7BD1D00BF18B0 /* Products */;
-					ProjectRef = D1F867C51CC7BD1D00BF18B0 /* React.xcodeproj */;
+					ProductGroup = D1A94ED21CCA174C00AA6EF7 /* Products */;
+					ProjectRef = D1A94ED11CCA174C00AA6EF7 /* React.xcodeproj */;
 				},
 			);
 			projectRoot = "";
 			targets = (
 				D1BAAEA51CC675DB00A2B083 /* ReactNativeCameraKit */,
-				D196CE611CC8E94A0048EC75 /* ReactNativeCameraKit-Universal */,
+				D1A94EDE1CCA1E5F00AA6EF7 /* ReactNativeCameraKit-Universal */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		D1F867CA1CC7BD1D00BF18B0 /* libReact.a */ = {
+		D1A94ED61CCA174C00AA6EF7 /* libReact.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = libReact.a;
-			remoteRef = D1F867C91CC7BD1D00BF18B0 /* PBXContainerItemProxy */;
+			remoteRef = D1A94ED51CCA174C00AA6EF7 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -298,7 +294,7 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-ReactNativeCameraKit/Pods-ReactNativeCameraKit-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		D196CE661CC8E96D0048EC75 /* ShellScript */ = {
+		D1A94EE31CCA1E6C00AA6EF7 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -331,16 +327,20 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		D196CE621CC8E94A0048EC75 /* Debug */ = {
+		D1A94EDF1CCA1E5F00AA6EF7 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ENABLE_BITCODE = NO;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
 		};
-		D196CE631CC8E94A0048EC75 /* Release */ = {
+		D1A94EE01CCA1E5F00AA6EF7 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ENABLE_BITCODE = NO;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -368,6 +368,7 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_BITCODE = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -384,6 +385,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/node_modules/react-native/React/**";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = NO;
@@ -419,6 +421,7 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_BITCODE = NO;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -429,6 +432,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/node_modules/react-native/React/**";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				ONLY_ACTIVE_ARCH = NO;
@@ -453,8 +457,14 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_BITCODE = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/node_modules/react-native/React/**",
 				);
 				INFOPLIST_FILE = ReactNativeCameraKit/Info.plist;
@@ -492,8 +502,14 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_BITCODE = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/node_modules/react-native/React/**",
 				);
 				INFOPLIST_FILE = ReactNativeCameraKit/Info.plist;
@@ -521,11 +537,11 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		D196CE651CC8E94A0048EC75 /* Build configuration list for PBXAggregateTarget "ReactNativeCameraKit-Universal" */ = {
+		D1A94EE21CCA1E5F00AA6EF7 /* Build configuration list for PBXAggregateTarget "ReactNativeCameraKit-Universal" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				D196CE621CC8E94A0048EC75 /* Debug */,
-				D196CE631CC8E94A0048EC75 /* Release */,
+				D1A94EDF1CCA1E5F00AA6EF7 /* Debug */,
+				D1A94EE01CCA1E5F00AA6EF7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

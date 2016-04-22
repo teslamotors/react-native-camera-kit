@@ -22,8 +22,10 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		146834051AC3E58100842450 /* libReact.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 146834041AC3E56700842450 /* libReact.a */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
-		D196CEAA1CC9130C0048EC75 /* ReactNativeCameraKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D196CEA91CC9130C0048EC75 /* ReactNativeCameraKit.framework */; };
-		D196CEAB1CC9130C0048EC75 /* ReactNativeCameraKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D196CEA91CC9130C0048EC75 /* ReactNativeCameraKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		993F926395BDDB074794018A /* Pods_DemoProjTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F2EC817EE8DBE825263C6D2 /* Pods_DemoProjTests.framework */; };
+		D1E9F7251CCA4B1F003DC0B5 /* ReactNativeCameraKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D19E53371CCA37AA00AB99D4 /* ReactNativeCameraKit.framework */; };
+		D1E9F7261CCA4B1F003DC0B5 /* ReactNativeCameraKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D19E53371CCA37AA00AB99D4 /* ReactNativeCameraKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		D1E9F7281CCA4BFC003DC0B5 /* ImagePickerSheetController.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D1E9F7231CCA4AF1003DC0B5 /* ImagePickerSheetController.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D1F868701CC8D8C100BF18B0 /* Test.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1F8686F1CC8D8C100BF18B0 /* Test.swift */; };
 		D1F868741CC8DBC900BF18B0 /* ReactNativeCameraKit.m in Sources */ = {isa = PBXBuildFile; fileRef = D1F868731CC8DBC900BF18B0 /* ReactNativeCameraKit.m */; };
 /* End PBXBuildFile section */
@@ -109,13 +111,14 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		D1F8686E1CC8D89300BF18B0 /* Embed Frameworks */ = {
+		D1E9F7271CCA4B1F003DC0B5 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
+			buildActionMask = 12;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				D196CEAB1CC9130C0048EC75 /* ReactNativeCameraKit.framework in Embed Frameworks */,
+				D1E9F7281CCA4BFC003DC0B5 /* ImagePickerSheetController.framework in Embed Frameworks */,
+				D1E9F7261CCA4B1F003DC0B5 /* ReactNativeCameraKit.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -142,9 +145,13 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = DemoProj/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = DemoProj/main.m; sourceTree = "<group>"; };
 		146833FF1AC3E56700842450 /* React.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = React.xcodeproj; path = "../node_modules/react-native/React/React.xcodeproj"; sourceTree = "<group>"; };
+		1F2EC817EE8DBE825263C6D2 /* Pods_DemoProjTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_DemoProjTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		5FD121E3E665B2026245FEFD /* Pods-DemoProjTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DemoProjTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-DemoProjTests/Pods-DemoProjTests.release.xcconfig"; sourceTree = "<group>"; };
 		78C398B01ACF4ADC00677621 /* RCTLinking.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTLinking.xcodeproj; path = "../node_modules/react-native/Libraries/LinkingIOS/RCTLinking.xcodeproj"; sourceTree = "<group>"; };
 		832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTText.xcodeproj; path = "../node_modules/react-native/Libraries/Text/RCTText.xcodeproj"; sourceTree = "<group>"; };
-		D196CEA91CC9130C0048EC75 /* ReactNativeCameraKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ReactNativeCameraKit.framework; sourceTree = "<group>"; };
+		907C4F4130E710AB6B86A955 /* Pods-DemoProjTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DemoProjTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-DemoProjTests/Pods-DemoProjTests.debug.xcconfig"; sourceTree = "<group>"; };
+		D19E53371CCA37AA00AB99D4 /* ReactNativeCameraKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ReactNativeCameraKit.framework; sourceTree = "<group>"; };
+		D1E9F7231CCA4AF1003DC0B5 /* ImagePickerSheetController.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; name = ImagePickerSheetController.framework; path = "/Users/nataliag/Library/Developer/Xcode/DerivedData/DemoProj-djrxmfjziwwaengmwshdlpmcuaau/Build/Products/Debug-iphoneos/ImagePickerSheetController.framework"; sourceTree = "<absolute>"; };
 		D1F8686F1CC8D8C100BF18B0 /* Test.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Test.swift; sourceTree = "<group>"; };
 		D1F868731CC8DBC900BF18B0 /* ReactNativeCameraKit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReactNativeCameraKit.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -154,6 +161,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				993F926395BDDB074794018A /* Pods_DemoProjTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -166,7 +174,7 @@
 				00C302E71ABCBA2D00DB3ED1 /* libRCTGeolocation.a in Frameworks */,
 				00C302E81ABCBA2D00DB3ED1 /* libRCTImage.a in Frameworks */,
 				133E29F31AD74F7200F7D852 /* libRCTLinking.a in Frameworks */,
-				D196CEAA1CC9130C0048EC75 /* ReactNativeCameraKit.framework in Frameworks */,
+				D1E9F7251CCA4B1F003DC0B5 /* ReactNativeCameraKit.framework in Frameworks */,
 				00C302E91ABCBA2D00DB3ED1 /* libRCTNetwork.a in Frameworks */,
 				139105C61AF99C1200B5F7CC /* libRCTSettings.a in Frameworks */,
 				832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */,
@@ -283,6 +291,15 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		78CDB795A67E2CA9C4EAA845 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				907C4F4130E710AB6B86A955 /* Pods-DemoProjTests.debug.xcconfig */,
+				5FD121E3E665B2026245FEFD /* Pods-DemoProjTests.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
@@ -311,11 +328,14 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				D196CEA91CC9130C0048EC75 /* ReactNativeCameraKit.framework */,
+				D1E9F7231CCA4AF1003DC0B5 /* ImagePickerSheetController.framework */,
+				D19E53371CCA37AA00AB99D4 /* ReactNativeCameraKit.framework */,
 				13B07FAE1A68108700A75B9A /* DemoProj */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* DemoProjTests */,
 				83CBBA001A601CBA00E9B192 /* Products */,
+				78CDB795A67E2CA9C4EAA845 /* Pods */,
+				CC091A8BB7E7C242A1900531 /* Frameworks */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -330,6 +350,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		CC091A8BB7E7C242A1900531 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				1F2EC817EE8DBE825263C6D2 /* Pods_DemoProjTests.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -337,9 +365,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "DemoProjTests" */;
 			buildPhases = (
+				50294592D2E98EFB6ADA767D /* Check Pods Manifest.lock */,
 				00E356EA1AD99517003FC87E /* Sources */,
 				00E356EB1AD99517003FC87E /* Frameworks */,
 				00E356EC1AD99517003FC87E /* Resources */,
+				73802B77B85B3A10E1D03B19 /* Embed Pods Frameworks */,
+				6380B83CF3BCB8894BD11352 /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -359,7 +390,7 @@
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
-				D1F8686E1CC8D89300BF18B0 /* Embed Frameworks */,
+				D1E9F7271CCA4B1F003DC0B5 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -557,6 +588,51 @@
 			shellPath = /bin/sh;
 			shellScript = "export NODE_BINARY=node\n../node_modules/react-native/packager/react-native-xcode.sh";
 		};
+		50294592D2E98EFB6ADA767D /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		6380B83CF3BCB8894BD11352 /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-DemoProjTests/Pods-DemoProjTests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		73802B77B85B3A10E1D03B19 /* Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-DemoProjTests/Pods-DemoProjTests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -604,6 +680,7 @@
 /* Begin XCBuildConfiguration section */
 		00E356F61AD99517003FC87E /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 907C4F4130E710AB6B86A955 /* Pods-DemoProjTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				FRAMEWORK_SEARCH_PATHS = (
@@ -624,6 +701,7 @@
 		};
 		00E356F71AD99517003FC87E /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5FD121E3E665B2026245FEFD /* Pods-DemoProjTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
@@ -647,7 +725,6 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEAD_CODE_STRIPPING = NO;
-				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -676,7 +753,6 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -717,6 +793,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
+				ENABLE_BITCODE = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -764,6 +841,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
 				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
+				ENABLE_BITCODE = NO;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
