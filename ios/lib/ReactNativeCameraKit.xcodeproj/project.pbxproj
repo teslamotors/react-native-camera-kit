@@ -7,8 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		264693521CFB2A6B00F3A740 /* ReactNativeCameraKit.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 264693511CFB2A6B00F3A740 /* ReactNativeCameraKit.h */; };
-		264693541CFB2A6B00F3A740 /* ReactNativeCameraKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 264693531CFB2A6B00F3A740 /* ReactNativeCameraKit.m */; };
+		26550AE61CFC2437007FF2DF /* CKGalleryManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 26550AE51CFC2437007FF2DF /* CKGalleryManager.m */; };
+		26550AE81CFC2BCF007FF2DF /* Photos.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 26550AE71CFC2BCF007FF2DF /* Photos.framework */; };
+		26550AF61CFC7086007FF2DF /* CKCameraManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 26550AF51CFC7086007FF2DF /* CKCameraManager.m */; };
+		2685AA241CFD89A300E4A446 /* CKCamera.m in Sources */ = {isa = PBXBuildFile; fileRef = 2685AA231CFD89A300E4A446 /* CKCamera.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -18,7 +20,6 @@
 			dstPath = "include/$(PRODUCT_NAME)";
 			dstSubfolderSpec = 16;
 			files = (
-				264693521CFB2A6B00F3A740 /* ReactNativeCameraKit.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -26,8 +27,13 @@
 
 /* Begin PBXFileReference section */
 		2646934E1CFB2A6B00F3A740 /* libReactNativeCameraKit.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libReactNativeCameraKit.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		264693511CFB2A6B00F3A740 /* ReactNativeCameraKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReactNativeCameraKit.h; sourceTree = "<group>"; };
-		264693531CFB2A6B00F3A740 /* ReactNativeCameraKit.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReactNativeCameraKit.m; sourceTree = "<group>"; };
+		26550AE41CFC2437007FF2DF /* CKGalleryManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CKGalleryManager.h; sourceTree = "<group>"; };
+		26550AE51CFC2437007FF2DF /* CKGalleryManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CKGalleryManager.m; sourceTree = "<group>"; };
+		26550AE71CFC2BCF007FF2DF /* Photos.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Photos.framework; path = System/Library/Frameworks/Photos.framework; sourceTree = SDKROOT; };
+		26550AF41CFC7086007FF2DF /* CKCameraManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CKCameraManager.h; sourceTree = "<group>"; };
+		26550AF51CFC7086007FF2DF /* CKCameraManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CKCameraManager.m; sourceTree = "<group>"; };
+		2685AA221CFD89A300E4A446 /* CKCamera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CKCamera.h; sourceTree = "<group>"; };
+		2685AA231CFD89A300E4A446 /* CKCamera.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CKCamera.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -35,6 +41,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				26550AE81CFC2BCF007FF2DF /* Photos.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -44,6 +51,7 @@
 		264693451CFB2A6B00F3A740 = {
 			isa = PBXGroup;
 			children = (
+				26550AE71CFC2BCF007FF2DF /* Photos.framework */,
 				264693501CFB2A6B00F3A740 /* ReactNativeCameraKit */,
 				2646934F1CFB2A6B00F3A740 /* Products */,
 			);
@@ -60,8 +68,12 @@
 		264693501CFB2A6B00F3A740 /* ReactNativeCameraKit */ = {
 			isa = PBXGroup;
 			children = (
-				264693511CFB2A6B00F3A740 /* ReactNativeCameraKit.h */,
-				264693531CFB2A6B00F3A740 /* ReactNativeCameraKit.m */,
+				26550AE41CFC2437007FF2DF /* CKGalleryManager.h */,
+				26550AE51CFC2437007FF2DF /* CKGalleryManager.m */,
+				26550AF41CFC7086007FF2DF /* CKCameraManager.h */,
+				26550AF51CFC7086007FF2DF /* CKCameraManager.m */,
+				2685AA221CFD89A300E4A446 /* CKCamera.h */,
+				2685AA231CFD89A300E4A446 /* CKCamera.m */,
 			);
 			path = ReactNativeCameraKit;
 			sourceTree = "<group>";
@@ -122,7 +134,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				264693541CFB2A6B00F3A740 /* ReactNativeCameraKit.m in Sources */,
+				26550AF61CFC7086007FF2DF /* CKCameraManager.m in Sources */,
+				26550AE61CFC2437007FF2DF /* CKGalleryManager.m in Sources */,
+				2685AA241CFD89A300E4A446 /* CKCamera.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -214,6 +228,10 @@
 		264693581CFB2A6B00F3A740 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/../../../react-native/React/**",
+					"$(inherited)",
+				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -223,6 +241,10 @@
 		264693591CFB2A6B00F3A740 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/../../../react-native/React/**",
+					"$(inherited)",
+				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -248,6 +270,7 @@
 				264693591CFB2A6B00F3A740 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
