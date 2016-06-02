@@ -6,8 +6,9 @@
     "start": "node node_modules/react-native/local-cli/cli.js start"
   },
   "dependencies": {
-    "react-native": "0.25.1",
     "react": "0.14.5",
-    "react-native-camera-kit": "latest"
+    "react-native": "0.25.1",
+    "react-native-camera-kit": "latest",
+    "seamless-immutable": "^6.1.0"
   }
 }

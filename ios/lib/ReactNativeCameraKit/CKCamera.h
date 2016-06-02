@@ -7,12 +7,20 @@
 //
 
 #import <UIKit/UIKit.h>
+@import AVFoundation;
+
+typedef void (^CaptureBlock)(NSString *imagePath);
+typedef void (^CallbackBlock)(BOOL success);
+
 
 @interface CKCamera : UIView
 
+@property (nonatomic, readonly) AVCaptureDeviceInput *videoDeviceInput;
 
 
-
-
+// api
+- (void)snapStillImage:(BOOL)shouldSaveToCameraRoll success:(CaptureBlock)block;
+- (void)changeCamera:(CallbackBlock)block;
+- (void)setFlashMode:(AVCaptureFlashMode)flashMode callback:(CallbackBlock)block;
 
 @end

@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		26550AE61CFC2437007FF2DF /* CKGalleryManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 26550AE51CFC2437007FF2DF /* CKGalleryManager.m */; };
-		26550AE81CFC2BCF007FF2DF /* Photos.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 26550AE71CFC2BCF007FF2DF /* Photos.framework */; };
 		26550AF61CFC7086007FF2DF /* CKCameraManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 26550AF51CFC7086007FF2DF /* CKCameraManager.m */; };
 		2685AA241CFD89A300E4A446 /* CKCamera.m in Sources */ = {isa = PBXBuildFile; fileRef = 2685AA231CFD89A300E4A446 /* CKCamera.m */; };
 /* End PBXBuildFile section */
@@ -29,7 +28,6 @@
 		2646934E1CFB2A6B00F3A740 /* libReactNativeCameraKit.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libReactNativeCameraKit.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		26550AE41CFC2437007FF2DF /* CKGalleryManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CKGalleryManager.h; sourceTree = "<group>"; };
 		26550AE51CFC2437007FF2DF /* CKGalleryManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CKGalleryManager.m; sourceTree = "<group>"; };
-		26550AE71CFC2BCF007FF2DF /* Photos.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Photos.framework; path = System/Library/Frameworks/Photos.framework; sourceTree = SDKROOT; };
 		26550AF41CFC7086007FF2DF /* CKCameraManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CKCameraManager.h; sourceTree = "<group>"; };
 		26550AF51CFC7086007FF2DF /* CKCameraManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CKCameraManager.m; sourceTree = "<group>"; };
 		2685AA221CFD89A300E4A446 /* CKCamera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CKCamera.h; sourceTree = "<group>"; };
@@ -41,7 +39,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				26550AE81CFC2BCF007FF2DF /* Photos.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -51,7 +48,6 @@
 		264693451CFB2A6B00F3A740 = {
 			isa = PBXGroup;
 			children = (
-				26550AE71CFC2BCF007FF2DF /* Photos.framework */,
 				264693501CFB2A6B00F3A740 /* ReactNativeCameraKit */,
 				2646934F1CFB2A6B00F3A740 /* Products */,
 			);
