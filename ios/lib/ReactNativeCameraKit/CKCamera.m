@@ -22,22 +22,41 @@ typedef NS_ENUM( NSInteger, CKSetupResult ) {
     CKSetupResultSessionConfigurationFailed
 };
 
+@implementation RCTConvert(CKCameraFlashMode)
+
+RCT_ENUM_CONVERTER(CKCameraFlashMode, (@{
+                                         @"auto": @(AVCaptureFlashModeAuto),
+                                         @"on": @(AVCaptureFlashModeOn),
+                                         @"off": @(AVCaptureFlashModeOff)
+                                         }), AVCaptureFlashModeAuto, integerValue)
+
+@end
+
+
+#define CAMERA_OPTION_FLASH_MODE            @"flashMode"
+#define CAMERA_OPTION_FOCUS_MODE            @"focusMode"
+
 @interface CKCamera () <AVCaptureFileOutputRecordingDelegate>
 
 
 @property (nonatomic, strong) AVCaptureVideoPreviewLayer *previewLayer;
+@property (nonatomic, strong) NSDictionary *cameraOptions;
 
-// Session management.
+// session management
 @property (nonatomic) dispatch_queue_t sessionQueue;
 @property (nonatomic) AVCaptureSession *session;
 @property (nonatomic, readwrite) AVCaptureDeviceInput *videoDeviceInput;
 @property (nonatomic) AVCaptureMovieFileOutput *movieFileOutput;
 @property (nonatomic) AVCaptureStillImageOutput *stillImageOutput;
 
-// Utilities.
+// utilities
 @property (nonatomic) CKSetupResult setupResult;
 @property (nonatomic, getter=isSessionRunning) BOOL sessionRunning;
 @property (nonatomic) UIBackgroundTaskIdentifier backgroundRecordingID;
+
+// props
+@property (nonatomic) AVCaptureFlashMode flashMode;
+@property (nonatomic) AVCaptureFlashMode flashMode;
 
 
 @end
@@ -69,6 +88,24 @@ typedef NS_ENUM( NSInteger, CKSetupResult ) {
     return self;
 }
 
+
+-(void)cameraOptions:(NSDictionary *)cameraOptions {
+    _cameraOptions = cameraOptions;
+    
+    // CAMERA_OPTION_FLASH_MODE
+    id flashMode = self.cameraOptions[CAMERA_OPTION_FLASH_MODE];
+    if (flashMode) {
+        self.flashMode = [RCTConvert CKCameraFlashMode:flashMode];
+    }
+    
+    // CAMERA_OPTION_FOCUS_MODE
+    id focusMode = self.cameraOptions[CAMERA_OPTION_FOCUS_MODE];
+    if (focusMode) {
+        self.focusMode = [RCTConvert CKCameraFlashMode:focusMode];
+    }
+    
+    
+}
 
 
 -(void)setupCaptionSession {
@@ -134,8 +171,7 @@ typedef NS_ENUM( NSInteger, CKSetupResult ) {
 }
 
 -(void)handleCameraPermission {
-    // Check video authorization status. Video access is required and audio access is optional.
-    // If audio access is denied, audio is not recorded during movie recording.
+
     switch ( [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo] )
     {
         case AVAuthorizationStatusAuthorized:
@@ -214,6 +250,7 @@ typedef NS_ENUM( NSInteger, CKSetupResult ) {
 }
 
 
+#pragma mark -
 
 
 
@@ -405,9 +442,43 @@ typedef NS_ENUM( NSInteger, CKSetupResult ) {
     else {
         NSLog(@"YOU ROCK!");
     }
-    
     return temporaryFileURL;
-    
+}
+
+
+- (IBAction)focusAndExposeTap:(UIGestureRecognizer *)gestureRecognizer
+{
+    CGPoint devicePoint = [(AVCaptureVideoPreviewLayer *)self.previewLayer captureDevicePointOfInterestForPoint:[gestureRecognizer locationInView:gestureRecognizer.view]];
+    [self focusWithMode:AVCaptureFocusModeAutoFocus exposeWithMode:AVCaptureExposureModeAutoExpose atDevicePoint:devicePoint monitorSubjectAreaChange:YES];
+}
+
+
+
+- (void)focusWithMode:(AVCaptureFocusMode)focusMode exposeWithMode:(AVCaptureExposureMode)exposureMode atDevicePoint:(CGPoint)point monitorSubjectAreaChange:(BOOL)monitorSubjectAreaChange
+{
+    dispatch_async( self.sessionQueue, ^{
+        AVCaptureDevice *device = self.videoDeviceInput.device;
+        NSError *error = nil;
+        if ( [device lockForConfiguration:&error] ) {
+            // Setting (focus/exposure)PointOfInterest alone does not initiate a (focus/exposure) operation.
+            // Call -set(Focus/Exposure)Mode: to apply the new point of interest.
+            if ( device.isFocusPointOfInterestSupported && [device isFocusModeSupported:focusMode] ) {
+                device.focusPointOfInterest = point;
+                device.focusMode = focusMode;
+            }
+            
+            if ( device.isExposurePointOfInterestSupported && [device isExposureModeSupported:exposureMode] ) {
+                device.exposurePointOfInterest = point;
+                device.exposureMode = exposureMode;
+            }
+            
+            device.subjectAreaChangeMonitoringEnabled = monitorSubjectAreaChange;
+            [device unlockForConfiguration];
+        }
+        else {
+            NSLog( @"Could not lock device for configuration: %@", error );
+        }
+    } );
 }
 
 

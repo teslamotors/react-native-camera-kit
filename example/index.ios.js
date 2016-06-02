@@ -119,6 +119,10 @@ class example extends Component {
                   this.camera = cam;
                 }}
                   style={{flex: 1}}
+                  cameraOptions= {{
+                    flashMode: 'auto',
+                    focusMode: 'on'
+                  }}
               />
             </TouchableOpacity>
             <View style={{flexDirection: 'row'}}>

@@ -8,10 +8,35 @@
 
 #import <UIKit/UIKit.h>
 @import AVFoundation;
+#import "RCTConvert.h"
 
 typedef void (^CaptureBlock)(NSString *imagePath);
 typedef void (^CallbackBlock)(BOOL success);
 
+
+typedef NS_ENUM(NSInteger, CKCameraFlashMode) {
+    CKCameraFlashModeAuto,
+    CKCameraFlashModeOn,
+    CKCameraFlashModeOff
+};
+
+@interface RCTConvert(CKCameraFlashMode)
+
++ (CKCameraFlashMode)CKCameraFlashMode:(id)json;
+
+@end
+
+
+typedef NS_ENUM(NSInteger, CKCameraFocushMode) {
+    CKCameraFocushModeOn,
+    CKCameraFocushModeOff,
+};
+
+@interface RCTConvert(CKCameraFocushMode)
+
++ (CKCameraFocushMode)CKCameraFocushMode:(id)json;
+
+@end
 
 @interface CKCamera : UIView
 

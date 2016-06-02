@@ -10,17 +10,7 @@
 #import "RCTViewManager.h"
 #import "RCTConvert.h"
 
-typedef NS_ENUM(NSInteger, CKCameraFlashMode) {
-    CKCameraFlashModeAuto,
-    CKCameraFlashModeOn,
-    CKCameraFlashModeOff
-};
 
-@interface RCTConvert(CKCameraFlashMode)
-
-+ (CKCameraFlashMode)CKCameraFlashMode:(id)json;
-
-@end
 
 @interface CKCameraManager : RCTViewManager
 

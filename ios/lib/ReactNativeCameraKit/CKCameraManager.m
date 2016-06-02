@@ -10,16 +10,6 @@
 #import "CKCamera.h"
 
 
-@implementation RCTConvert(CustomSegmentedSelectedLineAlign)
-
-RCT_ENUM_CONVERTER(CKCameraFlashMode, (@{
-                                         @"auto": @(AVCaptureFlashModeAuto),
-                                         @"on": @(AVCaptureFlashModeOn),
-                                         @"off": @(AVCaptureFlashModeOff)
-                                         }), AVCaptureFlashModeAuto, integerValue)
-
-@end
-
 
 
 @interface CKCameraManager ()
@@ -37,6 +27,24 @@ RCT_EXPORT_MODULE()
     return self.camera;
 }
 
+RCT_REMAP_VIEW_PROPERTY(cameraOptions, cameraOptions, NSDictionary)
+
+RCT_EXPORT_METHOD(checkDeviceAuthorizationStatus:(RCTPromiseResolveBlock)resolve
+                  reject:(__unused RCTPromiseRejectBlock)reject) {
+    __block NSString *mediaType = AVMediaTypeVideo;
+    
+    [AVCaptureDevice requestAccessForMediaType:mediaType completionHandler:^(BOOL granted) {
+        if (!granted) {
+            resolve(@(granted));
+        }
+        else {
+            mediaType = AVMediaTypeAudio;
+            [AVCaptureDevice requestAccessForMediaType:mediaType completionHandler:^(BOOL granted) {
+                resolve(@(granted));
+            }];
+        }
+    }];
+}
 
 RCT_EXPORT_METHOD(capture:(BOOL)shouldSaveToCameraRoll
                   resolve:(RCTPromiseResolveBlock)resolve
