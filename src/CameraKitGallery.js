@@ -6,12 +6,13 @@ var CKGallery = NativeModules.CKGalleryManager;
 
 
 async function getAlbums() {
-	const albumsName = await CKGallery.getAllAlbumsName();
-	return albumsName;
+	const albums = await CKGallery.getAllAlbumsName();
+	return albums;
 }
 
 async function getThumbnailForAlbumName(albumName) {
 	const albumsThumbnail = await CKGallery.getThumbnailForAlbumName(albumName);
+
 	return albumsThumbnail;
 }
 

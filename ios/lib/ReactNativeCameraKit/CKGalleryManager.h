@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "RCTBridgeModule.h"
 
-
+typedef void (^CallbackGalleryBlock)(BOOL success, NSString *encodeImage);
 
 @interface CKGalleryManager : NSObject <RCTBridgeModule>
 

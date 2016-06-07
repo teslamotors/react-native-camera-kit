@@ -32,15 +32,38 @@ RCT_ENUM_CONVERTER(CKCameraFlashMode, (@{
 
 @end
 
+@implementation RCTConvert(CKCameraFocushMode)
+
+RCT_ENUM_CONVERTER(CKCameraFocushMode, (@{
+                                          @"on": @(CKCameraFocushModeOn),
+                                          @"off": @(CKCameraFocushModeOff)
+                                          }), CKCameraFocushModeOn, integerValue)
+
+@end
+
+@implementation RCTConvert(CKCameraZoomMode)
+
+RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
+                                          @"on": @(CKCameraZoomModeOn),
+                                          @"off": @(CKCameraZoomModeOff)
+                                          }), CKCameraZoomModeOn, integerValue)
+
+@end
+
+
 
 #define CAMERA_OPTION_FLASH_MODE            @"flashMode"
 #define CAMERA_OPTION_FOCUS_MODE            @"focusMode"
+#define CAMERA_OPTION_ZOOM_MODE             @"zoomMode"
+#define TIMER_FOCUS_TIME_SECONDS            5
 
 @interface CKCamera () <AVCaptureFileOutputRecordingDelegate>
 
 
 @property (nonatomic, strong) AVCaptureVideoPreviewLayer *previewLayer;
 @property (nonatomic, strong) NSDictionary *cameraOptions;
+@property (nonatomic, strong) UIView *focusView;
+@property (nonatomic, strong) NSTimer *focusViewTimer;
 
 // session management
 @property (nonatomic) dispatch_queue_t sessionQueue;
@@ -54,9 +77,10 @@ RCT_ENUM_CONVERTER(CKCameraFlashMode, (@{
 @property (nonatomic, getter=isSessionRunning) BOOL sessionRunning;
 @property (nonatomic) UIBackgroundTaskIdentifier backgroundRecordingID;
 
-// props
+// cameraOptions props
 @property (nonatomic) AVCaptureFlashMode flashMode;
-@property (nonatomic) AVCaptureFlashMode flashMode;
+@property (nonatomic) CKCameraFocushMode focusMode;
+@property (nonatomic) CKCameraZoomMode zoomMode;
 
 
 @end
@@ -64,6 +88,31 @@ RCT_ENUM_CONVERTER(CKCameraFlashMode, (@{
 @implementation CKCamera
 
 #pragma mark - initializtion
+
+- (void)dealloc
+{
+    NSLog(@"dealloc");
+}
+
+
+- (void)removeReactSubview:(UIView *)subview
+{
+    [subview removeFromSuperview];
+    return;
+}
+
+
+- (void)removeFromSuperview
+{
+    [super removeFromSuperview];
+    dispatch_async( self.sessionQueue, ^{
+        if ( self.setupResult == CKSetupResultSuccess ) {
+            [self.session stopRunning];
+            [self removeObservers];
+        }
+    } );
+    
+}
 
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
@@ -83,13 +132,25 @@ RCT_ENUM_CONVERTER(CKCameraFlashMode, (@{
         
         self.previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
         
+        UIView *focusView = [[UIView alloc] initWithFrame:CGRectZero];
+        focusView.backgroundColor = [UIColor clearColor];
+        focusView.layer.borderColor = [UIColor yellowColor].CGColor;
+        focusView.layer.borderWidth = 1;
+        focusView.hidden = YES;
+        self.focusView = focusView;
+        
+        [self addSubview:self.focusView];
+        
+        self.zoomMode = CKCameraZoomModeOn;
+        self.flashMode = CKCameraFlashModeOn;
+        self.focusMode = CKCameraFocushModeOn;
     }
     
     return self;
 }
 
 
--(void)cameraOptions:(NSDictionary *)cameraOptions {
+-(void)setCameraOptions:(NSDictionary *)cameraOptions {
     _cameraOptions = cameraOptions;
     
     // CAMERA_OPTION_FLASH_MODE
@@ -101,10 +162,24 @@ RCT_ENUM_CONVERTER(CKCameraFlashMode, (@{
     // CAMERA_OPTION_FOCUS_MODE
     id focusMode = self.cameraOptions[CAMERA_OPTION_FOCUS_MODE];
     if (focusMode) {
-        self.focusMode = [RCTConvert CKCameraFlashMode:focusMode];
+        self.focusMode = [RCTConvert CKCameraFocushMode:focusMode];
+        
+        if (self.focusMode == CKCameraFocushModeOn) {
+            UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(focusAndExposeTap:)];
+            [self addGestureRecognizer:tapGesture];
+        }
     }
     
-    
+    // CAMERA_OPTION_FOCUS_MODE
+    id zoomMode = self.cameraOptions[CAMERA_OPTION_ZOOM_MODE];
+    if (zoomMode) {
+        self.zoomMode = [RCTConvert CKCameraZoomMode:zoomMode];
+        
+        if (self.zoomMode == CKCameraZoomModeOn) {
+            UIPinchGestureRecognizer *pinchGesture = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(handlePinchToZoomRecognizer:)];
+            [self addGestureRecognizer:pinchGesture];
+        }
+    }
 }
 
 
@@ -171,7 +246,7 @@ RCT_ENUM_CONVERTER(CKCameraFlashMode, (@{
 }
 
 -(void)handleCameraPermission {
-
+    
     switch ( [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo] )
     {
         case AVAuthorizationStatusAuthorized:
@@ -213,7 +288,7 @@ RCT_ENUM_CONVERTER(CKCameraFlashMode, (@{
             case CKSetupResultSuccess:
             {
                 // Only setup observers and start the session running if setup succeeded.
-                //                [self addObservers];
+                [self addObservers];
                 [self.session startRunning];
                 self.sessionRunning = self.session.isRunning;
                 break;
@@ -252,6 +327,33 @@ RCT_ENUM_CONVERTER(CKCameraFlashMode, (@{
 
 #pragma mark -
 
+
+-(void)startFocusViewTimer {
+    [self stopFocusViewTimer];
+    
+    self.focusViewTimer = [NSTimer scheduledTimerWithTimeInterval:TIMER_FOCUS_TIME_SECONDS target:self selector:@selector(dismissFocusView) userInfo:nil repeats:NO];
+}
+
+-(void)stopFocusViewTimer {
+    if (self.focusViewTimer) {
+        [self.focusViewTimer invalidate];
+        self.focusViewTimer = nil;
+    }
+}
+
+-(void)dismissFocusView {
+    
+    [self stopFocusViewTimer];
+    
+    [UIView animateWithDuration:0.8 animations:^{
+        self.focusView.alpha = 0;
+        
+    } completion:^(BOOL finished) {
+        self.focusView.frame = CGRectZero;
+        self.focusView.hidden = YES;
+        self.focusView.alpha = 1;
+    }];
+}
 
 
 + (AVCaptureDevice *)deviceWithMediaType:(NSString *)mediaType preferringPosition:(AVCaptureDevicePosition)position
@@ -305,7 +407,7 @@ RCT_ENUM_CONVERTER(CKCameraFlashMode, (@{
         connection.videoOrientation = self.previewLayer.connection.videoOrientation;
         
         // Flash set to Auto for Still Capture.
-//        [CKCamera setFlashMode:AVCaptureFlashModeAuto forDevice:self.videoDeviceInput.device];
+        //        [CKCamera setFlashMode:AVCaptureFlashModeAuto forDevice:self.videoDeviceInput.device];
         
         // Capture a still image.
         [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:connection completionHandler:^( CMSampleBufferRef imageDataSampleBuffer, NSError *error ) {
@@ -314,7 +416,7 @@ RCT_ENUM_CONVERTER(CKCameraFlashMode, (@{
                 NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
                 [PHPhotoLibrary requestAuthorization:^( PHAuthorizationStatus status ) {
                     if ( status == PHAuthorizationStatusAuthorized ) {
-
+                        
                         
                         NSURL *temporaryFileURL = [self saveToTmpFolder:imageData];
                         
@@ -389,7 +491,7 @@ RCT_ENUM_CONVERTER(CKCameraFlashMode, (@{
             if (block) {
                 block(YES);
             }
-
+            
         } );
     } );
 }
@@ -446,10 +548,44 @@ RCT_ENUM_CONVERTER(CKCameraFlashMode, (@{
 }
 
 
-- (IBAction)focusAndExposeTap:(UIGestureRecognizer *)gestureRecognizer
+-(void) handlePinchToZoomRecognizer:(UIPinchGestureRecognizer*)pinchRecognizer {
+    if (pinchRecognizer.state == UIGestureRecognizerStateChanged) {
+        [self zoom:pinchRecognizer.velocity];
+    }
+}
+
+
+- (void)focusAndExposeTap:(UIGestureRecognizer *)gestureRecognizer
 {
     CGPoint devicePoint = [(AVCaptureVideoPreviewLayer *)self.previewLayer captureDevicePointOfInterestForPoint:[gestureRecognizer locationInView:gestureRecognizer.view]];
     [self focusWithMode:AVCaptureFocusModeAutoFocus exposeWithMode:AVCaptureExposureModeAutoExpose atDevicePoint:devicePoint monitorSubjectAreaChange:YES];
+    
+    CGPoint touchPoint = [gestureRecognizer locationInView:self];
+    CGFloat halfDiagonal = 80;
+    CGFloat halfDiagonalAnimation = halfDiagonal*2;
+    
+    CGRect focusViewFrame = CGRectMake(touchPoint.x - (halfDiagonal/2), touchPoint.y - (halfDiagonal/2), halfDiagonal, halfDiagonal);
+    CGRect focusViewFrameFoAnimation = CGRectMake(touchPoint.x - (halfDiagonalAnimation/2), touchPoint.y - (halfDiagonalAnimation/2), halfDiagonalAnimation, halfDiagonalAnimation);
+    
+    self.focusView.alpha = 0;
+    self.focusView.hidden = NO;
+    self.focusView.frame = focusViewFrameFoAnimation;
+    
+    
+    [UIView animateWithDuration:0.2 animations:^{
+        self.focusView.frame = focusViewFrame;
+        self.focusView.alpha = 1;
+        
+    } completion:^(BOOL finished) {
+        self.focusView.alpha = 1;
+        self.focusView.frame = focusViewFrame;
+        
+    }];
+    
+    
+    
+    [self startFocusViewTimer];
+    
 }
 
 
@@ -482,6 +618,29 @@ RCT_ENUM_CONVERTER(CKCameraFlashMode, (@{
 }
 
 
+
+- (void)zoom:(CGFloat)velocity {
+    if (isnan(velocity)) {
+        return;
+    }
+    const CGFloat pinchVelocityDividerFactor = 20.0f; // TODO: calibrate or make this component's property
+    NSError *error = nil;
+    AVCaptureDevice *device = [[self videoDeviceInput] device];
+    if ([device lockForConfiguration:&error]) {
+        CGFloat zoomFactor = device.videoZoomFactor + atan(velocity / pinchVelocityDividerFactor);
+        if (zoomFactor > device.activeFormat.videoMaxZoomFactor) {
+            zoomFactor = device.activeFormat.videoMaxZoomFactor;
+        } else if (zoomFactor < 1) {
+            zoomFactor = 1.0f;
+        }
+        device.videoZoomFactor = zoomFactor;
+        [device unlockForConfiguration];
+    } else {
+        NSLog(@"error: %@", error);
+    }
+}
+
+
 #pragma mark - observers
 
 
@@ -498,6 +657,105 @@ RCT_ENUM_CONVERTER(CKCameraFlashMode, (@{
     // interruption reasons.
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sessionWasInterrupted:) name:AVCaptureSessionWasInterruptedNotification object:self.session];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sessionInterruptionEnded:) name:AVCaptureSessionInterruptionEndedNotification object:self.session];
+}
+
+
+- (void)sessionWasInterrupted:(NSNotification *)notification
+{
+    // In some scenarios we want to enable the user to resume the session running.
+    // For example, if music playback is initiated via control center while using AVCam,
+    // then the user can let AVCam resume the session running, which will stop music playback.
+    // Note that stopping music playback in control center will not automatically resume the session running.
+    // Also note that it is not always possible to resume, see -[resumeInterruptedSession:].
+    BOOL showResumeButton = NO;
+    
+    // In iOS 9 and later, the userInfo dictionary contains information on why the session was interrupted.
+    if ( &AVCaptureSessionInterruptionReasonKey ) {
+        AVCaptureSessionInterruptionReason reason = [notification.userInfo[AVCaptureSessionInterruptionReasonKey] integerValue];
+        NSLog( @"Capture session was interrupted with reason %ld", (long)reason );
+        
+        if ( reason == AVCaptureSessionInterruptionReasonAudioDeviceInUseByAnotherClient ||
+            reason == AVCaptureSessionInterruptionReasonVideoDeviceInUseByAnotherClient ) {
+            showResumeButton = YES;
+        }
+        //        else if ( reason == AVCaptureSessionInterruptionReasonVideoDeviceNotAvailableWithMultipleForegroundApps ) {
+        //            // Simply fade-in a label to inform the user that the camera is unavailable.
+        //            self.cameraUnavailableLabel.hidden = NO;
+        //            self.cameraUnavailableLabel.alpha = 0.0;
+        //            [UIView animateWithDuration:0.25 animations:^{
+        //                self.cameraUnavailableLabel.alpha = 1.0;
+        //            }];
+        //        }
+    }
+    else {
+        NSLog( @"Capture session was interrupted" );
+        showResumeButton = ( [UIApplication sharedApplication].applicationState == UIApplicationStateInactive );
+    }
+    
+    //    if ( showResumeButton ) {
+    //        // Simply fade-in a button to enable the user to try to resume the session running.
+    //        self.resumeButton.hidden = NO;
+    //        self.resumeButton.alpha = 0.0;
+    //        [UIView animateWithDuration:0.25 animations:^{
+    //            self.resumeButton.alpha = 1.0;
+    //        }];
+    //    }
+}
+
+- (void)sessionInterruptionEnded:(NSNotification *)notification
+{
+    NSLog( @"Capture session interruption ended" );
+    
+    //    if ( ! self.resumeButton.hidden ) {
+    //        [UIView animateWithDuration:0.25 animations:^{
+    //            self.resumeButton.alpha = 0.0;
+    //        } completion:^( BOOL finished ) {
+    //            self.resumeButton.hidden = YES;
+    //        }];
+    //    }
+    //    if ( ! self.cameraUnavailableLabel.hidden ) {
+    //        [UIView animateWithDuration:0.25 animations:^{
+    //            self.cameraUnavailableLabel.alpha = 0.0;
+    //        } completion:^( BOOL finished ) {
+    //            self.cameraUnavailableLabel.hidden = YES;
+    //        }];
+    //    }
+}
+
+
+- (void)removeObservers
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    
+    [self.session removeObserver:self forKeyPath:@"running" context:SessionRunningContext];
+    [self.stillImageOutput removeObserver:self forKeyPath:@"capturingStillImage" context:CapturingStillImageContext];
+}
+
+- (void)sessionRuntimeError:(NSNotification *)notification
+{
+    NSError *error = notification.userInfo[AVCaptureSessionErrorKey];
+    NSLog( @"Capture session runtime error: %@", error );
+    
+    // Automatically try to restart the session running if media services were reset and the last start running succeeded.
+    // Otherwise, enable the user to try to resume the session running.
+    if ( error.code == AVErrorMediaServicesWereReset ) {
+        dispatch_async( self.sessionQueue, ^{
+            if ( self.isSessionRunning ) {
+                [self.session startRunning];
+                self.sessionRunning = self.session.isRunning;
+            }
+            else {
+            }
+        } );
+    }
+}
+
+
+- (void)subjectAreaDidChange:(NSNotification *)notification
+{
+    //    CGPoint devicePoint = CGPointMake( 0.5, 0.5 );
+    //    [self focusWithMode:AVCaptureFocusModeContinuousAutoFocus exposeWithMode:AVCaptureExposureModeContinuousAutoExposure atDevicePoint:devicePoint monitorSubjectAreaChange:NO];
+//        NSLog(@"subjectAreaDidChange");
 }
 
 
@@ -529,6 +787,7 @@ RCT_ENUM_CONVERTER(CKCameraFlashMode, (@{
         [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
     }
 }
+
 
 
 @end

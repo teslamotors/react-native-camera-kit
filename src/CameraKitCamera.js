@@ -12,6 +12,12 @@ export default class CameraKitCamera extends React.Component {
 		return <NativeCamera {...this.props}/>
 	}
 
+	static async  checkDeviceAuthorizarionStatus() {
+		const deviceAutorizationStatus = await NativeCameraAction.checkDeviceAuthorizationStatus();
+		
+		return deviceAutorizationStatus;
+	}
+
 	async capture(saveToCameraRoll = true) {
 		const imageTmpPath = await NativeCameraAction.capture(saveToCameraRoll);
 		console.log(imageTmpPath);
@@ -31,16 +37,3 @@ export default class CameraKitCamera extends React.Component {
 		return success;
 	}
 }
-
-
-//export async function takePhoto() {
-//	console.log('#################################');
-//	console.log(NativeCamera);
-//	const albumsThumbnail = await NativeCamera.foo();
-//	//return albumsThumbnail;
-//}
-//
-//export const CameraActions = {
-//	takePhoto
-//}
-

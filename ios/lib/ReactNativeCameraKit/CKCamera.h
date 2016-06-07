@@ -38,6 +38,18 @@ typedef NS_ENUM(NSInteger, CKCameraFocushMode) {
 
 @end
 
+typedef NS_ENUM(NSInteger, CKCameraZoomMode) {
+    CKCameraZoomModeOn,
+    CKCameraZoomModeOff,
+};
+
+@interface RCTConvert(CKCameraZoomMode)
+
++ (CKCameraZoomMode)CKCameraZoomMode:(id)json;
+
+@end
+
+
 @interface CKCamera : UIView
 
 @property (nonatomic, readonly) AVCaptureDeviceInput *videoDeviceInput;
