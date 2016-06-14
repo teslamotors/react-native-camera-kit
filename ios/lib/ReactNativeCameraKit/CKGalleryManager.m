@@ -33,12 +33,6 @@ RCT_EXPORT_MODULE();
     return self;
 }
 
-//
-//-(void)iterateAllAlbums:(AlbumsNamesBlock)block {
-//
-//
-//}
-
 
 -(void)initAlbums {
     
@@ -49,38 +43,11 @@ RCT_EXPORT_MODULE();
     albumsOptions.predicate = [NSPredicate predicateWithFormat:@"estimatedAssetCount > 0"];
     
     self.allPhotos = [PHAsset fetchAssetsWithOptions:allPhotosOptions];
-    self.smartAlbums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum subtype:PHAssetCollectionSubtypeAlbumRegular options:nil];
+//    self.smartAlbums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum subtype:PHAssetCollectionSubtypeAlbumMyPhotoStream options:nil];
     self.topLevelUserCollections = [PHCollectionList fetchTopLevelUserCollectionsWithOptions:nil];
     
 }
 
-
-//-(void)getAlbumsName:(PHFetchResult*)albums block:(AlbumsNamesBlock)block {
-//
-//    NSMutableDictionary *albumsInfo = [[NSMutableDictionary alloc] init];
-//    NSInteger albumsCount = [albums count];
-//
-//    if (albumsCount == 0) {
-//        block(nil);
-//    }
-//
-//    [albums enumerateObjectsUsingBlock:^(PHAssetCollection *collection, NSUInteger idx, BOOL *stop) {
-//
-//
-//        //        NSMutableDictionary *albumInfoDict = [[NSMutableDictionary alloc] init];
-//        if (collection.estimatedAssetCount != NSNotFound) {
-//            albumsInfo[collection.localizedTitle] = @{@"name": collection.localizedTitle};
-//        }
-//
-//        if (idx == albumsCount-1) {
-//            if (block) {
-//                block(albumsInfo);
-//            }
-//        }
-//
-//    }];
-//
-//}
 
 
 -(void)getAllAlbumsNameAndThumbnails:(AlbumsBlock)block {
@@ -96,7 +63,6 @@ RCT_EXPORT_MODULE();
     NSInteger smartAlbumsCount = self.smartAlbums.count;
     
     
-    NSLog(@"### smartAlbums");
     
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -118,6 +84,7 @@ RCT_EXPORT_MODULE();
                     
                     NSMutableDictionary *albumInfo = [[NSMutableDictionary alloc] init];
                     albumInfo[@"albumName"] = albumName;
+                    albumInfo[@"imagesCount"] = [NSNumber numberWithInteger:collectionCount];
                     
                     albumsDict[albumName] = albumInfo;
                     
@@ -128,7 +95,6 @@ RCT_EXPORT_MODULE();
                      options:cropToSquare
                      resultHandler:^(UIImage *result, NSDictionary *info) {
                          
-                         NSLog(@"albumName:%@", albumName);
                          if (!albumInfo[@"image"]) {
                              
                              albumInfo[@"image"] = [UIImageJPEGRepresentation(result, 1.0) base64Encoding];
@@ -136,7 +102,6 @@ RCT_EXPORT_MODULE();
                          
                          if (idx == smartAlbumsCount-1) {
                              
-                             NSLog(@"%@", albumsDict );
                              dispatch_semaphore_signal(sem);
                              
                          }
@@ -151,7 +116,6 @@ RCT_EXPORT_MODULE();
             dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
         }
         
-        NSLog(@"### topLevelUserCollections");
         
         
         NSInteger topLevelAlbumsCount = self.topLevelUserCollections.count;
@@ -169,6 +133,7 @@ RCT_EXPORT_MODULE();
                 
                 NSMutableDictionary *albumInfo = [[NSMutableDictionary alloc] init];
                 albumInfo[@"albumName"] = [NSString stringWithFormat:@"%@", albumName];
+                albumInfo[@"imagesCount"] = [NSNumber numberWithInteger:collectionCount];
                 
                 albumsDict[albumName] = albumInfo;
                 
@@ -183,176 +148,74 @@ RCT_EXPORT_MODULE();
                  resultHandler:^(UIImage *result, NSDictionary *info) {
                      
                      if (!albumInfo[@"image"]) {
-                         NSLog(@"albumName:%@", albumName);
                          albumInfo[@"image"] = [UIImageJPEGRepresentation(result, 1.0) base64Encoding];
                      }
                      
                      if (idx == topLevelAlbumsCount-1) {
                          
-                         if (block) {
-                             
-                             NSLog(@"cool");
-                             block(albumsDict);
-                         }
+//                         if (block) {
+//                             
+//                             block(albumsDict);
+//                         }
                      }
                  }];
             }
         }];
         
-    });
-    
-    
-    
-}
-
-//-(NSDictionary*)dictionaryForCollection:(PHAssetCollection*)collection semaphore:(dispatch_semaphore_t)sem albumsDict:(NSDictionary) {
-//
-//}
-
-
-RCT_EXPORT_METHOD(getAllAlbumsNamesAndThumbnails:(RCTPromiseResolveBlock)resolve
-                  reject:(__unused RCTPromiseRejectBlock)reject)
-{
-    
-    
-}
-
-
-RCT_EXPORT_METHOD(getAllAlbumsName:(RCTPromiseResolveBlock)resolve
-                  reject:(__unused RCTPromiseRejectBlock)reject)
-{
-    
-    [self getAllAlbumsNameAndThumbnails:^(NSDictionary *albums) {
-        if (resolve) {
+        NSInteger allPhotosCount = self.allPhotos.count;
+        
+//        NSInteger collectionCount = [PHAsset fetchAssetsInAssetCollection:collection options:nil].count;
+        
+        if (allPhotosCount > 0){
             
-//            NSArray *arr = [NSArray arrayWithObject:albums];
-            NSDictionary *ans = @{[NSString stringWithFormat:@"albums"]: albums};
-            resolve(ans);
+            NSString *albumName = @"All Photos";
+            albumName = [NSString stringWithFormat:@"%@", albumName];
+            
+//            PHFetchResult *fetchResult = [PHAsset fetchKeyAssetsInAssetCollection:self.allPhotos options:nil];
+            PHAsset *thumbnail = [self.allPhotos firstObject];
+            
+            NSMutableDictionary *albumInfo = [[NSMutableDictionary alloc] init];
+            albumInfo[@"albumName"] = [NSString stringWithFormat:@"%@", albumName];
+            albumInfo[@"imagesCount"] = [NSNumber numberWithInteger:allPhotosCount];
+            
+            albumsDict[albumName] = albumInfo;
+            
+            
+            //                __block BOOL isInvokeBlock = NO;
+            
+            [[PHImageManager defaultManager]
+             requestImageForAsset:thumbnail
+             targetSize:retinaSquare
+             contentMode:PHImageContentModeAspectFit
+             options:cropToSquare
+             resultHandler:^(UIImage *result, NSDictionary *info) {
+                 
+                 if (!albumInfo[@"image"]) {
+                     albumInfo[@"image"] = [UIImageJPEGRepresentation(result, 1.0) base64Encoding];
+                 }
+                 
+//                 if (idx == topLevelAlbumsCount-1) {
+                 
+                     if (block) {
+                         
+                         block(albumsDict);
+                     }
+//                 }
+             }];
         }
-    }];
-    
-    //    //    NSMutableDictionary *albumsInfo = [[NSMutableDictionary alloc] init];
-    //    PHFetchResult *userAlbums = [self getAllAlbums:PHAssetCollectionTypeAlbum];
-    //
-    //    [self getAlbumsName:userAlbums block:^(NSDictionary *albumsNames) {
-    //        PHFetchResult *userSmartAlbums = [self getAllAlbums:PHAssetCollectionTypeSmartAlbum];
-    //
-    //        if (userSmartAlbums.count == 0) {
-    //            if(resolve) {
-    //                resolve(albumsNames);
-    //                return;
-    //            }
-    //        }
-    //
-    //        [self getAlbumsName:userSmartAlbums block:^(NSDictionary *smartAlbumsNames) {
-    //
-    //            NSMutableDictionary *userAlbumsFull = [NSMutableDictionary dictionaryWithDictionary:albumsNames];
-    //            [userAlbumsFull addEntriesFromDictionary:smartAlbumsNames];
-    //
-    //            if(resolve) {
-    //                resolve(userAlbumsFull);
-    //            }
-    //        }];
-    //    }];
-    //
-    //    //    [userAlbums enumerateObjectsUsingBlock:^(PHAssetCollection *collection, NSUInteger idx, BOOL *stop) {
-    //    //
-    //    //        NSMutableDictionary *albumInfoDict = [[NSMutableDictionary alloc] init];
-    //    //        albumInfoDict[@"albumName"] = collection.localizedTitle;
-    //    //        [albumsInfo addObject:albumInfoDict];
-    //    //
-    //    //        if (idx == albumsCount-1) {
-    //    //            if (resolve) {
-    //    //                resolve(albumsInfo);
-    //    //            }
-    //    //        }
-    //    //
-    //    //    }];
+        
+    });
 }
 
-//RCT_EXPORT_METHOD(getThumbnailForAlbumName:(NSString*)albumName
-//                  resolve:(RCTPromiseResolveBlock)resolve
-//                  reject:(__unused RCTPromiseRejectBlock)reject)
-//{
-//
-//    NSInteger retinaScale = [UIScreen mainScreen].scale;
-//    CGSize retinaSquare = CGSizeMake(100*retinaScale, 100*retinaScale);
-//
-//    PHImageRequestOptions *cropToSquare = [[PHImageRequestOptions alloc] init];
-//    cropToSquare.resizeMode = PHImageRequestOptionsResizeModeExact;
-//
-//    PHFetchResult *userAlbums = [self getAllAlbums:PHAssetCollectionTypeAlbum]; // TODO ######################
-//
-//    [self getThumbnial:userAlbums albumName:albumName cropToSquare:cropToSquare retinaSquare:retinaSquare block:^(BOOL success, NSString *encodeImage) {
-//
-//        if (success) {
-//            if (resolve) {
-//                resolve(encodeImage);
-//            }
-//        }
-//
-//        else {
-//            PHFetchResult *userSmartAlbums = [self getAllAlbums:PHAssetCollectionTypeSmartAlbum];
-//            [self getThumbnial:userSmartAlbums albumName:albumName cropToSquare:cropToSquare retinaSquare:retinaSquare block:^(BOOL success, NSString *encodeImage) {
-//                if (resolve) {
-//                    resolve(encodeImage);
-//                }
-//            }];
-//
-//        }
-//    }];
-//
-//    //    [userAlbums enumerateObjectsUsingBlock:^(PHAssetCollection *collection, NSUInteger idx, BOOL *stop) {
-//    //
-//    //        if ([albumName isEqualToString:collection.localizedTitle]) {
-//    //
-//    //            *stop = YES;
-//    //
-//    //            PHFetchResult *fetchResult = [PHAsset fetchKeyAssetsInAssetCollection:collection options:nil];
-//    //            PHAsset *asset = [fetchResult firstObject];
-//    //
-//    //            CGFloat cropSideLength = MIN(asset.pixelWidth, asset.pixelHeight);
-//    //            CGRect square = CGRectMake(0, 0, cropSideLength, cropSideLength);
-//    //            CGRect cropRect = CGRectApplyAffineTransform(square,
-//    //                                                         CGAffineTransformMakeScale(1.0 / asset.pixelWidth,
-//    //                                                                                    1.0 / asset.pixelHeight));
-//    //
-//    //            // make sure resolve call only once
-//    //            __block BOOL isInvokeResolve = NO;
-//    //
-//    //            [[PHImageManager defaultManager]
-//    //             requestImageForAsset:asset
-//    //             targetSize:retinaSquare
-//    //             contentMode:PHImageContentModeAspectFit
-//    //             options:cropToSquare
-//    //             resultHandler:^(UIImage *result, NSDictionary *info) {
-//    //
-//    //                 NSData *imageData = UIImageJPEGRepresentation(result, 1.0);
-//    //
-//    //                 if (!imageData) {
-//    //                     imageData = UIImagePNGRepresentation(result);
-//    //                 }
-//    //
-//    //                 NSString *encodedString = [imageData base64Encoding];
-//    //
-//    //                 //                 CGDataProviderRef provider = CGImageGetDataProvider(result.CGImage);
-//    //                 //                 NSData* data = (id)CFBridgingRelease(CGDataProviderCopyData(provider));
-//    //                 //                 NSString *encodedString = [data base64Encoding];
-//    //
-//    //                 if (resolve && !isInvokeResolve) {
-//    //                     isInvokeResolve = YES;
-//    //                     resolve(encodedString);
-//    //                 }
-//    //             }];
-//    //        }
-//    //    }];
-//}
 
--(void)getThumbnial:(PHFetchResult*)albums albumName:(NSString*)albumName cropToSquare:(PHImageRequestOptions*)cropToSquare retinaSquare:(CGSize)retinaSquare block:(CallbackGalleryBlock)block {
+-(void)getThumbnial:(PHFetchResult*)albums
+          albumName:(NSString*)albumName
+       cropToSquare:(PHImageRequestOptions*)cropToSquare
+       retinaSquare:(CGSize)retinaSquare block:(CallbackGalleryBlock)block {
+    
     [albums enumerateObjectsUsingBlock:^(PHAssetCollection *collection, NSUInteger idx, BOOL *stop) {
         
         if ([albumName isEqualToString:collection.localizedTitle]) {
-            NSLog(@"collection.localizedTitle:%@", collection.localizedTitle);
             *stop = YES;
             
             PHFetchResult *fetchResult = [PHAsset fetchKeyAssetsInAssetCollection:collection options:nil];
@@ -410,5 +273,42 @@ RCT_EXPORT_METHOD(getAllAlbumsName:(RCTPromiseResolveBlock)resolve
         }
     }];
 }
+
+
+
+RCT_EXPORT_METHOD(getAlbumsWithThumbnails:(RCTPromiseResolveBlock)resolve
+                  reject:(__unused RCTPromiseRejectBlock)reject)
+{
+    
+    [self getAllAlbumsNameAndThumbnails:^(NSDictionary *albums) {
+        if (resolve) {
+            
+            NSDictionary *ans = @{[NSString stringWithFormat:@"albums"]: albums};
+            resolve(ans);
+        }
+    }];
+}
+
+
+RCT_EXPORT_METHOD(getImagesForAlbumName:(NSInteger)numberOfImages
+                  albumName:(NSString*)albumName
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(__unused RCTPromiseRejectBlock)reject)
+{
+    //    [self.imageManager requestImageForAsset:asset
+    //                                 targetSize:AssetGridThumbnailSize
+    //                                contentMode:PHImageContentModeAspectFill
+    //                                    options:nil
+    //                              resultHandler:^(UIImage *result, NSDictionary *info) {
+    //                                  // Set the cell's thumbnail image if it's still showing the same asset.
+    //                                  if ([cell.representedAssetIdentifier isEqualToString:asset.localIdentifier]) {
+    //                                      cell.thumbnailImage = result;
+    //                                  }
+    //                              }];
+    
+}
+
+
+
 
 @end
