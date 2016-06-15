@@ -19,7 +19,7 @@ async function getThumbnailForAlbumName(albumName) {
 
 function getPhotosForAlbum(albumName, numberOfPhotos, callback, error) {
 
-  let groupType = (albumName === 'Camera Roll') ? 'SavedPhotos' : 'All';
+  let groupType = (albumName === 'All Photos') ? 'SavedPhotos' : 'All';
   //const photoStream = ['Bursts', 'Recently Added', 'Selfies', 'Recently Added', 'Screenshots', 'My Photo Stream'];
   //if (_.include(photoStream, albumName)) {
   //  groupType = 'PhotoStream';
@@ -29,7 +29,7 @@ function getPhotosForAlbum(albumName, numberOfPhotos, callback, error) {
 
   const fetchParams = {
     first: numberOfPhotos,
-    groupName: albumName,
+    //groupName: albumName,
     groupTypes: groupType,
   };
   CameraRoll.getPhotos(fetchParams)

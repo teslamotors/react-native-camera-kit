@@ -47,7 +47,7 @@ export default class GalleryScreen extends Component {
   componentDidMount() {
     if (this.state.albumName) {
 
-      CameraKitGallery.getPhotosForAlbum(this.state.albumName, 5, (data) => this._appendAssets(data), (e) => logError(e));
+      CameraKitGallery.getPhotosForAlbum(this.state.albumName, 100, (data) => this._appendAssets(data), (e) => logError(e));
     }
   }
 
@@ -136,17 +136,18 @@ const styles = StyleSheet.create({
   listView: {
     //flex:1,
     //flexDirection:'column',
+    paddingTop: 0,
     margin: 8,
     backgroundColor: '#D6DAC2',
-    //alignSelf: 'stretch'
 
   },
   row: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     flex: 1,
   },
   image: {
     margin: 4,
+    marginBottom: 0
   },
 });
 
