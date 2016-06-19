@@ -11,29 +11,28 @@ async function getAlbumsWithThumbnails() {
   return albums;
 }
 
+
 async function getThumbnailForAlbumName(albumName) {
   const albumsThumbnail = await CKGallery.getThumbnailForAlbumName(albumName);
-
   return albumsThumbnail;
 }
 
+
 function getPhotosForAlbum(albumName, numberOfPhotos, callback, error) {
 
-  let groupType = (albumName === 'All Photos') ? 'SavedPhotos' : 'All';
-  //const photoStream = ['Bursts', 'Recently Added', 'Selfies', 'Recently Added', 'Screenshots', 'My Photo Stream'];
-  //if (_.include(photoStream, albumName)) {
-  //  groupType = 'PhotoStream';
-  //}
-
-
+  let groupType = (albumName.toLowerCase() === 'all photos') ? 'SavedPhotos' : 'All';
 
   const fetchParams = {
     first: numberOfPhotos,
-    //groupName: albumName,
-    groupTypes: groupType,
+    groupTypes: groupType
   };
+
+  if (albumName.toLowerCase() !== 'all photos') {
+    fetchParams.groupName = albumName;
+  }
+
   CameraRoll.getPhotos(fetchParams)
-            .then((data) =>  callback(data), (e) => error(e));
+            .then((data) => callback(data), (e) => error(e));
 }
 
 export default {
@@ -41,4 +40,3 @@ export default {
   getThumbnailForAlbumName,
   getPhotosForAlbum
 }
-
