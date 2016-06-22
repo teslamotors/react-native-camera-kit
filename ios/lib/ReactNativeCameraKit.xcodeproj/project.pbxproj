@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		262E421D1D182C1200C82B27 /* CKGalleryViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 262E421C1D182C1200C82B27 /* CKGalleryViewManager.m */; };
+		262E42201D183A6B00C82B27 /* CKGalleryCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 262E421F1D183A6B00C82B27 /* CKGalleryCollectionViewCell.m */; };
 		26550AE61CFC2437007FF2DF /* CKGalleryManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 26550AE51CFC2437007FF2DF /* CKGalleryManager.m */; };
 		26550AF61CFC7086007FF2DF /* CKCameraManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 26550AF51CFC7086007FF2DF /* CKCameraManager.m */; };
 		2685AA241CFD89A300E4A446 /* CKCamera.m in Sources */ = {isa = PBXBuildFile; fileRef = 2685AA231CFD89A300E4A446 /* CKCamera.m */; };
@@ -25,6 +27,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		262E421B1D182C1200C82B27 /* CKGalleryViewManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CKGalleryViewManager.h; sourceTree = "<group>"; };
+		262E421C1D182C1200C82B27 /* CKGalleryViewManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CKGalleryViewManager.m; sourceTree = "<group>"; };
+		262E421E1D183A6B00C82B27 /* CKGalleryCollectionViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CKGalleryCollectionViewCell.h; sourceTree = "<group>"; };
+		262E421F1D183A6B00C82B27 /* CKGalleryCollectionViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CKGalleryCollectionViewCell.m; sourceTree = "<group>"; };
 		2646934E1CFB2A6B00F3A740 /* libReactNativeCameraKit.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libReactNativeCameraKit.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		26550AE41CFC2437007FF2DF /* CKGalleryManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CKGalleryManager.h; sourceTree = "<group>"; };
 		26550AE51CFC2437007FF2DF /* CKGalleryManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CKGalleryManager.m; sourceTree = "<group>"; };
@@ -70,6 +76,10 @@
 				26550AF51CFC7086007FF2DF /* CKCameraManager.m */,
 				2685AA221CFD89A300E4A446 /* CKCamera.h */,
 				2685AA231CFD89A300E4A446 /* CKCamera.m */,
+				262E421B1D182C1200C82B27 /* CKGalleryViewManager.h */,
+				262E421C1D182C1200C82B27 /* CKGalleryViewManager.m */,
+				262E421E1D183A6B00C82B27 /* CKGalleryCollectionViewCell.h */,
+				262E421F1D183A6B00C82B27 /* CKGalleryCollectionViewCell.m */,
 			);
 			path = ReactNativeCameraKit;
 			sourceTree = "<group>";
@@ -131,8 +141,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				26550AF61CFC7086007FF2DF /* CKCameraManager.m in Sources */,
+				262E42201D183A6B00C82B27 /* CKGalleryCollectionViewCell.m in Sources */,
 				26550AE61CFC2437007FF2DF /* CKGalleryManager.m in Sources */,
 				2685AA241CFD89A300E4A446 /* CKCamera.m in Sources */,
+				262E421D1D182C1200C82B27 /* CKGalleryViewManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -83,6 +83,12 @@ RCT_EXPORT_MODULE();
              }
          }];
     }
+    
+    else {
+        if (block) {
+            block(nil);
+        }
+    }
 }
 
 

@@ -12,7 +12,7 @@ export default class CameraKitCamera extends React.Component {
 		return <NativeCamera {...this.props}/>
 	}
 
-	static async  checkDeviceAuthorizarionStatus() {
+	static async checkDeviceAuthorizarionStatus() {
 		const deviceAutorizationStatus = await NativeCameraAction.checkDeviceAuthorizationStatus();
 		
 		return deviceAutorizationStatus;
