@@ -100,6 +100,12 @@ RCT_EXPORT_MODULE();
     NSMutableDictionary *albumsDict = [[NSMutableDictionary alloc] init];
     NSInteger collectionCount = collections.count;
     
+    if (collectionCount == 0) {
+        if (block) {
+            block(nil);
+        }
+    }
+    
     [collections enumerateObjectsUsingBlock:^(PHAssetCollection *collection, NSUInteger idx, BOOL * _Nonnull stop) {
         
         [self extractCollection:collection imageRequestOptions:options thumbnailSize:thumbnailSize block:^(NSDictionary *album) {

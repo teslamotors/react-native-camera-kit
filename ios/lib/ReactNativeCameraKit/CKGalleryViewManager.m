@@ -181,28 +181,9 @@ static NSString * const CellReuseIdentifier = @"Cell";
                 [self.selectedAssets addObject:asset];
             }
         }
-        
-        //        [self.imageManager requestImageDataForAsset:asset options:nil resultHandler:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
-        //
-        //            self.selectedImagesUrls addObject:
-        //
-        //
-        //        }];
-        
-        //        [asset requestContentEditingInputWithOptions:nil
-        //                                   completionHandler:^(PHContentEditingInput * _Nullable contentEditingInput, NSDictionary * _Nonnull info)
-        //         {
-        //             [self.selectedImagesUrls removeObject:contentEditingInput.fullSizeImageURL.description];
-        //
-        //
-        //             if (ckCell.isSelected) {
-        //                 [self.selectedImagesUrls addObject:contentEditingInput.fullSizeImageURL.absoluteString];
-        //             }
-        //         }];
-        
     }
-    
 }
+
 
 - (void)collectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath {
     
@@ -241,6 +222,7 @@ RCT_EXPORT_METHOD(getSelectedImages:(RCTPromiseResolveBlock)resolve
     NSMutableArray *assetsUrls = [[NSMutableArray alloc] init];
     
     for (PHAsset *asset in self.galleryView.selectedAssets) {
+        
         [self.galleryView.imageManager requestImageDataForAsset:asset options:nil resultHandler:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
             
             NSURL *fileURLKey = info[@"PHImageFileURLKey"];
@@ -250,13 +232,26 @@ RCT_EXPORT_METHOD(getSelectedImages:(RCTPromiseResolveBlock)resolve
                 }
             }
             
-            NSString *fileName = ((NSURL*)info[@"PHImageFileURLKey"]).lastPathComponent;
+            NSMutableDictionary *assetInfoDict = [[NSMutableDictionary alloc] init];
             
+            NSString *fileName = ((NSURL*)info[@"PHImageFileURLKey"]).lastPathComponent;
+            if (fileName) {
+                assetInfoDict[@"name"] = fileName;
+            }
+            
+            float imageSize = imageData.length;
+            assetInfoDict[@"size"] = [NSNumber numberWithFloat:imageSize];
+
             NSURL *fileURL = [directoryURL URLByAppendingPathComponent:fileName];
             NSError *error = nil;
             [imageData writeToURL:fileURL options:NSDataWritingAtomic error:&error];
             
-            [assetsUrls addObject:fileURL.absoluteString];
+            if (!error && fileURL) {
+                assetInfoDict[@"uri"] = fileURL.absoluteString;
+            }
+            
+            
+            [assetsUrls addObject:assetInfoDict];
             
             
             if (asset == self.galleryView.selectedAssets.lastObject) {

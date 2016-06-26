@@ -44,9 +44,9 @@ RCT_ENUM_CONVERTER(CKCameraFocushMode, (@{
 @implementation RCTConvert(CKCameraZoomMode)
 
 RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
-                                          @"on": @(CKCameraZoomModeOn),
-                                          @"off": @(CKCameraZoomModeOff)
-                                          }), CKCameraZoomModeOn, integerValue)
+                                        @"on": @(CKCameraZoomModeOn),
+                                        @"off": @(CKCameraZoomModeOff)
+                                        }), CKCameraZoomModeOn, integerValue)
 
 @end
 
@@ -417,16 +417,24 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
                 [PHPhotoLibrary requestAuthorization:^( PHAuthorizationStatus status ) {
                     if ( status == PHAuthorizationStatusAuthorized ) {
                         
+                        NSMutableDictionary *imageInfoDict = [[NSMutableDictionary alloc] init];
                         
                         NSURL *temporaryFileURL = [self saveToTmpFolder:imageData];
+                        if (temporaryFileURL) {
+                            imageInfoDict[@"uri"] = temporaryFileURL.description;
+                            imageInfoDict[@"name"] = temporaryFileURL.lastPathComponent;
+                        }
+                        
+                        imageInfoDict[@"size"] = [NSNumber numberWithInteger:imageData.length];
+                        
+                        
                         
                         if (shouldSaveToCameraRoll) {
-                            
                             [self saveImageToCameraRoll:imageData temporaryFileURL:temporaryFileURL];
                         }
                         
                         if (block) {
-                            block(temporaryFileURL.description);
+                            block(imageInfoDict);
                         }
                     }
                 }];
@@ -755,7 +763,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 {
     //    CGPoint devicePoint = CGPointMake( 0.5, 0.5 );
     //    [self focusWithMode:AVCaptureFocusModeContinuousAutoFocus exposeWithMode:AVCaptureExposureModeContinuousAutoExposure atDevicePoint:devicePoint monitorSubjectAreaChange:NO];
-//        NSLog(@"subjectAreaDidChange");
+    //        NSLog(@"subjectAreaDidChange");
 }
 
 
