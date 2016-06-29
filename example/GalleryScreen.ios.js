@@ -59,9 +59,8 @@ export default class GalleryScreenNative extends Component {
 
   constructor(props) {
     super(props);
-    this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this));
     this.state = {
-      album: this.props.album,
+      album: this.props.albumName,
     }
   }
 
@@ -72,7 +71,7 @@ export default class GalleryScreenNative extends Component {
                   this.gallery = gallery;
                 }}
         style={{flex:1}}
-        albumName={this.state.album.albumName}/>
+        albumName={this.state.album}/>
     )
   }
 }
