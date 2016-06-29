@@ -1,34 +1,68 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- * @flow
- */
-
 import React, { Component } from 'react';
 import {
-  AppRegistry,
-  StyleSheet,
-  Text,
-  View
+    AppRegistry,
+    StyleSheet,
+    Text,
+    View,
+    ListView,
+    TouchableOpacity,
+    Image,
+    AlertIOS
 } from 'react-native';
 
+import _ from 'lodash';
+import Immutable from 'seamless-immutable';
+
+//import CameraScreen from  './CameraScreen';
+import AlbumsScreen from  './AlbumsScreen';
+
+
 class example extends Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      example: undefined
+    };
+  }
+
   render() {
+    if (this.state.example) {
+      const Example = this.state.example;
+      return <Example />;
+    }
     return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>
-          Welcome to React Native!
-        </Text>
-        <Text style={styles.instructions}>
-          To get started, edit index.android.js
-        </Text>
-        <Text style={styles.instructions}>
-          Shake or press menu button for dev menu
-        </Text>
-      </View>
+        <View style={styles.container}>
+
+          <TouchableOpacity onPress={() => this.setState({example: CameraScreen})}>
+            <Text style={styles.buttonText}>
+              Camera Screen
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => this.setState({example: AlbumsScreen})}>
+            <Text style={styles.buttonText}>
+              Albums Screen
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={this.onCheckAuthoPressed.bind(this)}>
+            <Text style={styles.buttonText}>
+              Check Autotization Status
+            </Text>
+          </TouchableOpacity>
+
+        </View>
+
     );
   }
+
+  async onCheckAuthoPressed() {
+
+  }
 }
+
+
 
 const styles = StyleSheet.create({
   container: {
@@ -37,16 +71,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#F5FCFF',
   },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
+  buttonText: {
+    color: 'blue',
+    marginBottom: 20,
+    fontSize: 20
+
+  }
 });
+
 
 AppRegistry.registerComponent('example', () => example);
