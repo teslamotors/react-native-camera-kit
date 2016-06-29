@@ -60,7 +60,7 @@ static NSString * const CellReuseIdentifier = @"Cell";
 
 -(CGSize)cellSize {
     if (CGSizeEqualToSize(_cellSize, CGSizeZero)) {
-        CGFloat minSize = (MIN(SCREEN_WIDTH, SCREEN_HEIGHT) * 1.00)/3;
+        CGFloat minSize = (MAX(self.bounds.size.width - (2*self.minimumInteritemSpacing.floatValue),0))/3;
         _cellSize = CGSizeMake(minSize, minSize);
     }
     return _cellSize;
@@ -107,12 +107,12 @@ static NSString * const CellReuseIdentifier = @"Cell";
     return self.minimumLineSpacing ? self.minimumLineSpacing.floatValue : DEFAULT_MINIMUM_INTERITEM_SPACING;
 }
 
-// Layout: Set Edges
-- (UIEdgeInsets)collectionView:
-(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout insetForSectionAtIndex:(NSInteger)section {
-    // return UIEdgeInsetsMake(0,8,0,8);  // top, left, bottom, right
-    return UIEdgeInsetsMake(0,0,0,0);  // top, left, bottom, right
-}
+//// Layout: Set Edges
+//- (UIEdgeInsets)collectionView:
+//(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout insetForSectionAtIndex:(NSInteger)section {
+//    // return UIEdgeInsetsMake(0,8,0,8);  // top, left, bottom, right
+//    return UIEdgeInsetsMake(0,0,0,0);  // top, left, bottom, right
+//}
 
 
 -(void)setAlbumName:(NSString *)albumName {
