@@ -6,11 +6,15 @@ import {
 
 const GalleryView = requireNativeComponent('CKGalleryView', null);
 const GalleryViewManager = NativeModules.CKGalleryViewManager;
+const ALL_PHOTOS = 'All Photos';
 
 export default class CameraKitGalleryView extends Component {
 
   render() {
-    return <GalleryView {...this.props}/>
+    const transformedProps = {...this.props};
+    transformedProps.albumName = this.props.albumName ? this.props.albumName : ALL_PHOTOS;
+
+    return <GalleryView {...transformedProps}/>
   }
 
   async getSelectedImages() {
