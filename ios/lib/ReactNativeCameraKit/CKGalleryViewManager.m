@@ -58,6 +58,7 @@ static NSString * const CellReuseIdentifier = @"Cell";
     return self;
 }
 
+
 -(CGSize)cellSize {
     if (CGSizeEqualToSize(_cellSize, CGSizeZero)) {
         CGFloat minSize = (MAX(self.bounds.size.width - (2*self.minimumInteritemSpacing.floatValue),0))/3;
@@ -76,9 +77,7 @@ static NSString * const CellReuseIdentifier = @"Cell";
         flowLayout.itemSize = self.cellSize; //TODO remve this, get it from the JS
         [flowLayout setScrollDirection:UICollectionViewScrollDirectionVertical];
         
-        
-        
-        self.collectionView = [[UICollectionView alloc] initWithFrame:frame collectionViewLayout:flowLayout];
+        self.collectionView = [[UICollectionView alloc] initWithFrame:self.bounds collectionViewLayout:flowLayout];
         self.collectionView.delegate = self;
         self.collectionView.dataSource = self;
         
@@ -94,25 +93,21 @@ static NSString * const CellReuseIdentifier = @"Cell";
 #pragma mark Collection view layout things
 
 
+
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
     
     return self.cellSize;
 }
 
+
 - (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout minimumInteritemSpacingForSectionAtIndex:(NSInteger)section {
     return self.minimumInteritemSpacing ? self.minimumInteritemSpacing.floatValue : DEFAULT_MINIMUM_INTERITEM_SPACING;
 }
 
+
 - (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout minimumLineSpacingForSectionAtIndex:(NSInteger)section {
     return self.minimumLineSpacing ? self.minimumLineSpacing.floatValue : DEFAULT_MINIMUM_INTERITEM_SPACING;
 }
-
-//// Layout: Set Edges
-//- (UIEdgeInsets)collectionView:
-//(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout insetForSectionAtIndex:(NSInteger)section {
-//    // return UIEdgeInsetsMake(0,8,0,8);  // top, left, bottom, right
-//    return UIEdgeInsetsMake(0,0,0,0);  // top, left, bottom, right
-//}
 
 
 -(void)setAlbumName:(NSString *)albumName {
