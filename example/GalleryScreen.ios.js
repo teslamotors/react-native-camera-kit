@@ -71,7 +71,12 @@ export default class GalleryScreenNative extends Component {
                   this.gallery = gallery;
                 }}
         style={{flex:1}}
-        albumName={this.state.album}/>
+        albumName={this.state.album}
+        minimumInteritemSpacing={10}
+        minimumLineSpacing={10}
+      />
+
+
     )
   }
 }

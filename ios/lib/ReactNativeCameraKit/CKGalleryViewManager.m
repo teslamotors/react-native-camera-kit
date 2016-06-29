@@ -14,9 +14,17 @@
 #define SCREEN_WIDTH ([[UIScreen mainScreen] bounds].size.width)
 #define SCREEN_HEIGHT ([[UIScreen mainScreen] bounds].size.height)
 
+#define DEFAULT_MINIMUM_INTERITEM_SPACING       10.0
+#define DEFAULT_MINIMUM_LINE_SPACING            10.0
+
+
 @interface CKGalleryView : UIView <UICollectionViewDelegateFlowLayout, UICollectionViewDataSource>
 
+//props
 @property (nonatomic, strong) NSString *albumName;
+@property (nonatomic, strong) NSNumber *minimumLineSpacing;
+@property (nonatomic, strong) NSNumber *minimumInteritemSpacing;
+
 @property (nonatomic, strong) UICollectionView *collectionView;
 @property (nonatomic, strong) PHFetchResult<PHAsset *> *galleryFetchResults;
 @property (nonatomic, strong) PHFetchResult *assetsCollection;
@@ -92,11 +100,11 @@ static NSString * const CellReuseIdentifier = @"Cell";
 }
 
 - (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout minimumInteritemSpacingForSectionAtIndex:(NSInteger)section {
-    return 0.0;
+    return self.minimumInteritemSpacing ? self.minimumInteritemSpacing.floatValue : DEFAULT_MINIMUM_INTERITEM_SPACING;
 }
 
 - (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout minimumLineSpacingForSectionAtIndex:(NSInteger)section {
-    return 0.0;
+    return self.minimumLineSpacing ? self.minimumLineSpacing.floatValue : DEFAULT_MINIMUM_INTERITEM_SPACING;
 }
 
 // Layout: Set Edges
@@ -112,7 +120,7 @@ static NSString * const CellReuseIdentifier = @"Cell";
     PHFetchOptions *allPhotosOptions = [[PHFetchOptions alloc] init];
     allPhotosOptions.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:YES]];
     
-    if ([albumName isEqualToString:@"All photos"]) {
+    if ([albumName caseInsensitiveCompare:@"all photos"] == NSOrderedSame || !albumName || [albumName isEqualToString:@""]) {
         self.assetsCollection = [PHAsset fetchAssetsWithOptions:allPhotosOptions];
         [self.collectionView reloadData];
         return;
@@ -210,7 +218,10 @@ RCT_EXPORT_MODULE()
 }
 
 
+
 RCT_EXPORT_VIEW_PROPERTY(albumName, NSString);
+RCT_EXPORT_VIEW_PROPERTY(minimumLineSpacing, NSNumber);
+RCT_EXPORT_VIEW_PROPERTY(minimumInteritemSpacing, NSNumber);
 
 RCT_EXPORT_METHOD(getSelectedImages:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {

@@ -8,7 +8,7 @@
   "dependencies": {
     "react": "0.14.5",
     "react-native": "0.25.1",
-    "react-native-camera-kit": "latest",
+    "react-native-camera-kit": "file:../",
     "seamless-immutable": "^6.1.0"
   }
 }
