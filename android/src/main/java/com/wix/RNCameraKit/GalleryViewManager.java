@@ -24,8 +24,6 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
         view.setAlbumName(albumName);
     }
 
-
-
     @ReactProp(name = "minimumInteritemSpacing")
     public void setItemSpacing(GalleryView view, int itemSpacing) {
         view.setItemSpacing(itemSpacing/2);
@@ -40,5 +38,4 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
     public void setColumnCount(GalleryView view, int columnCount) {
         view.setColumnCount(columnCount);
     }
-
 }

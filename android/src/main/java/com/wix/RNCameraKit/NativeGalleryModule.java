@@ -94,6 +94,7 @@ public class NativeGalleryModule extends ReactContextBaseJavaModule {
                 }
             } while (imagesCursor.moveToNext());
         }
+        imagesCursor.close();
         return albums;
     }
 

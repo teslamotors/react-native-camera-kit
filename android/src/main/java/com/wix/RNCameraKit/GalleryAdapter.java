@@ -1,10 +1,10 @@
 package com.wix.RNCameraKit;
 
+import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
+import android.graphics.Color;
 import android.provider.MediaStore;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -12,6 +12,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by yedidyak on 30/06/2016.
@@ -20,25 +24,32 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.StupidHo
 
 
     public static final String[] PROJECTION = new String[]{
-            MediaStore.Images.Media.DATA
+            MediaStore.Images.Media.DATA,
+            MediaStore.Images.Media._ID
     };
 
-    private ArrayList<String> images = new ArrayList<>();
+    private ArrayList<String> uris = new ArrayList<>();
+    private ArrayList<Integer> ids = new ArrayList<>();
 
     public class StupidHolder extends RecyclerView.ViewHolder {
         public StupidHolder(View itemView) {
             super(itemView);
         }
+        int id;
+        String uri;
     }
 
     private Context context;
+    private ThreadPoolExecutor executor;
 
     public GalleryAdapter(Context context) {
         this.context = context;
+        int cores = Runtime.getRuntime().availableProcessors();
+        executor = new ThreadPoolExecutor(cores, cores, 1, TimeUnit.SECONDS, new LinkedBlockingDeque<Runnable>());
     }
 
     public void setAlbum(String albumName) {
-        images.clear();
+        ids.clear();
 
         String selection = null;
         if(albumName != null || !albumName.equals("All Photos")) {
@@ -55,10 +66,15 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.StupidHo
 
         if (cursor.moveToFirst()) {
             int dataIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
+            int idIndex = cursor.getColumnIndex(MediaStore.Images.Media._ID);
             do {
-                images.add(cursor.getString(dataIndex));
+                uris.add(cursor.getString(dataIndex));
+                ids.add(cursor.getInt(idIndex));
             } while(cursor.moveToNext());
         }
+
+        Collections.reverse(uris);
+        Collections.reverse(ids);
 
         cursor.close();
     }
@@ -72,29 +88,42 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.StupidHo
             }
         };
         v.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        v.setBackgroundColor(Color.LTGRAY);
         return new StupidHolder(v);
     }
 
     @Override
     public void onBindViewHolder(final StupidHolder holder, final int position) {
 
-        new AsyncTask<Void, Void, Bitmap>() {
-            @Override
-            protected Bitmap doInBackground(Void... params) {
-                BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inSampleSize = 2;
-                return BitmapFactory.decodeFile(images.get(position), options);
-            }
+        final ImageView imageView = (ImageView)holder.itemView;
+        imageView.setImageBitmap(null);
+        imageView.setBackgroundColor(Color.LTGRAY);
+        holder.id = ids.get(position);
+        holder.uri = uris.get(position);
 
+        executor.execute(new Runnable() {
             @Override
-            protected void onPostExecute(Bitmap bitmap) {
-                ((ImageView)holder.itemView).setImageBitmap(bitmap);
+            public void run() {
+                final Bitmap bmp = MediaStore.Images.Thumbnails.getThumbnail(
+                        context.getContentResolver(),
+                        ids.get(holder.getAdapterPosition()),
+                        MediaStore.Images.Thumbnails.MINI_KIND,
+                        null);
+
+                if (holder.id == ids.get(holder.getAdapterPosition())) {
+                    ((Activity) context).runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            imageView.setImageBitmap(bmp);
+                        }
+                    });
+                }
             }
-        }.execute();
+        });
     }
 
     @Override
     public int getItemCount() {
-        return images.size();
+        return ids.size();
     }
 }
