@@ -2,9 +2,8 @@ package com.wix.RNCameraKit;
 
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.provider.MediaStore;
-import android.util.Base64;
+import android.support.annotation.NonNull;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
@@ -14,14 +13,18 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 
-import java.io.ByteArrayOutputStream;
 import java.util.Collection;
 import java.util.HashMap;
 
 /**
  * Created by yedidyak on 29/06/2016.
  */
-public class NativeGalleryManager extends ReactContextBaseJavaModule {
+public class NativeGalleryModule extends ReactContextBaseJavaModule {
+
+    public static final String[] ALBUMS_PROJECTION = new String[]{
+            MediaStore.Images.Media._ID,
+            MediaStore.Images.Media.BUCKET_DISPLAY_NAME
+    };
 
     private class Album {
         String name;
@@ -46,13 +49,7 @@ public class NativeGalleryManager extends ReactContextBaseJavaModule {
         }
 
         public void setThumbnail(String name, Bitmap thumbnail) {
-
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            thumbnail.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
-            byte[] byteArray = byteArrayOutputStream .toByteArray();
-            String encoded = Base64.encodeToString(byteArray, Base64.DEFAULT);
-
-            albums.get(name).imageData = encoded;
+            albums.get(name).imageData = Utils.getBase64FromBitmap(thumbnail);
         }
 
         public boolean hasThumbnail(String name) {
@@ -64,27 +61,26 @@ public class NativeGalleryManager extends ReactContextBaseJavaModule {
         }
     }
 
-    public NativeGalleryManager(ReactApplicationContext reactContext) {
+    public NativeGalleryModule(ReactApplicationContext reactContext) {
         super(reactContext);
     }
 
     @Override
     public String getName() {
-        return "NativeGalleryManager";
+        return "NativeGalleryModule";
     }
 
-    @ReactMethod
-    public void getAlbumsWithThumbnails(Promise promise) {
+    @NonNull
+    private WritableMap albumToMap(Album album) {
+        WritableMap map = Arguments.createMap();
+        map.putInt("imagesCount", album.count);
+        map.putString("albumName", album.name);
+        map.putString("image", album.imageData);
+        return map;
+    }
 
-        String[] projection = new String[]{
-            MediaStore.Images.Media._ID,
-            MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
-            MediaStore.Images.Media._ID
-        };
-
-        Uri images = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-        Cursor imagesCursor = getCurrentActivity().getContentResolver().query(images, projection, null, null, null);
-
+    @NonNull
+    private AlbumList getAlbumListFromCursor(Cursor imagesCursor) {
         AlbumList albums = new AlbumList();
 
         if (imagesCursor.moveToFirst()) {
@@ -93,37 +89,37 @@ public class NativeGalleryManager extends ReactContextBaseJavaModule {
             do {
                 String name = imagesCursor.getString(bucketColumn);
                 albums.addAlbum(name);
-
                 if(!albums.hasThumbnail(name)) {
-                    int thumbId = imagesCursor.getInt(thumbIdColumn);
-                    Bitmap thumb = MediaStore.Images.Thumbnails.getThumbnail(
-                            getCurrentActivity().getContentResolver(),
-                            thumbId,
-                            MediaStore.Images.Thumbnails.MINI_KIND,
-                            null);
-                    albums.setThumbnail(name, thumb);
+                    albums.setThumbnail(name, getThumbnail(imagesCursor.getInt(thumbIdColumn)));
                 }
             } while (imagesCursor.moveToNext());
         }
+        return albums;
+    }
 
+    private Bitmap getThumbnail(int thumbId) {
+        return MediaStore.Images.Thumbnails.getThumbnail(
+            getCurrentActivity().getContentResolver(),
+            thumbId,
+            MediaStore.Images.Thumbnails.MINI_KIND,
+            null);
+    }
+
+    @ReactMethod
+    public void getAlbumsWithThumbnails(Promise promise) {
+
+        Cursor imagesCursor = getCurrentActivity().getContentResolver().query(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI, ALBUMS_PROJECTION, null, null, null);
+        AlbumList albums = getAlbumListFromCursor(imagesCursor);
         WritableArray arr = Arguments.createArray();
 
         for (Album album : albums.getAlbums()) {
-            WritableMap map = Arguments.createMap();
-            map.putInt("imagesCount", album.count);
-            map.putString("albumName", album.name);
-            map.putString("image", album.imageData);
-            arr.pushMap(map);
+            arr.pushMap(albumToMap(album));
         }
 
         WritableMap ret = Arguments.createMap();
         ret.putArray("albums", arr);
 
         promise.resolve(ret);
-    }
-
-    @ReactMethod
-    public void getPhotosForAlbum(String albumName, int numberOfPhotos, Promise promise) {
-
     }
 }

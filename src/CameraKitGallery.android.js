@@ -1,9 +1,9 @@
 import {NativeModules} from 'react-native';
-const NativeGalleryManager = NativeModules.NativeGalleryManager;
+const NativeGalleryModule = NativeModules.NativeGalleryModule;
 import _ from 'lodash';
 
 async function getAlbumsWithThumbnails() {
-  const albums = await NativeGalleryManager.getAlbumsWithThumbnails();
+  const albums = await NativeGalleryModule.getAlbumsWithThumbnails();
   return albums;
 }
 
