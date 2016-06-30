@@ -18,7 +18,7 @@ import {
     //CameraKitCamera,
 } from 'react-native-camera-kit';
 
-//import GalleryScreen from './GalleryScreen';
+import GalleryScreen from './GalleryScreen';
 
 export default class AlbumsScreen extends Component {
 
@@ -39,10 +39,10 @@ export default class AlbumsScreen extends Component {
 
   render() {
 
-    //if (this.state.albumName) {
-    //  const albumName = this.state.albumName;
-    //  return <GalleryScreen albumName={albumName}/>;
-    //}
+    if (this.state.albumName) {
+      const albumName = this.state.albumName;
+      return <GalleryScreen albumName={albumName}/>;
+    }
 
     return (
         <View style={styles.container}>
