@@ -75,6 +75,9 @@ export default class GalleryScreenNative extends Component {
         minimumInteritemSpacing={10}
         minimumLineSpacing={10}
         columnCount={3}
+        onSelected={(result) => {
+
+        }}
       />
     )
   }

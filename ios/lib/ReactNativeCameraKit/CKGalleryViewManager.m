@@ -26,16 +26,17 @@
 @property (nonatomic, strong) NSNumber *minimumLineSpacing;
 @property (nonatomic, strong) NSNumber *minimumInteritemSpacing;
 @property (nonatomic, strong) NSNumber *columnCount;
+@property (nonatomic, copy) RCTDirectEventBlock onSelected;
 
 @property (nonatomic, strong) UICollectionView *collectionView;
 @property (nonatomic, strong) PHFetchResult<PHAsset *> *galleryFetchResults;
-//@property (nonatomic, strong) PHFetchResult *assetsCollection;
 @property (nonatomic, strong) GalleryData *galleryData;
-
 @property (nonatomic, strong) PHCachingImageManager *imageManager;
-
 @property (nonatomic) CGSize cellSize;
 @property (nonatomic, strong) NSMutableArray *selectedAssets;
+
+@property (nonatomic, strong) NSMutableArray *selectedImagesUrls;
+@property (nonatomic, strong) PHImageRequestOptions *imageRequestOptions;
 
 
 @end
@@ -55,6 +56,9 @@ static NSString * const CellReuseIdentifier = @"Cell";
     
     PHFetchOptions *albumsOptions = [[PHFetchOptions alloc] init];
     albumsOptions.predicate = [NSPredicate predicateWithFormat:@"estimatedAssetCount > 0"];
+    
+    self.imageRequestOptions = [[PHImageRequestOptions alloc] init];
+    self.imageRequestOptions.synchronous = YES;
     
     return self;
 }
@@ -177,6 +181,7 @@ static NSString * const CellReuseIdentifier = @"Cell";
 
 #pragma mark - UICollectionViewDelegate
 
+
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     
     id selectedCell =[collectionView cellForItemAtIndexPath:indexPath];
@@ -188,21 +193,100 @@ static NSString * const CellReuseIdentifier = @"Cell";
     if ([selectedCell isKindOfClass:[CKGalleryCollectionViewCell class]]) {
         CKGalleryCollectionViewCell *ckCell = (CKGalleryCollectionViewCell*)selectedCell;
         ckCell.isSelected = !ckCell.isSelected;
-        
-        [self.selectedAssets removeObject:asset];
+        NSString *assetLocalIdentifier = asset.localIdentifier;
         
         if (ckCell.isSelected) {
-            if (asset) {
-                [self.selectedAssets addObject:asset];
+            
+            
+            if (assetLocalIdentifier) {
+                [self.selectedAssets addObject:assetLocalIdentifier];
+            }
+            else {
+                NSLog(@"ERROR: assetInfo is nil!");
             }
         }
+        else {
+            [self.selectedAssets removeObject:assetLocalIdentifier];
+        }
+        
+        [self onSelectChanged];
     }
+}
+
+
+-(NSMutableArray*)removeAssetInfoFromSelectedAssets:(PHAsset*)asset {
+    
+    NSMutableArray *newSelectedAssets = [[NSMutableArray alloc] init];
+    
+    for (NSDictionary *dictionary in self.selectedAssets) {
+        if (dictionary[@"asset"] != asset) {
+            [newSelectedAssets addObject:dictionary];
+        }
+    }
+    return newSelectedAssets;
 }
 
 
 - (void)collectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath {
     
 }
+
+
+#pragma mark - misc
+
+
+-(void)onSelectChanged {
+    if (self.onSelected) {
+        self.onSelected(@{@"selected":self.selectedAssets});
+    }
+}
+
+
++(NSMutableDictionary*)infoForAsset:(PHAsset*)asset imageRequestOptions:(PHImageRequestOptions*)imageRequestOptions {
+    
+    NSError *error = nil;
+    NSURL *directoryURL = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:[[NSProcessInfo processInfo] globallyUniqueString]] isDirectory:YES];
+    
+    __block NSMutableDictionary *assetInfoDict = nil;
+    
+    [[PHCachingImageManager defaultManager] requestImageDataForAsset:asset options:imageRequestOptions resultHandler:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
+        
+        
+        NSURL *fileURLKey = info[@"PHImageFileURLKey"];
+        
+        if (fileURLKey) {
+            
+            assetInfoDict = [[NSMutableDictionary alloc] init];
+            
+            NSString *fileName = ((NSURL*)info[@"PHImageFileURLKey"]).lastPathComponent;
+            if (fileName) {
+                assetInfoDict[@"name"] = fileName;
+            }
+            
+            float imageSize = imageData.length;
+            assetInfoDict[@"size"] = [NSNumber numberWithFloat:imageSize];
+            
+            NSURL *fileURL = [directoryURL URLByAppendingPathComponent:fileName];
+            NSError *error = nil;
+            [imageData writeToURL:fileURL options:NSDataWritingAtomic error:&error];
+            
+            if (!error && fileURL) {
+                assetInfoDict[@"uri"] = fileURL.absoluteString;
+            }
+            else if (error){
+                NSLog(@"%@", error);
+            }
+        }
+    }];
+    
+    if (assetInfoDict && asset) {
+        assetInfoDict[@"asset"] = asset;
+    }
+    
+    return assetInfoDict;
+}
+
+
 
 @end
 
@@ -225,12 +309,11 @@ RCT_EXPORT_MODULE()
 }
 
 
-
 RCT_EXPORT_VIEW_PROPERTY(albumName, NSString);
 RCT_EXPORT_VIEW_PROPERTY(minimumLineSpacing, NSNumber);
 RCT_EXPORT_VIEW_PROPERTY(minimumInteritemSpacing, NSNumber);
 RCT_EXPORT_VIEW_PROPERTY(columnCount, NSNumber);
-
+RCT_EXPORT_VIEW_PROPERTY(onSelected, RCTDirectEventBlock);
 
 
 RCT_EXPORT_METHOD(getSelectedImages:(RCTPromiseResolveBlock)resolve
@@ -283,8 +366,7 @@ RCT_EXPORT_METHOD(getSelectedImages:(RCTPromiseResolveBlock)resolve
             
         }];
     }
-    //
-    
 }
+
 
 @end
