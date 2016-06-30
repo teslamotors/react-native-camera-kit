@@ -1,21 +1,23 @@
 package com.wix.RNCameraKit;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.Rect;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
-import android.widget.FrameLayout;
-import android.widget.Toast;
+
+import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.ReactContext;
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
+
+import java.util.ArrayList;
 
 /**
  * Created by yedidyak on 30/06/2016.
  */
 public class GalleryView extends RecyclerView {
 
-    private String albumName;
     private GalleryAdapter adapter;
     private int itemSpacing;
     private int lineSpacing;
@@ -23,7 +25,7 @@ public class GalleryView extends RecyclerView {
     public GalleryView(Context context) {
         super(context);
         setHasFixedSize(true);
-        adapter = new GalleryAdapter(context);
+        adapter = new GalleryAdapter(this);
         setAdapter(adapter);
     }
 
@@ -40,9 +42,6 @@ public class GalleryView extends RecyclerView {
     }
 
     public void setAlbumName(String albumName) {
-        this.albumName = albumName;
-        Toast.makeText(this.getContext(), albumName, Toast.LENGTH_SHORT).show();
-
         adapter.setAlbum(albumName);
     }
 
@@ -60,5 +59,19 @@ public class GalleryView extends RecyclerView {
         GridLayoutManager layoutManager = new GridLayoutManager(getContext(), columnCount);
         layoutManager.setOrientation(GridLayoutManager.VERTICAL);
         setLayoutManager(layoutManager);
+    }
+
+    public void onTapImage(String uri) {
+        ReactContext reactContext = ((ReactContext)getContext());
+        WritableMap event = Arguments.createMap();
+        event.putString("uri", uri);
+        event.putString("id", "onTapImage");
+        reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onTapImage", event);
+    }
+
+    public void setSelectedUris(ArrayList<String> selectedUris) {
+        adapter.setSelectedUris(selectedUris);
+        adapter.notifyDataSetChanged();
+        invalidate();
     }
 }

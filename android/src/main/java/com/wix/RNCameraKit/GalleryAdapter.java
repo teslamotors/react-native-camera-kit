@@ -11,6 +11,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.facebook.react.bridge.ReactContext;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -30,6 +32,12 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.StupidHo
 
     private ArrayList<String> uris = new ArrayList<>();
     private ArrayList<Integer> ids = new ArrayList<>();
+    private ArrayList<String> selectedUris = new ArrayList<>();
+    private String albumName = "";
+
+    public void setSelectedUris(ArrayList<String> selectedUris) {
+        this.selectedUris = selectedUris;
+    }
 
     public class StupidHolder extends RecyclerView.ViewHolder {
         public StupidHolder(View itemView) {
@@ -39,24 +47,30 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.StupidHo
         String uri;
     }
 
-    private Context context;
+    private GalleryView view;
     private ThreadPoolExecutor executor;
 
-    public GalleryAdapter(Context context) {
-        this.context = context;
+    public GalleryAdapter(GalleryView context) {
+        this.view = context;
         int cores = Runtime.getRuntime().availableProcessors();
         executor = new ThreadPoolExecutor(cores, cores, 1, TimeUnit.SECONDS, new LinkedBlockingDeque<Runnable>());
+        setAlbum(albumName);
     }
 
     public void setAlbum(String albumName) {
+        this.albumName = albumName;
+        refreshData();
+    }
+
+    public void refreshData() {
         ids.clear();
 
-        String selection = null;
-        if(albumName != null || !albumName.equals("All Photos")) {
+        String selection = "";
+        if(albumName == null || albumName.isEmpty() || !albumName.equals("All Photos")) {
             selection = MediaStore.Images.Media.BUCKET_DISPLAY_NAME + " = ?";
         }
 
-        Cursor cursor = context.getContentResolver().query(
+        Cursor cursor = view.getContext().getContentResolver().query(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                 PROJECTION,
                 selection,
@@ -81,12 +95,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.StupidHo
 
     @Override
     public StupidHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        ImageView v = new ImageView(context) {
-            @Override
-            protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-                super.onMeasure(widthMeasureSpec, widthMeasureSpec);
-            }
-        };
+        SelectableImage v = new SelectableImage(view.getContext());
         v.setScaleType(ImageView.ScaleType.CENTER_CROP);
         v.setBackgroundColor(Color.LTGRAY);
         return new StupidHolder(v);
@@ -95,26 +104,35 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.StupidHo
     @Override
     public void onBindViewHolder(final StupidHolder holder, final int position) {
 
-        final ImageView imageView = (ImageView)holder.itemView;
-        imageView.setImageBitmap(null);
-        imageView.setBackgroundColor(Color.LTGRAY);
+        final SelectableImage selectableImageView = (SelectableImage)holder.itemView;
+        selectableImageView.setImageBitmap(null);
+        selectableImageView.setBackgroundColor(Color.LTGRAY);
         holder.id = ids.get(position);
         holder.uri = uris.get(position);
+
+        selectableImageView.setSelected(selectedUris.indexOf(holder.uri) + 1);
+
+        selectableImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                view.onTapImage(holder.uri);
+            }
+        });
 
         executor.execute(new Runnable() {
             @Override
             public void run() {
                 final Bitmap bmp = MediaStore.Images.Thumbnails.getThumbnail(
-                        context.getContentResolver(),
+                        view.getContext().getContentResolver(),
                         ids.get(holder.getAdapterPosition()),
                         MediaStore.Images.Thumbnails.MINI_KIND,
                         null);
 
                 if (holder.id == ids.get(holder.getAdapterPosition())) {
-                    ((Activity) context).runOnUiThread(new Runnable() {
+                    ((Activity) ((ReactContext)view.getContext()).getBaseContext()).runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            imageView.setImageBitmap(bmp);
+                            selectableImageView.setImageBitmap(bmp);
                         }
                     });
                 }

@@ -1,8 +1,11 @@
 package com.wix.RNCameraKit;
 
+import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.uimanager.SimpleViewManager;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.annotations.ReactProp;
+
+import java.util.ArrayList;
 
 /**
  * Created by yedidyak on 30/06/2016.
@@ -16,7 +19,7 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
 
     @Override
     protected GalleryView createViewInstance(ThemedReactContext reactContext) {
-        return new GalleryView(reactContext.getBaseContext());
+        return new GalleryView(reactContext);
     }
 
     @ReactProp(name = "albumName")
@@ -37,5 +40,14 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
     @ReactProp(name = "columnCount")
     public void setColumnCount(GalleryView view, int columnCount) {
         view.setColumnCount(columnCount);
+    }
+
+    @ReactProp(name = "selectedUris")
+    public void setSelectedUris(GalleryView view, ReadableArray uris) {
+        ArrayList<String> list = new ArrayList<>();
+        for(int i = 0; i < uris.size(); i++) {
+            list.add(uris.getString(i));
+        }
+        view.setSelectedUris(list);
     }
 }
