@@ -58,13 +58,21 @@ export default class GalleryScreenNative extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      album: this.props.albumName
+      album: this.props.albumName,
+      uris: []
+    }
+  }
+
+  onTapImage(event) {
+    if(_.includes(this.state.uris, event.uri)) {
+      const index = this.state.uris.indexOf(event.uri);
+      this.setState({uris: [...this.state.uris.slice(0, index - 1), ...this.state.uris.slice(index + 1)]});
+    } else {
+      this.setState({uris: [...this.state.uris, event.uri]});
     }
   }
 
   render() {
-    console.log('IN RENDER!');
-    console.log(CameraKitGalleryView);
     return (
       <CameraKitGalleryView
         ref={(gallery) => {
@@ -74,9 +82,10 @@ export default class GalleryScreenNative extends Component {
         albumName={this.state.album}
         minimumInteritemSpacing={10}
         minimumLineSpacing={10}
+        columnCount={3}
+        selectedUris={this.state.uris}
+        onTapImage={this.onTapImage.bind(this)}
       />
-
-
     )
   }
 }
