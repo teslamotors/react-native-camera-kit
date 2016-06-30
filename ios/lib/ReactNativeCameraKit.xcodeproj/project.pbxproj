@@ -12,6 +12,7 @@
 		26550AE61CFC2437007FF2DF /* CKGalleryManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 26550AE51CFC2437007FF2DF /* CKGalleryManager.m */; };
 		26550AF61CFC7086007FF2DF /* CKCameraManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 26550AF51CFC7086007FF2DF /* CKCameraManager.m */; };
 		2685AA241CFD89A300E4A446 /* CKCamera.m in Sources */ = {isa = PBXBuildFile; fileRef = 2685AA231CFD89A300E4A446 /* CKCamera.m */; };
+		26F556721D2501C9007B1C11 /* GalleryData.m in Sources */ = {isa = PBXBuildFile; fileRef = 26F556711D2501C9007B1C11 /* GalleryData.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -38,6 +39,8 @@
 		26550AF51CFC7086007FF2DF /* CKCameraManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CKCameraManager.m; sourceTree = "<group>"; };
 		2685AA221CFD89A300E4A446 /* CKCamera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CKCamera.h; sourceTree = "<group>"; };
 		2685AA231CFD89A300E4A446 /* CKCamera.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CKCamera.m; sourceTree = "<group>"; };
+		26F556701D2501C9007B1C11 /* GalleryData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GalleryData.h; sourceTree = "<group>"; };
+		26F556711D2501C9007B1C11 /* GalleryData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GalleryData.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -80,6 +83,8 @@
 				262E421C1D182C1200C82B27 /* CKGalleryViewManager.m */,
 				262E421E1D183A6B00C82B27 /* CKGalleryCollectionViewCell.h */,
 				262E421F1D183A6B00C82B27 /* CKGalleryCollectionViewCell.m */,
+				26F556701D2501C9007B1C11 /* GalleryData.h */,
+				26F556711D2501C9007B1C11 /* GalleryData.m */,
 			);
 			path = ReactNativeCameraKit;
 			sourceTree = "<group>";
@@ -144,6 +149,7 @@
 				262E42201D183A6B00C82B27 /* CKGalleryCollectionViewCell.m in Sources */,
 				26550AE61CFC2437007FF2DF /* CKGalleryManager.m in Sources */,
 				2685AA241CFD89A300E4A446 /* CKCamera.m in Sources */,
+				26F556721D2501C9007B1C11 /* GalleryData.m in Sources */,
 				262E421D1D182C1200C82B27 /* CKGalleryViewManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

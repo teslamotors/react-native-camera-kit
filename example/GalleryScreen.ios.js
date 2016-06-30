@@ -70,13 +70,12 @@ export default class GalleryScreenNative extends Component {
         ref={(gallery) => {
                   this.gallery = gallery;
                 }}
-        style={{flex:1}}
+        style={{flex:1, margin: 20, backgroundColor: 'red', marginTop: 50}}
         albumName={this.state.album}
         minimumInteritemSpacing={10}
         minimumLineSpacing={10}
+        columnCount={3}
       />
-
-
     )
   }
 }

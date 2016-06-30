@@ -9,6 +9,7 @@
 @import Photos;
 #import "CKGalleryViewManager.h"
 #import "CKGalleryCollectionViewCell.h"
+#import "GalleryData.h"
 #import "UIView+React.h"
 
 #define SCREEN_WIDTH ([[UIScreen mainScreen] bounds].size.width)
@@ -24,10 +25,12 @@
 @property (nonatomic, strong) NSString *albumName;
 @property (nonatomic, strong) NSNumber *minimumLineSpacing;
 @property (nonatomic, strong) NSNumber *minimumInteritemSpacing;
+@property (nonatomic, strong) NSNumber *columnCount;
 
 @property (nonatomic, strong) UICollectionView *collectionView;
 @property (nonatomic, strong) PHFetchResult<PHAsset *> *galleryFetchResults;
-@property (nonatomic, strong) PHFetchResult *assetsCollection;
+//@property (nonatomic, strong) PHFetchResult *assetsCollection;
+@property (nonatomic, strong) GalleryData *galleryData;
 
 @property (nonatomic, strong) PHCachingImageManager *imageManager;
 
@@ -44,16 +47,14 @@ static NSString * const CellReuseIdentifier = @"Cell";
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     
-    
     self.selectedAssets = [[NSMutableArray alloc] init];
     self.imageManager = [[PHCachingImageManager alloc] init];
     
     PHFetchOptions *allPhotosOptions = [[PHFetchOptions alloc] init];
-    allPhotosOptions.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:YES]];
+    allPhotosOptions.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:NO]];
     
     PHFetchOptions *albumsOptions = [[PHFetchOptions alloc] init];
     albumsOptions.predicate = [NSPredicate predicateWithFormat:@"estimatedAssetCount > 0"];
-    
     
     return self;
 }
@@ -61,7 +62,7 @@ static NSString * const CellReuseIdentifier = @"Cell";
 
 -(CGSize)cellSize {
     if (CGSizeEqualToSize(_cellSize, CGSizeZero)) {
-        CGFloat minSize = (MAX(self.bounds.size.width - (2*self.minimumInteritemSpacing.floatValue),0))/3;
+        CGFloat minSize = (MAX(self.bounds.size.width - ((self.columnCount.floatValue-1.0f)*self.minimumInteritemSpacing.floatValue),0))/self.columnCount.floatValue;
         _cellSize = CGSizeMake(minSize, minSize);
     }
     return _cellSize;
@@ -74,7 +75,7 @@ static NSString * const CellReuseIdentifier = @"Cell";
     if (!self.collectionView) {
         
         UICollectionViewFlowLayout* flowLayout = [[UICollectionViewFlowLayout alloc] init];
-        flowLayout.itemSize = self.cellSize; //TODO remve this, get it from the JS
+        flowLayout.itemSize = self.cellSize; //TODO remove this, get it from the JS
         [flowLayout setScrollDirection:UICollectionViewScrollDirectionVertical];
         
         self.collectionView = [[UICollectionView alloc] initWithFrame:self.bounds collectionViewLayout:flowLayout];
@@ -116,7 +117,10 @@ static NSString * const CellReuseIdentifier = @"Cell";
     allPhotosOptions.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:YES]];
     
     if ([albumName caseInsensitiveCompare:@"all photos"] == NSOrderedSame || !albumName || [albumName isEqualToString:@""]) {
-        self.assetsCollection = [PHAsset fetchAssetsWithOptions:allPhotosOptions];
+//        self.assetsCollection = [PHAsset fetchAssetsWithOptions:allPhotosOptions];
+        PHFetchResult *allPhotosFetchResults = [PHAsset fetchAssetsWithOptions:allPhotosOptions];
+        self.galleryData = [[GalleryData alloc] initWithFetchResults:allPhotosFetchResults];
+        
         [self.collectionView reloadData];
         return;
     }
@@ -128,7 +132,9 @@ static NSString * const CellReuseIdentifier = @"Cell";
         
         if ([collection.localizedTitle isEqualToString:albumName]) {
             
-            self.assetsCollection = [PHAsset fetchAssetsInAssetCollection:collection options:nil];;
+//            self.assetsCollection = [PHAsset fetchAssetsInAssetCollection:collection options:nil];
+            PHFetchResult *collectionFetchResults = [PHAsset fetchAssetsInAssetCollection:collection options:nil];
+            self.galleryData = [[GalleryData alloc] initWithFetchResults:collectionFetchResults];
             [self.collectionView reloadData];
         }
     }];
@@ -139,12 +145,15 @@ static NSString * const CellReuseIdentifier = @"Cell";
 
 #pragma mark - UICollectionViewDataSource
 
+
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    return self.assetsCollection.count;
+    return self.galleryData.data.count;
 }
 
+
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
-    PHAsset *asset = self.assetsCollection[indexPath.row];
+    NSDictionary *assetDictionary = (NSDictionary*)self.galleryData.data[indexPath.row];
+    PHAsset *asset = assetDictionary[@"asset"];
     
     CKGalleryCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:CellReuseIdentifier forIndexPath:indexPath];
     cell.representedAssetIdentifier = asset.localIdentifier;
@@ -170,7 +179,9 @@ static NSString * const CellReuseIdentifier = @"Cell";
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     
     id selectedCell =[collectionView cellForItemAtIndexPath:indexPath];
-    PHAsset *asset = self.assetsCollection[indexPath.row];
+    NSDictionary *assetDictionary = (NSDictionary*)self.galleryData.data[indexPath.row];
+    PHAsset *asset = assetDictionary[@"asset"];
+    NSNumber *isSelectedNumber = assetDictionary[@"isSelected"];
     
     if ([selectedCell isKindOfClass:[CKGalleryCollectionViewCell class]]) {
         CKGalleryCollectionViewCell *ckCell = (CKGalleryCollectionViewCell*)selectedCell;
@@ -217,6 +228,9 @@ RCT_EXPORT_MODULE()
 RCT_EXPORT_VIEW_PROPERTY(albumName, NSString);
 RCT_EXPORT_VIEW_PROPERTY(minimumLineSpacing, NSNumber);
 RCT_EXPORT_VIEW_PROPERTY(minimumInteritemSpacing, NSNumber);
+RCT_EXPORT_VIEW_PROPERTY(columnCount, NSNumber);
+
+
 
 RCT_EXPORT_METHOD(getSelectedImages:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
