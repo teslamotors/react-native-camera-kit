@@ -117,7 +117,7 @@ static NSString * const CellReuseIdentifier = @"Cell";
     allPhotosOptions.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:YES]];
     
     if ([albumName caseInsensitiveCompare:@"all photos"] == NSOrderedSame || !albumName || [albumName isEqualToString:@""]) {
-//        self.assetsCollection = [PHAsset fetchAssetsWithOptions:allPhotosOptions];
+        //        self.assetsCollection = [PHAsset fetchAssetsWithOptions:allPhotosOptions];
         PHFetchResult *allPhotosFetchResults = [PHAsset fetchAssetsWithOptions:allPhotosOptions];
         self.galleryData = [[GalleryData alloc] initWithFetchResults:allPhotosFetchResults];
         
@@ -132,7 +132,6 @@ static NSString * const CellReuseIdentifier = @"Cell";
         
         if ([collection.localizedTitle isEqualToString:albumName]) {
             
-//            self.assetsCollection = [PHAsset fetchAssetsInAssetCollection:collection options:nil];
             PHFetchResult *collectionFetchResults = [PHAsset fetchAssetsInAssetCollection:collection options:nil];
             self.galleryData = [[GalleryData alloc] initWithFetchResults:collectionFetchResults];
             [self.collectionView reloadData];
@@ -156,6 +155,8 @@ static NSString * const CellReuseIdentifier = @"Cell";
     PHAsset *asset = assetDictionary[@"asset"];
     
     CKGalleryCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:CellReuseIdentifier forIndexPath:indexPath];
+    cell.isSelected = ((NSNumber*)assetDictionary[@"isSelected"]).boolValue;
+    
     cell.representedAssetIdentifier = asset.localIdentifier;
     
     [self.imageManager requestImageForAsset:asset
@@ -179,16 +180,16 @@ static NSString * const CellReuseIdentifier = @"Cell";
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     
     id selectedCell =[collectionView cellForItemAtIndexPath:indexPath];
-    NSDictionary *assetDictionary = (NSDictionary*)self.galleryData.data[indexPath.row];
+    NSMutableDictionary *assetDictionary = (NSMutableDictionary*)self.galleryData.data[indexPath.row];
     PHAsset *asset = assetDictionary[@"asset"];
     NSNumber *isSelectedNumber = assetDictionary[@"isSelected"];
+    assetDictionary[@"isSelected"] = [NSNumber numberWithBool:!(isSelectedNumber.boolValue)];
     
     if ([selectedCell isKindOfClass:[CKGalleryCollectionViewCell class]]) {
         CKGalleryCollectionViewCell *ckCell = (CKGalleryCollectionViewCell*)selectedCell;
         ckCell.isSelected = !ckCell.isSelected;
         
         [self.selectedAssets removeObject:asset];
-        
         
         if (ckCell.isSelected) {
             if (asset) {
@@ -261,7 +262,7 @@ RCT_EXPORT_METHOD(getSelectedImages:(RCTPromiseResolveBlock)resolve
             
             float imageSize = imageData.length;
             assetInfoDict[@"size"] = [NSNumber numberWithFloat:imageSize];
-
+            
             NSURL *fileURL = [directoryURL URLByAppendingPathComponent:fileName];
             NSError *error = nil;
             [imageData writeToURL:fileURL options:NSDataWritingAtomic error:&error];

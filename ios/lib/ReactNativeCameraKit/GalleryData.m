@@ -35,8 +35,11 @@
     NSMutableArray *array = [[NSMutableArray alloc] init];
     
     for (PHAsset *asset in fetchResults) {
-        NSDictionary *assetDictionary = @{@"asset": asset,
-                                          @"isSelected:": @NO};
+        NSMutableDictionary *assetDictionary = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
+                                                asset, @"asset",
+                                                [NSNumber numberWithBool:NO], @"isSelected",
+                                                nil];
+        
         [array addObject:assetDictionary];
     }
     
