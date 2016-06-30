@@ -36,4 +36,9 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
         view.setLineSpacing(lineSpacing/2);
     }
 
+    @ReactProp(name = "columnCount")
+    public void setColumnCount(GalleryView view, int columnCount) {
+        view.setColumnCount(columnCount);
+    }
+
 }

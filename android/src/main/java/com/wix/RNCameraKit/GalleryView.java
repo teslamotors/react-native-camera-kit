@@ -23,9 +23,6 @@ public class GalleryView extends RecyclerView {
     public GalleryView(Context context) {
         super(context);
         setHasFixedSize(true);
-        GridLayoutManager layoutManager = new GridLayoutManager(context, 3);
-        layoutManager.setOrientation(GridLayoutManager.VERTICAL);
-        setLayoutManager(layoutManager);
         adapter = new GalleryAdapter(context);
         setAdapter(adapter);
     }
@@ -57,5 +54,11 @@ public class GalleryView extends RecyclerView {
     public void setLineSpacing(int lineSpacing) {
         this.lineSpacing = lineSpacing;
         updateDecorator();
+    }
+
+    public void setColumnCount(int columnCount) {
+        GridLayoutManager layoutManager = new GridLayoutManager(getContext(), columnCount);
+        layoutManager.setOrientation(GridLayoutManager.VERTICAL);
+        setLayoutManager(layoutManager);
     }
 }
