@@ -1,14 +1,19 @@
+import _ from 'lodash';
 import {
   NativeModules,
-  CameraRoll
 } from 'react-native';
 
 var CKGallery = NativeModules.CKGalleryManager;
-import _ from 'lodash';
+
 
 async function getAlbumsWithThumbnails() {
   const albums = await CKGallery.getAlbumsWithThumbnails();
   return albums;
+}
+
+async function getImagesForIds(imagesId = []) {
+  const images = await CKGallery.getImagesForIds(imagesId);
+  return images;
 }
 
 
@@ -33,4 +38,5 @@ async function getAlbumsWithThumbnails() {
 
 export default {
   getAlbumsWithThumbnails,
+  getImagesForIds
 }

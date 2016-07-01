@@ -107,7 +107,6 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 - (void)removeReactSubview:(UIView *)subview
 {
     [subview removeFromSuperview];
-    return;
 }
 
 
@@ -436,21 +435,26 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
                         imageInfoDict[@"size"] = [NSNumber numberWithInteger:imageData.length];
                         
                         if (shouldSaveToCameraRoll) {
-                            [self saveImageToCameraRoll:imageData temporaryFileURL:temporaryFileURL];
-                        }
-                        
-                        
-                        PHFetchResult *fetchResult = [PHAsset fetchAssetsWithMediaType:PHAssetMediaTypeImage options:self.fetchOptions];
-                        PHAsset *lastImageAsset = [fetchResult firstObject];
-                        
-                        if (lastImageAsset.localIdentifier) {
-                            imageInfoDict[@"id"] = lastImageAsset.localIdentifier;
-                        }
-                        
-
-                        
-                        if (block) {
-                            block(imageInfoDict);
+                            [self saveImageToCameraRoll:imageData temporaryFileURL:temporaryFileURL block:^(BOOL success) {
+                                if (success) {
+                                    
+                                    PHFetchResult *fetchResult = [PHAsset fetchAssetsWithMediaType:PHAssetMediaTypeImage options:self.fetchOptions];
+                                    PHAsset *lastImageAsset = [fetchResult lastObject];
+                                    
+                                    if (lastImageAsset.localIdentifier) {
+                                        imageInfoDict[@"id"] = lastImageAsset.localIdentifier;
+                                    }
+                                    
+                                    
+                                    
+                                    if (block) {
+                                        block(imageInfoDict);
+                                    }
+                                }
+                                else {
+                                    NSLog( @"Could not save to camera roll");
+                                }
+                            }];
                         }
                     }
                 }];
@@ -522,7 +526,10 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 
 
--(void)saveImageToCameraRoll:(NSData*)imageData temporaryFileURL:(NSURL*)temporaryFileURL{
+-(void)saveImageToCameraRoll:(NSData*)imageData
+            temporaryFileURL:(NSURL*)temporaryFileURL
+                block:(CallbackBlock)block{
+    
     // To preserve the metadata, we create an asset from the JPEG NSData representation.
     // Note that creating an asset from a UIImage discards the metadata.
     // In iOS 9, we can use -[PHAssetCreationRequest addResourceWithType:data:options].
@@ -533,6 +540,10 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         } completionHandler:^( BOOL success, NSError *error ) {
             if ( ! success ) {
                 NSLog( @"Error occurred while saving image to photo library: %@", error );
+                block(NO);
+            }
+            else {
+                block(YES);
             }
         }];
     }
@@ -548,6 +559,10 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         } completionHandler:^( BOOL success, NSError *error ) {
             if ( ! success ) {
                 NSLog( @"Error occurred while saving image to photo library: %@", error );
+                block(NO);
+            }
+            else {
+                block(YES);
             }
         }];
     }
@@ -746,6 +761,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 - (void)removeObservers
 {
+    NSLog(@"############################ removeObservers");
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     
     [self.session removeObserver:self forKeyPath:@"running" context:SessionRunningContext];

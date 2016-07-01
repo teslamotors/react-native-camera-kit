@@ -17,5 +17,7 @@
 
 @interface CKGalleryViewManager : RCTViewManager
 
++(NSMutableDictionary*)infoForAsset:(PHAsset*)asset imageRequestOptions:(PHImageRequestOptions*)imageRequestOptions;
+
 
 @end

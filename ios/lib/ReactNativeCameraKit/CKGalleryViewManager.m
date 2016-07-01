@@ -51,11 +51,11 @@ static NSString * const CellReuseIdentifier = @"Cell";
     self.selectedAssets = [[NSMutableArray alloc] init];
     self.imageManager = [[PHCachingImageManager alloc] init];
     
-    PHFetchOptions *allPhotosOptions = [[PHFetchOptions alloc] init];
-    allPhotosOptions.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:NO]];
-    
-    PHFetchOptions *albumsOptions = [[PHFetchOptions alloc] init];
-    albumsOptions.predicate = [NSPredicate predicateWithFormat:@"estimatedAssetCount > 0"];
+//    PHFetchOptions *allPhotosOptions = [[PHFetchOptions alloc] init];
+//    allPhotosOptions.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:NO]];
+//    
+//    PHFetchOptions *albumsOptions = [[PHFetchOptions alloc] init];
+//    albumsOptions.predicate = [NSPredicate predicateWithFormat:@"estimatedAssetCount > 0"];
     
     self.imageRequestOptions = [[PHImageRequestOptions alloc] init];
     self.imageRequestOptions.synchronous = YES;
@@ -118,7 +118,7 @@ static NSString * const CellReuseIdentifier = @"Cell";
 -(void)setAlbumName:(NSString *)albumName {
     
     PHFetchOptions *allPhotosOptions = [[PHFetchOptions alloc] init];
-    allPhotosOptions.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:YES]];
+    allPhotosOptions.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:NO]];
     
     if ([albumName caseInsensitiveCompare:@"all photos"] == NSOrderedSame || !albumName || [albumName isEqualToString:@""]) {
         //        self.assetsCollection = [PHAsset fetchAssetsWithOptions:allPhotosOptions];
@@ -242,52 +242,6 @@ static NSString * const CellReuseIdentifier = @"Cell";
 }
 
 
-+(NSMutableDictionary*)infoForAsset:(PHAsset*)asset imageRequestOptions:(PHImageRequestOptions*)imageRequestOptions {
-    
-    NSError *error = nil;
-    NSURL *directoryURL = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:[[NSProcessInfo processInfo] globallyUniqueString]] isDirectory:YES];
-    
-    __block NSMutableDictionary *assetInfoDict = nil;
-    
-    [[PHCachingImageManager defaultManager] requestImageDataForAsset:asset options:imageRequestOptions resultHandler:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
-        
-        
-        NSURL *fileURLKey = info[@"PHImageFileURLKey"];
-        
-        if (fileURLKey) {
-            
-            assetInfoDict = [[NSMutableDictionary alloc] init];
-            
-            NSString *fileName = ((NSURL*)info[@"PHImageFileURLKey"]).lastPathComponent;
-            if (fileName) {
-                assetInfoDict[@"name"] = fileName;
-            }
-            
-            float imageSize = imageData.length;
-            assetInfoDict[@"size"] = [NSNumber numberWithFloat:imageSize];
-            
-            NSURL *fileURL = [directoryURL URLByAppendingPathComponent:fileName];
-            NSError *error = nil;
-            [imageData writeToURL:fileURL options:NSDataWritingAtomic error:&error];
-            
-            if (!error && fileURL) {
-                assetInfoDict[@"uri"] = fileURL.absoluteString;
-            }
-            else if (error){
-                NSLog(@"%@", error);
-            }
-        }
-    }];
-    
-    if (assetInfoDict && asset) {
-        assetInfoDict[@"asset"] = asset;
-    }
-    
-    return assetInfoDict;
-}
-
-
-
 @end
 
 @interface CKGalleryViewManager ()
@@ -366,6 +320,58 @@ RCT_EXPORT_METHOD(getSelectedImages:(RCTPromiseResolveBlock)resolve
             
         }];
     }
+}
+
++(NSMutableDictionary*)infoForAsset:(PHAsset*)asset imageRequestOptions:(PHImageRequestOptions*)imageRequestOptions {
+    
+    NSError *error = nil;
+    NSURL *directoryURL = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:[[NSProcessInfo processInfo] globallyUniqueString]] isDirectory:YES];
+    
+    [[NSFileManager defaultManager] createDirectoryAtURL:directoryURL withIntermediateDirectories:YES attributes:nil error:&error];
+    
+    if (error) {
+        NSLog(@"ERROR while creating directory:%@",error);
+    }
+
+    
+    __block NSMutableDictionary *assetInfoDict = nil;
+    
+    [[PHCachingImageManager defaultManager] requestImageDataForAsset:asset options:imageRequestOptions resultHandler:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
+        
+        
+        NSURL *fileURLKey = info[@"PHImageFileURLKey"];
+        
+        if (fileURLKey) {
+            
+            assetInfoDict = [[NSMutableDictionary alloc] init];
+            
+            NSString *fileName = ((NSURL*)info[@"PHImageFileURLKey"]).lastPathComponent;
+            if (fileName) {
+                assetInfoDict[@"name"] = fileName;
+            }
+            
+            float imageSize = imageData.length;
+            assetInfoDict[@"size"] = [NSNumber numberWithFloat:imageSize];
+            
+            NSURL *fileURL = [directoryURL URLByAppendingPathComponent:fileName];
+            NSError *error = nil;
+            
+            [imageData writeToURL:fileURL options:NSDataWritingAtomic error:&error];
+            
+            if (!error && fileURL) {
+                assetInfoDict[@"uri"] = fileURL.absoluteString;
+            }
+            else if (error){
+                NSLog(@"%@", error);
+            }
+        }
+    }];
+    
+    if (assetInfoDict && asset) {
+        assetInfoDict[@"asset"] = asset;
+    }
+    
+    return assetInfoDict;
 }
 
 

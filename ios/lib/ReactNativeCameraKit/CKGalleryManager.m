@@ -9,6 +9,7 @@
 #import "CKGalleryManager.h"
 #import <Photos/Photos.h>
 #import "RCTConvert.h"
+#import "CKGalleryViewManager.h"
 
 typedef void (^AlbumsBlock)(NSDictionary *albums);
 
@@ -158,6 +159,36 @@ RCT_EXPORT_METHOD(getAlbumsWithThumbnails:(RCTPromiseResolveBlock)resolve
                                   }];
                               }];
 }
+
+RCT_EXPORT_METHOD(getImagesForIds:(NSArray*)imagesIdArray
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(__unused RCTPromiseRejectBlock)reject) {
+    
+    NSMutableArray *assetsArray = [[NSMutableArray alloc] init];
+    
+    PHImageRequestOptions *imageRequestOptions = [[PHImageRequestOptions alloc] init];
+    imageRequestOptions.synchronous = YES;
+    
+    PHFetchResult *assets = [PHAsset fetchAssetsWithLocalIdentifiers:imagesIdArray options:nil];
+    
+    for (PHAsset *asset in assets) {
+        
+        NSDictionary *assetInfoDict = [CKGalleryViewManager infoForAsset:asset imageRequestOptions:imageRequestOptions];
+        
+        [assetsArray addObject:@{@"uri": assetInfoDict[@"uri"],
+                                 @"size": assetInfoDict[@"size"],
+                                 @"name": assetInfoDict[@"name"]}];
+        
+    }
+    
+    if (resolve) {
+        resolve(@{@"images": assetsArray});
+    }
+}
+
+
+
+
 
 
 
