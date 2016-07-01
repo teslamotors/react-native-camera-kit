@@ -81,7 +81,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 @property (nonatomic) AVCaptureFlashMode flashMode;
 @property (nonatomic) CKCameraFocushMode focusMode;
 @property (nonatomic) CKCameraZoomMode zoomMode;
-
+@property (nonatomic, strong) PHFetchOptions *fetchOptions;
 
 @end
 
@@ -94,6 +94,15 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
     NSLog(@"dealloc");
 }
 
+-(PHFetchOptions *)fetchOptions {
+    if (!_fetchOptions) {
+        PHFetchOptions *fetchOptions = [PHFetchOptions new];
+        fetchOptions.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:NO]];
+        fetchOptions.fetchLimit = 1;
+        _fetchOptions = fetchOptions;
+    }
+    return _fetchOptions;
+}
 
 - (void)removeReactSubview:(UIView *)subview
 {
@@ -424,14 +433,21 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
                             imageInfoDict[@"uri"] = temporaryFileURL.description;
                             imageInfoDict[@"name"] = temporaryFileURL.lastPathComponent;
                         }
-                        
                         imageInfoDict[@"size"] = [NSNumber numberWithInteger:imageData.length];
-                        
-                        
                         
                         if (shouldSaveToCameraRoll) {
                             [self saveImageToCameraRoll:imageData temporaryFileURL:temporaryFileURL];
                         }
+                        
+                        
+                        PHFetchResult *fetchResult = [PHAsset fetchAssetsWithMediaType:PHAssetMediaTypeImage options:self.fetchOptions];
+                        PHAsset *lastImageAsset = [fetchResult firstObject];
+                        
+                        if (lastImageAsset.localIdentifier) {
+                            imageInfoDict[@"id"] = lastImageAsset.localIdentifier;
+                        }
+                        
+
                         
                         if (block) {
                             block(imageInfoDict);
@@ -550,7 +566,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         NSLog( @"Error occured while writing image data to a temporary file: %@", error );
     }
     else {
-        NSLog(@"YOU ROCK!");
+        NSLog(@"Image Saved - YOU ROCK!");
     }
     return temporaryFileURL;
 }
@@ -590,10 +606,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         
     }];
     
-    
-    
     [self startFocusViewTimer];
-    
 }
 
 
