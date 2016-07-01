@@ -10,6 +10,13 @@
 
 #define BADGE_SIZE          22
 #define BADGE_MARGIN        5
+#define BADGE_COLOR         0x00ADF5
+
+#define UIColorFromRGB(rgbValue) \
+[UIColor colorWithRed:((float)((rgbValue & 0xFF0000) >> 16))/255.0 \
+green:((float)((rgbValue & 0x00FF00) >>  8))/255.0 \
+blue:((float)((rgbValue & 0x0000FF) >>  0))/255.0 \
+alpha:1.0]
 
 
 @interface CKGalleryCollectionViewCell ()
@@ -29,7 +36,7 @@
     self = [super initWithFrame:frame];
     
     CGRect imageViewFrame = self.bounds;
-
+    
     self.imageView = [[UIImageView alloc] initWithFrame:imageViewFrame];
     self.imageView.center = CGPointMake(CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds));
     
@@ -39,7 +46,7 @@
     self.badgeLabel.layer.cornerRadius = self.badgeLabel.bounds.size.width/2;
     self.badgeLabel.backgroundColor = [[UIColor grayColor] colorWithAlphaComponent:0.7];
     self.badgeLabel.clipsToBounds = YES;
-
+    
     [self.imageView addSubview:self.badgeLabel];
     
     return self;
@@ -64,7 +71,7 @@
     
     _isSelected = isSelected;
     if (_isSelected) {
-        self.badgeLabel.backgroundColor = [UIColor blueColor];
+        self.badgeLabel.backgroundColor = UIColorFromRGB(BADGE_COLOR);
     }
     else {
         self.badgeLabel.backgroundColor = [[UIColor grayColor] colorWithAlphaComponent:0.7];
