@@ -115,7 +115,8 @@ export default class CameraScreen extends Component {
 
 	async onTakeIt() {
 		const imageURI = await this.camera.capture(true);
-		let newImage = {imageURI: imageURI};
+		let newImage = {imageURI: imageURI.uri};
+
 		this.setState({...this.state, image:newImage});
 	}
 }
