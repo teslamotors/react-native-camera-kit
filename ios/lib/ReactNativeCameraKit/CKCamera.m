@@ -83,6 +83,8 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 @property (nonatomic) CKCameraZoomMode zoomMode;
 @property (nonatomic, strong) PHFetchOptions *fetchOptions;
 
+@property (nonatomic) BOOL isAddedOberver;
+
 @end
 
 @implementation CKCamera
@@ -91,6 +93,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 - (void)dealloc
 {
+    [self removeObservers];
     NSLog(@"dealloc");
 }
 
@@ -528,7 +531,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 -(void)saveImageToCameraRoll:(NSData*)imageData
             temporaryFileURL:(NSURL*)temporaryFileURL
-                block:(CallbackBlock)block{
+                       block:(CallbackBlock)block{
     
     // To preserve the metadata, we create an asset from the JPEG NSData representation.
     // Note that creating an asset from a UIImage discards the metadata.
@@ -682,17 +685,22 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 - (void)addObservers
 {
-    [self.session addObserver:self forKeyPath:@"running" options:NSKeyValueObservingOptionNew context:SessionRunningContext];
-    [self.stillImageOutput addObserver:self forKeyPath:@"capturingStillImage" options:NSKeyValueObservingOptionNew context:CapturingStillImageContext];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(subjectAreaDidChange:) name:AVCaptureDeviceSubjectAreaDidChangeNotification object:self.videoDeviceInput.device];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sessionRuntimeError:) name:AVCaptureSessionRuntimeErrorNotification object:self.session];
-    // A session can only run when the app is full screen. It will be interrupted in a multi-app layout, introduced in iOS 9,
-    // see also the documentation of AVCaptureSessionInterruptionReason. Add observers to handle these session interruptions
-    // and show a preview is paused message. See the documentation of AVCaptureSessionWasInterruptedNotification for other
-    // interruption reasons.
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sessionWasInterrupted:) name:AVCaptureSessionWasInterruptedNotification object:self.session];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sessionInterruptionEnded:) name:AVCaptureSessionInterruptionEndedNotification object:self.session];
+    if (!self.isAddedOberver) {
+        
+        [self.session addObserver:self forKeyPath:@"running" options:NSKeyValueObservingOptionNew context:SessionRunningContext];
+        [self.stillImageOutput addObserver:self forKeyPath:@"capturingStillImage" options:NSKeyValueObservingOptionNew context:CapturingStillImageContext];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(subjectAreaDidChange:) name:AVCaptureDeviceSubjectAreaDidChangeNotification object:self.videoDeviceInput.device];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sessionRuntimeError:) name:AVCaptureSessionRuntimeErrorNotification object:self.session];
+        // A session can only run when the app is full screen. It will be interrupted in a multi-app layout, introduced in iOS 9,
+        // see also the documentation of AVCaptureSessionInterruptionReason. Add observers to handle these session interruptions
+        // and show a preview is paused message. See the documentation of AVCaptureSessionWasInterruptedNotification for other
+        // interruption reasons.
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sessionWasInterrupted:) name:AVCaptureSessionWasInterruptedNotification object:self.session];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sessionInterruptionEnded:) name:AVCaptureSessionInterruptionEndedNotification object:self.session];
+        self.isAddedOberver = YES;
+    }
 }
 
 
@@ -762,10 +770,15 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 - (void)removeObservers
 {
     NSLog(@"############################ removeObservers");
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    if (self.isAddedOberver) {
+        NSLog(@"removeObservers:%@",self.stillImageOutput.description);
+        [[NSNotificationCenter defaultCenter] removeObserver:self];
+        
+        [self.session removeObserver:self forKeyPath:@"running" context:SessionRunningContext];
+        [self.stillImageOutput removeObserver:self forKeyPath:@"capturingStillImage" context:CapturingStillImageContext];
+        self.isAddedOberver = NO;
+    }
     
-    [self.session removeObserver:self forKeyPath:@"running" context:SessionRunningContext];
-    [self.stillImageOutput removeObserver:self forKeyPath:@"capturingStillImage" context:CapturingStillImageContext];
 }
 
 - (void)sessionRuntimeError:(NSNotification *)notification

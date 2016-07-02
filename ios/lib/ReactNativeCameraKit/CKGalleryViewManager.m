@@ -38,6 +38,8 @@
 @property (nonatomic, strong) NSMutableArray *selectedImagesUrls;
 @property (nonatomic, strong) PHImageRequestOptions *imageRequestOptions;
 
+@property (nonatomic, strong) PHFetchOptions *fetchOptions;
+
 
 @end
 
@@ -50,12 +52,6 @@ static NSString * const CellReuseIdentifier = @"Cell";
     
     self.selectedAssets = [[NSMutableArray alloc] init];
     self.imageManager = [[PHCachingImageManager alloc] init];
-    
-//    PHFetchOptions *allPhotosOptions = [[PHFetchOptions alloc] init];
-//    allPhotosOptions.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:NO]];
-//    
-//    PHFetchOptions *albumsOptions = [[PHFetchOptions alloc] init];
-//    albumsOptions.predicate = [NSPredicate predicateWithFormat:@"estimatedAssetCount > 0"];
     
     self.imageRequestOptions = [[PHImageRequestOptions alloc] init];
     self.imageRequestOptions.synchronous = YES;
@@ -70,6 +66,16 @@ static NSString * const CellReuseIdentifier = @"Cell";
         _cellSize = CGSizeMake(minSize, minSize);
     }
     return _cellSize;
+}
+
+-(PHFetchOptions *)fetchOptions {
+    if (!_fetchOptions) {
+        PHFetchOptions *fetchOptions = [[PHFetchOptions alloc] init];
+        fetchOptions.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:NO]];
+        _fetchOptions = fetchOptions;
+    }
+    
+    return _fetchOptions;
 }
 
 
@@ -117,12 +123,9 @@ static NSString * const CellReuseIdentifier = @"Cell";
 
 -(void)setAlbumName:(NSString *)albumName {
     
-    PHFetchOptions *allPhotosOptions = [[PHFetchOptions alloc] init];
-    allPhotosOptions.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:NO]];
     
     if ([albumName caseInsensitiveCompare:@"all photos"] == NSOrderedSame || !albumName || [albumName isEqualToString:@""]) {
-        //        self.assetsCollection = [PHAsset fetchAssetsWithOptions:allPhotosOptions];
-        PHFetchResult *allPhotosFetchResults = [PHAsset fetchAssetsWithOptions:allPhotosOptions];
+        PHFetchResult *allPhotosFetchResults = [PHAsset fetchAssetsWithOptions:self.fetchOptions];
         self.galleryData = [[GalleryData alloc] initWithFetchResults:allPhotosFetchResults];
         
         [self.collectionView reloadData];
@@ -231,6 +234,10 @@ static NSString * const CellReuseIdentifier = @"Cell";
     
 }
 
+-(void)refreshGalleryView {
+    [self setAlbumName:self.albumName];
+}
+
 
 #pragma mark - misc
 
@@ -256,6 +263,7 @@ static NSString * const CellReuseIdentifier = @"Cell";
 
 RCT_EXPORT_MODULE()
 
+
 - (UIView *)view
 {
     self.galleryView = [[CKGalleryView alloc] init];
@@ -268,7 +276,6 @@ RCT_EXPORT_VIEW_PROPERTY(minimumLineSpacing, NSNumber);
 RCT_EXPORT_VIEW_PROPERTY(minimumInteritemSpacing, NSNumber);
 RCT_EXPORT_VIEW_PROPERTY(columnCount, NSNumber);
 RCT_EXPORT_VIEW_PROPERTY(onSelected, RCTDirectEventBlock);
-
 
 RCT_EXPORT_METHOD(getSelectedImages:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
@@ -308,19 +315,29 @@ RCT_EXPORT_METHOD(getSelectedImages:(RCTPromiseResolveBlock)resolve
                 assetInfoDict[@"uri"] = fileURL.absoluteString;
             }
             
-            
             [assetsUrls addObject:assetInfoDict];
-            
             
             if (asset == self.galleryView.selectedAssets.lastObject) {
                 if (resolve) {
                     resolve(@{@"selectedImages":assetsUrls});
                 }
             }
-            
         }];
     }
 }
+
+
+RCT_EXPORT_METHOD(refreshGalleryView:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject) {
+    [self.galleryView refreshGalleryView];
+    
+    if (resolve)
+        resolve(@YES);
+}
+
+
+#pragma mark - Static functions
+
 
 +(NSMutableDictionary*)infoForAsset:(PHAsset*)asset imageRequestOptions:(PHImageRequestOptions*)imageRequestOptions {
     
@@ -332,7 +349,7 @@ RCT_EXPORT_METHOD(getSelectedImages:(RCTPromiseResolveBlock)resolve
     if (error) {
         NSLog(@"ERROR while creating directory:%@",error);
     }
-
+    
     
     __block NSMutableDictionary *assetInfoDict = nil;
     
