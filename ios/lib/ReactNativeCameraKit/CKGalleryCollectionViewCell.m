@@ -7,6 +7,7 @@
 //
 
 #import "CKGalleryCollectionViewCell.h"
+#import "GalleryData.h"
 
 #define BADGE_SIZE          22
 #define BADGE_MARGIN        5
@@ -19,8 +20,11 @@ blue:((float)((rgbValue & 0x0000FF) >>  0))/255.0 \
 alpha:1.0]
 
 
-@interface CKGalleryCollectionViewCell ()
 
+static UIImage *unSelectedImage = nil;
+
+
+@interface CKGalleryCollectionViewCell ()
 
 @property (strong, nonatomic) UIImageView *imageView;
 @property (strong, nonatomic) UIButton *button;
@@ -31,6 +35,9 @@ alpha:1.0]
 
 @implementation CKGalleryCollectionViewCell
 
++(void)unSelectedImage:(UIImage*)image {
+     unSelectedImage = image;
+}
 
 -(instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];

@@ -35,10 +35,10 @@
 @property (nonatomic) CGSize cellSize;
 @property (nonatomic, strong) NSMutableArray *selectedAssets;
 
-@property (nonatomic, strong) NSMutableArray *selectedImagesUrls;
 @property (nonatomic, strong) PHImageRequestOptions *imageRequestOptions;
 
 @property (nonatomic, strong) PHFetchOptions *fetchOptions;
+@property (nonatomic, strong) NSString *selectedBase64Image;
 
 
 @end
@@ -101,7 +101,8 @@ static NSString * const CellReuseIdentifier = @"Cell";
 
 
 
-#pragma mark Collection view layout things
+#pragma mark - Collection view layout things
+
 
 
 
@@ -120,18 +121,39 @@ static NSString * const CellReuseIdentifier = @"Cell";
     return self.minimumLineSpacing ? self.minimumLineSpacing.floatValue : DEFAULT_MINIMUM_INTERITEM_SPACING;
 }
 
+-(void)upadateCollectionView:(PHFetchResult*)fetchResults animated:(BOOL)animated {
+    
+    self.galleryData = [[GalleryData alloc] initWithFetchResults:fetchResults selectedImagesIds:self.selectedAssets];
+    
+    if (animated) {
+        
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.4 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^ {
+            [self.collectionView performBatchUpdates:^{
+                [self.collectionView reloadSections:[NSIndexSet indexSetWithIndex:0]];
+            } completion:nil];
+        });
+    }
+    else {
+        dispatch_async(dispatch_get_main_queue(), ^ {
+            [self.collectionView reloadData];
+        });
+    }
+}
+
+-(void)setSelectedBase64Image:(NSString *)selectedBase64Image {
+    [CKGalleryCollectionViewCell base64Image:selectedBase64Image];
+}
+
 
 -(void)setAlbumName:(NSString *)albumName {
     
     
     if ([albumName caseInsensitiveCompare:@"all photos"] == NSOrderedSame || !albumName || [albumName isEqualToString:@""]) {
-        PHFetchResult *allPhotosFetchResults = [PHAsset fetchAssetsWithOptions:self.fetchOptions];
-        self.galleryData = [[GalleryData alloc] initWithFetchResults:allPhotosFetchResults];
         
-        [self.collectionView reloadData];
+        PHFetchResult *allPhotosFetchResults = [PHAsset fetchAssetsWithOptions:self.fetchOptions];
+        [self upadateCollectionView:allPhotosFetchResults animated:(self.galleryData != nil)];
         return;
     }
-    
     
     PHFetchResult *collections = [PHCollectionList fetchTopLevelUserCollectionsWithOptions:nil];
     
@@ -140,12 +162,12 @@ static NSString * const CellReuseIdentifier = @"Cell";
         if ([collection.localizedTitle isEqualToString:albumName]) {
             
             PHFetchResult *collectionFetchResults = [PHAsset fetchAssetsInAssetCollection:collection options:nil];
-            self.galleryData = [[GalleryData alloc] initWithFetchResults:collectionFetchResults];
-            [self.collectionView reloadData];
+            [self upadateCollectionView:collectionFetchResults animated:(self.galleryData != nil)];
+            *stop = YES;
+            return;
         }
     }];
     
-    [self.collectionView reloadData];
 }
 
 
@@ -167,7 +189,7 @@ static NSString * const CellReuseIdentifier = @"Cell";
     cell.representedAssetIdentifier = asset.localIdentifier;
     
     [self.imageManager requestImageForAsset:asset
-                                 targetSize:CGSizeMake(self.cellSize.width*0.95, self.cellSize.height*0.95)
+                                 targetSize:CGSizeMake(self.cellSize.width, self.cellSize.height)
                                 contentMode:PHImageContentModeDefault
                                     options:nil
                               resultHandler:^(UIImage *result, NSDictionary *info) {
@@ -217,24 +239,10 @@ static NSString * const CellReuseIdentifier = @"Cell";
 }
 
 
--(NSMutableArray*)removeAssetInfoFromSelectedAssets:(PHAsset*)asset {
-    
-    NSMutableArray *newSelectedAssets = [[NSMutableArray alloc] init];
-    
-    for (NSDictionary *dictionary in self.selectedAssets) {
-        if (dictionary[@"asset"] != asset) {
-            [newSelectedAssets addObject:dictionary];
-        }
-    }
-    return newSelectedAssets;
-}
 
 
-- (void)collectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath {
-    
-}
-
--(void)refreshGalleryView {
+-(void)refreshGalleryView:(NSArray*)selectedImages {
+    self.selectedAssets = selectedImages;
     [self setAlbumName:self.albumName];
 }
 
@@ -276,6 +284,7 @@ RCT_EXPORT_VIEW_PROPERTY(minimumLineSpacing, NSNumber);
 RCT_EXPORT_VIEW_PROPERTY(minimumInteritemSpacing, NSNumber);
 RCT_EXPORT_VIEW_PROPERTY(columnCount, NSNumber);
 RCT_EXPORT_VIEW_PROPERTY(onSelected, RCTDirectEventBlock);
+//RCT_EXPORT_VIEW_PROPERTY(selectedImage, UIImage);
 
 RCT_EXPORT_METHOD(getSelectedImages:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
@@ -327,9 +336,12 @@ RCT_EXPORT_METHOD(getSelectedImages:(RCTPromiseResolveBlock)resolve
 }
 
 
-RCT_EXPORT_METHOD(refreshGalleryView:(RCTPromiseResolveBlock)resolve
+RCT_EXPORT_METHOD(refreshGalleryView:(NSArray*)selectedImages
+                  resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
-    [self.galleryView refreshGalleryView];
+    NSLog(@"selectedImages:%@", selectedImages);
+    NSMutableArray *newArray = [[NSMutableArray alloc] initWithArray:selectedImages];
+    [self.galleryView refreshGalleryView:newArray];
     
     if (resolve)
         resolve(@YES);

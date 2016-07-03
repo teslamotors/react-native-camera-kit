@@ -10,6 +10,9 @@
 
 @interface CKGalleryCollectionViewCell : UICollectionViewCell
 
++(void)base64Image:(NSString*)base64;
+
+
 @property (nonatomic, strong) UIImage *thumbnailImage;
 @property (nonatomic, copy) NSString *representedAssetIdentifier;
 

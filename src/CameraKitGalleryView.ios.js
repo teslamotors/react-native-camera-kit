@@ -2,8 +2,10 @@ import React, {Component} from 'react';
 import {
   requireNativeComponent,
   NativeModules,
-  processColor
+  processColor,
 } from 'react-native';
+
+
 
 const GalleryView = requireNativeComponent('CKGalleryView', null);
 const GalleryViewManager = NativeModules.CKGalleryViewManager;
@@ -26,8 +28,8 @@ export default class CameraKitGalleryView extends Component {
   }
 
 
-  async refreshGalleryView() {
-    const isSuccess = await GalleryViewManager.refreshGalleryView();
+  async refreshGalleryView(selectedImages = []) {
+    const isSuccess = await GalleryViewManager.refreshGalleryView(selectedImages);
     return isSuccess;
   }
 }

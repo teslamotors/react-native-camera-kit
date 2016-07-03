@@ -18,27 +18,26 @@
 
 @implementation GalleryData
 
--(instancetype)initWithFetchResults:(PHFetchResult*)fetchResults {
+-(instancetype)initWithFetchResults:(PHFetchResult*)fetchResults selectedImagesIds:(NSArray*)selectedImagesIds{
     
     self = [super init];
     if (self) {
         self.fetchResults = fetchResults;
-        self.data = [self arrayWithFetchResults:self.fetchResults];
+        self.data = [self arrayWithFetchResults:self.fetchResults selectedImagesIds:selectedImagesIds];
     }
     return self;
 }
 
 
 
--(NSArray*)arrayWithFetchResults:(PHFetchResult*)fetchResults {
+-(NSArray*)arrayWithFetchResults:(PHFetchResult*)fetchResults selectedImagesIds:(NSArray*)selectedImagesIds{
     
     NSMutableArray *array = [[NSMutableArray alloc] init];
     
     for (PHAsset *asset in fetchResults) {
-        NSMutableDictionary *assetDictionary = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
-                                                asset, @"asset",
-                                                [NSNumber numberWithBool:NO], @"isSelected",
-                                                nil];
+        BOOL isSelected = ([selectedImagesIds containsObject:asset.localIdentifier]) ? YES : NO;
+        
+        NSMutableDictionary *assetDictionary = [@{@"asset": asset, @"isSelected": @(isSelected)} mutableCopy];
         
         [array addObject:assetDictionary];
     }

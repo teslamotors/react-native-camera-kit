@@ -11,8 +11,10 @@
 
 @interface GalleryData : NSObject
 
--(instancetype)initWithFetchResults:(PHFetchResult*)fetchResults;
+-(instancetype)initWithFetchResults:(PHFetchResult*)fetchResults selectedImagesIds:(NSArray*)selectedImagesIds;
 
 @property (nonatomic, strong, readonly) NSArray *data;
+
+
 
 @end
