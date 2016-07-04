@@ -13,7 +13,7 @@ import {
 import _ from 'lodash';
 import Immutable from 'seamless-immutable';
 
-//import CameraScreen from  './CameraScreen';
+import CameraScreen from  './CameraScreen';
 import AlbumsScreen from  './AlbumsScreen';
 
 
