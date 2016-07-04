@@ -293,6 +293,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
     [super reactSetFrame:frame];
     self.previewLayer.frame = self.bounds;
     
+    
     dispatch_async( self.sessionQueue, ^{
         switch ( self.setupResult )
         {
@@ -453,12 +454,16 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
                                     if (block) {
                                         block(imageInfoDict);
                                     }
+                                    
                                 }
                                 else {
                                     NSLog( @"Could not save to camera roll");
                                 }
                             }];
                         }
+                        
+                        
+                        
                     }
                 }];
             }
@@ -540,6 +545,9 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
     if ( [PHAssetCreationRequest class] ) {
         [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
             [[PHAssetCreationRequest creationRequestForAsset] addResourceWithType:PHAssetResourceTypePhoto data:imageData options:nil];
+            
+            
+            
         } completionHandler:^( BOOL success, NSError *error ) {
             if ( ! success ) {
                 NSLog( @"Error occurred while saving image to photo library: %@", error );
@@ -687,7 +695,6 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 {
     
     if (!self.isAddedOberver) {
-        
         [self.session addObserver:self forKeyPath:@"running" options:NSKeyValueObservingOptionNew context:SessionRunningContext];
         [self.stillImageOutput addObserver:self forKeyPath:@"capturingStillImage" options:NSKeyValueObservingOptionNew context:CapturingStillImageContext];
         
@@ -769,16 +776,12 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 - (void)removeObservers
 {
-    NSLog(@"############################ removeObservers");
     if (self.isAddedOberver) {
-        NSLog(@"removeObservers:%@",self.stillImageOutput.description);
         [[NSNotificationCenter defaultCenter] removeObserver:self];
-        
         [self.session removeObserver:self forKeyPath:@"running" context:SessionRunningContext];
         [self.stillImageOutput removeObserver:self forKeyPath:@"capturingStillImage" context:CapturingStillImageContext];
         self.isAddedOberver = NO;
     }
-    
 }
 
 - (void)sessionRuntimeError:(NSNotification *)notification

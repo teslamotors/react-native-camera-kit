@@ -28,7 +28,7 @@ export default class CameraKitCamera extends React.Component {
 		return success;
 	}
 
-	async setFleshMode(flashMode = 'auto') {
+	async setFlashMode(flashMode = 'auto') {
 		const success = await NativeCameraAction.setFlashMode(flashMode);
 		return success;
 	}

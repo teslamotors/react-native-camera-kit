@@ -44,6 +44,7 @@ static UIImage *unSelectedImage = nil;
     if (image) selectedImage = image;
 }
 
+
 +(void)setUnSlectedImage:(UIImage*)image {
     if (image) unSelectedImage = image;
 }
@@ -57,6 +58,9 @@ static UIImage *unSelectedImage = nil;
     self.imageView = [[UIImageView alloc] initWithFrame:imageViewFrame];
     self.imageView.center = CGPointMake(CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds));
     self.imageView.backgroundColor = [UIColor clearColor];
+    self.imageView.contentMode = UIViewContentModeScaleAspectFill;
+    self.imageView.clipsToBounds = YES;
+    
     [self addSubview:self.imageView];
     
     self.imageOveray = [[UIView alloc] initWithFrame:self.imageView.bounds];
@@ -64,20 +68,9 @@ static UIImage *unSelectedImage = nil;
     self.imageOveray.alpha = 0;
     [self.imageView addSubview:self.imageOveray];
     
-    
     CGRect badgeRect = CGRectMake(self.imageView.bounds.size.width - (BADGE_SIZE + BADGE_MARGIN), BADGE_MARGIN, BADGE_SIZE, BADGE_SIZE);
-    
-    //    self.badgeLabel = [[UILabel alloc] initWithFrame:CGRectMake(self.imageView.bounds.size.width - (BADGE_SIZE + BADGE_MARGIN), BADGE_MARGIN, BADGE_SIZE, BADGE_SIZE)];
-    //    self.badgeLabel.layer.cornerRadius = self.badgeLabel.bounds.size.width/2;
-    //    self.badgeLabel.backgroundColor = [[UIColor grayColor] colorWithAlphaComponent:0.7];
-    //    self.badgeLabel.clipsToBounds = YES;
-    //    [self.imageView addSubview:self.badgeLabel];
-    
     self.badgeImageView = [[UIImageView alloc] initWithFrame:badgeRect];
     [self addSubview:self.badgeImageView];
-    
-    
-    
     
     self.isSelected = NO;
     

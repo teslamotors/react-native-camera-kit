@@ -13,7 +13,6 @@
 typedef void (^CaptureBlock)(NSString *imagePath);
 typedef void (^CallbackBlock)(BOOL success);
 
-
 typedef NS_ENUM(NSInteger, CKCameraFlashMode) {
     CKCameraFlashModeAuto,
     CKCameraFlashModeOn,

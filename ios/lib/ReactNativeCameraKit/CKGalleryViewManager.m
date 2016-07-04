@@ -17,6 +17,7 @@
 
 #define DEFAULT_MINIMUM_INTERITEM_SPACING       10.0
 #define DEFAULT_MINIMUM_LINE_SPACING            10.0
+#define IMAGE_SIZE_MULTIPLIER                   2
 
 
 @interface CKGalleryView : UIView <UICollectionViewDelegateFlowLayout, UICollectionViewDataSource>
@@ -192,11 +193,10 @@ static NSString * const CellReuseIdentifier = @"Cell";
     cell.representedAssetIdentifier = asset.localIdentifier;
     
     [self.imageManager requestImageForAsset:asset
-                                 targetSize:CGSizeMake(self.cellSize.width, self.cellSize.height)
+                                 targetSize:CGSizeMake(self.cellSize.width*IMAGE_SIZE_MULTIPLIER, self.cellSize.height*IMAGE_SIZE_MULTIPLIER)
                                 contentMode:PHImageContentModeDefault
                                     options:nil
                               resultHandler:^(UIImage *result, NSDictionary *info) {
-                                  // Set the cell's thumbnail image if it's still showing the same asset.
                                   if ([cell.representedAssetIdentifier isEqualToString:asset.localIdentifier]) {
                                       cell.thumbnailImage = result;
                                   }
