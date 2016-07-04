@@ -1,7 +1,6 @@
-package com.wix.RNCameraKit;
+package com.wix.RNCameraKit.gallery;
 
 import android.app.Activity;
-import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;

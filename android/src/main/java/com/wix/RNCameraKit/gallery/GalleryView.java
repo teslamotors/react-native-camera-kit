@@ -1,4 +1,4 @@
-package com.wix.RNCameraKit;
+package com.wix.RNCameraKit.gallery;
 
 import android.content.Context;
 import android.graphics.Rect;

@@ -1,4 +1,4 @@
-package com.wix.RNCameraKit;
+package com.wix.RNCameraKit.gallery;
 
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.uimanager.SimpleViewManager;

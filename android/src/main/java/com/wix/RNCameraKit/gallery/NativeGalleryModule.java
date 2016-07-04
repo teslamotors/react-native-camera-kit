@@ -1,4 +1,4 @@
-package com.wix.RNCameraKit;
+package com.wix.RNCameraKit.gallery;
 
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -12,6 +12,7 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
+import com.wix.RNCameraKit.Utils;
 
 import java.util.Collection;
 import java.util.HashMap;

@@ -7,12 +7,6 @@ async function getAlbumsWithThumbnails() {
   return albums;
 }
 
-
-async function getPhotosForAlbum(albumName, numberOfPhotos) {
-
-}
-
 export default {
-  getAlbumsWithThumbnails,
-  getPhotosForAlbum
+  getAlbumsWithThumbnails
 }
