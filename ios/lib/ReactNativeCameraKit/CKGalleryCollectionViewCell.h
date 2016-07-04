@@ -10,7 +10,8 @@
 
 @interface CKGalleryCollectionViewCell : UICollectionViewCell
 
-+(void)base64Image:(NSString*)base64;
++(void)setSelectedImage:(UIImage*)image;
++(void)setUnSlectedImage:(UIImage*)image;
 
 
 @property (nonatomic, strong) UIImage *thumbnailImage;

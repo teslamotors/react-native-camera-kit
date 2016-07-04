@@ -39,6 +39,8 @@
 
 @property (nonatomic, strong) PHFetchOptions *fetchOptions;
 @property (nonatomic, strong) NSString *selectedBase64Image;
+@property (nonatomic, strong) UIImage *selectedImage;
+@property (nonatomic, strong) UIImage *unSelectedImage;
 
 
 @end
@@ -100,10 +102,7 @@ static NSString * const CellReuseIdentifier = @"Cell";
 }
 
 
-
 #pragma mark - Collection view layout things
-
-
 
 
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -140,8 +139,12 @@ static NSString * const CellReuseIdentifier = @"Cell";
     }
 }
 
--(void)setSelectedBase64Image:(NSString *)selectedBase64Image {
-    [CKGalleryCollectionViewCell base64Image:selectedBase64Image];
+-(void)setSelectedImage:(UIImage *)selectedImage {
+    [CKGalleryCollectionViewCell setSelectedImage:selectedImage];
+}
+
+-(void)setUnSelectedImage:(UIImage *)unSelectedImage {
+    [CKGalleryCollectionViewCell setUnSlectedImage:unSelectedImage];
 }
 
 
@@ -284,7 +287,8 @@ RCT_EXPORT_VIEW_PROPERTY(minimumLineSpacing, NSNumber);
 RCT_EXPORT_VIEW_PROPERTY(minimumInteritemSpacing, NSNumber);
 RCT_EXPORT_VIEW_PROPERTY(columnCount, NSNumber);
 RCT_EXPORT_VIEW_PROPERTY(onSelected, RCTDirectEventBlock);
-//RCT_EXPORT_VIEW_PROPERTY(selectedImage, UIImage);
+RCT_EXPORT_VIEW_PROPERTY(selectedImage, UIImage);
+RCT_EXPORT_VIEW_PROPERTY(unSelectedImage, UIImage);
 
 RCT_EXPORT_METHOD(getSelectedImages:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {

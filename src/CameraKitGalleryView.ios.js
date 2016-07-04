@@ -5,8 +5,6 @@ import {
   processColor,
 } from 'react-native';
 
-
-
 const GalleryView = requireNativeComponent('CKGalleryView', null);
 const GalleryViewManager = NativeModules.CKGalleryViewManager;
 const ALL_PHOTOS = 'All Photos';
