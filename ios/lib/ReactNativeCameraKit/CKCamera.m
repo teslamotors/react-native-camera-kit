@@ -819,9 +819,9 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         
         if ( isCapturingStillImage ) {
             dispatch_async( dispatch_get_main_queue(), ^{
-                self.previewLayer.opacity = 0.0;
-                [UIView animateWithDuration:0.25 animations:^{
-                    self.previewLayer.opacity = 1.0;
+                self.alpha = 0.0;
+                [UIView animateWithDuration:0.35 animations:^{
+                    self.alpha = 1.0;
                 }];
             } );
         }
