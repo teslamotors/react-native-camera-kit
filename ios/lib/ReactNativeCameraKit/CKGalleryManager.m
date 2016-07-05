@@ -98,7 +98,7 @@ RCT_EXPORT_MODULE();
                    thumbnailSize:(CGSize)thumbnailSize
                            block:(AlbumsBlock)block {
     
-    NSMutableDictionary *albumsDict = [[NSMutableDictionary alloc] init];
+    NSMutableArray *albumsArray = [[NSMutableArray alloc] init];
     NSInteger collectionCount = collections.count;
     
     if (collectionCount == 0) {
@@ -113,12 +113,12 @@ RCT_EXPORT_MODULE();
             
             NSString *albumName = collection.localizedTitle;
             if (album) {
-                albumsDict[albumName] = album;
+                [albumsArray addObject:album];
             }
             
             if (idx == collectionCount-1) {
                 if (block) {
-                    block(albumsDict);
+                    block(@{@"albums" : albumsArray});
                 }
             }
         }];
@@ -127,7 +127,7 @@ RCT_EXPORT_MODULE();
 
 
 RCT_EXPORT_METHOD(getAlbumsWithThumbnails:(RCTPromiseResolveBlock)resolve
-                  reject:(__unused RCTPromiseRejectBlock)reject) {
+                  reject:(RCTPromiseRejectBlock)reject) {
     
     PHImageRequestOptions *imageRequestOptions = [[PHImageRequestOptions alloc] init];
     imageRequestOptions.resizeMode = PHImageRequestOptionsResizeModeExact;
@@ -135,26 +135,39 @@ RCT_EXPORT_METHOD(getAlbumsWithThumbnails:(RCTPromiseResolveBlock)resolve
     NSInteger retinaScale = [UIScreen mainScreen].scale;
     CGSize retinaSquare = CGSizeMake(100*retinaScale, 100*retinaScale);
     
-    NSMutableDictionary *albumsDict = [[NSMutableDictionary alloc] init];
+    __block NSMutableArray *albumsArray = [[NSMutableArray alloc] init];
     
     [self extractCollectionsDetails:self.topLevelUserCollections
                 imageRequestOptions:imageRequestOptions
                       thumbnailSize:retinaSquare
                               block:^(NSDictionary *albums) {
                                   
-                                  if (albums) {
-                                      [albumsDict addEntriesFromDictionary:albums];
-                                  }
                                   
-                                  [self extractCollection:self.allPhotos imageRequestOptions:imageRequestOptions thumbnailSize:retinaSquare block:^(NSDictionary *album) {
+                                  [self extractCollection:self.allPhotos imageRequestOptions:imageRequestOptions thumbnailSize:retinaSquare block:^(NSDictionary *allPhotosAlbum) {
                                       
-                                      if (album) {
-                                          albumsDict[album[@"albumName"]] = album;
-                                      }
                                       
                                       if (resolve) {
-                                          NSDictionary *ans = @{[NSString stringWithFormat:@"albums"]: albumsDict};
-                                          resolve(ans);
+                                          NSMutableArray *albumsArrayAns = [[NSMutableArray alloc] init];;
+                                          
+                                          if(albums[@"albums"]) {
+                                              [albumsArrayAns addObjectsFromArray:albums[@"albums"]];
+                                          }
+                                          if(allPhotosAlbum) {
+                                              [albumsArrayAns insertObject:allPhotosAlbum atIndex:0];
+                                          }
+                                          
+                                          if (!albumsArrayAns || albumsArrayAns.count == 0) {
+                                              NSError *error = [[NSError alloc] initWithDomain:NSCocoaErrorDomain
+                                                                                                    code:-100 userInfo:nil];
+
+                                              reject(@"-100", @"no albnums", error);
+                                          }
+                                          else {
+                                              if (resolve) {
+                                                  NSDictionary *ans = @{@"albums":  albumsArrayAns };
+                                                  resolve(ans);
+                                              }
+                                          }
                                       }
                                   }];
                               }];
