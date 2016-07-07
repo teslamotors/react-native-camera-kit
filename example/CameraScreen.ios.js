@@ -10,9 +10,6 @@ import {
 	AlertIOS
 } from 'react-native';
 
-import _ from 'lodash';
-import Immutable from 'seamless-immutable';
-
 import {
 	CameraKitGallery,
 	CameraKitCamera,

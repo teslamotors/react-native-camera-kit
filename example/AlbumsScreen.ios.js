@@ -10,14 +10,12 @@ import {
 	AlertIOS
 } from 'react-native';
 
-//import _ from 'lodash';
-//import Immutable from 'seamless-immutable';
-
 import {
 	CameraKitGallery,
 	CameraKitCamera,
   CameraKitGalleryView
 } from 'react-native-camera-kit';
+import _ from 'lodash';
 
 import GalleryScreen from './GalleryScreen';
 
@@ -38,7 +36,7 @@ export default class AlbumsScreen extends Component {
     this.reloadAlbums();
   }
 
-  async reloadAlbums() {
+  async reloadAlbums() { 
     const newAlbums = await CameraKitGallery.getAlbumsWithThumbnails();
 
     let albums = [];

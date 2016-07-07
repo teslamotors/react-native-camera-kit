@@ -16,7 +16,6 @@ import {
   CameraKitGalleryView
 } from 'react-native-camera-kit';
 
-var groupByEveryN = require('groupByEveryN');
 const ds = new ListView.DataSource({
   rowHasChanged: (r1, r2) => r1 !== r2
 });

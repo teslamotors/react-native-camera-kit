@@ -10,7 +10,12 @@
 #import "RCTBridgeModule.h"
 
 typedef void (^CallbackGalleryBlock)(BOOL success, NSString *encodeImage);
+typedef void (^CallbackGalleryAuthorizationStatus)(BOOL isAuthorized);
 
 @interface CKGalleryManager : NSObject <RCTBridgeModule>
+
+
++(void)deviceGalleryAuthorizationStatus:(CallbackGalleryAuthorizationStatus)callback;
+
 
 @end

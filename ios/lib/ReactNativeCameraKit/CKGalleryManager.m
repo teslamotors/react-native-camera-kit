@@ -18,6 +18,7 @@ typedef void (^AlbumsBlock)(NSDictionary *albums);
 @property (nonatomic, strong) PHFetchResult *allPhotos;
 @property (nonatomic, strong) PHFetchResult *smartAlbums;
 @property (nonatomic, strong) PHFetchResult *topLevelUserCollections;
+@property (nonatomic, strong) PHFetchOptions *fetchOptions;
 
 @end
 
@@ -28,27 +29,35 @@ typedef void (^AlbumsBlock)(NSDictionary *albums);
 RCT_EXPORT_MODULE();
 
 
--(instancetype)init {
-    self = [super init];
-    
-    [self initAlbums];
-    
-    return self;
+#pragma mark - lazy loading methods
+
+
+-(PHFetchOptions*)fetchOptions {
+    if (!_fetchOptions) {
+        _fetchOptions = [[PHFetchOptions alloc] init];
+        _fetchOptions.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:YES]];
+    }
+    return _fetchOptions;
 }
 
 
--(void)initAlbums {
-    
-    PHFetchOptions *allPhotosOptions = [[PHFetchOptions alloc] init];
-    allPhotosOptions.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:YES]];
-    
-    PHFetchOptions *albumsOptions = [[PHFetchOptions alloc] init];
-    albumsOptions.predicate = [NSPredicate predicateWithFormat:@"estimatedAssetCount > 0"];
-    
-    self.allPhotos = [PHAsset fetchAssetsWithOptions:allPhotosOptions];
-    self.smartAlbums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum subtype:PHAssetCollectionSubtypeAlbumMyPhotoStream options:nil];
-    self.topLevelUserCollections = [PHCollectionList fetchTopLevelUserCollectionsWithOptions:nil];
+-(PHFetchResult *)allPhotos {
+    if (!_allPhotos) {
+        _allPhotos = [PHAsset fetchAssetsWithOptions:self.fetchOptions];
+    }
+    return _allPhotos;
 }
+
+
+-(PHFetchResult *)topLevelUserCollections {
+    if (!_topLevelUserCollections) {
+        _topLevelUserCollections = [PHCollectionList fetchTopLevelUserCollectionsWithOptions:nil];
+    }
+    return _topLevelUserCollections;
+}
+
+
+#pragma mark -
 
 
 -(void)extractCollection:(id)collection
@@ -142,7 +151,6 @@ RCT_EXPORT_METHOD(getAlbumsWithThumbnails:(RCTPromiseResolveBlock)resolve
                       thumbnailSize:retinaSquare
                               block:^(NSDictionary *albums) {
                                   
-                                  
                                   [self extractCollection:self.allPhotos imageRequestOptions:imageRequestOptions thumbnailSize:retinaSquare block:^(NSDictionary *allPhotosAlbum) {
                                       
                                       
@@ -158,8 +166,8 @@ RCT_EXPORT_METHOD(getAlbumsWithThumbnails:(RCTPromiseResolveBlock)resolve
                                           
                                           if (!albumsArrayAns || albumsArrayAns.count == 0) {
                                               NSError *error = [[NSError alloc] initWithDomain:NSCocoaErrorDomain
-                                                                                                    code:-100 userInfo:nil];
-
+                                                                                          code:-100 userInfo:nil];
+                                              
                                               reject(@"-100", @"no albnums", error);
                                           }
                                           else {
@@ -200,8 +208,36 @@ RCT_EXPORT_METHOD(getImagesForIds:(NSArray*)imagesIdArray
 }
 
 
+RCT_EXPORT_METHOD(checkDeviceGalleryAuthorizationStatus:(RCTPromiseResolveBlock)resolve
+                  reject:(__unused RCTPromiseRejectBlock)reject) {
+    [CKGalleryManager deviceGalleryAuthorizationStatus:^(BOOL isAuthorized) {
+        if (resolve) {
+            resolve(@(isAuthorized));
+        }
+    }];
+}
 
 
++(void)deviceGalleryAuthorizationStatus:(CallbackGalleryAuthorizationStatus)callback {
+    [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
+        if (callback) {
+            switch (status) {
+                case PHAuthorizationStatusAuthorized:
+                    callback(true);
+                    break;
+                case PHAuthorizationStatusRestricted:
+                    callback(false);
+                    break;
+                case PHAuthorizationStatusDenied:
+                    callback(false);
+                    break;
+                default:
+                    callback(false);
+                    break;
+            }
+        }
+    }];
+}
 
 
 

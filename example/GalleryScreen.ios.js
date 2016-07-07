@@ -12,16 +12,10 @@ import {
   Dimensions
 } from 'react-native';
 
-import _ from 'lodash';
-
 import {
   CameraKitGalleryView
 } from 'react-native-camera-kit';
 
-var groupByEveryN = require('groupByEveryN');
-const ds = new ListView.DataSource({
-  rowHasChanged: (r1, r2) => r1 !== r2
-});
 
 const size = Math.floor((Dimensions.get('window').width) / 3);
 const innerSize = size - 6;

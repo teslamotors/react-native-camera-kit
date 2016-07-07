@@ -29,22 +29,18 @@ RCT_EXPORT_MODULE()
 
 RCT_REMAP_VIEW_PROPERTY(cameraOptions, cameraOptions, NSDictionary)
 
+
 RCT_EXPORT_METHOD(checkDeviceAuthorizationStatus:(RCTPromiseResolveBlock)resolve
                   reject:(__unused RCTPromiseRejectBlock)reject) {
     __block NSString *mediaType = AVMediaTypeVideo;
     
     [AVCaptureDevice requestAccessForMediaType:mediaType completionHandler:^(BOOL granted) {
-//        if (!granted) {
+        if (resolve) {
             resolve(@(granted));
-//        }
-//        else {
-//            mediaType = AVMediaTypeAudio;
-//            [AVCaptureDevice requestAccessForMediaType:mediaType completionHandler:^(BOOL granted) {
-//                resolve(@(granted));
-//            }];
-//        }
+        }
     }];
 }
+
 
 RCT_EXPORT_METHOD(capture:(BOOL)shouldSaveToCameraRoll
                   resolve:(RCTPromiseResolveBlock)resolve

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import {
   AppRegistry,
   StyleSheet,
@@ -10,17 +10,15 @@ import {
   AlertIOS
 } from 'react-native';
 
-import _ from 'lodash';
 import Immutable from 'seamless-immutable';
 
-
 import {
-    CameraKitCamera,
+  CameraKitCamera,
+  CameraKitGallery
 } from 'react-native-camera-kit';
 
 import CameraScreen from  './CameraScreen';
 import AlbumsScreen from  './AlbumsScreen';
-
 
 class example extends Component {
 
@@ -37,34 +35,50 @@ class example extends Component {
       return <Example />;
     }
     return (
-        <View style={styles.container}>
+      <View style={styles.container}>
 
-          <TouchableOpacity onPress={() => this.setState({example: CameraScreen})}>
-            <Text style={styles.buttonText}>
-              Camera Screen
-            </Text>
-          </TouchableOpacity>
+        <TouchableOpacity onPress={() => this.setState({example: CameraScreen})}>
+          <Text style={styles.buttonText}>
+            Camera Screen
+          </Text>
+        </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => this.setState({example: AlbumsScreen})}>
-            <Text style={styles.buttonText}>
-              Albums Screen
-            </Text>
-          </TouchableOpacity>
-  
-          <TouchableOpacity onPress={this.onCheckAuthoPressed.bind(this)}>
-            <Text style={styles.buttonText}>
-              Check Autotization Status
-            </Text>
-          </TouchableOpacity>
+        <TouchableOpacity onPress={() => this.setState({example: AlbumsScreen})}>
+          <Text style={styles.buttonText}>
+            Albums Screen
+          </Text>
+        </TouchableOpacity>
 
-        </View>
+        <TouchableOpacity onPress={() => this.onCheckCameraAuthoPressed()}>
+          <Text style={styles.buttonText}>
+            Check Camera Autotization Status
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => this.onCheckGalleryAuthoPressed()}>
+          <Text style={styles.buttonText}>
+            Check Photos Autotization Status
+          </Text>
+        </TouchableOpacity>
+
+      </View>
 
     );
   }
 
-  async onCheckAuthoPressed() {
+  async onCheckCameraAuthoPressed() {
     const success = await CameraKitCamera.checkDeviceAuthorizarionStatus();
-    if (success){
+    if (success) {
+      AlertIOS.alert('You rock!')
+    }
+    else {
+      AlertIOS.alert('You fucked!')
+    }
+  }
+
+  async onCheckGalleryAuthoPressed() {
+    const success = await CameraKitGallery.checkDeviceGalleryAuthorizationStatus();
+    if (success) {
       AlertIOS.alert('You rock!')
     }
     else {
@@ -72,8 +86,6 @@ class example extends Component {
     }
   }
 }
-
-
 
 const styles = StyleSheet.create({
   container: {
@@ -89,6 +101,5 @@ const styles = StyleSheet.create({
 
   }
 });
-
 
 AppRegistry.registerComponent('example', () => example);

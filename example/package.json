@@ -6,6 +6,7 @@
     "start": "node node_modules/react-native/local-cli/cli.js start"
   },
   "dependencies": {
+    "lodash": "^4.13.1",
     "react": "0.14.5",
     "react-native": "0.25.1",
     "react-native-camera-kit": "file:../",
