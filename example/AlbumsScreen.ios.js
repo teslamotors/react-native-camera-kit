@@ -16,6 +16,7 @@ import {
 import {
 	CameraKitGallery,
 	CameraKitCamera,
+  CameraKitGalleryView
 } from 'react-native-camera-kit';
 
 import GalleryScreen from './GalleryScreen';
@@ -26,33 +27,48 @@ export default class AlbumsScreen extends Component {
 
 		super(props);
 		const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-		this.state = {
-			albums:{},
-			albumsDS: ds,
-			albumName: undefined
-		}
+    this.state = {
+      album: {albumName: 'All Photos'},
+      albums: [],
+      dropdownVisible: false
+    }
 	}
 
 	componentDidMount() {
-		this.onGetAlbumsPressed();
-	}
+    this.reloadAlbums();
+  }
+
+  async reloadAlbums() {
+    const newAlbums = await CameraKitGallery.getAlbumsWithThumbnails();
+
+    let albums = [];
+
+    for (let name in newAlbums.albums) {
+      albums.push(_.get(newAlbums, ['albums', name]));
+    }
+    this.setState({albums})
+  }
 
 	render() {
 
-		if (this.state.albumName) {
-			const albumName = this.state.albumName;
-			return <GalleryScreen albumName={albumName}/>;
-		}
 		
 		return (
 			<View style={styles.container}>
-				<ListView
-					style={styles.listView}
-					dataSource={this.state.albumsDS}
-					renderRow={(rowData) =>
-                      this._renderRow(rowData)
-                    }
-				/>
+        <CameraKitGalleryView
+          ref={(gallery) => {
+                            this.gallery = gallery;
+                           }}
+          style={{width: 300, height: 300}}
+          minimumInteritemSpacing={10}
+          minimumLineSpacing={10}
+          columnCount={3}
+          albumName={'all photos'}
+          onSelected={(result) => {
+              //this.onSelectedChanged(result.nativeEvent.selected);
+            }}
+          //selectedImage={require('./../../images/selected.png')}
+          //unSelectedImage={require('./../../images/unSelected.png')}
+        />
 			</View>
 		);
 	}
@@ -86,8 +102,8 @@ export default class AlbumsScreen extends Component {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		//justifyContent: 'center',
-		//alignItems: 'center',
+		justifyContent: 'center',
+		alignItems: 'center',
 		backgroundColor: '#F5FCFF',
 		marginTop: 20
 	},

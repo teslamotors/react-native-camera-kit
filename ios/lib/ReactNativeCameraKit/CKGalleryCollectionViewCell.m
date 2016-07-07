@@ -7,6 +7,7 @@
 //
 
 #import "CKGalleryCollectionViewCell.h"
+#import "SelectionGesture.h"
 #import "GalleryData.h"
 
 #define BADGE_SIZE              22
@@ -74,6 +75,12 @@ static UIImage *unSelectedImage = nil;
     
     self.isSelected = NO;
     
+    
+    SelectionGesture *gesture = [[SelectionGesture alloc] initWithTarget:self action:@selector(handleGesture:)];
+    [self addGestureRecognizer:gesture];
+    gesture.cancelsTouchesInView = NO;
+    gesture.delegate = self;
+    
     return self;
 }
 
@@ -98,7 +105,19 @@ static UIImage *unSelectedImage = nil;
     if (_isSelected) {
         self.imageOveray.alpha = IMAGE_OVERLAY_ALPHA;
         if (selectedImage) {
+            
+            double frameDuration = 1.0/2.0; // 4 = number of keyframes
             self.badgeImageView.image = selectedImage;
+            self.badgeImageView.transform = CGAffineTransformMakeScale(0.5, 0.5);
+            [UIView animateKeyframesWithDuration:0.2 delay:0 options:0 animations:^{
+                
+                
+                [UIView addKeyframeWithRelativeStartTime:0*frameDuration relativeDuration:frameDuration animations:^{
+                    self.badgeImageView.transform = CGAffineTransformIdentity;
+                }];
+                
+            } completion:nil];
+            
         }
         else {
             self.badgeImageView.backgroundColor = UIColorFromRGB(BADGE_COLOR);
@@ -107,12 +126,47 @@ static UIImage *unSelectedImage = nil;
     else {
         self.imageOveray.alpha = 0;
         if (unSelectedImage) {
-            self.badgeImageView.image = unSelectedImage;
+            [UIView animateWithDuration:0.3 animations:^{
+                self.badgeImageView.image = unSelectedImage;
+            } completion:^(BOOL finished) {
+                
+            }];
+            
         }
         else {
             self.badgeImageView.backgroundColor = [[UIColor grayColor] colorWithAlphaComponent:0.7];
         }
     }
+}
+
+
+-(void)handleGesture:(UIGestureRecognizer*)gesture
+{
+    if (gesture.state == UIGestureRecognizerStateBegan)
+    {
+        [UIView animateWithDuration:0.1 animations:^{
+            self.transform = CGAffineTransformMakeScale(0.9, 0.9);
+            
+        } completion:^(BOOL finished) {
+            
+        }];
+    }
+    else if (gesture.state == UIGestureRecognizerStateEnded || gesture.state == UIGestureRecognizerStateCancelled || gesture.state == UIGestureRecognizerStateChanged)
+    {
+        [UIView animateWithDuration:0.1 animations:^{
+            self.transform = CGAffineTransformIdentity;
+            
+        } completion:^(BOOL finished) {
+            
+        }];
+    }
+}
+
+- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer{
+    return YES;
+}
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
+    return YES;
 }
 
 
