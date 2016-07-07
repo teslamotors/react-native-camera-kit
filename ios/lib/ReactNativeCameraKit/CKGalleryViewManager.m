@@ -11,6 +11,7 @@
 #import "CKGalleryCollectionViewCell.h"
 #import "GalleryData.h"
 #import "UIView+React.h"
+#import "CKGalleryManager.h"
 
 #define SCREEN_WIDTH ([[UIScreen mainScreen] bounds].size.width)
 #define SCREEN_HEIGHT ([[UIScreen mainScreen] bounds].size.height)
@@ -53,11 +54,14 @@ static NSString * const CellReuseIdentifier = @"Cell";
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     
-    self.selectedAssets = [[NSMutableArray alloc] init];
-    self.imageManager = [[PHCachingImageManager alloc] init];
-    
-    self.imageRequestOptions = [[PHImageRequestOptions alloc] init];
-    self.imageRequestOptions.synchronous = YES;
+    if (self) {
+        
+        self.selectedAssets = [[NSMutableArray alloc] init];
+        self.imageManager = [[PHCachingImageManager alloc] init];
+        
+        self.imageRequestOptions = [[PHImageRequestOptions alloc] init];
+        self.imageRequestOptions.synchronous = YES;
+    }
     
     return self;
 }
