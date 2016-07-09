@@ -234,7 +234,7 @@ static NSString * const CellReuseIdentifier = @"Cell";
                 [self.selectedAssets addObject:assetLocalIdentifier];
             }
             else {
-                NSLog(@"ERROR: assetInfo is nil!");
+                //NSLog(@"ERROR: assetInfo is nil!");
             }
         }
         else {
@@ -347,7 +347,6 @@ RCT_EXPORT_METHOD(getSelectedImages:(RCTPromiseResolveBlock)resolve
 RCT_EXPORT_METHOD(refreshGalleryView:(NSArray*)selectedImages
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
-    NSLog(@"selectedImages:%@", selectedImages);
     NSMutableArray *newArray = [[NSMutableArray alloc] initWithArray:selectedImages];
     [self.galleryView refreshGalleryView:newArray];
     
@@ -367,7 +366,7 @@ RCT_EXPORT_METHOD(refreshGalleryView:(NSArray*)selectedImages
     [[NSFileManager defaultManager] createDirectoryAtURL:directoryURL withIntermediateDirectories:YES attributes:nil error:&error];
     
     if (error) {
-        NSLog(@"ERROR while creating directory:%@",error);
+        //NSLog(@"ERROR while creating directory:%@",error);
     }
     
     
@@ -399,7 +398,7 @@ RCT_EXPORT_METHOD(refreshGalleryView:(NSArray*)selectedImages
                 assetInfoDict[@"uri"] = fileURL.absoluteString;
             }
             else if (error){
-                NSLog(@"%@", error);
+                //NSLog(@"%@", error);
             }
         }
     }];

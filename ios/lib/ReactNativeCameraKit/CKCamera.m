@@ -94,7 +94,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 - (void)dealloc
 {
     [self removeObservers];
-    NSLog(@"dealloc");
+    //NSLog(@"dealloc");
 }
 
 -(PHFetchOptions *)fetchOptions {
@@ -212,7 +212,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         AVCaptureDeviceInput *videoDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:&error];
         
         if ( ! videoDeviceInput ) {
-            NSLog( @"Could not create video device input: %@", error );
+            //NSLog( @"Could not create video device input: %@", error );
         }
         
         [self.session beginConfiguration];
@@ -223,7 +223,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
             [CKCamera setFlashMode:AVCaptureFlashModeAuto forDevice:self.videoDeviceInput.device];
         }
         else {
-            NSLog( @"Could not add video device input to the session" );
+            //NSLog( @"Could not add video device input to the session" );
             self.setupResult = CKSetupResultSessionConfigurationFailed;
         }
         
@@ -237,7 +237,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
             self.movieFileOutput = movieFileOutput;
         }
         else {
-            NSLog( @"Could not add movie file output to the session" );
+            //NSLog( @"Could not add movie file output to the session" );
             self.setupResult = CKSetupResultSessionConfigurationFailed;
         }
         
@@ -248,7 +248,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
             self.stillImageOutput = stillImageOutput;
         }
         else {
-            NSLog( @"Could not add still image output to the session" );
+            //NSLog( @"Could not add still image output to the session" );
             self.setupResult = CKSetupResultSessionConfigurationFailed;
         }
         
@@ -401,7 +401,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
             [device unlockForConfiguration];
         }
         else {
-            NSLog( @"Could not lock device for configuration: %@", error );
+            //NSLog( @"Could not lock device for configuration: %@", error );
         }
     }
 }
@@ -457,7 +457,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
                                     
                                 }
                                 else {
-                                    NSLog( @"Could not save to camera roll");
+                                    //NSLog( @"Could not save to camera roll");
                                 }
                             }];
                         }
@@ -468,7 +468,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
                 }];
             }
             else {
-                NSLog( @"Could not capture still image: %@", error );
+                //NSLog( @"Could not capture still image: %@", error );
             }
         }];
     } );
@@ -550,7 +550,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
             
         } completionHandler:^( BOOL success, NSError *error ) {
             if ( ! success ) {
-                NSLog( @"Error occurred while saving image to photo library: %@", error );
+                //NSLog( @"Error occurred while saving image to photo library: %@", error );
                 block(NO);
             }
             else {
@@ -562,14 +562,14 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
             NSError *error = nil;
             if ( error ) {
-                NSLog( @"Error occured while writing image data to a temporary file: %@", error );
+                //NSLog( @"Error occured while writing image data to a temporary file: %@", error );
             }
             else {
                 [PHAssetChangeRequest creationRequestForAssetFromImageAtFileURL:temporaryFileURL];
             }
         } completionHandler:^( BOOL success, NSError *error ) {
             if ( ! success ) {
-                NSLog( @"Error occurred while saving image to photo library: %@", error );
+                //NSLog( @"Error occurred while saving image to photo library: %@", error );
                 block(NO);
             }
             else {
@@ -589,10 +589,10 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
     [data writeToURL:temporaryFileURL options:NSDataWritingAtomic error:&error];
     
     if ( error ) {
-        NSLog( @"Error occured while writing image data to a temporary file: %@", error );
+        //NSLog( @"Error occured while writing image data to a temporary file: %@", error );
     }
     else {
-        NSLog(@"Image Saved - YOU ROCK!");
+        //NSLog(@"Image Saved - YOU ROCK!");
     }
     return temporaryFileURL;
 }
@@ -659,7 +659,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
             [device unlockForConfiguration];
         }
         else {
-            NSLog( @"Could not lock device for configuration: %@", error );
+            //NSLog( @"Could not lock device for configuration: %@", error );
         }
     } );
 }
@@ -683,7 +683,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         device.videoZoomFactor = zoomFactor;
         [device unlockForConfiguration];
     } else {
-        NSLog(@"error: %@", error);
+        //NSLog(@"error: %@", error);
     }
 }
 
@@ -723,7 +723,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
     // In iOS 9 and later, the userInfo dictionary contains information on why the session was interrupted.
     if ( &AVCaptureSessionInterruptionReasonKey ) {
         AVCaptureSessionInterruptionReason reason = [notification.userInfo[AVCaptureSessionInterruptionReasonKey] integerValue];
-        NSLog( @"Capture session was interrupted with reason %ld", (long)reason );
+        //NSLog( @"Capture session was interrupted with reason %ld", (long)reason );
         
         if ( reason == AVCaptureSessionInterruptionReasonAudioDeviceInUseByAnotherClient ||
             reason == AVCaptureSessionInterruptionReasonVideoDeviceInUseByAnotherClient ) {
@@ -739,7 +739,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         //        }
     }
     else {
-        NSLog( @"Capture session was interrupted" );
+        //NSLog( @"Capture session was interrupted" );
         showResumeButton = ( [UIApplication sharedApplication].applicationState == UIApplicationStateInactive );
     }
     
@@ -755,7 +755,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 - (void)sessionInterruptionEnded:(NSNotification *)notification
 {
-    NSLog( @"Capture session interruption ended" );
+    //NSLog( @"Capture session interruption ended" );
     
     //    if ( ! self.resumeButton.hidden ) {
     //        [UIView animateWithDuration:0.25 animations:^{
@@ -787,7 +787,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 - (void)sessionRuntimeError:(NSNotification *)notification
 {
     NSError *error = notification.userInfo[AVCaptureSessionErrorKey];
-    NSLog( @"Capture session runtime error: %@", error );
+    //NSLog( @"Capture session runtime error: %@", error );
     
     // Automatically try to restart the session running if media services were reset and the last start running succeeded.
     // Otherwise, enable the user to try to resume the session running.
@@ -808,7 +808,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 {
     //    CGPoint devicePoint = CGPointMake( 0.5, 0.5 );
     //    [self focusWithMode:AVCaptureFocusModeContinuousAutoFocus exposeWithMode:AVCaptureExposureModeContinuousAutoExposure atDevicePoint:devicePoint monitorSubjectAreaChange:NO];
-    //        NSLog(@"subjectAreaDidChange");
+    //        //NSLog(@"subjectAreaDidChange");
 }
 
 
