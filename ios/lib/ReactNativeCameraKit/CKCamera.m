@@ -101,7 +101,10 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
     if (!_fetchOptions) {
         PHFetchOptions *fetchOptions = [PHFetchOptions new];
         fetchOptions.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:NO]];
-        fetchOptions.fetchLimit = 1;
+        // iOS 9+
+        if ([fetchOptions respondsToSelector:@selector(fetchLimit)]) {
+            fetchOptions.fetchLimit = 1;
+        }
         _fetchOptions = fetchOptions;
     }
     return _fetchOptions;

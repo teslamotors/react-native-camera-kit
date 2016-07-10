@@ -93,7 +93,7 @@ export default class CameraScreen extends Component {
 	}
 
 	async onSwitchCameraPressed() {
-		const success = await this.camera.changeCamera();
+    const success = await this.camera.changeCamera();
 	}
 
 	async onCheckAuthoPressed() {
@@ -107,7 +107,8 @@ export default class CameraScreen extends Component {
 	}
 
 	async onSetFlash(flashMode) {
-		const success = await this.camera.setFleshMode(flashMode);
+		const success = await this.camera.setFlashMode(flashMode);
+
 	}
 
 	async onTakeIt() {
