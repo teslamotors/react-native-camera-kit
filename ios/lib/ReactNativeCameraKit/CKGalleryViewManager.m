@@ -88,11 +88,14 @@ static NSString * const CellReuseIdentifier = @"Cell";
 
 -(void)reactSetFrame:(CGRect)frame {
     [super reactSetFrame:frame];
+    //NSLog(@"### reactSetFrame #####");
+    
+    if (CGRectIsEmpty(frame)) return;
     
     if (!self.collectionView) {
-        
+        //NSLog(@"### collection view create new#####");
         UICollectionViewFlowLayout* flowLayout = [[UICollectionViewFlowLayout alloc] init];
-        flowLayout.itemSize = self.cellSize; //TODO remove this, get it from the JS
+        flowLayout.itemSize = self.cellSize;
         [flowLayout setScrollDirection:UICollectionViewScrollDirectionVertical];
         
         self.collectionView = [[UICollectionView alloc] initWithFrame:self.bounds collectionViewLayout:flowLayout];
@@ -103,6 +106,10 @@ static NSString * const CellReuseIdentifier = @"Cell";
         [self addSubview:self.collectionView];
         self.collectionView.backgroundColor = [UIColor whiteColor];
         
+    }
+    else {
+        //NSLog(@"### collection view using exists #####");
+        self.collectionView.frame = self.bounds;
     }
 }
 
