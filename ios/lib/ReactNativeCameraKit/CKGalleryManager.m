@@ -65,7 +65,16 @@ RCT_EXPORT_MODULE();
            thumbnailSize:(CGSize)thumbnailSize
                    block:(AlbumsBlock)block {
     
-    NSInteger collectionCount = ([collection isKindOfClass:[PHAssetCollection class]]) ? [PHAsset fetchAssetsInAssetCollection:collection options:nil].count : ((PHFetchResult*)collection).count;
+    NSInteger collectionCount;
+    if ([collection isKindOfClass:[PHAssetCollection class]]) {
+        collectionCount = [PHAsset fetchAssetsInAssetCollection:collection options:nil].count;
+    }
+    else if ([collection isKindOfClass:[PHFetchResult class]]){
+        collectionCount = ((PHFetchResult*)collection).count;
+    }
+    else {
+        collectionCount = 0;
+    }
     
     if (collectionCount > 0){
         
