@@ -63,17 +63,20 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.StupidHo
 
     public void refreshData() {
         ids.clear();
+        uris.clear();
 
         String selection = "";
+        String[] args = null;
         if(albumName != null && !albumName.isEmpty() && !albumName.equals("All Photos")) {
-            selection = MediaStore.Images.Media.BUCKET_DISPLAY_NAME + "=" + albumName;
+            selection = MediaStore.Images.Media.BUCKET_DISPLAY_NAME + "=?";
+            args = new String[]{albumName};
         }
 
         Cursor cursor = view.getContext().getContentResolver().query(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                 PROJECTION,
                 selection,
-                null,
+                args,
                 null
         );
 
@@ -90,6 +93,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.StupidHo
         Collections.reverse(ids);
 
         cursor.close();
+        notifyDataSetChanged();
     }
 
     @Override
