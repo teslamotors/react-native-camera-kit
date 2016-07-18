@@ -2,14 +2,15 @@ package com.wix.RNCameraKit.gallery;
 
 import android.app.Activity;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.provider.MediaStore;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.facebook.react.bridge.ReactBridge;
 import com.facebook.react.bridge.ReactContext;
 
 import java.util.ArrayList;
@@ -33,9 +34,24 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.StupidHo
     private ArrayList<Integer> ids = new ArrayList<>();
     private ArrayList<String> selectedUris = new ArrayList<>();
     private String albumName = "";
+    private Drawable selectedDrawable;
+    private Drawable unselectedDrawable;
 
     public void setSelectedUris(ArrayList<String> selectedUris) {
         this.selectedUris = selectedUris;
+    }
+
+    public void setSelectedDrawable(Drawable selectedDrawable) {
+        this.selectedDrawable = selectedDrawable;
+        notifyDataSetChanged();
+    }
+
+    public void setUnselectedDrawable(Drawable unselectedDrawable) {
+        this.unselectedDrawable = unselectedDrawable;
+    }
+
+    public Drawable getUnselectedDrawable() {
+        return unselectedDrawable;
     }
 
     public class StupidHolder extends RecyclerView.ViewHolder {
@@ -59,6 +75,11 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.StupidHo
     public void setAlbum(String albumName) {
         this.albumName = albumName;
         refreshData();
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return 0;
     }
 
     public void refreshData() {
@@ -108,37 +129,15 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.StupidHo
     public void onBindViewHolder(final StupidHolder holder, final int position) {
 
         final SelectableImage selectableImageView = (SelectableImage)holder.itemView;
-        selectableImageView.setImageBitmap(null);
-        selectableImageView.setBackgroundColor(Color.LTGRAY);
         holder.id = ids.get(position);
         holder.uri = uris.get(position);
-
-        selectableImageView.setSelected(selectedUris.indexOf(holder.uri) + 1);
-
+        boolean selected = (selectedUris.indexOf(holder.uri) + 1) > 0;
+        selectableImageView.setDrawables(selectedDrawable, unselectedDrawable);
+        selectableImageView.bind(executor, selected, holder.id);
         selectableImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 view.onTapImage(holder.uri);
-            }
-        });
-
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                final Bitmap bmp = MediaStore.Images.Thumbnails.getThumbnail(
-                        view.getContext().getContentResolver(),
-                        ids.get(holder.getAdapterPosition()),
-                        MediaStore.Images.Thumbnails.MINI_KIND,
-                        null);
-
-                if (holder.id == ids.get(holder.getAdapterPosition())) {
-                    ((Activity) ((ReactContext)view.getContext()).getBaseContext()).runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            selectableImageView.setImageBitmap(bmp);
-                        }
-                    });
-                }
             }
         });
     }

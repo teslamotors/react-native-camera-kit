@@ -2,14 +2,17 @@ package com.wix.RNCameraKit.gallery;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
+import com.facebook.react.modules.core.RCTNativeAppEventEmitter;
 
 import java.util.ArrayList;
 
@@ -27,6 +30,7 @@ public class GalleryView extends RecyclerView {
         setHasFixedSize(true);
         adapter = new GalleryAdapter(this);
         setAdapter(adapter);
+        getRecycledViewPool().setMaxRecycledViews(0, 20);
     }
 
     private void updateDecorator() {
@@ -62,8 +66,9 @@ public class GalleryView extends RecyclerView {
     }
 
     public void onTapImage(String uri) {
-        ReactContext reactContext = ((ReactContext)getContext());
-        WritableMap event = Arguments.createMap();
+        Log.d("DEBUG", "TAPPED!");
+        final ReactContext reactContext = ((ReactContext)getContext());
+        final WritableMap event = Arguments.createMap();
         event.putString("uri", uri);
         event.putString("id", "onTapImage");
         reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onTapImage", event);
@@ -72,6 +77,13 @@ public class GalleryView extends RecyclerView {
     public void setSelectedUris(ArrayList<String> selectedUris) {
         adapter.setSelectedUris(selectedUris);
         adapter.notifyDataSetChanged();
-        invalidate();
+    }
+
+    public void setSelectedDrawable(Drawable drawable) {
+        adapter.setSelectedDrawable(drawable);
+    }
+
+    public void setUnselectedDrawable(Drawable drawable) {
+        adapter.setUnselectedDrawable(drawable);
     }
 }
