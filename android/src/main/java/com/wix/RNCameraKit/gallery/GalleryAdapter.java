@@ -65,15 +65,15 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.StupidHo
         ids.clear();
 
         String selection = "";
-        if(albumName == null || albumName.isEmpty() || !albumName.equals("All Photos")) {
-            selection = MediaStore.Images.Media.BUCKET_DISPLAY_NAME + " = ?";
+        if(albumName != null && !albumName.isEmpty() && !albumName.equals("All Photos")) {
+            selection = MediaStore.Images.Media.BUCKET_DISPLAY_NAME + "=" + albumName;
         }
 
         Cursor cursor = view.getContext().getContentResolver().query(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                 PROJECTION,
                 selection,
-                new String[]{albumName},
+                null,
                 null
         );
 
