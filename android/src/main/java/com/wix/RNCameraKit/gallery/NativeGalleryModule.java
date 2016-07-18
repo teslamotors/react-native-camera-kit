@@ -26,6 +26,7 @@ public class NativeGalleryModule extends ReactContextBaseJavaModule {
             MediaStore.Images.Media._ID,
             MediaStore.Images.Media.BUCKET_DISPLAY_NAME
     };
+    public static final String ALL_PHOTOS = "All Photos";
 
     private class Album {
         String name;
@@ -90,8 +91,12 @@ public class NativeGalleryModule extends ReactContextBaseJavaModule {
             do {
                 String name = imagesCursor.getString(bucketColumn);
                 albums.addAlbum(name);
+                albums.addAlbum(ALL_PHOTOS);
                 if(!albums.hasThumbnail(name)) {
                     albums.setThumbnail(name, getThumbnail(imagesCursor.getInt(thumbIdColumn)));
+                }
+                if(!albums.hasThumbnail(ALL_PHOTOS)) {
+                    albums.setThumbnail(ALL_PHOTOS, getThumbnail(imagesCursor.getInt(thumbIdColumn)));
                 }
             } while (imagesCursor.moveToNext());
         }
