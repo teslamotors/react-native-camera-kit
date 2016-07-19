@@ -7,6 +7,12 @@ async function getAlbumsWithThumbnails() {
   return albums;
 }
 
+async function getImagesForIds(imagesUris = []) {
+  const images = await NativeGalleryModule.getImagesForUris(imagesUris);
+  return images;
+}
+
 export default {
-  getAlbumsWithThumbnails
+  getAlbumsWithThumbnails,
+  getImagesForIds
 }

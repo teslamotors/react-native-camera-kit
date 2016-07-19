@@ -4,14 +4,17 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.widget.ImageView;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
+import com.facebook.stetho.common.StringUtil;
 import com.wix.RNCameraKit.Utils;
 
 import java.util.Collection;
@@ -23,8 +26,15 @@ import java.util.HashMap;
 public class NativeGalleryModule extends ReactContextBaseJavaModule {
 
     public static final String[] ALBUMS_PROJECTION = new String[]{
-            MediaStore.Images.Media._ID,
-            MediaStore.Images.Media.BUCKET_DISPLAY_NAME
+        MediaStore.Images.Media._ID,
+        MediaStore.Images.Media.BUCKET_DISPLAY_NAME
+    };
+    public static final String[] IMAGES_PROJECTION = new String[]{
+        MediaStore.Images.Media. _ID,
+        MediaStore.Images.Media.SIZE,
+        MediaStore.Images.Media.MIME_TYPE,
+        MediaStore.Images.Media.TITLE,
+        MediaStore.Images.Media.DATA
     };
     public static final String ALL_PHOTOS = "All Photos";
 
@@ -127,6 +137,51 @@ public class NativeGalleryModule extends ReactContextBaseJavaModule {
         WritableMap ret = Arguments.createMap();
         ret.putArray("albums", arr);
 
+        promise.resolve(ret);
+    }
+
+    @ReactMethod
+    public void getImagesForUris(ReadableArray uris, Promise promise) {
+
+        StringBuilder builder = new StringBuilder();
+        builder.append(MediaStore.Images.Media.DATA + " IN (");
+        for (int i=0; i<uris.size(); i++) {
+            builder.append("\"");
+            builder.append(uris.getString(i));
+            builder.append("\"");
+            if(i != uris.size() -1) {
+                builder.append(", ");
+            }
+        }
+        builder.append(")");
+        String selection = builder.toString();
+
+        Cursor cursor = getCurrentActivity().getContentResolver().query(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                IMAGES_PROJECTION,
+                selection,
+                null,
+                null
+        );
+
+        WritableArray arr = Arguments.createArray();
+
+        if(cursor.moveToFirst()) {
+            int dataIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
+            int sizeIndex = cursor.getColumnIndex(MediaStore.Images.Media.SIZE);
+            int nameIndex = cursor.getColumnIndex(MediaStore.Images.Media.TITLE);
+            int mimeIndex = cursor.getColumnIndex(MediaStore.Images.Media.MIME_TYPE);
+            do {
+                WritableMap map = Arguments.createMap();
+                map.putString("uri", "file://" + cursor.getString(dataIndex));
+                map.putInt("size", cursor.getInt(sizeIndex));
+                map.putString("mime_type", cursor.getString(mimeIndex));
+                map.putString("name", cursor.getString(nameIndex));
+                arr.pushMap(map);
+            } while (cursor.moveToNext());
+        }
+        WritableMap ret = Arguments.createMap();
+        ret.putArray("images", arr);
         promise.resolve(ret);
     }
 }
