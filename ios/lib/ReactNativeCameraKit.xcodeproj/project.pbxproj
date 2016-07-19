@@ -13,6 +13,8 @@
 		26550AF61CFC7086007FF2DF /* CKCameraManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 26550AF51CFC7086007FF2DF /* CKCameraManager.m */; };
 		2685AA241CFD89A300E4A446 /* CKCamera.m in Sources */ = {isa = PBXBuildFile; fileRef = 2685AA231CFD89A300E4A446 /* CKCamera.m */; };
 		268A64B71D2BFE5A0034460B /* SelectionGesture.m in Sources */ = {isa = PBXBuildFile; fileRef = 268A64B61D2BFE5A0034460B /* SelectionGesture.m */; };
+		269292831D3B7D6000E07DDF /* CKCameraOverlayView.m in Sources */ = {isa = PBXBuildFile; fileRef = 269292821D3B7D6000E07DDF /* CKCameraOverlayView.m */; };
+		269292861D3B81C800E07DDF /* CKOverlayObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 269292851D3B81C800E07DDF /* CKOverlayObject.m */; };
 		26F556721D2501C9007B1C11 /* GalleryData.m in Sources */ = {isa = PBXBuildFile; fileRef = 26F556711D2501C9007B1C11 /* GalleryData.m */; };
 /* End PBXBuildFile section */
 
@@ -42,6 +44,10 @@
 		2685AA231CFD89A300E4A446 /* CKCamera.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CKCamera.m; sourceTree = "<group>"; };
 		268A64B51D2BFE5A0034460B /* SelectionGesture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectionGesture.h; sourceTree = "<group>"; };
 		268A64B61D2BFE5A0034460B /* SelectionGesture.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SelectionGesture.m; sourceTree = "<group>"; };
+		269292811D3B7D6000E07DDF /* CKCameraOverlayView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CKCameraOverlayView.h; sourceTree = "<group>"; };
+		269292821D3B7D6000E07DDF /* CKCameraOverlayView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CKCameraOverlayView.m; sourceTree = "<group>"; };
+		269292841D3B81C800E07DDF /* CKOverlayObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CKOverlayObject.h; sourceTree = "<group>"; };
+		269292851D3B81C800E07DDF /* CKOverlayObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CKOverlayObject.m; sourceTree = "<group>"; };
 		26F556701D2501C9007B1C11 /* GalleryData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GalleryData.h; sourceTree = "<group>"; };
 		26F556711D2501C9007B1C11 /* GalleryData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GalleryData.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -90,6 +96,10 @@
 				26F556711D2501C9007B1C11 /* GalleryData.m */,
 				268A64B51D2BFE5A0034460B /* SelectionGesture.h */,
 				268A64B61D2BFE5A0034460B /* SelectionGesture.m */,
+				269292811D3B7D6000E07DDF /* CKCameraOverlayView.h */,
+				269292821D3B7D6000E07DDF /* CKCameraOverlayView.m */,
+				269292841D3B81C800E07DDF /* CKOverlayObject.h */,
+				269292851D3B81C800E07DDF /* CKOverlayObject.m */,
 			);
 			path = ReactNativeCameraKit;
 			sourceTree = "<group>";
@@ -152,8 +162,10 @@
 			files = (
 				26550AF61CFC7086007FF2DF /* CKCameraManager.m in Sources */,
 				262E42201D183A6B00C82B27 /* CKGalleryCollectionViewCell.m in Sources */,
+				269292861D3B81C800E07DDF /* CKOverlayObject.m in Sources */,
 				26550AE61CFC2437007FF2DF /* CKGalleryManager.m in Sources */,
 				2685AA241CFD89A300E4A446 /* CKCamera.m in Sources */,
+				269292831D3B7D6000E07DDF /* CKCameraOverlayView.m in Sources */,
 				26F556721D2501C9007B1C11 /* GalleryData.m in Sources */,
 				268A64B71D2BFE5A0034460B /* SelectionGesture.m in Sources */,
 				262E421D1D182C1200C82B27 /* CKGalleryViewManager.m in Sources */,

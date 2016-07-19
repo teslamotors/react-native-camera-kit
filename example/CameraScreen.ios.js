@@ -19,6 +19,8 @@ const FLASH_MODE_AUTO = "auto";
 const FLASH_MODE_ON = "on";
 const FLASH_MODE_OFF = "off";
 
+const RATIOS = ['3:4', '6:9', '1:1', '2:1'];
+
 export default class CameraScreen extends Component {
 
 	constructor(props) {
@@ -31,7 +33,8 @@ export default class CameraScreen extends Component {
 			shouldOpenCamera: false,
 			shouldShowListView: false,
 			image:{imageURI:""},
-			flashMode:FLASH_MODE_AUTO
+			flashMode:FLASH_MODE_AUTO,
+      ratiosArrayPosition: 0
 		}
 	}
 	render() {
@@ -49,11 +52,13 @@ export default class CameraScreen extends Component {
 						ref={(cam) => {
                   this.camera = cam;
                 }}
-						style={{flex: 1}}
+						style={{flex: 1, backgroundColor:'white'}}
 						cameraOptions= {{
                     flashMode: 'auto',    // on/off/auto(default)
                     focusMode: 'on',      // off/on(default)
-                    zoomMode: 'on'        // off/on(default)
+                    zoomMode: 'on',        // off/on(default)
+                    ratioOverlay:RATIOS[this.state.ratiosArrayPosition],
+                    ratioOverlayColor: '#00000077'
                   }}
 					/>
 					<TouchableOpacity style={{alignSelf:'center', marginHorizontal: 4}} onPress={this.onTakeIt.bind(this)}>
@@ -87,10 +92,18 @@ export default class CameraScreen extends Component {
 						</TouchableOpacity>
 					</View>
 
+          <TouchableOpacity style={{ justifyContent:'center'}} onPress={() =>this.ratioPressed() }>
+            <Text>{RATIOS[this.state.ratiosArrayPosition]}</Text>
+          </TouchableOpacity>
+
 				</View>
 			</View>
 		)
 	}
+
+  ratioPressed() {
+    this.setState({ratiosArrayPosition: (this.state.ratiosArrayPosition+1)%(RATIOS.length)})
+  }
 
 	async onSwitchCameraPressed() {
     const success = await this.camera.changeCamera();
