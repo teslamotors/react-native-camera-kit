@@ -10,6 +10,7 @@ import com.facebook.react.uimanager.SimpleViewManager;
 import com.facebook.react.uimanager.ThemedReactContext;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Created by yedidyak on 04/07/2016.
@@ -19,7 +20,7 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     private static Camera camera = null;
     private static int currentCamera = 0;
     private static String flashMode = Camera.Parameters.FLASH_MODE_AUTO;
-    private static SurfaceHolder holder;
+    private static CameraView cameraView;
     private static ThemedReactContext reactContext;
 
     public static Camera getCamera() {
@@ -44,8 +45,8 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
         return new CameraView(reactContext);
     }
 
-    public static void setHolder(SurfaceHolder holder) {
-        CameraViewManager.holder = holder;
+    public static void setCameraView(CameraView cameraView) {
+        CameraViewManager.cameraView = cameraView;
         connectHolder();
     }
 
@@ -72,6 +73,7 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
         currentCamera++;
         currentCamera = currentCamera % Camera.getNumberOfCameras();
         initCamera();
+
         return true;
     }
 
@@ -88,11 +90,12 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     }
 
     private static void connectHolder() {
-        if (camera == null || holder == null) return;
+        if (camera == null || cameraView == null  || cameraView.getHolder() == null) return;
 
         try {
             camera.stopPreview();
-            camera.setPreviewDisplay(holder);
+            camera.setPreviewDisplay(cameraView.getHolder());
+            updateCameraSize();
             camera.startPreview();
             setCameraDisplayOrientation(((Activity) reactContext.getBaseContext()), 0, camera);
         } catch (IOException e) {
@@ -130,5 +133,53 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
             result = (info.orientation - degrees + 360) % 360;
         }
         camera.setDisplayOrientation(result);
+    }
+
+    private static Camera.Size getOptimalPreviewSize(List<Camera.Size> sizes, int w, int h) {
+        final double ASPECT_TOLERANCE = 0.1;
+        double targetRatio=(double)h / w;
+        if (sizes == null) return null;
+        Camera.Size optimalSize = null;
+        double minDiff = Double.MAX_VALUE;
+        int targetHeight = h;
+        for (Camera.Size size : sizes) {
+            double ratio = (double) size.width / size.height;
+            if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE) continue;
+            if (Math.abs(size.height - targetHeight) < minDiff) {
+                optimalSize = size;
+                minDiff = Math.abs(size.height - targetHeight);
+            }
+        }
+        if (optimalSize == null) {
+            minDiff = Double.MAX_VALUE;
+            for (Camera.Size size : sizes) {
+                if (Math.abs(size.height - targetHeight) < minDiff) {
+                    optimalSize = size;
+                    minDiff = Math.abs(size.height - targetHeight);
+                }
+            }
+        }
+        return optimalSize;
+    }
+
+    public static void updateCameraSize() {
+        try {
+            Camera camera = CameraViewManager.getCamera();
+            if (camera == null || cameraView == null) return;
+            List<Camera.Size> supportedPreviewSizes = camera.getParameters().getSupportedPreviewSizes();
+            List<Camera.Size> supportedPictureSizes = camera.getParameters().getSupportedPictureSizes();
+            Camera.Size optimalSize = getOptimalPreviewSize(supportedPreviewSizes, cameraView.getWidth(), cameraView.getHeight());
+            Camera.Size optimalPictureSize = getOptimalPreviewSize(supportedPictureSizes, cameraView.getWidth(), cameraView.getHeight());
+            Camera.Parameters parameters = camera.getParameters();
+            parameters.setPreviewSize(optimalSize.width, optimalSize.height);
+            parameters.setPictureSize(optimalPictureSize.width, optimalPictureSize.height);
+            parameters.setFlashMode(CameraViewManager.getFlashMode());
+            camera.setParameters(parameters);
+            camera.startPreview();
+        } catch (RuntimeException e) {
+//            CameraViewManager.initCamera();
+//            CameraViewManager.setCameraView(this);
+//            updateCameraSize();
+        }
     }
 }

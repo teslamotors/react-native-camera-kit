@@ -1,11 +1,9 @@
 import React, {Component} from 'react';
 import {
   requireNativeComponent
-  //NativeModules
 } from 'react-native';
 
 const GalleryView = requireNativeComponent('GalleryView', null);
-//const GalleryViewManager = NativeModules.GalleryViewManager;
 const ALL_PHOTOS = 'All Photos';
 
 export default class CameraKitGalleryView extends Component {
@@ -30,7 +28,6 @@ export default class CameraKitGalleryView extends Component {
   }
 
   onTapImage(event) {
-    console.log('ONTAPIMAGE!!!!', JSON.stringify(event));
     if(this.props.onTapImage) {
       this.props.onTapImage(event.nativeEvent);
     }
