@@ -24,10 +24,15 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
             @Override
             public void onClick(View v) {
                 if (CameraViewManager.getCamera() != null) {
-                    CameraViewManager.getCamera().autoFocus(new Camera.AutoFocusCallback() {
-                        @Override
-                        public void onAutoFocus(boolean success, Camera camera) {}
-                    });
+                    try {
+                        CameraViewManager.getCamera().autoFocus(new Camera.AutoFocusCallback() {
+                            @Override
+                            public void onAutoFocus(boolean success, Camera camera) {
+                            }
+                        });
+                    } catch (Exception e) {
+
+                    }
                 }
             }
         });

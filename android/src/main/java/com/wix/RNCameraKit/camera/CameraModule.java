@@ -69,7 +69,8 @@ public class CameraModule extends ReactContextBaseJavaModule {
         promise.resolve(camera.getParameters().getFlashMode());
     }
 
-    @ReactMethod void capture(boolean saveToCameraRoll, final Promise promise) {
+    @ReactMethod
+    public void capture(boolean saveToCameraRoll, final Promise promise) {
         Camera camera = CameraViewManager.getCamera();
         camera.takePicture(null, null, new Camera.PictureCallback(){
 
@@ -96,7 +97,8 @@ public class CameraModule extends ReactContextBaseJavaModule {
             if (fileUri == null) {
                 promise.reject("CameraKit", "Failed to save image to mediastore");
             } else {
-              promise.resolve(fileUri);
+                promise.resolve(fileUri);
+                CameraViewManager.initCamera();
             }
             return null;
         }
