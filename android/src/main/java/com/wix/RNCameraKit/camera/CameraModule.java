@@ -49,28 +49,28 @@ public class CameraModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void hasFlashForCurrentCamera(Promise promise) {
-        Camera camera = CameraView.instance.getCamera();
+        Camera camera = CameraViewManager.getCamera();
         promise.resolve(camera.getParameters().getSupportedFlashModes() != null);
     }
 
     @ReactMethod
     public void changeCamera(Promise promise) {
-        promise.resolve(CameraView.instance.changeCamera());
+        promise.resolve(CameraViewManager.changeCamera());
     }
 
     @ReactMethod
     public void setFlashMode(String mode, Promise promise) {
-        promise.resolve(CameraView.instance.setFlashMode(mode));
+        promise.resolve(CameraViewManager.setFlashMode(mode));
     }
 
     @ReactMethod
     public void getFlashMode(Promise promise) {
-        Camera camera = CameraView.instance.getCamera();
+        Camera camera = CameraViewManager.getCamera();
         promise.resolve(camera.getParameters().getFlashMode());
     }
 
     @ReactMethod void capture(boolean saveToCameraRoll, final Promise promise) {
-        Camera camera = CameraView.instance.getCamera();
+        Camera camera = CameraViewManager.getCamera();
         camera.takePicture(null, null, new Camera.PictureCallback(){
 
             @Override
