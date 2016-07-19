@@ -177,7 +177,7 @@ RCT_EXPORT_METHOD(getAlbumsWithThumbnails:(RCTPromiseResolveBlock)resolve
                                               NSError *error = [[NSError alloc] initWithDomain:NSCocoaErrorDomain
                                                                                           code:-100 userInfo:nil];
                                               
-                                              reject(@"-100", @"no albnums", error);
+                                              reject(@"-100", @"no albums", error);
                                           }
                                           else {
                                               if (resolve) {
@@ -205,10 +205,12 @@ RCT_EXPORT_METHOD(getImagesForIds:(NSArray*)imagesIdArray
         
         NSDictionary *assetInfoDict = [CKGalleryViewManager infoForAsset:asset imageRequestOptions:imageRequestOptions];
         
+        if (assetInfoDict && assetInfoDict[@"uri"] && assetInfoDict[@"size"] && assetInfoDict[@"name"] ) {
+            
         [assetsArray addObject:@{@"uri": assetInfoDict[@"uri"],
                                  @"size": assetInfoDict[@"size"],
                                  @"name": assetInfoDict[@"name"]}];
-        
+        }
     }
     
     if (resolve) {

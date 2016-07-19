@@ -79,6 +79,8 @@ static NSString * const CellReuseIdentifier = @"Cell";
     if (!_fetchOptions) {
         PHFetchOptions *fetchOptions = [[PHFetchOptions alloc] init];
         fetchOptions.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:NO]];
+        fetchOptions.predicate = [NSPredicate predicateWithFormat:@"mediaType = %d",PHAssetMediaTypeImage];
+
         _fetchOptions = fetchOptions;
     }
     
@@ -391,9 +393,14 @@ RCT_EXPORT_METHOD(refreshGalleryView:(NSArray*)selectedImages
             NSString *fileName = ((NSURL*)info[@"PHImageFileURLKey"]).lastPathComponent;
             if (fileName) {
                 assetInfoDict[@"name"] = fileName;
+            } else {
+                fileName = @"";
             }
             
-            float imageSize = imageData.length;
+            float imageSize = 0;
+            if (imageData) {
+             imageSize= imageData.length;
+            }
             assetInfoDict[@"size"] = [NSNumber numberWithFloat:imageSize];
             
             NSURL *fileURL = [directoryURL URLByAppendingPathComponent:fileName];
