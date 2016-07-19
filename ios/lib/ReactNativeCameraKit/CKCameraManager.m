@@ -27,7 +27,7 @@ RCT_EXPORT_MODULE()
     return self.camera;
 }
 
-RCT_REMAP_VIEW_PROPERTY(cameraOptions, cameraOptions, NSDictionary)
+RCT_EXPORT_VIEW_PROPERTY(cameraOptions, NSDictionary)
 
 
 RCT_EXPORT_METHOD(checkDeviceAuthorizationStatus:(RCTPromiseResolveBlock)resolve

@@ -11,6 +11,7 @@
 #import "CKCamera.h"
 #import "UIView+React.h"
 #import "RCTConvert.h"
+#import "CKCameraOverlayView.h"
 
 
 static void * CapturingStillImageContext = &CapturingStillImageContext;
@@ -52,9 +53,11 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 
 
-#define CAMERA_OPTION_FLASH_MODE            @"flashMode"
-#define CAMERA_OPTION_FOCUS_MODE            @"focusMode"
-#define CAMERA_OPTION_ZOOM_MODE             @"zoomMode"
+#define CAMERA_OPTION_FLASH_MODE                    @"flashMode"
+#define CAMERA_OPTION_FOCUS_MODE                    @"focusMode"
+#define CAMERA_OPTION_ZOOM_MODE                     @"zoomMode"
+#define CAMERA_OPTION_CAMERA_RATIO_OVERLAY          @"ratioOverlay"
+#define CAMERA_OPTION_CAMERA_RATIO_OVERLAY_COLOR    @"ratioOverlayColor"
 #define TIMER_FOCUS_TIME_SECONDS            5
 
 @interface CKCamera () <AVCaptureFileOutputRecordingDelegate>
@@ -64,6 +67,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 @property (nonatomic, strong) NSDictionary *cameraOptions;
 @property (nonatomic, strong) UIView *focusView;
 @property (nonatomic, strong) NSTimer *focusViewTimer;
+@property (nonatomic, strong) CKCameraOverlayView *cameraOverlayView;
 
 // session management
 @property (nonatomic) dispatch_queue_t sessionQueue;
@@ -82,6 +86,8 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 @property (nonatomic) CKCameraFocushMode focusMode;
 @property (nonatomic) CKCameraZoomMode zoomMode;
 @property (nonatomic, strong) PHFetchOptions *fetchOptions;
+@property (nonatomic, strong) NSString* ratioOverlayString;
+@property (nonatomic, strong) UIColor *ratioOverlayColor;
 
 @property (nonatomic) BOOL isAddedOberver;
 
@@ -118,17 +124,13 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 - (void)removeFromSuperview
 {
-    
+    [super removeFromSuperview];
     dispatch_async( self.sessionQueue, ^{
         if ( self.setupResult == CKSetupResultSuccess ) {
             [self.session stopRunning];
             [self removeObservers];
         }
-    
     } );
-    
-    [super removeFromSuperview];
-    
     
 }
 
@@ -197,6 +199,19 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
             UIPinchGestureRecognizer *pinchGesture = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(handlePinchToZoomRecognizer:)];
             [self addGestureRecognizer:pinchGesture];
         }
+    }
+    
+    // CAMERA_OPTION_CAMERA_RATIO_OVERLAY_COLOR
+    id ratioOverlayColor = self.cameraOptions[CAMERA_OPTION_CAMERA_RATIO_OVERLAY_COLOR];
+    if (ratioOverlayColor) {
+        self.ratioOverlayColor = [RCTConvert UIColor:ratioOverlayColor];
+    }
+    
+    // CAMERA_OPTION_CAMERA_RATIO_OVERLAY
+    id ratioOverlay = self.cameraOptions[CAMERA_OPTION_CAMERA_RATIO_OVERLAY];
+    if (ratioOverlay) {
+        self.ratioOverlayString = [RCTConvert NSString:ratioOverlay];
+        [self setRatio:self.ratioOverlayString];
     }
 }
 
@@ -300,6 +315,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
     [super reactSetFrame:frame];
     self.previewLayer.frame = self.bounds;
     
+    [self setOverlayRatioView];
     
     dispatch_async( self.sessionQueue, ^{
         switch ( self.setupResult )
@@ -341,6 +357,18 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
             }
         }
     } );
+}
+
+-(void)setRatioOverlayString:(NSString *)ratioOverlayString {
+    _ratioOverlayString = ratioOverlayString;
+    [self.cameraOverlayView setRatio:self.ratioOverlayString];
+}
+
+-(void)setOverlayRatioView {
+    if (!self.cameraOverlayView) {
+        self.cameraOverlayView = [[CKCameraOverlayView alloc] initWithFrame:self.bounds ratioString:self.ratioOverlayString overlayColor:self.ratioOverlayColor];
+        [self addSubview:self.cameraOverlayView];
+    }
 }
 
 
@@ -385,6 +413,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
             captureDevice = device;
             break;
         }
+        
     }
     
     return captureDevice;
@@ -413,6 +442,12 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
     }
 }
 
+- (void)setRatio:(NSString*)ratioString {
+    if (ratioString && ![ratioString isEqualToString:@""]) {
+        self.ratioOverlayString = ratioString;
+    }
+}
+
 
 #pragma mark - actions
 
@@ -425,14 +460,27 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         // Update the orientation on the still image output video connection before capturing.
         connection.videoOrientation = self.previewLayer.connection.videoOrientation;
         
-        // Flash set to Auto for Still Capture.
-        //        [CKCamera setFlashMode:AVCaptureFlashModeAuto forDevice:self.videoDeviceInput.device];
         
         // Capture a still image.
         [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:connection completionHandler:^( CMSampleBufferRef imageDataSampleBuffer, NSError *error ) {
             if ( imageDataSampleBuffer ) {
                 // The sample buffer is not retained. Create image data before saving the still image to the photo library asynchronously.
                 NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
+                UIImage *capturedImage = [UIImage imageWithData:imageData];
+                capturedImage = [CKCamera rotateImage:capturedImage];
+                
+                CGSize previewScaleSize = [CKCamera cropImageToPreviewSize:capturedImage size:self.previewLayer.bounds.size];
+                CGRect rectToCrop = CGRectMake((capturedImage.size.width-previewScaleSize.width)*0.5, (capturedImage.size.height-previewScaleSize.height)*0.5, previewScaleSize.width, previewScaleSize.height);
+                
+                if (self.ratioOverlayString) {
+                    
+                    rectToCrop = [CKCamera cropRectForSize:rectToCrop overlayObject:self.cameraOverlayView.overlayObject];
+                }
+                
+                CGImageRef imageRef = CGImageCreateWithImageInRect(capturedImage.CGImage, rectToCrop);
+                capturedImage = [UIImage imageWithCGImage:imageRef scale:capturedImage.scale orientation:UIImageOrientationUp];
+                imageData = UIImageJPEGRepresentation(capturedImage, capturedImage.scale); // TODO: check JPEG representation
+                
                 [PHPhotoLibrary requestAuthorization:^( PHAuthorizationStatus status ) {
                     if ( status == PHAuthorizationStatusAuthorized ) {
                         
@@ -450,7 +498,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
                                 if (success) {
                                     
                                     PHFetchResult *fetchResult = [PHAsset fetchAssetsWithMediaType:PHAssetMediaTypeImage options:self.fetchOptions];
-                                    PHAsset *lastImageAsset = [fetchResult firstObject];
+                                    PHAsset *lastImageAsset = [fetchResult lastObject];
                                     
                                     if (lastImageAsset.localIdentifier) {
                                         imageInfoDict[@"id"] = lastImageAsset.localIdentifier;
@@ -479,6 +527,22 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
             }
         }];
     } );
+}
+
++(UIImage*)rotateImage:(UIImage*)originalImage {
+    
+    if (originalImage.imageOrientation == UIImageOrientationUp || originalImage == nil)
+        return originalImage;
+    
+    
+    UIGraphicsBeginImageContextWithOptions(originalImage.size, NO, originalImage.scale);
+    
+    [originalImage drawInRect:(CGRect){0, 0, originalImage.size}];
+    UIImage *normalizedImage =  UIGraphicsGetImageFromCurrentImageContext();
+    
+    UIGraphicsEndImageContext();
+    
+    return normalizedImage;
 }
 
 
@@ -643,7 +707,6 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 }
 
 
-
 - (void)focusWithMode:(AVCaptureFocusMode)focusMode exposeWithMode:(AVCaptureExposureMode)exposureMode atDevicePoint:(CGPoint)point monitorSubjectAreaChange:(BOOL)monitorSubjectAreaChange
 {
     dispatch_async( self.sessionQueue, ^{
@@ -695,6 +758,64 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 }
 
 
++ (UIImage *)imageWithImage:(UIImage *)image scaledToRect:(CGSize)newSize {
+    //UIGraphicsBeginImageContext(newSize);
+    // In next line, pass 0.0 to use the current device's pixel scaling factor (and thus account for Retina resolution).
+    // Pass 1.0 to force exact pixel size.
+    UIGraphicsBeginImageContextWithOptions(newSize, NO, 0.0);
+    [image drawInRect:CGRectMake(0, 0, newSize.width, newSize.height)];
+    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return newImage;
+}
+
+
++(CGRect)cropRectForSize:(CGRect)frame overlayObject:(CKOverlayObject*)overlayObject {
+    
+    CGRect ans = CGRectZero;
+    CGSize centerSize = CGSizeZero;
+    
+    if (overlayObject.width < overlayObject.height) {
+        centerSize.width = frame.size.width;
+        centerSize.height = frame.size.height * overlayObject.ratio;
+        
+        ans.origin.x = 0;
+        ans.origin.y = (frame.size.height - centerSize.height)*0.5;
+        
+    }
+    else if (overlayObject.width > overlayObject.height){
+        centerSize.width = frame.size.width / overlayObject.ratio;
+        centerSize.height = frame.size.height;
+        
+        ans.origin.x = (frame.size.width - centerSize.width)*0.5;
+        ans.origin.y = 0;
+        
+    }
+    else { // ratio is 1:1
+        centerSize.width = frame.size.width;
+        centerSize.height = frame.size.width;
+        
+        ans.origin.x = 0;
+        ans.origin.y = (frame.size.height - centerSize.height)/2;
+    }
+    
+    ans.size = centerSize;
+    ans.origin.x += frame.origin.x;
+    ans.origin.y += frame.origin.y;
+    return ans;
+}
+
++(CGSize)cropImageToPreviewSize:(UIImage*)image size:(CGSize)previewSize {
+    
+    CGRect ans = CGRectZero;
+    CGSize centerSize = CGSizeZero;
+    
+    float imageToPreviewWidthScale = image.size.width/previewSize.width;
+    float imageToPreviewHeightScale = image.size.width/previewSize.width;
+    
+    return CGSizeMake(previewSize.width*imageToPreviewWidthScale, previewSize.height*imageToPreviewHeightScale);
+}
+
 
 #pragma mark - observers
 
@@ -713,7 +834,6 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         // and show a preview is paused message. See the documentation of AVCaptureSessionWasInterruptedNotification for other
         // interruption reasons.
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sessionWasInterrupted:) name:AVCaptureSessionWasInterruptedNotification object:self.session];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sessionInterruptionEnded:) name:AVCaptureSessionInterruptionEndedNotification object:self.session];
         self.isAddedOberver = YES;
     }
 }
@@ -737,48 +857,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
             reason == AVCaptureSessionInterruptionReasonVideoDeviceInUseByAnotherClient ) {
             showResumeButton = YES;
         }
-        //        else if ( reason == AVCaptureSessionInterruptionReasonVideoDeviceNotAvailableWithMultipleForegroundApps ) {
-        //            // Simply fade-in a label to inform the user that the camera is unavailable.
-        //            self.cameraUnavailableLabel.hidden = NO;
-        //            self.cameraUnavailableLabel.alpha = 0.0;
-        //            [UIView animateWithDuration:0.25 animations:^{
-        //                self.cameraUnavailableLabel.alpha = 1.0;
-        //            }];
-        //        }
     }
-    else {
-        //NSLog( @"Capture session was interrupted" );
-        showResumeButton = ( [UIApplication sharedApplication].applicationState == UIApplicationStateInactive );
-    }
-    
-    //    if ( showResumeButton ) {
-    //        // Simply fade-in a button to enable the user to try to resume the session running.
-    //        self.resumeButton.hidden = NO;
-    //        self.resumeButton.alpha = 0.0;
-    //        [UIView animateWithDuration:0.25 animations:^{
-    //            self.resumeButton.alpha = 1.0;
-    //        }];
-    //    }
-}
-
-- (void)sessionInterruptionEnded:(NSNotification *)notification
-{
-    //NSLog( @"Capture session interruption ended" );
-    
-    //    if ( ! self.resumeButton.hidden ) {
-    //        [UIView animateWithDuration:0.25 animations:^{
-    //            self.resumeButton.alpha = 0.0;
-    //        } completion:^( BOOL finished ) {
-    //            self.resumeButton.hidden = YES;
-    //        }];
-    //    }
-    //    if ( ! self.cameraUnavailableLabel.hidden ) {
-    //        [UIView animateWithDuration:0.25 animations:^{
-    //            self.cameraUnavailableLabel.alpha = 0.0;
-    //        } completion:^( BOOL finished ) {
-    //            self.cameraUnavailableLabel.hidden = YES;
-    //        }];
-    //    }
 }
 
 
