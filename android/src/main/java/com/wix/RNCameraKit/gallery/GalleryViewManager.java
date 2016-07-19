@@ -6,11 +6,15 @@ import android.util.Log;
 
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.common.MapBuilder;
 import com.facebook.react.uimanager.SimpleViewManager;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.annotations.ReactProp;
 
 import java.util.ArrayList;
+import java.util.Map;
+
+import javax.annotation.Nullable;
 
 /**
  * Created by yedidyak on 30/06/2016.
@@ -66,5 +70,13 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
     public void setUnelectedImage(GalleryView view, String imageSource) {
         Drawable drawable = ResourceDrawableIdHelper.getIcon(view.getContext(), imageSource);
         view.setUnselectedDrawable(drawable);
+    }
+
+    @Nullable
+    @Override
+    public Map getExportedCustomDirectEventTypeConstants() {
+        return MapBuilder.builder()
+                .put("onTapImage", MapBuilder.of("registrationName", "onTapImage"))
+                .build();
     }
 }

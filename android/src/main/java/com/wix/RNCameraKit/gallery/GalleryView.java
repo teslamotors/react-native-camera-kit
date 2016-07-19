@@ -9,10 +9,15 @@ import android.util.Log;
 import android.view.View;
 
 import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.facebook.react.modules.core.RCTNativeAppEventEmitter;
+import com.facebook.react.uimanager.UIManagerModule;
+import com.facebook.react.uimanager.events.Event;
+import com.facebook.react.uimanager.events.EventDispatcher;
+import com.facebook.react.uimanager.events.RCTEventEmitter;
 
 import java.util.ArrayList;
 
@@ -66,12 +71,8 @@ public class GalleryView extends RecyclerView {
     }
 
     public void onTapImage(String uri) {
-        Log.d("DEBUG", "TAPPED!");
         final ReactContext reactContext = ((ReactContext)getContext());
-        final WritableMap event = Arguments.createMap();
-        event.putString("uri", uri);
-        event.putString("id", "onTapImage");
-        reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onTapImage", event);
+        reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(new TapImageEvent(uri));
     }
 
     public void setSelectedUris(ArrayList<String> selectedUris) {
@@ -85,5 +86,27 @@ public class GalleryView extends RecyclerView {
 
     public void setUnselectedDrawable(Drawable drawable) {
         adapter.setUnselectedDrawable(drawable);
+    }
+
+    private class TapImageEvent extends Event<TapImageEvent> {
+
+        private WritableMap event;
+
+        public TapImageEvent(String uri) {
+            event = Arguments.createMap();
+            event.putString("uri", uri);
+            event.putString("id", "onTapImage");
+            init(0, System.currentTimeMillis());
+        }
+
+        @Override
+        public String getEventName() {
+            return "onTapImage";
+        }
+
+        @Override
+        public void dispatch(RCTEventEmitter rctEventEmitter) {
+            rctEventEmitter.receiveEvent(getId(), "onTapImage", event);
+        }
     }
 }

@@ -6,6 +6,7 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.widget.Toast;
 
 import com.facebook.react.uimanager.ThemedReactContext;
 
@@ -28,6 +29,11 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 
     public CameraView(ThemedReactContext context) {
         super(context);
+
+        if (instance != null) {
+            instance.unlock();
+        }
+
         instance = this;
         this.context = context;
 
@@ -35,14 +41,20 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
         this.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                CameraView.this.camera.autoFocus(new Camera.AutoFocusCallback() {
-                    @Override
-                    public void onAutoFocus(boolean success, Camera camera) {
-
-                    }
-                });
+                if (camera != null) {
+                    CameraView.this.camera.autoFocus(new Camera.AutoFocusCallback() {
+                        @Override
+                        public void onAutoFocus(boolean success, Camera camera) {}
+                    });
+                }
             }
         });
+    }
+
+    public void unlock() {
+        if (camera != null) {
+            camera.unlock();
+        }
     }
 
     public boolean changeCamera() {
@@ -57,17 +69,20 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     private void initCamera() {
-        this.camera = Camera.open(currentCamera);
         try {
+            this.camera = Camera.open(currentCamera);
             camera.setPreviewDisplay(this.getHolder());
             updateCameraSize();
             camera.startPreview();
             setCameraDisplayOrientation(((Activity)context.getBaseContext()), 0, camera);
         } catch (IOException e) {
+        } catch (RuntimeException e) {
+            Toast.makeText(getContext(), "Cannot connect to Camera", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void updateCameraSize() {
+        if (camera == null) return;
         List<Camera.Size> supportedPreviewSizes = camera.getParameters().getSupportedPreviewSizes();
         List<Camera.Size> supportedPictureSizes = camera.getParameters().getSupportedPictureSizes();
         optimalSize = getOptimalPreviewSize(supportedPreviewSizes, getWidth(), getHeight());
@@ -124,7 +139,9 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-        camera.release();
+        if (camera != null) {
+            camera.release();
+        }
     }
 
     public Camera getCamera() {
@@ -164,6 +181,9 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     public boolean setFlashMode(String mode) {
+        if (camera == null) {
+            return false;
+        }
         Camera.Parameters parameters = camera.getParameters();
         if(parameters.getSupportedFlashModes().contains(mode)) {
             flashMode = mode;

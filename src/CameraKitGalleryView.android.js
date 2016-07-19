@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {
-  requireNativeComponent, DeviceEventEmitter
+  requireNativeComponent
   //NativeModules
 } from 'react-native';
 
@@ -20,26 +20,21 @@ export default class CameraKitGalleryView extends Component {
   }
 
   componentWillMount() {
-    DeviceEventEmitter.addListener('onTapImage', this.onTapImage);
+    //UIManagerModule.addListener('onTapImage', this.onTapImage);
   }
 
   render() {
     const transformedProps = {...this.props};
     transformedProps.albumName = this.props.albumName ? this.props.albumName : ALL_PHOTOS;
-    return <GalleryView {...transformedProps}/>
+    return <GalleryView {...transformedProps} onTapImage={this.onTapImage}/>
   }
 
   onTapImage(event) {
+    console.log('ONTAPIMAGE!!!!', JSON.stringify(event));
     if(this.props.onTapImage) {
-      this.props.onTapImage(event);
+      this.props.onTapImage(event.nativeEvent);
     }
   }
-
-  //async getSelectedImages() {
-  //
-  //  const selectedImages = await GalleryViewManager.getSelectedImages();
-  //  return selectedImages;
-  //}
 
 
 }

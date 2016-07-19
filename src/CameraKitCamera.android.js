@@ -24,7 +24,7 @@ export default class CameraKitCamera extends React.Component {
 	//
 	//	return deviceAutorizationStatus;
 	//}
-  //
+
 	async capture(saveToCameraRoll = true) {
 		const imageTmpPath = await NativeCameraModule.capture(saveToCameraRoll);
 		return imageTmpPath;
@@ -34,9 +34,10 @@ export default class CameraKitCamera extends React.Component {
 		const success = await NativeCameraModule.changeCamera();
 		return success;
 	}
-  //
+
 	async setFlashMode(flashMode = 'auto') {
 		const success = await NativeCameraModule.setFlashMode(flashMode);
 		return success;
 	}
+
 }
