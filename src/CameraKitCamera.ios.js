@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import * as _ from 'lodash';
 import React, {Component} from 'react';
 import {
   requireNativeComponent,
@@ -12,10 +12,9 @@ const NativeCameraAction = NativeModules.CKCameraManager;
 export default class CameraKitCamera extends React.Component {
   render() {
 
-    const transformedProps = {...this.props};
+    const transformedProps = _.cloneDeep(this.props);
     _.update(transformedProps, 'cameraOptions.ratioOverlayColor', (c) => processColor(c));
-
-    return <NativeCamera {...this.props}/>
+    return <NativeCamera {...transformedProps}/>
   }
   
   static async checkDeviceAuthorizarionStatus() {
