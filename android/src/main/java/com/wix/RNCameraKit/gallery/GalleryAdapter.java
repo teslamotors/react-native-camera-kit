@@ -1,6 +1,5 @@
 package com.wix.RNCameraKit.gallery;
 
-import android.app.Activity;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -9,9 +8,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-
-import com.facebook.react.bridge.ReactBridge;
-import com.facebook.react.bridge.ReactContext;
 
 import java.util.ArrayList;
 import java.util.Collections;

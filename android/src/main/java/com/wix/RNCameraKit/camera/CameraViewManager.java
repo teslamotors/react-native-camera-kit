@@ -1,9 +1,12 @@
 package com.wix.RNCameraKit.camera;
 
 import android.app.Activity;
+import android.content.Context;
+import android.graphics.Point;
 import android.hardware.Camera;
+import android.view.Display;
 import android.view.Surface;
-import android.view.SurfaceHolder;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.facebook.react.uimanager.SimpleViewManager;
@@ -46,6 +49,7 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     }
 
     public static void setCameraView(CameraView cameraView) {
+        if(CameraViewManager.cameraView == cameraView) return;
         CameraViewManager.cameraView = cameraView;
         connectHolder();
     }
@@ -83,7 +87,8 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
         }
         try {
             camera = Camera.open(currentCamera);
-            connectHolder();
+            setCameraDisplayOrientation(((Activity) reactContext.getBaseContext()), 0, camera);
+            updateCameraSize();
         } catch (RuntimeException e) {
             Toast.makeText(reactContext, "Cannot connect to Camera", Toast.LENGTH_SHORT).show();
         }
@@ -95,9 +100,7 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
         try {
             camera.stopPreview();
             camera.setPreviewDisplay(cameraView.getHolder());
-            updateCameraSize();
             camera.startPreview();
-            setCameraDisplayOrientation(((Activity) reactContext.getBaseContext()), 0, camera);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -132,6 +135,9 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
         } else {  // back-facing
             result = (info.orientation - degrees + 360) % 360;
         }
+        Camera.Parameters parameters = camera.getParameters();
+        parameters.setRotation(result);
+        camera.setParameters(parameters);
         camera.setDisplayOrientation(result);
     }
 
@@ -162,24 +168,24 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
         return optimalSize;
     }
 
-    public static void updateCameraSize() {
+    private static void updateCameraSize() {
         try {
             Camera camera = CameraViewManager.getCamera();
-            if (camera == null || cameraView == null) return;
+
+            WindowManager wm = (WindowManager) reactContext.getSystemService(Context.WINDOW_SERVICE);
+            Display display = wm.getDefaultDisplay();
+            Point size = new Point();
+            display.getSize(size);
+            if (camera == null) return;
             List<Camera.Size> supportedPreviewSizes = camera.getParameters().getSupportedPreviewSizes();
             List<Camera.Size> supportedPictureSizes = camera.getParameters().getSupportedPictureSizes();
-            Camera.Size optimalSize = getOptimalPreviewSize(supportedPreviewSizes, cameraView.getWidth(), cameraView.getHeight());
-            Camera.Size optimalPictureSize = getOptimalPreviewSize(supportedPictureSizes, cameraView.getWidth(), cameraView.getHeight());
+            Camera.Size optimalSize = getOptimalPreviewSize(supportedPreviewSizes, size.x, size.y);
+            Camera.Size optimalPictureSize = getOptimalPreviewSize(supportedPictureSizes, size.x, size.y);
             Camera.Parameters parameters = camera.getParameters();
             parameters.setPreviewSize(optimalSize.width, optimalSize.height);
             parameters.setPictureSize(optimalPictureSize.width, optimalPictureSize.height);
             parameters.setFlashMode(CameraViewManager.getFlashMode());
             camera.setParameters(parameters);
-            camera.startPreview();
-        } catch (RuntimeException e) {
-//            CameraViewManager.initCamera();
-//            CameraViewManager.setCameraView(this);
-//            updateCameraSize();
-        }
+        } catch (RuntimeException e) {}
     }
 }

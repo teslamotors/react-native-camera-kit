@@ -83,15 +83,7 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
                 .put("onTapImage", MapBuilder.of("registrationName", "onTapImage"))
                 .build();
     }
-
-//    @ReactMethod
-//    public void refreshGalleryView(ReadableArray selectedImages, Promise promise) {
-//        view.refresh();
-//        setSelectedUris(view, selectedImages);
-//        promise.resolve(true);
-//    }
-
-
+    
     @Nullable
     @Override
     public Map<String, Integer> getCommandsMap() {
@@ -102,7 +94,6 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
     public void receiveCommand(GalleryView root, int commandId, @Nullable ReadableArray args) {
         if (commandId == COMMAND_REFRESH_GALLERY) {
             root.refresh();
-            setSelectedUris(root, args.getArray(0));
         }
     }
 }
