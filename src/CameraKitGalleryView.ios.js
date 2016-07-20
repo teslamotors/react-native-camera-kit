@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {
   requireNativeComponent,
   NativeModules,
-  processColor,
+  processColor
 } from 'react-native';
 
 const GalleryView = requireNativeComponent('CKGalleryView', null);

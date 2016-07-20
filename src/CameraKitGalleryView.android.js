@@ -1,11 +1,11 @@
 import React, {Component} from 'react';
-import {
-  requireNativeComponent
+import ReactNative, {
+    requireNativeComponent,
+    UIManager
 } from 'react-native';
 
 const GalleryView = requireNativeComponent('GalleryView', null);
 const ALL_PHOTOS = 'All Photos';
-
 export default class CameraKitGalleryView extends Component {
 
   static propTypes = {
@@ -17,8 +17,14 @@ export default class CameraKitGalleryView extends Component {
     this.onTapImage = this.onTapImage.bind(this);
   }
 
-  componentWillMount() {
-    //UIManagerModule.addListener('onTapImage', this.onTapImage);
+  async refreshGalleryView(selectedImages = []) {
+
+    UIManager.dispatchViewManagerCommand(
+        ReactNative.findNodeHandle(this),
+        1,
+        [selectedImages]
+    );
+    return true;
   }
 
   render() {
@@ -32,6 +38,4 @@ export default class CameraKitGalleryView extends Component {
       this.props.onTapImage(event.nativeEvent);
     }
   }
-
-
 }

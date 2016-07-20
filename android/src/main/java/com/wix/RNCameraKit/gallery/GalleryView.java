@@ -88,6 +88,10 @@ public class GalleryView extends RecyclerView {
         adapter.setUnselectedDrawable(drawable);
     }
 
+    public void refresh() {
+        adapter.refreshData();
+    }
+
     private class TapImageEvent extends Event<TapImageEvent> {
 
         private WritableMap event;

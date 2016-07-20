@@ -4,6 +4,8 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 
+import com.facebook.react.bridge.Promise;
+import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.common.MapBuilder;
@@ -20,6 +22,8 @@ import javax.annotation.Nullable;
  * Created by yedidyak on 30/06/2016.
  */
 public class GalleryViewManager extends SimpleViewManager<GalleryView> {
+
+    public static final int COMMAND_REFRESH_GALLERY = 1;
 
     @Override
     public String getName() {
@@ -78,5 +82,27 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
         return MapBuilder.builder()
                 .put("onTapImage", MapBuilder.of("registrationName", "onTapImage"))
                 .build();
+    }
+
+//    @ReactMethod
+//    public void refreshGalleryView(ReadableArray selectedImages, Promise promise) {
+//        view.refresh();
+//        setSelectedUris(view, selectedImages);
+//        promise.resolve(true);
+//    }
+
+
+    @Nullable
+    @Override
+    public Map<String, Integer> getCommandsMap() {
+        return MapBuilder.of("rereshGalleryView", COMMAND_REFRESH_GALLERY);
+    }
+
+    @Override
+    public void receiveCommand(GalleryView root, int commandId, @Nullable ReadableArray args) {
+        if (commandId == COMMAND_REFRESH_GALLERY) {
+            root.refresh();
+            setSelectedUris(root, args.getArray(0));
+        }
     }
 }
