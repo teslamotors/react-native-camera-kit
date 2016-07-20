@@ -14,6 +14,7 @@ import com.facebook.react.uimanager.ThemedReactContext;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Stack;
 
 /**
  * Created by yedidyak on 04/07/2016.
@@ -23,7 +24,7 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     private static Camera camera = null;
     private static int currentCamera = 0;
     private static String flashMode = Camera.Parameters.FLASH_MODE_AUTO;
-    private static CameraView cameraView;
+    private static Stack<CameraView> cameraViews = new Stack<>();
     private static ThemedReactContext reactContext;
 
     public static Camera getCamera() {
@@ -49,8 +50,8 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     }
 
     public static void setCameraView(CameraView cameraView) {
-        if(CameraViewManager.cameraView == cameraView) return;
-        CameraViewManager.cameraView = cameraView;
+        if(!cameraViews.isEmpty() && cameraViews.peek() == cameraView) return;
+        CameraViewManager.cameraViews.push(cameraView);
         connectHolder();
     }
 
@@ -95,14 +96,23 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     }
 
     private static void connectHolder() {
-        if (camera == null || cameraView == null  || cameraView.getHolder() == null) return;
+        if (camera == null || cameraViews.isEmpty()  || cameraViews.peek().getHolder() == null) return;
 
         try {
             camera.stopPreview();
-            camera.setPreviewDisplay(cameraView.getHolder());
+            camera.setPreviewDisplay(cameraViews.peek().getHolder());
             camera.startPreview();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public static void removeCameraView() {
+        if(!cameraViews.isEmpty()) {
+            cameraViews.pop();
+        }
+        if(!cameraViews.isEmpty()) {
+            connectHolder();
         }
     }
 

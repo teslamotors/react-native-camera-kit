@@ -83,7 +83,7 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
                 .put("onTapImage", MapBuilder.of("registrationName", "onTapImage"))
                 .build();
     }
-    
+
     @Nullable
     @Override
     public Map<String, Integer> getCommandsMap() {
