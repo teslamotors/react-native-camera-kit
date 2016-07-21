@@ -62,6 +62,7 @@ public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
         CameraViewManager.removeCameraView();
+    }
 
 
     public SurfaceHolder getHolder() {

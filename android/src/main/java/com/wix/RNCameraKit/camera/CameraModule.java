@@ -3,7 +3,9 @@ package com.wix.RNCameraKit.camera;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.hardware.Camera;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
@@ -94,8 +96,12 @@ public class CameraModule extends ReactContextBaseJavaModule {
         @Override
         protected Void doInBackground(byte[]... data) {
             Bitmap image = BitmapFactory.decodeByteArray(data[0], 0, data[0].length);
+
+            //rotate 90 degrees
+            Matrix matrix = new Matrix();
+            matrix.postRotate(90);
+            image = Bitmap.createBitmap(image, 0, 0, image.getWidth(), image.getHeight(), matrix, true);
             String fileUri = MediaStore.Images.Media.insertImage(getReactApplicationContext().getContentResolver(), image, System.currentTimeMillis() + "", "");
-            Log.d("CameraKit", "Saved to content uri: " + fileUri);
 
             if (fileUri == null) {
                 promise.reject("CameraKit", "Failed to save image to mediastore");
@@ -105,10 +111,8 @@ public class CameraModule extends ReactContextBaseJavaModule {
                 cursor.moveToFirst();
                 String filePath = cursor.getString(0);
                 cursor.close();
+
                 promise.resolve(filePath);
-
-                Log.d("CameraKit", "Uri resolved to file path: " + fileUri);
-
                 CameraViewManager.initCamera();
             }
             return null;

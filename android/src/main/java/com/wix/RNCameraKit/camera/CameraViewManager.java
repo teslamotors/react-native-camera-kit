@@ -2,6 +2,7 @@ package com.wix.RNCameraKit.camera;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.hardware.Camera;
 import android.view.Display;
@@ -88,7 +89,7 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
         }
         try {
             camera = Camera.open(currentCamera);
-            setCameraDisplayOrientation(((Activity) reactContext.getBaseContext()), 0, camera);
+            setCameraDisplayOrientation(((Activity) reactContext.getBaseContext()));
             updateCameraSize();
         } catch (RuntimeException e) {
             Toast.makeText(reactContext, "Cannot connect to Camera", Toast.LENGTH_SHORT).show();
@@ -116,10 +117,20 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
         }
     }
 
-    public static void setCameraDisplayOrientation(Activity activity, int cameraId, Camera camera) {
-        android.hardware.Camera.CameraInfo info =
-                new android.hardware.Camera.CameraInfo();
-        android.hardware.Camera.getCameraInfo(cameraId, info);
+    public static void setCameraDisplayOrientation(Activity activity) {
+        int result = getRotation(activity);
+        Camera.Parameters parameters = camera.getParameters();
+        parameters.setRotation(result);
+        parameters.set("orientation", "portrait");
+        parameters.setPictureFormat(PixelFormat.JPEG);
+        camera.setDisplayOrientation(result);
+        camera.setParameters(parameters);
+    }
+
+    public static int getRotation(Activity activity) {
+        Camera.CameraInfo info =
+                new Camera.CameraInfo();
+        Camera.getCameraInfo(currentCamera, info);
         int rotation = activity.getWindowManager().getDefaultDisplay()
                 .getRotation();
         int degrees = 0;
@@ -145,10 +156,7 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
         } else {  // back-facing
             result = (info.orientation - degrees + 360) % 360;
         }
-        Camera.Parameters parameters = camera.getParameters();
-        parameters.setRotation(result);
-        camera.setParameters(parameters);
-        camera.setDisplayOrientation(result);
+        return result;
     }
 
     private static Camera.Size getOptimalPreviewSize(List<Camera.Size> sizes, int w, int h) {
