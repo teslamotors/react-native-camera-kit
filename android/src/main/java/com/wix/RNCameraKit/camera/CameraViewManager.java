@@ -91,6 +91,7 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
             camera = Camera.open(currentCamera);
             setCameraDisplayOrientation(((Activity) reactContext.getBaseContext()));
             updateCameraSize();
+            connectHolder();
         } catch (RuntimeException e) {
             Toast.makeText(reactContext, "Cannot connect to Camera", Toast.LENGTH_SHORT).show();
         }
