@@ -33,12 +33,12 @@
     
     NSArray<NSString*> *array = [str componentsSeparatedByString:@":"];
     if (array.count == 2) {
-        float first = [array[0] floatValue];
-        float second = [array[1] floatValue];
+        float height = [array[0] floatValue];
+        float width = [array[1] floatValue];
         
-        if (first != 0 && second != 0) {
-            self.width = first;
-            self.height = second;
+        if (width != 0 && height != 0) {
+            self.width = width;
+            self.height = height;
             self.ratio = self.width/self.height;
         }
     }
