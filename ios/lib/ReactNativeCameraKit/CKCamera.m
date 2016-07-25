@@ -124,13 +124,14 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 - (void)removeFromSuperview
 {
-    [super removeFromSuperview];
+    
     dispatch_async( self.sessionQueue, ^{
         if ( self.setupResult == CKSetupResultSuccess ) {
             [self.session stopRunning];
             [self removeObservers];
         }
     } );
+    [super removeFromSuperview];
     
 }
 
@@ -498,7 +499,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
                                 if (success) {
                                     
                                     PHFetchResult *fetchResult = [PHAsset fetchAssetsWithMediaType:PHAssetMediaTypeImage options:self.fetchOptions];
-                                    PHAsset *lastImageAsset = [fetchResult lastObject];
+                                    PHAsset *lastImageAsset = [fetchResult firstObject];
                                     
                                     if (lastImageAsset.localIdentifier) {
                                         imageInfoDict[@"id"] = lastImageAsset.localIdentifier;
