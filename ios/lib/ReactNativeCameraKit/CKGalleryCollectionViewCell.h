@@ -10,8 +10,8 @@
 
 @interface CKGalleryCollectionViewCell : UICollectionViewCell
 
-+(void)setSelectedImage:(UIImage*)image;
-+(void)setUnSlectedImage:(UIImage*)image;
++(void)setSelectedImageIcon:(UIImage*)image;
++(void)setUnSlectedImageIcon:(UIImage*)image;
 
 
 @property (nonatomic, strong) UIImage *thumbnailImage;

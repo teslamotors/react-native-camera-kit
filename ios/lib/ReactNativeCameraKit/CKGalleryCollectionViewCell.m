@@ -23,8 +23,8 @@ alpha:1.0]
 
 
 
-static UIImage *selectedImage = nil;
-static UIImage *unSelectedImage = nil;
+static UIImage *selectedImageIcon = nil;
+static UIImage *unSelectedImageIcon = nil;
 
 
 @interface CKGalleryCollectionViewCell ()
@@ -41,13 +41,13 @@ static UIImage *unSelectedImage = nil;
 @implementation CKGalleryCollectionViewCell
 
 
-+(void)setSelectedImage:(UIImage*)image {
-    if (image) selectedImage = image;
++(void)setSelectedImageIcon:(UIImage*)image {
+    if (image) selectedImageIcon = image;
 }
 
 
-+(void)setUnSlectedImage:(UIImage*)image {
-    if (image) unSelectedImage = image;
++(void)setUnSlectedImageIcon:(UIImage*)image {
+    if (image) unSelectedImageIcon = image;
 }
 
 
@@ -104,10 +104,10 @@ static UIImage *unSelectedImage = nil;
     _isSelected = isSelected;
     if (_isSelected) {
         self.imageOveray.alpha = IMAGE_OVERLAY_ALPHA;
-        if (selectedImage) {
+        if (selectedImageIcon) {
             
             double frameDuration = 1.0/2.0; // 4 = number of keyframes
-            self.badgeImageView.image = selectedImage;
+            self.badgeImageView.image = selectedImageIcon;
             self.badgeImageView.transform = CGAffineTransformMakeScale(0.5, 0.5);
             [UIView animateKeyframesWithDuration:0.2 delay:0 options:0 animations:^{
                 
@@ -125,9 +125,9 @@ static UIImage *unSelectedImage = nil;
     }
     else {
         self.imageOveray.alpha = 0;
-        if (unSelectedImage) {
+        if (unSelectedImageIcon) {
             [UIView animateWithDuration:0.3 animations:^{
-                self.badgeImageView.image = unSelectedImage;
+                self.badgeImageView.image = unSelectedImageIcon;
             } completion:^(BOOL finished) {
                 
             }];

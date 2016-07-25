@@ -28,21 +28,21 @@
 @property (nonatomic, strong) NSNumber *minimumLineSpacing;
 @property (nonatomic, strong) NSNumber *minimumInteritemSpacing;
 @property (nonatomic, strong) NSNumber *columnCount;
-@property (nonatomic, copy) RCTDirectEventBlock onSelected;
+@property (nonatomic, copy) RCTDirectEventBlock onTapImage;
 
 @property (nonatomic, strong) UICollectionView *collectionView;
 @property (nonatomic, strong) PHFetchResult<PHAsset *> *galleryFetchResults;
 @property (nonatomic, strong) GalleryData *galleryData;
 @property (nonatomic, strong) PHCachingImageManager *imageManager;
 @property (nonatomic) CGSize cellSize;
-@property (nonatomic, strong) NSMutableArray *selectedAssets;
+@property (nonatomic, strong) NSMutableArray *selectedImages;
 
 @property (nonatomic, strong) PHImageRequestOptions *imageRequestOptions;
 
 @property (nonatomic, strong) PHFetchOptions *fetchOptions;
 @property (nonatomic, strong) NSString *selectedBase64Image;
-@property (nonatomic, strong) UIImage *selectedImage;
-@property (nonatomic, strong) UIImage *unSelectedImage;
+@property (nonatomic, strong) UIImage *selectedImageIcon;
+@property (nonatomic, strong) UIImage *unSelectedImageIcon;
 
 
 @end
@@ -56,7 +56,7 @@ static NSString * const CellReuseIdentifier = @"Cell";
     
     if (self) {
         
-        self.selectedAssets = [[NSMutableArray alloc] init];
+        self.selectedImages = [[NSMutableArray alloc] init];
         self.imageManager = [[PHCachingImageManager alloc] init];
         
         self.imageRequestOptions = [[PHImageRequestOptions alloc] init];
@@ -136,7 +136,7 @@ static NSString * const CellReuseIdentifier = @"Cell";
 
 -(void)upadateCollectionView:(PHFetchResult*)fetchResults animated:(BOOL)animated {
     
-    self.galleryData = [[GalleryData alloc] initWithFetchResults:fetchResults selectedImagesIds:self.selectedAssets];
+    self.galleryData = [[GalleryData alloc] initWithFetchResults:fetchResults selectedImagesIds:self.selectedImages];
     
     if (animated) {
         
@@ -153,12 +153,12 @@ static NSString * const CellReuseIdentifier = @"Cell";
     }
 }
 
--(void)setSelectedImage:(UIImage *)selectedImage {
-    [CKGalleryCollectionViewCell setSelectedImage:selectedImage];
+-(void)setSelectedImageIcon:(UIImage *)selectedImage {
+    [CKGalleryCollectionViewCell setSelectedImageIcon:selectedImage];
 }
 
--(void)setUnSelectedImage:(UIImage *)unSelectedImage {
-    [CKGalleryCollectionViewCell setUnSlectedImage:unSelectedImage];
+-(void)setUnSelectedImageIcon:(UIImage *)unSelectedImage {
+    [CKGalleryCollectionViewCell setUnSlectedImageIcon:unSelectedImage];
 }
 
 
@@ -236,29 +236,19 @@ static NSString * const CellReuseIdentifier = @"Cell";
         ckCell.isSelected = !ckCell.isSelected;
         NSString *assetLocalIdentifier = asset.localIdentifier;
         
-        if (ckCell.isSelected) {
-            
-            
-            if (assetLocalIdentifier) {
-                [self.selectedAssets addObject:assetLocalIdentifier];
-            }
-            else {
-                //NSLog(@"ERROR: assetInfo is nil!");
-            }
-        }
-        else {
-            [self.selectedAssets removeObject:assetLocalIdentifier];
-        }
-        
-        [self onSelectChanged];
+        [self onSelectChanged:assetLocalIdentifier];
+    }
+}
+
+-(void)setSelectedImages:(NSMutableArray *)selectedImages {
+    if (selectedImages) {
+        _selectedImages = selectedImages;
     }
 }
 
 
-
-
 -(void)refreshGalleryView:(NSArray*)selectedImages {
-    self.selectedAssets = selectedImages;
+    self.selectedImages = selectedImages;
     [self setAlbumName:self.albumName];
 }
 
@@ -266,9 +256,9 @@ static NSString * const CellReuseIdentifier = @"Cell";
 #pragma mark - misc
 
 
--(void)onSelectChanged {
-    if (self.onSelected) {
-        self.onSelected(@{@"selected":self.selectedAssets});
+-(void)onSelectChanged:(NSString*)tappedImageId {
+    if (self.onTapImage) {
+        self.onTapImage(@{@"selected":tappedImageId});
     }
 }
 
@@ -299,9 +289,11 @@ RCT_EXPORT_VIEW_PROPERTY(albumName, NSString);
 RCT_EXPORT_VIEW_PROPERTY(minimumLineSpacing, NSNumber);
 RCT_EXPORT_VIEW_PROPERTY(minimumInteritemSpacing, NSNumber);
 RCT_EXPORT_VIEW_PROPERTY(columnCount, NSNumber);
-RCT_EXPORT_VIEW_PROPERTY(onSelected, RCTDirectEventBlock);
-RCT_EXPORT_VIEW_PROPERTY(selectedImage, UIImage);
-RCT_EXPORT_VIEW_PROPERTY(unSelectedImage, UIImage);
+RCT_EXPORT_VIEW_PROPERTY(onTapImage, RCTDirectEventBlock);
+RCT_EXPORT_VIEW_PROPERTY(selectedImageIcon, UIImage);
+RCT_EXPORT_VIEW_PROPERTY(unSelectedImageIcon, UIImage);
+RCT_EXPORT_VIEW_PROPERTY(selectedImages, NSArray);
+
 
 RCT_EXPORT_METHOD(getSelectedImages:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
@@ -312,7 +304,7 @@ RCT_EXPORT_METHOD(getSelectedImages:(RCTPromiseResolveBlock)resolve
     
     NSMutableArray *assetsUrls = [[NSMutableArray alloc] init];
     
-    for (PHAsset *asset in self.galleryView.selectedAssets) {
+    for (PHAsset *asset in self.galleryView.selectedImages) {
         
         [self.galleryView.imageManager requestImageDataForAsset:asset options:nil resultHandler:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
             
@@ -343,7 +335,7 @@ RCT_EXPORT_METHOD(getSelectedImages:(RCTPromiseResolveBlock)resolve
             
             [assetsUrls addObject:assetInfoDict];
             
-            if (asset == self.galleryView.selectedAssets.lastObject) {
+            if (asset == self.galleryView.selectedImages.lastObject) {
                 if (resolve) {
                     resolve(@{@"selectedImages":assetsUrls});
                 }
