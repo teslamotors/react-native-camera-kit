@@ -35,7 +35,7 @@ export default class CameraKitGalleryView extends Component {
 
   onTapImage(event) {
     if(this.props.onTapImage) {
-      this.props.onTapImage(event.nativeEvent);
+      this.props.onTapImage(event);
     }
   }
 }

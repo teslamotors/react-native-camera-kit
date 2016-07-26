@@ -55,7 +55,7 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
         view.setColumnCount(columnCount);
     }
 
-    @ReactProp(name = "selectedUris")
+    @ReactProp(name = "selectedImages")
     public void setSelectedUris(GalleryView view, ReadableArray uris) {
         ArrayList<String> list = new ArrayList<>();
         for(int i = 0; i < uris.size(); i++) {
@@ -64,13 +64,13 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
         view.setSelectedUris(list);
     }
 
-    @ReactProp(name = "selectedImage")
+    @ReactProp(name = "selectedImageIcon")
     public void setSelectedImage(GalleryView view, String imageSource) {
         Drawable drawable = ResourceDrawableIdHelper.getIcon(view.getContext(), imageSource);
         view.setSelectedDrawable(drawable);
     }
 
-    @ReactProp(name = "unSelectedImage")
+    @ReactProp(name = "unSelectedImageIcon")
     public void setUnelectedImage(GalleryView view, String imageSource) {
         Drawable drawable = ResourceDrawableIdHelper.getIcon(view.getContext(), imageSource);
         view.setUnselectedDrawable(drawable);
