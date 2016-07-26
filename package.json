@@ -7,17 +7,15 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
-  "version": "1.0.15",
+  "version": "1.0.16",
   "description": "Advanced native camera control with pre-defined aspect ratio, crop, etc",
   "author": "Nataliia Hrankina <nataliag@wix.com>",
   "nativePackage": true,
   "bugs": {
     "url": "https://github.com/wix/react-native-camera-kit/issues"
   },
-  "scripts": {
-  },
-  "dependencies": {
-  },
+  "scripts": {},
+  "dependencies": {},
   "license": "MIT",
   "peerDependencies": {
     "react": ">=0.14.5",
