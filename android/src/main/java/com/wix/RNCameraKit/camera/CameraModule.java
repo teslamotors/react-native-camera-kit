@@ -76,6 +76,7 @@ public class CameraModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void capture(boolean saveToCameraRoll, final Promise promise) {
         Camera camera = CameraViewManager.getCamera();
+        camera.stopPreview();
         camera.takePicture(null, null, new Camera.PictureCallback(){
 
             @Override
