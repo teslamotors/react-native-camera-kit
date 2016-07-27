@@ -19,11 +19,12 @@ export default class CameraKitCamera extends React.Component {
 		console.log('flashMode?', await NativeCameraModule.getFlashMode());
 	}
 
-	//static async checkDeviceAuthorizarionStatus() {
-	//	const deviceAutorizationStatus = await NativeCameraAction.checkDeviceAuthorizationStatus();
-	//
-	//	return deviceAutorizationStatus;
-	//}
+	static async checkDeviceAuthorizarionStatus() {
+		//const deviceAutorizationStatus = await NativeCameraAction.checkDeviceAuthorizationStatus();
+    //
+		//return deviceAutorizationStatus;
+		return true;
+	}
 
 	async capture(saveToCameraRoll = true) {
 		const imageTmpPath = await NativeCameraModule.capture(saveToCameraRoll);

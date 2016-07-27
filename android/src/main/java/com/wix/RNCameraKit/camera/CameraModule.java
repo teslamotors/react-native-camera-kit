@@ -76,11 +76,11 @@ public class CameraModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void capture(boolean saveToCameraRoll, final Promise promise) {
         Camera camera = CameraViewManager.getCamera();
-        camera.stopPreview();
         camera.takePicture(null, null, new Camera.PictureCallback(){
 
             @Override
             public void onPictureTaken(byte[] data, Camera camera) {
+                camera.stopPreview();
                 new SaveImageTask(promise).execute(data);
             }
         });
@@ -114,7 +114,7 @@ public class CameraModule extends ReactContextBaseJavaModule {
                 cursor.close();
 
                 promise.resolve(filePath);
-                CameraViewManager.initCamera();
+                CameraViewManager.reconnect();
             }
             return null;
         }

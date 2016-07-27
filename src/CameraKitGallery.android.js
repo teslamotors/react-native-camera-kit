@@ -12,7 +12,15 @@ async function getImagesForIds(imagesUris = []) {
   return images;
 }
 
+async function checkDeviceGalleryAuthorizationStatus() {
+  //const deviceAutorizationStatus = await NativeCameraAction.checkDeviceAuthorizationStatus();
+  //
+  //return deviceAutorizationStatus;
+  return true;
+}
+
 export default {
+  checkDeviceGalleryAuthorizationStatus,
   getAlbumsWithThumbnails,
   getImagesForIds
 }

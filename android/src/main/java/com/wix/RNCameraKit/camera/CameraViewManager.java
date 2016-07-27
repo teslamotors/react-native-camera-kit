@@ -44,9 +44,6 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     @Override
     protected CameraView createViewInstance(ThemedReactContext reactContext) {
         this.reactContext = reactContext;
-        if (camera == null) {
-            initCamera();
-        }
         return new CameraView(reactContext);
     }
 
@@ -91,14 +88,17 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
             camera = Camera.open(currentCamera);
             setCameraDisplayOrientation(((Activity) reactContext.getBaseContext()));
             updateCameraSize();
-            connectHolder();
         } catch (RuntimeException e) {
             Toast.makeText(reactContext, "Cannot connect to Camera", Toast.LENGTH_SHORT).show();
         }
     }
 
     private static void connectHolder() {
-        if (camera == null || cameraViews.isEmpty()  || cameraViews.peek().getHolder() == null) return;
+        if (cameraViews.isEmpty()  || cameraViews.peek().getHolder() == null) return;
+
+        if(camera == null) {
+            initCamera();
+        }
 
         try {
             camera.stopPreview();
@@ -115,7 +115,7 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
         }
         if(!cameraViews.isEmpty()) {
             connectHolder();
-        } else {
+        } else if(camera != null){
             camera.release();
             camera = null;
         }
@@ -209,5 +209,9 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
             parameters.setFlashMode(CameraViewManager.getFlashMode());
             camera.setParameters(parameters);
         } catch (RuntimeException e) {}
+    }
+
+    public static void reconnect() {
+        connectHolder();
     }
 }
