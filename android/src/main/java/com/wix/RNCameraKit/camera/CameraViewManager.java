@@ -115,6 +115,9 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
         }
         if(!cameraViews.isEmpty()) {
             connectHolder();
+        } else {
+            camera.release();
+            camera = null;
         }
     }
 

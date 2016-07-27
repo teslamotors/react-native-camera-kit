@@ -1,5 +1,6 @@
 package com.wix.RNCameraKit.camera;
 
+import android.graphics.Color;
 import android.hardware.Camera;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -22,7 +23,9 @@ public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
         super(context);
         this.context = context;
 
-        this.surface = new SurfaceView(context);
+
+        surface = new SurfaceView(context);
+        surface.setBackgroundColor(Color.BLACK);
         addView(surface, MATCH_PARENT, MATCH_PARENT);
         surface.getHolder().addCallback(this);
         surface.setOnClickListener(new OnClickListener() {
