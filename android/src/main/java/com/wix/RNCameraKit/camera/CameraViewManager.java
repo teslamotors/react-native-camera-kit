@@ -106,6 +106,8 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
             camera.startPreview();
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (RuntimeException e) {
+            e.printStackTrace();
         }
     }
 
