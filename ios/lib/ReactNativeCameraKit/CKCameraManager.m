@@ -30,7 +30,21 @@ RCT_EXPORT_MODULE()
 RCT_EXPORT_VIEW_PROPERTY(cameraOptions, NSDictionary)
 
 
-RCT_EXPORT_METHOD(checkDeviceAuthorizationStatus:(RCTPromiseResolveBlock)resolve
+RCT_EXPORT_METHOD(checkDeviceCameraAuthorizationStatus:(RCTPromiseResolveBlock)resolve
+                  reject:(__unused RCTPromiseRejectBlock)reject) {
+
+    
+    AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+    if(authStatus == AVAuthorizationStatusAuthorized) {
+        resolve(@YES);
+    } else if(authStatus == AVAuthorizationStatusNotDetermined) {
+        resolve(@(-1));
+    } else {
+        resolve(@NO);
+    }
+}
+
+RCT_EXPORT_METHOD(requestDeviceCameraAuthorization:(RCTPromiseResolveBlock)resolve
                   reject:(__unused RCTPromiseRejectBlock)reject) {
     __block NSString *mediaType = AVMediaTypeVideo;
     

@@ -207,9 +207,9 @@ RCT_EXPORT_METHOD(getImagesForIds:(NSArray*)imagesIdArray
         
         if (assetInfoDict && assetInfoDict[@"uri"] && assetInfoDict[@"size"] && assetInfoDict[@"name"] ) {
             
-        [assetsArray addObject:@{@"uri": assetInfoDict[@"uri"],
-                                 @"size": assetInfoDict[@"size"],
-                                 @"name": assetInfoDict[@"name"]}];
+            [assetsArray addObject:@{@"uri": assetInfoDict[@"uri"],
+                                     @"size": assetInfoDict[@"size"],
+                                     @"name": assetInfoDict[@"name"]}];
         }
     }
     
@@ -219,9 +219,17 @@ RCT_EXPORT_METHOD(getImagesForIds:(NSArray*)imagesIdArray
 }
 
 
-RCT_EXPORT_METHOD(checkDeviceGalleryAuthorizationStatus:(RCTPromiseResolveBlock)resolve
+RCT_EXPORT_METHOD(checkDevicePhotosAuthorizationStatus:(RCTPromiseResolveBlock)resolve
                   reject:(__unused RCTPromiseRejectBlock)reject) {
-    [CKGalleryManager deviceGalleryAuthorizationStatus:^(BOOL isAuthorized) {
+    NSNumber *status = [CKGalleryManager checkDeviceGalleryAuthorizationStatus];
+    if (resolve) {
+        resolve(status);
+    }
+}
+
+RCT_EXPORT_METHOD(requestDevicePhotosAuthorization:(RCTPromiseResolveBlock)resolve
+                  reject:(__unused RCTPromiseRejectBlock)reject) {
+    [CKGalleryManager requestDeviceGalleryAuthorization:^(BOOL isAuthorized) {
         if (resolve) {
             resolve(@(isAuthorized));
         }
@@ -229,7 +237,7 @@ RCT_EXPORT_METHOD(checkDeviceGalleryAuthorizationStatus:(RCTPromiseResolveBlock)
 }
 
 
-+(void)deviceGalleryAuthorizationStatus:(CallbackGalleryAuthorizationStatus)callback {
++(void)requestDeviceGalleryAuthorization:(CallbackGalleryAuthorizationStatus)callback {
     [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
         if (callback) {
             switch (status) {
@@ -248,6 +256,19 @@ RCT_EXPORT_METHOD(checkDeviceGalleryAuthorizationStatus:(RCTPromiseResolveBlock)
             }
         }
     }];
+}
+
++(NSNumber*)checkDeviceGalleryAuthorizationStatus {
+    
+    PHAuthorizationStatus authorizationStatus = [PHPhotoLibrary authorizationStatus];
+    
+    if (authorizationStatus == PHAuthorizationStatusAuthorized) {
+        return @YES;
+    }
+    else if (authorizationStatus == PHAuthorizationStatusNotDetermined) {
+        return @(-1);
+    }
+    return @NO;
 }
 
 

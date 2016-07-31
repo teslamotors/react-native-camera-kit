@@ -17,10 +17,16 @@ export default class CameraKitCamera extends React.Component {
     return <NativeCamera {...transformedProps}/>
   }
   
-  static async checkDeviceAuthorizarionStatus() {
-      const deviceAutorizationStatus = await NativeCameraAction.checkDeviceAuthorizationStatus();
+  static async checkDeviceCameraAuthorizationStatus() {
+      const deviceAutorizationStatus = await NativeCameraAction.checkDeviceCameraAuthorizationStatus();
       return deviceAutorizationStatus;
     
+  }
+
+  static async requestDeviceCameraAuthorization() {
+    const usersAuthorizationAnswer = await NativeCameraAction.requestDeviceCameraAuthorization();
+    return usersAuthorizationAnswer;
+
   }
   
   async capture(saveToCameraRoll = true) {

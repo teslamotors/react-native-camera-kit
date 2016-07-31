@@ -14,13 +14,19 @@ async function getImagesForIds(imagesId = []) {
   return images;
 }
 
-async function checkDeviceGalleryAuthorizationStatus() {
-    const isAuthorized = await CKGallery.checkDeviceGalleryAuthorizationStatus();
+async function checkDevicePhotosAuthorizationStatus() {
+    const isAuthorized = await CKGallery.checkDevicePhotosAuthorizationStatus();
     return isAuthorized;
+}
+
+async function requestDevicePhotosAuthorization() {
+  const isAuthorized = await CKGallery.requestDevicePhotosAuthorization();
+  return isAuthorized;
 }
 
 export default {
   getAlbumsWithThumbnails,
   getImagesForIds,
-  checkDeviceGalleryAuthorizationStatus
+  checkDevicePhotosAuthorizationStatus,
+  requestDevicePhotosAuthorization
 }
