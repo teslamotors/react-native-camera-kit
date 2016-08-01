@@ -75,8 +75,7 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
         }
         currentCamera++;
         currentCamera = currentCamera % Camera.getNumberOfCameras();
-//        initCamera();
-        camera = null;
+        initCamera();
         connectHolder();
 
         return true;
@@ -91,7 +90,7 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
             setCameraDisplayOrientation(((Activity) reactContext.getBaseContext()));
             updateCameraSize();
         } catch (RuntimeException e) {
-            Toast.makeText(reactContext, "Cannot connect to Camera", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
         }
     }
 
