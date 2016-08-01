@@ -76,6 +76,7 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
         currentCamera++;
         currentCamera = currentCamera % Camera.getNumberOfCameras();
         initCamera();
+        connectHolder();
 
         return true;
     }
