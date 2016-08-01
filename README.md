@@ -1,5 +1,4 @@
 # react-native-camera-kit
-Currently work in progress.
 
 Native camera control.
 
