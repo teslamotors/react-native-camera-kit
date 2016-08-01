@@ -3,6 +3,8 @@ Currently work in progress.
 
 Native camera control.
 
+![](img/crazyUnicorn.png)  ![](img/zoom.png)
+
 ## Install
 
 #### Install using npm:
@@ -34,23 +36,59 @@ and in `getPackages` add
 to the list
 
 
-## Examples
+## How to use
 
-###CameraKitCamera 
+###CameraKitCamera inside the `render` function
 ```javascript
 <CameraKitCamera
-            ref={(cam) => {
-                  this.camera = cam;
-                }} // should be only if u want to make some actions in this specific camera instance
-            style={{flex: 1, justifyContent: 'flex-end'}}
-            cameraOptions={{
-                    flashMode: 'auto',
-                    focusMode: 'on',
-                    zoomMode: 'on'
-                  }}
-          />
-
+        ref={(cam) => {
+        					this.camera = cam;
+        					}
+        		}
+        style={{flex: 1, backgroundColor:'white'}}
+        cameraOptions={{
+                    flashMode: 'auto',    // on/off/auto(default)
+                    focusMode: 'on',      // off/on(default)
+                    zoomMode: 'on',        // off/on(default)
+                    ratioOverlay:['1:1','16:9','3:4'], // optional, ratio overlay on the camera and crop the image seamlessly 
+                    ratioOverlayColor: '#00000077' // optional
+                    }}
+/>
 ```
+###CameraKitCamera cameraOptions
+
+Attribute | type | values | description
+-------- | ----- | ------ | ------------
+flashMode | [String] | `'on'`/`'off'`/`'auto'` | camera flash mode (default is `auto`)
+focusMode | [String] | `'on'`/`'off'` | camera focus mode (default is `on`)
+zoomMode | [String] | `'on'`/`'off'`/ | camera zoom mode 
+ratioOverlay | [Array] | `'number':'number'` | overlay ontop of the camera view (crop the image to the selected size) Example: `['16:9', '1:1', '3:4']`
+ratioOverlayColor | [Color] | `'#ffffff77'` | any color with alpha (default is ```'#ffffff77'```)
+
+
+###CameraKitCamera API
+
+####checkDeviceCameraAuthorizationStatus
+```javascript
+const isCameraAuthorized = await CameraKitCamera.checkDeviceCameraAuthorizationStatus();
+```
+return values:
+
+`AVAuthorizationStatusAuthorized` returns `true`
+
+`AVAuthorizationStatusNotDetermined` returns `-1`
+
+otherwise, returns ```false```
+
+####requestDeviceCameraAuthorization
+```javascript
+const isUserAuthorizedCamera = await CameraKitCamera.requestDeviceCameraAuthorization();
+```
+`AVAuthorizationStatusAuthorized` returns `true`
+
+otherwise, returns `false`
+
+
 ####capture
 Capture image
 
@@ -60,7 +98,7 @@ const image = await this.camera.capture(true);
 
 ####setFlashMode
 
-Set flesh mode (```auto```/```on```/```off```)
+Set flesh mode (`auto`/`on`/`off`)
 
 ```javascript
 const success = await this.camera.setFlashMode(newFlashData.mode);
@@ -76,20 +114,23 @@ const success = await this.camera.changeCamera();
 
 ###CameraKitGalleryView
 
+Native Gallery View (based on `UICollectionView`)
+
 ```javascript
 <CameraKitGalleryView
           ref={(gallery) => {
-                            this.gallery = gallery;
-                           }}
+              this.gallery = gallery;
+             }}
           style={{flex: 1, marginTop: 20}}
           minimumInteritemSpacing={10}
           minimumLineSpacing={10}
           albumName={<ALBUM_NAME>}
           columnCount={3}
-          onSelected={(result) => {
+          onTapImage={(event) => {
               //result.nativeEvent.selected - ALL selected images Photos Framework ids
-            }}
-          selectedImage={require('<IMAGE_FILE_PATH>')}
-          unSelectedImage={require('<IMAGE_FILE_PATH>')}
-        />
+          }}
+          selectedImages={<MAINTAIN_SELECETED_IMAGES>}
+          selectedImageIcon={require('<IMAGE_FILE_PATH>'))}
+          unSelectedImageIcon={require('<IMAGE_FILE_PATH>')}
+/>
 ```
