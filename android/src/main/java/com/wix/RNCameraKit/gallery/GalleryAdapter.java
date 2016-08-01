@@ -3,7 +3,9 @@ package com.wix.RNCameraKit.gallery;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.provider.MediaStore;
+import android.support.v4.util.Pair;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +34,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.StupidHo
     private String albumName = "";
     private Drawable selectedDrawable;
     private Drawable unselectedDrawable;
+    private boolean refreshing = false;
 
     public void setSelectedUris(ArrayList<String> selectedUris) {
         this.selectedUris = selectedUris;
@@ -79,39 +82,60 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.StupidHo
     }
 
     public void refreshData() {
-        ids.clear();
-        uris.clear();
+        if(refreshing) return;
+        refreshing = true;
 
-        String selection = "";
-        String[] args = null;
-        if(albumName != null && !albumName.isEmpty() && !albumName.equals("All Photos")) {
-            selection = MediaStore.Images.Media.BUCKET_DISPLAY_NAME + "=?";
-            args = new String[]{albumName};
-        }
+        new Thread(new Runnable() {
+           @Override
+           public void run() {
+               ids.clear();
+               uris.clear();
 
-        Cursor cursor = view.getContext().getContentResolver().query(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                PROJECTION,
-                selection,
-                args,
-                null
-        );
+               String selection = "";
+               String[] args = null;
+               if(albumName != null && !albumName.isEmpty() && !albumName.equals("All Photos")) {
+                   selection = MediaStore.Images.Media.BUCKET_DISPLAY_NAME + "=?";
+                   args = new String[]{albumName};
+               }
 
-        if (cursor.moveToFirst()) {
-            int dataIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
-            int idIndex = cursor.getColumnIndex(MediaStore.Images.Media._ID);
-            do {
-                uris.add(cursor.getString(dataIndex));
-                ids.add(cursor.getInt(idIndex));
-            } while(cursor.moveToNext());
-        }
+               Cursor cursor = view.getContext().getContentResolver().query(
+                       MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                       PROJECTION,
+                       selection,
+                       args,
+                       null
+               );
 
-        Collections.reverse(uris);
-        Collections.reverse(ids);
+               if (cursor.moveToFirst()) {
+                   int dataIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
+                   int idIndex = cursor.getColumnIndex(MediaStore.Images.Media._ID);
+                   do {
+                       uris.add(cursor.getString(dataIndex));
+                       ids.add(cursor.getInt(idIndex));
+                   } while(cursor.moveToNext());
+               }
 
-        cursor.close();
-        notifyDataSetChanged();
+               Collections.reverse(uris);
+               Collections.reverse(ids);
+
+               cursor.close();
+
+               view.post(new Runnable() {
+                   @Override
+                   public void run() {
+                       notifyDataSetChanged();
+                       refreshing = false;
+                   }
+               });
+           }
+       }).start();
     }
+
+    private void setData(ArrayList<Integer> ids, ArrayList<String> uris) {
+        this.ids = ids;
+        this.uris = uris;
+    }
+
 
     @Override
     public StupidHolder onCreateViewHolder(ViewGroup parent, int viewType) {
