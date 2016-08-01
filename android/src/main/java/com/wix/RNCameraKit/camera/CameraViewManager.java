@@ -75,7 +75,8 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
         }
         currentCamera++;
         currentCamera = currentCamera % Camera.getNumberOfCameras();
-        initCamera();
+//        initCamera();
+        camera = null;
         connectHolder();
 
         return true;
@@ -97,19 +98,29 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     private static void connectHolder() {
         if (cameraViews.isEmpty()  || cameraViews.peek().getHolder() == null) return;
 
-        if(camera == null) {
-            initCamera();
-        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if(camera == null) {
+                    initCamera();
+                }
 
-        try {
-            camera.stopPreview();
-            camera.setPreviewDisplay(cameraViews.peek().getHolder());
-            camera.startPreview();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (RuntimeException e) {
-            e.printStackTrace();
-        }
+                cameraViews.peek().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            camera.stopPreview();
+                            camera.setPreviewDisplay(cameraViews.peek().getHolder());
+                            camera.startPreview();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (RuntimeException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            }
+        }).start();
     }
 
     public static void removeCameraView() {
