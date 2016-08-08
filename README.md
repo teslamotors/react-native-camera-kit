@@ -114,6 +114,7 @@ const success = await this.camera.changeCamera();
 ###CameraKitGalleryView
 
 Native Gallery View (based on `UICollectionView`)
+
 README in progress :)
 
 ```javascript
