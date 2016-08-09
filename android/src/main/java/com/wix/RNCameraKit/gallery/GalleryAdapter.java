@@ -126,7 +126,6 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.StupidHo
                    @Override
                    public void run() {
                        notifyDataSetChanged();
-                       
                    }
                });
            }
