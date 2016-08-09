@@ -119,12 +119,14 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.StupidHo
                Collections.reverse(ids);
 
                cursor.close();
+               
+               refreshing = false;
 
                view.post(new Runnable() {
                    @Override
                    public void run() {
                        notifyDataSetChanged();
-                       refreshing = false;
+                       
                    }
                });
            }
