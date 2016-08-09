@@ -15,7 +15,9 @@
     "url": "https://github.com/wix/react-native-camera-kit/issues"
   },
   "scripts": {},
-  "dependencies": {},
+  "dependencies": {
+    "lodash": "^4.14.2"
+  },
   "license": "MIT",
   "peerDependencies": {
     "react": ">=0.14.5",
