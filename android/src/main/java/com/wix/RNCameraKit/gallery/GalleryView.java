@@ -9,14 +9,10 @@ import android.util.Log;
 import android.view.View;
 
 import com.facebook.react.bridge.Arguments;
-import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.WritableMap;
-import com.facebook.react.modules.core.DeviceEventManagerModule;
-import com.facebook.react.modules.core.RCTNativeAppEventEmitter;
 import com.facebook.react.uimanager.UIManagerModule;
 import com.facebook.react.uimanager.events.Event;
-import com.facebook.react.uimanager.events.EventDispatcher;
 import com.facebook.react.uimanager.events.RCTEventEmitter;
 
 import java.util.ArrayList;
@@ -25,6 +21,22 @@ import java.util.ArrayList;
  * Created by yedidyak on 30/06/2016.
  */
 public class GalleryView extends RecyclerView {
+
+    private class GridLayoutViewManagerWrapper extends GridLayoutManager {
+
+        public GridLayoutViewManagerWrapper(Context context, int spanCount) {
+            super(context, spanCount);
+        }
+
+        @Override
+        public void onLayoutChildren(Recycler recycler, State state) {
+            try {
+                super.onLayoutChildren(recycler, state);
+            } catch (IndexOutOfBoundsException e) {
+                Log.e("WIX", "IOOBE in RecyclerView");
+            }
+        }
+    }
 
     private GalleryAdapter adapter;
     private int itemSpacing;
@@ -65,7 +77,7 @@ public class GalleryView extends RecyclerView {
     }
 
     public void setColumnCount(int columnCount) {
-        GridLayoutManager layoutManager = new GridLayoutManager(getContext(), columnCount);
+        GridLayoutManager layoutManager = new GridLayoutViewManagerWrapper(getContext(), columnCount);
         layoutManager.setOrientation(GridLayoutManager.VERTICAL);
         setLayoutManager(layoutManager);
     }
@@ -77,7 +89,7 @@ public class GalleryView extends RecyclerView {
 
     public void setSelectedUris(ArrayList<String> selectedUris) {
         adapter.setSelectedUris(selectedUris);
-        adapter.notifyDataSetChanged();
+        adapter.notifyView();
     }
 
     public void setSelectedDrawable(Drawable drawable) {

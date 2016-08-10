@@ -42,7 +42,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.StupidHo
 
     public void setSelectedDrawable(Drawable selectedDrawable) {
         this.selectedDrawable = selectedDrawable;
-        notifyDataSetChanged();
+        notifyView();
     }
 
     public void setUnselectedDrawable(Drawable unselectedDrawable) {
@@ -122,14 +122,23 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.StupidHo
                
                refreshing = false;
 
-               view.post(new Runnable() {
-                   @Override
-                   public void run() {
-                       notifyDataSetChanged();
-                   }
-               });
+               notifyView();
+
            }
        }).start();
+    }
+
+    public void notifyView() {
+        view.post(new Runnable() {
+            @Override
+            public void run() {
+                if(!view.isComputingLayout()) {
+                    notifyDataSetChanged();
+                } else {
+                    notifyView();
+                }
+            }
+        });
     }
 
     private void setData(ArrayList<Integer> ids, ArrayList<String> uris) {
@@ -148,7 +157,6 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.StupidHo
 
     @Override
     public void onBindViewHolder(final StupidHolder holder, final int position) {
-
         final SelectableImage selectableImageView = (SelectableImage)holder.itemView;
         holder.id = ids.get(position);
         holder.uri = uris.get(position);

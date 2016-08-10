@@ -104,6 +104,10 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
                     initCamera();
                 }
 
+                if(cameraViews.isEmpty()) {
+                    return;
+                }
+
                 cameraViews.peek().post(new Runnable() {
                     @Override
                     public void run() {
