@@ -25,6 +25,8 @@ alpha:1.0]
 
 static UIImage *selectedImageIcon = nil;
 static UIImage *unSelectedImageIcon = nil;
+static NSDictionary *supported = nil;
+
 
 
 @interface CKGalleryCollectionViewCell ()
@@ -33,7 +35,8 @@ static UIImage *unSelectedImageIcon = nil;
 @property (strong, nonatomic) UIButton *button;
 @property (strong, nonatomic) UIImageView *badgeImageView;
 @property (nonatomic, strong) UIView *imageOveray;
-//@property (strong, nonatomic) UILabel *badgeLabel;
+@property (nonatomic, strong) UIView *unsupportedView;
+@property (nonatomic, strong) SelectionGesture *gesture;
 
 @end
 
@@ -48,6 +51,16 @@ static UIImage *unSelectedImageIcon = nil;
 
 +(void)setUnSlectedImageIcon:(UIImage*)image {
     if (image) unSelectedImageIcon = image;
+}
+
++(void)setSupported:(NSDictionary*)newSupported {
+    if (newSupported) supported = newSupported;
+}
+
++(void)cleanStaticsVariables {
+    selectedImageIcon = nil;
+    unSelectedImageIcon = nil;
+    supported = nil;
 }
 
 
@@ -74,12 +87,13 @@ static UIImage *unSelectedImageIcon = nil;
     [self addSubview:self.badgeImageView];
     
     self.isSelected = NO;
+    self.isSupported = YES;
     
     
-    SelectionGesture *gesture = [[SelectionGesture alloc] initWithTarget:self action:@selector(handleGesture:)];
-    [self addGestureRecognizer:gesture];
-    gesture.cancelsTouchesInView = NO;
-    gesture.delegate = self;
+    self.gesture = [[SelectionGesture alloc] initWithTarget:self action:@selector(handleGesture:)];
+    [self addGestureRecognizer:self.gesture];
+    self.gesture.cancelsTouchesInView = NO;
+    self.gesture.delegate = self;
     
     return self;
 }
@@ -89,6 +103,10 @@ static UIImage *unSelectedImageIcon = nil;
     [super prepareForReuse];
     self.imageView.image = nil;
     self.isSelected = NO;
+    self.isSupported = YES;
+    self.gesture.enabled = YES;
+    [self.unsupportedView removeFromSuperview];
+    self.unsupportedView = nil;
     
 }
 
@@ -96,6 +114,72 @@ static UIImage *unSelectedImageIcon = nil;
 - (void)setThumbnailImage:(UIImage *)thumbnailImage {
     _thumbnailImage = thumbnailImage;
     self.imageView.image = thumbnailImage;
+}
+
+-(void)setIsSupported:(BOOL)isSupported {
+    _isSupported = isSupported;
+    
+    if (!_isSupported) {
+        if (supported) {
+            
+            UIImageView *imageView;
+            UILabel *unsupportedLabel;
+            
+            self.unsupportedView = [[UIView alloc] initWithFrame:self.bounds];
+            
+            UIColor *overlayColor = supported[UNSUPPORTED_OVERLAY_COLOR];
+            if (overlayColor) {
+                self.unsupportedView.backgroundColor = overlayColor;
+            }
+            
+            UIImage *unsupportedImage = supported[UNSUPPORTED_IMAGE];
+            if (unsupportedImage) {
+                CGRect imageViewFrame = self.unsupportedView.bounds;
+                imageViewFrame.size.height  = self.unsupportedView.bounds.size.height/4*2;
+                imageViewFrame.origin.y = self.unsupportedView.bounds.size.height/4 - (imageViewFrame.size.height/6);
+                
+                imageView = [[UIImageView alloc] initWithImage:unsupportedImage];
+                imageView.frame = imageViewFrame;
+                imageView.contentMode = UIViewContentModeScaleAspectFit;
+                [self.unsupportedView addSubview:imageView];
+            }
+            
+            
+            NSString *unsupportedText = supported[UNSUPPORTED_TEXT];
+            if (unsupportedText) {
+                CGRect labelFrame = self.unsupportedView.bounds;
+                labelFrame.size.height /= 4;
+                labelFrame.origin.y = self.unsupportedView.center.y - labelFrame.size.height/2;
+                if (imageView) {
+                    labelFrame.origin.y = self.unsupportedView.bounds.size.height - labelFrame.size.height - (labelFrame.size.height/2);
+                }
+                unsupportedLabel = [[UILabel alloc] initWithFrame:labelFrame];
+                unsupportedLabel.text = unsupportedText;
+                unsupportedLabel.textAlignment = NSTextAlignmentCenter;
+                
+                UIColor *unsupportedTextColor = supported[UNSUPPORTED_TEXT_COLOR];
+                if (unsupportedTextColor) {
+                    unsupportedLabel.textColor = unsupportedTextColor;
+                }
+                
+                [self.unsupportedView addSubview:unsupportedLabel];
+            }
+            
+            
+            
+            [self addSubview:self.unsupportedView];
+            [self.badgeImageView removeFromSuperview];
+            self.gesture.enabled = NO;
+        }
+    }
+    
+    else {
+        [self.unsupportedView removeFromSuperview];
+        self.unsupportedView = nil;
+        [self addSubview:self.badgeImageView];
+        self.gesture.enabled = YES;
+        
+    }
 }
 
 
@@ -110,7 +194,6 @@ static UIImage *unSelectedImageIcon = nil;
             self.badgeImageView.image = selectedImageIcon;
             self.badgeImageView.transform = CGAffineTransformMakeScale(0.5, 0.5);
             [UIView animateKeyframesWithDuration:0.2 delay:0 options:0 animations:^{
-                
                 
                 [UIView addKeyframeWithRelativeStartTime:0*frameDuration relativeDuration:frameDuration animations:^{
                     self.badgeImageView.transform = CGAffineTransformIdentity;

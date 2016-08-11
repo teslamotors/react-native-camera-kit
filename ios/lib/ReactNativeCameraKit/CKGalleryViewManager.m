@@ -21,6 +21,10 @@
 #define IMAGE_SIZE_MULTIPLIER                   2
 
 
+
+
+
+
 @interface CKGalleryView : UIView <UICollectionViewDelegateFlowLayout, UICollectionViewDataSource>
 
 //props
@@ -31,7 +35,6 @@
 @property (nonatomic, copy) RCTDirectEventBlock onTapImage;
 
 @property (nonatomic, strong) UICollectionView *collectionView;
-@property (nonatomic, strong) PHFetchResult<PHAsset *> *galleryFetchResults;
 @property (nonatomic, strong) GalleryData *galleryData;
 @property (nonatomic, strong) PHCachingImageManager *imageManager;
 @property (nonatomic) CGSize cellSize;
@@ -43,6 +46,11 @@
 @property (nonatomic, strong) NSString *selectedBase64Image;
 @property (nonatomic, strong) UIImage *selectedImageIcon;
 @property (nonatomic, strong) UIImage *unSelectedImageIcon;
+
+
+//supported
+@property (nonatomic, strong) NSDictionary *supported;
+@property (nonatomic, strong) NSArray *supportedFileTypesArray;
 
 
 @end
@@ -80,11 +88,17 @@ static NSString * const CellReuseIdentifier = @"Cell";
         PHFetchOptions *fetchOptions = [[PHFetchOptions alloc] init];
         fetchOptions.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:NO]];
         fetchOptions.predicate = [NSPredicate predicateWithFormat:@"mediaType = %d",PHAssetMediaTypeImage];
-
+        
         _fetchOptions = fetchOptions;
     }
     
     return _fetchOptions;
+}
+
+
+-(void)removeFromSuperview {
+    [CKGalleryCollectionViewCell cleanStaticsVariables];
+    [super removeFromSuperview];
 }
 
 
@@ -136,6 +150,8 @@ static NSString * const CellReuseIdentifier = @"Cell";
 
 -(void)upadateCollectionView:(PHFetchResult*)fetchResults animated:(BOOL)animated {
     
+    
+    
     self.galleryData = [[GalleryData alloc] initWithFetchResults:fetchResults selectedImagesIds:self.selectedImages];
     
     if (animated) {
@@ -153,12 +169,68 @@ static NSString * const CellReuseIdentifier = @"Cell";
     }
 }
 
+
 -(void)setSelectedImageIcon:(UIImage *)selectedImage {
     [CKGalleryCollectionViewCell setSelectedImageIcon:selectedImage];
 }
 
+
 -(void)setUnSelectedImageIcon:(UIImage *)unSelectedImage {
     [CKGalleryCollectionViewCell setUnSlectedImageIcon:unSelectedImage];
+}
+
+
+-(void)setSupported:(NSDictionary *)supported {
+    _supported = supported;
+    
+    
+    NSArray *supportedFileTypesArray;
+    UIColor *unsupportedOverlayColor;
+    UIImage *unsupportedImage;
+    NSString *unsupportedText;
+    UIColor *unsupportedTextColor;
+    
+    NSMutableDictionary *supportedDict = [[NSMutableDictionary alloc] init];
+    
+    
+    // SUPPORTED_FILE_TYPES
+    id supportedFileTypesId = self.supported[SUPPORTED_FILE_TYPES];
+    if (supportedFileTypesId) {
+        supportedFileTypesArray = [RCTConvert NSArray:supportedFileTypesId];
+        [supportedDict setValue:supportedFileTypesArray forKey:SUPPORTED_FILE_TYPES];
+        
+        self.supportedFileTypesArray = [NSArray arrayWithArray:supportedFileTypesArray];
+    }
+    
+    // UNSUPPORTED_OVERLAY_COLOR
+    id unsupportedOverlayColorId = self.supported[UNSUPPORTED_OVERLAY_COLOR];
+    if (unsupportedOverlayColorId) {
+        unsupportedOverlayColor = [RCTConvert UIColor:unsupportedOverlayColorId];
+        [supportedDict setValue:unsupportedOverlayColor forKey:UNSUPPORTED_OVERLAY_COLOR];
+    }
+    
+    // UNSUPPORTED_OVERLAY_COLOR
+    id unsupportedImageId = self.supported[UNSUPPORTED_IMAGE];
+    if (unsupportedImageId) {
+        unsupportedImage = [RCTConvert UIImage:unsupportedImageId];
+        [supportedDict setValue:unsupportedImage forKey:UNSUPPORTED_IMAGE];
+    }
+    
+    // UNSUPPORTED_TEXT
+    id unsupportedTextId = self.supported[UNSUPPORTED_TEXT];
+    if (unsupportedTextId) {
+        unsupportedText = [RCTConvert NSString:unsupportedTextId];
+        [supportedDict setValue:unsupportedText forKey:UNSUPPORTED_TEXT];
+    }
+    
+    // UNSUPPORTED_TEXT_COLOR
+    id unsupportedTextColorId = self.supported[UNSUPPORTED_TEXT_COLOR];
+    if (unsupportedTextColorId) {
+        unsupportedTextColor = [RCTConvert UIColor:unsupportedTextColorId];
+        [supportedDict setValue:unsupportedTextColor forKey:UNSUPPORTED_TEXT_COLOR];
+    }
+    
+    [CKGalleryCollectionViewCell setSupported:supportedDict];
 }
 
 
@@ -168,6 +240,8 @@ static NSString * const CellReuseIdentifier = @"Cell";
     if ([albumName caseInsensitiveCompare:@"all photos"] == NSOrderedSame || !albumName || [albumName isEqualToString:@""]) {
         
         PHFetchResult *allPhotosFetchResults = [PHAsset fetchAssetsWithOptions:self.fetchOptions];
+        
+        
         [self upadateCollectionView:allPhotosFetchResults animated:(self.galleryData != nil)];
         return;
     }
@@ -200,23 +274,50 @@ static NSString * const CellReuseIdentifier = @"Cell";
     NSDictionary *assetDictionary = (NSDictionary*)self.galleryData.data[indexPath.row];
     PHAsset *asset = assetDictionary[@"asset"];
     
-    CKGalleryCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:CellReuseIdentifier forIndexPath:indexPath];
+    NSString *fileType = [self extractFileTypeForAsset:asset];
+    
+    
+    
+    
+    __block CKGalleryCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:CellReuseIdentifier forIndexPath:indexPath];
     cell.isSelected = ((NSNumber*)assetDictionary[@"isSelected"]).boolValue;
+    cell.isSupported = YES;
     
     cell.representedAssetIdentifier = asset.localIdentifier;
     
     [self.imageManager requestImageForAsset:asset
                                  targetSize:CGSizeMake(self.cellSize.width*IMAGE_SIZE_MULTIPLIER, self.cellSize.height*IMAGE_SIZE_MULTIPLIER)
                                 contentMode:PHImageContentModeDefault
-                                    options:nil
+                                    options:self.imageRequestOptions
                               resultHandler:^(UIImage *result, NSDictionary *info) {
                                   if ([cell.representedAssetIdentifier isEqualToString:asset.localIdentifier]) {
                                       cell.thumbnailImage = result;
+                                      
+                                      if (self.supportedFileTypesArray) {
+                                          
+                                          if ([self.supportedFileTypesArray containsObject:[fileType lowercaseString]]) {
+                                              cell.isSupported = YES;
+                                          }
+                                          
+                                          else {
+                                              cell.isSupported = NO;
+                                          }
+                                      }
                                   }
                               }];
     
     
     return cell;
+}
+
+-(NSString*)extractFileTypeForAsset:(PHAsset*)asset {
+    NSString *fileName = [asset valueForKey:@"filename"];
+    NSArray *splitFileName = [fileName componentsSeparatedByString:@"."];
+    if (splitFileName.count > 1) {
+        return splitFileName[1];
+    }
+    
+    return nil;
 }
 
 
@@ -233,6 +334,11 @@ static NSString * const CellReuseIdentifier = @"Cell";
     
     if ([selectedCell isKindOfClass:[CKGalleryCollectionViewCell class]]) {
         CKGalleryCollectionViewCell *ckCell = (CKGalleryCollectionViewCell*)selectedCell;
+        
+        if (!ckCell.isSupported) {
+            return;
+        }
+        
         ckCell.isSelected = !ckCell.isSelected;
         NSString *assetLocalIdentifier = asset.localIdentifier;
         
@@ -260,6 +366,18 @@ static NSString * const CellReuseIdentifier = @"Cell";
     if (self.onTapImage) {
         self.onTapImage(@{@"selected":tappedImageId});
     }
+}
+
+
++(PHFetchResult*)filterFetchResults:(PHFetchResult*)fetchResults typesArray:(NSArray*)typesArray {
+    
+    
+    [fetchResults enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        NSLog(@"obj");
+    }];
+    
+    return nil;
+    
 }
 
 
@@ -293,6 +411,8 @@ RCT_EXPORT_VIEW_PROPERTY(onTapImage, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(selectedImageIcon, UIImage);
 RCT_EXPORT_VIEW_PROPERTY(unSelectedImageIcon, UIImage);
 RCT_EXPORT_VIEW_PROPERTY(selectedImages, NSArray);
+RCT_EXPORT_VIEW_PROPERTY(supported, NSDictionary);
+
 
 
 RCT_EXPORT_METHOD(getSelectedImages:(RCTPromiseResolveBlock)resolve
@@ -391,7 +511,7 @@ RCT_EXPORT_METHOD(refreshGalleryView:(NSArray*)selectedImages
             
             float imageSize = 0;
             if (imageData) {
-             imageSize= imageData.length;
+                imageSize= imageData.length;
             }
             assetInfoDict[@"size"] = [NSNumber numberWithFloat:imageSize];
             
