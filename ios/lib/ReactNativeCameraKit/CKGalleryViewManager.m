@@ -49,7 +49,7 @@
 
 
 //supported
-@property (nonatomic, strong) NSDictionary *supported;
+@property (nonatomic, strong) NSDictionary *fileTypeSupport;
 @property (nonatomic, strong) NSArray *supportedFileTypesArray;
 
 
@@ -180,54 +180,46 @@ static NSString * const CellReuseIdentifier = @"Cell";
 }
 
 
--(void)setSupported:(NSDictionary *)supported {
-    _supported = supported;
-    
-    
-    NSArray *supportedFileTypesArray;
-    UIColor *unsupportedOverlayColor;
-    UIImage *unsupportedImage;
-    NSString *unsupportedText;
-    UIColor *unsupportedTextColor;
+-(void)setFileTypeSupport:(NSDictionary *)supported {
+    _fileTypeSupport = supported;
     
     NSMutableDictionary *supportedDict = [[NSMutableDictionary alloc] init];
     
-    
     // SUPPORTED_FILE_TYPES
-    id supportedFileTypesId = self.supported[SUPPORTED_FILE_TYPES];
+    id supportedFileTypesId = self.fileTypeSupport[SUPPORTED_FILE_TYPES];
     if (supportedFileTypesId) {
-        supportedFileTypesArray = [RCTConvert NSArray:supportedFileTypesId];
-        [supportedDict setValue:supportedFileTypesArray forKey:SUPPORTED_FILE_TYPES];
+        NSArray *supportedFileTypesArray = [RCTConvert NSArray:supportedFileTypesId];
+        supportedDict[SUPPORTED_FILE_TYPES] = supportedFileTypesArray;
         
         self.supportedFileTypesArray = [NSArray arrayWithArray:supportedFileTypesArray];
     }
     
     // UNSUPPORTED_OVERLAY_COLOR
-    id unsupportedOverlayColorId = self.supported[UNSUPPORTED_OVERLAY_COLOR];
+    id unsupportedOverlayColorId = self.fileTypeSupport[UNSUPPORTED_OVERLAY_COLOR];
     if (unsupportedOverlayColorId) {
-        unsupportedOverlayColor = [RCTConvert UIColor:unsupportedOverlayColorId];
-        [supportedDict setValue:unsupportedOverlayColor forKey:UNSUPPORTED_OVERLAY_COLOR];
+        UIColor *unsupportedOverlayColor = [RCTConvert UIColor:unsupportedOverlayColorId];
+        supportedDict[UNSUPPORTED_OVERLAY_COLOR] = unsupportedOverlayColor;
     }
     
     // UNSUPPORTED_OVERLAY_COLOR
-    id unsupportedImageId = self.supported[UNSUPPORTED_IMAGE];
+    id unsupportedImageId = self.fileTypeSupport[UNSUPPORTED_IMAGE];
     if (unsupportedImageId) {
-        unsupportedImage = [RCTConvert UIImage:unsupportedImageId];
-        [supportedDict setValue:unsupportedImage forKey:UNSUPPORTED_IMAGE];
+        UIImage *unsupportedImage = [RCTConvert UIImage:unsupportedImageId];
+        supportedDict[UNSUPPORTED_IMAGE] = unsupportedImage;
     }
     
     // UNSUPPORTED_TEXT
-    id unsupportedTextId = self.supported[UNSUPPORTED_TEXT];
+    id unsupportedTextId = self.fileTypeSupport[UNSUPPORTED_TEXT];
     if (unsupportedTextId) {
-        unsupportedText = [RCTConvert NSString:unsupportedTextId];
-        [supportedDict setValue:unsupportedText forKey:UNSUPPORTED_TEXT];
+        NSString *unsupportedText = [RCTConvert NSString:unsupportedTextId];
+        supportedDict[UNSUPPORTED_TEXT] = unsupportedText;
     }
     
     // UNSUPPORTED_TEXT_COLOR
-    id unsupportedTextColorId = self.supported[UNSUPPORTED_TEXT_COLOR];
+    id unsupportedTextColorId = self.fileTypeSupport[UNSUPPORTED_TEXT_COLOR];
     if (unsupportedTextColorId) {
-        unsupportedTextColor = [RCTConvert UIColor:unsupportedTextColorId];
-        [supportedDict setValue:unsupportedTextColor forKey:UNSUPPORTED_TEXT_COLOR];
+        UIColor *unsupportedTextColor = [RCTConvert UIColor:unsupportedTextColorId];
+        supportedDict[UNSUPPORTED_TEXT_COLOR] = unsupportedTextColor;
     }
     
     [CKGalleryCollectionViewCell setSupported:supportedDict];
@@ -240,8 +232,6 @@ static NSString * const CellReuseIdentifier = @"Cell";
     if ([albumName caseInsensitiveCompare:@"all photos"] == NSOrderedSame || !albumName || [albumName isEqualToString:@""]) {
         
         PHFetchResult *allPhotosFetchResults = [PHAsset fetchAssetsWithOptions:self.fetchOptions];
-        
-        
         [self upadateCollectionView:allPhotosFetchResults animated:(self.galleryData != nil)];
         return;
     }
@@ -276,48 +266,32 @@ static NSString * const CellReuseIdentifier = @"Cell";
     
     NSString *fileType = [self extractFileTypeForAsset:asset];
     
-    
-    
-    
     __block CKGalleryCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:CellReuseIdentifier forIndexPath:indexPath];
     cell.isSelected = ((NSNumber*)assetDictionary[@"isSelected"]).boolValue;
-    cell.isSupported = YES;
+//    cell.isSupported = YES;
+    
+    if (self.supportedFileTypesArray) {
+        cell.isSupported = [self.supportedFileTypesArray containsObject:[fileType lowercaseString]];
+    }
     
     cell.representedAssetIdentifier = asset.localIdentifier;
     
     [self.imageManager requestImageForAsset:asset
                                  targetSize:CGSizeMake(self.cellSize.width*IMAGE_SIZE_MULTIPLIER, self.cellSize.height*IMAGE_SIZE_MULTIPLIER)
                                 contentMode:PHImageContentModeDefault
-                                    options:self.imageRequestOptions
+                                    options:nil
                               resultHandler:^(UIImage *result, NSDictionary *info) {
+                                  
                                   if ([cell.representedAssetIdentifier isEqualToString:asset.localIdentifier]) {
                                       cell.thumbnailImage = result;
-                                      
-                                      if (self.supportedFileTypesArray) {
-                                          
-                                          if ([self.supportedFileTypesArray containsObject:[fileType lowercaseString]]) {
-                                              cell.isSupported = YES;
-                                          }
-                                          
-                                          else {
-                                              cell.isSupported = NO;
-                                          }
-                                      }
                                   }
                               }];
-    
     
     return cell;
 }
 
 -(NSString*)extractFileTypeForAsset:(PHAsset*)asset {
-    NSString *fileName = [asset valueForKey:@"filename"];
-    NSArray *splitFileName = [fileName componentsSeparatedByString:@"."];
-    if (splitFileName.count > 1) {
-        return splitFileName[1];
-    }
-    
-    return nil;
+    return [asset valueForKey:@"uniformTypeIdentifier"];
 }
 
 
@@ -411,7 +385,7 @@ RCT_EXPORT_VIEW_PROPERTY(onTapImage, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(selectedImageIcon, UIImage);
 RCT_EXPORT_VIEW_PROPERTY(unSelectedImageIcon, UIImage);
 RCT_EXPORT_VIEW_PROPERTY(selectedImages, NSArray);
-RCT_EXPORT_VIEW_PROPERTY(supported, NSDictionary);
+RCT_EXPORT_VIEW_PROPERTY(fileTypeSupport, NSDictionary);
 
 
 
