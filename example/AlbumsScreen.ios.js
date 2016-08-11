@@ -48,6 +48,16 @@ export default class AlbumsScreen extends Component {
     this.setState({albums})
   }
 
+  imageTapped(selected) {
+    if (this.state.images.indexOf(selected) < 0) {
+      this.setState({images: _.concat(this.state.images, [selected]) });
+    }
+    else {
+      _.remove(this.state.images, (e)=> e === selected);
+    }
+
+  }
+
   render() {
 
     return (
@@ -56,27 +66,35 @@ export default class AlbumsScreen extends Component {
           ref={(gallery) => {
                             this.gallery = gallery;
                            }}
-          style={{width: 300, height: 300}}
+          style={{flex:1, backgroundColor:'green'}}
           minimumInteritemSpacing={10}
           minimumLineSpacing={10}
           columnCount={3}
           albumName={'all photos'}
-          onSelected={(result) => {
-                    console.log(result.nativeEvent.selected);
-                    this.setState({images:result.nativeEvent.selected });
+          onTapImage={(result) => {
+                    this.imageTapped(result.nativeEvent.selected);
+          }}
+          supported={{
+                      supportedFileTypes: ['jpg', 'jpeg', 'png'],
+                      unsupportedOverlayColor: "#00000055",
+                      unsupportedImage: require('./images/unsupportedImage.png'),
+                      unsupportedText: 'Unsupported',
+                      unsupportedTextColor: '#ffffff'
           }}
         />
-
         <TouchableOpacity onPress={() => this.getImagesForIds()}>
           <Text style={styles.buttonText}>
             Albums Screen
           </Text>
         </TouchableOpacity>
+
+
       </View>
     );
   }
 
   async getImagesForIds() {
+    console.log('getImagesForIds', this.state.images);
     const imagesDict = await CameraKitGallery.getImagesForIds(this.state.images);
     console.log('imagesDict', imagesDict);
   }
@@ -94,17 +112,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
+    //alignItems: 'center',
+    backgroundColor: '#ff0000',
     marginTop: 20
-  },
-  listView: {
-    //flex:1,
-    //flexDirection:'column',
-    margin: 8,
-    backgroundColor: '#D6DAC2'
-    //alignSelf: 'stretch'
-
   },
   buttonText: {
     color: 'blue',
