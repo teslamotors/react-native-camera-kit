@@ -12,6 +12,7 @@
 #import "GalleryData.h"
 #import "UIView+React.h"
 #import "CKGalleryManager.h"
+#import <MobileCoreServices/MobileCoreServices.h>
 
 #define SCREEN_WIDTH ([[UIScreen mainScreen] bounds].size.width)
 #define SCREEN_HEIGHT ([[UIScreen mainScreen] bounds].size.height)
@@ -266,12 +267,18 @@ static NSString * const CellReuseIdentifier = @"Cell";
     
     NSString *fileType = [self extractFileTypeForAsset:asset];
     
+    CFStringRef fileExtension = (__bridge CFStringRef)[fileType pathExtension];
+    CFStringRef UTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, fileExtension, NULL);
+    CFStringRef MIMEType = UTTypeCopyPreferredTagWithClass(UTI, kUTTagClassMIMEType);
+    CFRelease(UTI);
+    NSString *MIMETypeString = (__bridge_transfer NSString *)MIMEType;
+    
     __block CKGalleryCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:CellReuseIdentifier forIndexPath:indexPath];
     cell.isSelected = ((NSNumber*)assetDictionary[@"isSelected"]).boolValue;
 //    cell.isSupported = YES;
     
     if (self.supportedFileTypesArray) {
-        cell.isSupported = [self.supportedFileTypesArray containsObject:[fileType lowercaseString]];
+        cell.isSupported = [self.supportedFileTypesArray containsObject:[MIMETypeString lowercaseString]];
     }
     
     cell.representedAssetIdentifier = asset.localIdentifier;
