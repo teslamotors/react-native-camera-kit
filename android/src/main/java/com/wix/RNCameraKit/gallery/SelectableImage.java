@@ -32,6 +32,7 @@ public class SelectableImage extends FrameLayout {
     private Runnable currentLoader;
     private Drawable selectedDrawable;
     private Drawable unselectedDrawable;
+    private FrameLayout unsupportedFrame;
 
     public SelectableImage(Context context) {
         super(context);
@@ -42,6 +43,13 @@ public class SelectableImage extends FrameLayout {
         LayoutParams params = new FrameLayout.LayoutParams(dp22, dp22, Gravity.TOP | Gravity.RIGHT);
         params.setMargins(30,30,30,30);
         addView(selectedView, params);
+        createUnsupportedView();
+    }
+
+    private void createUnsupportedView() {
+        unsupportedFrame = new FrameLayout(getContext());
+        unsupportedFrame.setBackgroundColor(Color.RED);
+        addView(unsupportedFrame, MATCH_PARENT, MATCH_PARENT);
     }
 
     @Override
@@ -53,7 +61,7 @@ public class SelectableImage extends FrameLayout {
         imageView.setScaleType(scaleType);
     }
 
-    public void bind(ThreadPoolExecutor executor, boolean selected, final Integer id) {
+    public void bind(ThreadPoolExecutor executor, boolean selected, final Integer id, boolean supported) {
 //        selectedView.setVisibility(selected ? VISIBLE : INVISIBLE);
         selectedView.setImageDrawable(selected ? selectedDrawable : unselectedDrawable);
         if (this.id != id) {
@@ -84,6 +92,7 @@ public class SelectableImage extends FrameLayout {
             };
             executor.execute(currentLoader);
         }
+        unsupportedFrame.setVisibility(supported ? GONE : VISIBLE);
     }
 
     public void setDrawables(Drawable selectedDrawable, Drawable unselectedDrawable) {

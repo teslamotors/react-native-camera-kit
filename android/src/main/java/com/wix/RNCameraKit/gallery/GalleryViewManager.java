@@ -99,6 +99,47 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
         }).start();
     }
 
+//    fileTypeSupport={{
+//        supportedFileTypes: ['image/jpeg', 'image/png'],
+//        unsupportedOverlayColor: "#00000055",
+//                unsupportedImage: require('./images/unsupportedImage.png'),
+//                unsupportedText: 'Unsupported',
+//                unsupportedTextColor: '#ffffff'
+//    }}
+
+    @ReactProp(name = "fileTypeSupport")
+    public void setFileTypeSupport(final GalleryView view, final ReadableMap fileTypeSupport) {
+        final ReadableArray supportedFileTypes = fileTypeSupport.getArray("supportedFileTypes");
+        final String unsupportedOverlayColor = fileTypeSupport.getString("unsupportedOverlayColor");
+        final String unsupportedImageSource = fileTypeSupport.getString("unsupportedImage");
+        final String unsupportedText = fileTypeSupport.getString("unsupportedText");
+        final String unsupportedTextColor = fileTypeSupport.getString("unsupportedTextColor");
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Drawable unsupportedImage = null;
+                if(unsupportedImageSource != null) {
+                    unsupportedImage = ResourceDrawableIdHelper.getIcon(view.getContext(), unsupportedImageSource);
+                }
+                final ArrayList<String> supportedFileTypesList = new ArrayList<String>();
+                if(supportedFileTypes != null && supportedFileTypes.size() != 0) {
+                    for (int i = 0; i < supportedFileTypes.size(); i++) {
+                        supportedFileTypesList.add(supportedFileTypes.getString(i));
+                    }
+                }
+
+                reactContext.runOnUiQueueThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        view.setSupportedFileTypes(supportedFileTypesList);
+                    }
+                });
+            }
+        }).start();
+
+    }
+
     @Nullable
     @Override
     public Map getExportedCustomDirectEventTypeConstants() {

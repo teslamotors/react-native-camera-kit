@@ -22,15 +22,30 @@ import java.util.concurrent.TimeUnit;
  */
 public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.StupidHolder> {
 
+    private class Image {
+        String uri;
+        Integer id;
+        String mimeType;
+
+        public Image(String uri, Integer id, String mimeType) {
+            this.uri = uri;
+            this.id = id;
+            this.mimeType = mimeType;
+        }
+    }
 
     public static final String[] PROJECTION = new String[]{
             MediaStore.Images.Media.DATA,
-            MediaStore.Images.Media._ID
+            MediaStore.Images.Media._ID,
+            MediaStore.Images.Media.MIME_TYPE
     };
 
-    private ArrayList<String> uris = new ArrayList<>();
-    private ArrayList<Integer> ids = new ArrayList<>();
+//    private ArrayList<String> uris = new ArrayList<>();
+//    private ArrayList<Integer> ids = new ArrayList<>();
+    private ArrayList<Image> images = new ArrayList<>();
+
     private ArrayList<String> selectedUris = new ArrayList<>();
+    private ArrayList<String> supportedFileTypes = new ArrayList<>();
     private String albumName = "";
     private Drawable selectedDrawable;
     private Drawable unselectedDrawable;
@@ -53,12 +68,17 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.StupidHo
         return unselectedDrawable;
     }
 
+    public void setSupportedFileTypes(ArrayList<String> supportedFileTypes) {
+        this.supportedFileTypes = supportedFileTypes;
+    }
+
     public class StupidHolder extends RecyclerView.ViewHolder {
         public StupidHolder(View itemView) {
             super(itemView);
         }
-        int id;
-        String uri;
+//        int id;
+//        String uri;
+        Image image;
     }
 
     private GalleryView view;
@@ -88,8 +108,9 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.StupidHo
         new Thread(new Runnable() {
            @Override
            public void run() {
-               ids.clear();
-               uris.clear();
+//               ids.clear();
+//               uris.clear();
+               images.clear();
 
                String selection = "";
                String[] args = null;
@@ -109,14 +130,17 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.StupidHo
                if (cursor.moveToFirst()) {
                    int dataIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
                    int idIndex = cursor.getColumnIndex(MediaStore.Images.Media._ID);
+                   int mimeIndex = cursor.getColumnIndex(MediaStore.Images.Media.MIME_TYPE);
                    do {
-                       uris.add(cursor.getString(dataIndex));
-                       ids.add(cursor.getInt(idIndex));
+//                       uris.add(cursor.getString(dataIndex));
+//                       ids.add(cursor.getInt(idIndex));
+                       images.add(new Image(cursor.getString(dataIndex), cursor.getInt(idIndex), cursor.getString(mimeIndex)));
                    } while(cursor.moveToNext());
                }
-
-               Collections.reverse(uris);
-               Collections.reverse(ids);
+//
+//               Collections.reverse(uris);
+//               Collections.reverse(ids);
+               Collections.reverse(images);
 
                cursor.close();
                
@@ -141,10 +165,10 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.StupidHo
         });
     }
 
-    private void setData(ArrayList<Integer> ids, ArrayList<String> uris) {
-        this.ids = ids;
-        this.uris = uris;
-    }
+//    private void setData(ArrayList<Integer> ids, ArrayList<String> uris) {
+//        this.ids = ids;
+//        this.uris = uris;
+//    }
 
 
     @Override
@@ -158,21 +182,37 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.StupidHo
     @Override
     public void onBindViewHolder(final StupidHolder holder, final int position) {
         final SelectableImage selectableImageView = (SelectableImage)holder.itemView;
-        holder.id = ids.get(position);
-        holder.uri = uris.get(position);
-        boolean selected = (selectedUris.indexOf(holder.uri) + 1) > 0;
+//        holder.id = ids.get(position);
+//        holder.uri = uris.get(position);
+//        holder.supported =
+        holder.image = images.get(position);
+        boolean selected = (selectedUris.indexOf(holder.image.uri) + 1) > 0;
+        boolean supported = isSupported(holder.image);
         selectableImageView.setDrawables(selectedDrawable, unselectedDrawable);
-        selectableImageView.bind(executor, selected, holder.id);
+        selectableImageView.bind(executor, selected, holder.image.id, supported);
         selectableImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                view.onTapImage(holder.uri);
+                view.onTapImage(holder.image.uri);
             }
         });
     }
 
+    private boolean isSupported(Image image) {
+        if(supportedFileTypes.isEmpty()) {
+            return true;
+        } else {
+            for(String supportedMime : supportedFileTypes) {
+                if (image.mimeType.toLowerCase().equals(supportedMime.toLowerCase())) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
     @Override
     public int getItemCount() {
-        return ids.size();
+        return images.size();
     }
 }

@@ -125,4 +125,8 @@ public class GalleryView extends RecyclerView {
             rctEventEmitter.receiveEvent(getId(), "onTapImage", event);
         }
     }
+
+    public void setSupportedFileTypes(ArrayList<String> supportedFileTypes) {
+        adapter.setSupportedFileTypes(supportedFileTypes);
+    }
 }
