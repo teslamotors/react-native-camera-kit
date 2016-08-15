@@ -75,7 +75,7 @@ export default class AlbumsScreen extends Component {
                     this.imageTapped(result.nativeEvent.selected);
           }}
           fileTypeSupport={{
-                      supportedFileTypes: ['public.jpeg', 'public.png'],
+                      supportedFileTypes: ['image/jpeg', 'image/png'],
                       unsupportedOverlayColor: "#00000055",
                       unsupportedImage: require('./images/unsupportedImage.png'),
                       unsupportedText: 'Unsupported',
