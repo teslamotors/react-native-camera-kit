@@ -26,7 +26,7 @@ import java.util.HashMap;
 public class NativeGalleryModule extends ReactContextBaseJavaModule {
 
     public static final String[] ALBUMS_PROJECTION = new String[]{
-        MediaStore.Images.Media._ID,
+        MediaStore.Images.Media.DATA,
         MediaStore.Images.Media.BUCKET_DISPLAY_NAME
     };
     public static final String[] IMAGES_PROJECTION = new String[]{
@@ -40,32 +40,25 @@ public class NativeGalleryModule extends ReactContextBaseJavaModule {
 
     private class Album {
         String name;
-        String imageData = null;
+        String imageUri = null;
         int count = 1;
 
-        public Album(String name) {
+        public Album(String name, String uri) {
             this.name = name;
+            this.imageUri = uri;
         }
     }
 
     private class AlbumList {
         HashMap<String, Album> albums = new HashMap<>();
 
-        public void addAlbum(String name) {
+        public void addAlbum(String name, String uri) {
             if (!albums.containsKey(name)) {
-                albums.put(name, new Album(name));
+                albums.put(name, new Album(name, uri));
             }
             else {
                 albums.get(name).count++;
             }
-        }
-
-        public void setThumbnail(String name, Bitmap thumbnail) {
-            albums.get(name).imageData = Utils.getBase64FromBitmap(thumbnail);
-        }
-
-        public boolean hasThumbnail(String name) {
-            return albums.get(name).imageData != null;
         }
 
         public Collection<Album> getAlbums() {
@@ -87,7 +80,7 @@ public class NativeGalleryModule extends ReactContextBaseJavaModule {
         WritableMap map = Arguments.createMap();
         map.putInt("imagesCount", album.count);
         map.putString("albumName", album.name);
-        map.putString("image", album.imageData);
+        map.putString("thumbUri", album.imageUri);
         return map;
     }
 
@@ -97,17 +90,12 @@ public class NativeGalleryModule extends ReactContextBaseJavaModule {
 
         if (imagesCursor.moveToFirst()) {
             int bucketColumn = imagesCursor.getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
-            int thumbIdColumn = imagesCursor.getColumnIndex(MediaStore.Images.Media._ID);
+            int uriColumn = imagesCursor.getColumnIndex(MediaStore.Images.Media.DATA);
             do {
                 String name = imagesCursor.getString(bucketColumn);
-                albums.addAlbum(name);
-                albums.addAlbum(ALL_PHOTOS);
-                if(!albums.hasThumbnail(name)) {
-                    albums.setThumbnail(name, getThumbnail(imagesCursor.getInt(thumbIdColumn)));
-                }
-                if(!albums.hasThumbnail(ALL_PHOTOS)) {
-                    albums.setThumbnail(ALL_PHOTOS, getThumbnail(imagesCursor.getInt(thumbIdColumn)));
-                }
+                String uri = imagesCursor.getString(uriColumn);
+                albums.addAlbum(name, uri);
+                albums.addAlbum(ALL_PHOTOS, uri);
             } while (imagesCursor.moveToNext());
         }
         imagesCursor.close();
