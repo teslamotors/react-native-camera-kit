@@ -20,7 +20,7 @@ export default class CameraKitGalleryView extends Component {
     transformedProps.columnCount = this.props.columnCount && this.props.columnCount > 0 ? this.props.columnCount : DEFAULT_COLUMN_COUNT;
     _.update(transformedProps, 'fileTypeSupport.unsupportedOverlayColor', (c) => processColor(c));
     _.update(transformedProps, 'fileTypeSupport.unsupportedTextColor', (c) => processColor(c));
-    if (transformedProps.fileTypeSupport.unsupportedImage) {
+    if (transformedProps.fileTypeSupport && transformedProps.fileTypeSupport.unsupportedImage) {
       _.update(transformedProps, 'fileTypeSupport.unsupportedImage', (image) => resolveAssetSource(image));
     }
 

@@ -32,7 +32,7 @@ export default class CameraKitGalleryView extends Component {
   render() {
     const transformedProps = {...this.props};
     transformedProps.albumName = this.props.albumName ? this.props.albumName : ALL_PHOTOS;
-    if (transformedProps.fileTypeSupport.unsupportedImage) {
+    if (transformedProps.fileTypeSupport && transformedProps.fileTypeSupport.unsupportedImage) {
       _.update(transformedProps, 'fileTypeSupport.unsupportedImage', (image) => resolveAssetSource(image).uri);
     }
     return <GalleryView {...transformedProps} onTapImage={this.onTapImage}/>
