@@ -1,6 +1,7 @@
 package com.wix.RNCameraKit.gallery;
 
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 
@@ -107,13 +108,26 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
 //                unsupportedTextColor: '#ffffff'
 //    }}
 
+    private final String UNSUPPORTED_IMAGE_KEY = "unsupportedImage";
+    private final String UNSUPPORTED_TEXT_KEY = "unsupportedText";
+    private final String UNSUPPORTED_TEXT_COLOR_KEY = "unsupportedTextColor";
+    private final String SUPPORTED_TYPES_KEY = "supportedFileTypes";
+    private final String UNSUPPORTED_OVERLAY_KEY = "unsupportedOverlayColor";
+
+    private @Nullable String getStringSafe(ReadableMap map, String key) {
+        if(map.hasKey(key)) {
+            return map.getString(key);
+        }
+        return null;
+    }
+
     @ReactProp(name = "fileTypeSupport")
     public void setFileTypeSupport(final GalleryView view, final ReadableMap fileTypeSupport) {
-        final ReadableArray supportedFileTypes = fileTypeSupport.getArray("supportedFileTypes");
-        final String unsupportedOverlayColor = fileTypeSupport.getString("unsupportedOverlayColor");
-        final String unsupportedImageSource = fileTypeSupport.getString("unsupportedImage");
-        final String unsupportedText = fileTypeSupport.getString("unsupportedText");
-        final String unsupportedTextColor = fileTypeSupport.getString("unsupportedTextColor");
+        final ReadableArray supportedFileTypes = fileTypeSupport.getArray(SUPPORTED_TYPES_KEY);
+        final String unsupportedOverlayColor = getStringSafe(fileTypeSupport, UNSUPPORTED_OVERLAY_KEY);
+        final String unsupportedImageSource = getStringSafe(fileTypeSupport, UNSUPPORTED_IMAGE_KEY);
+        final String unsupportedText = getStringSafe(fileTypeSupport, UNSUPPORTED_TEXT_KEY);
+        final String unsupportedTextColor = getStringSafe(fileTypeSupport, UNSUPPORTED_TEXT_COLOR_KEY);
 
         new Thread(new Runnable() {
             @Override
@@ -122,6 +136,7 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
                 if(unsupportedImageSource != null) {
                     unsupportedImage = ResourceDrawableIdHelper.getIcon(view.getContext(), unsupportedImageSource);
                 }
+                final Drawable unsupportedFinalImage = unsupportedImage;
                 final ArrayList<String> supportedFileTypesList = new ArrayList<String>();
                 if(supportedFileTypes != null && supportedFileTypes.size() != 0) {
                     for (int i = 0; i < supportedFileTypes.size(); i++) {
@@ -132,7 +147,13 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
                 reactContext.runOnUiQueueThread(new Runnable() {
                     @Override
                     public void run() {
+                        view.setUnsupportedUIParams(
+                                unsupportedOverlayColor,
+                                unsupportedFinalImage,
+                                unsupportedText,
+                                unsupportedTextColor);
                         view.setSupportedFileTypes(supportedFileTypesList);
+                        view.refresh();
                     }
                 });
             }

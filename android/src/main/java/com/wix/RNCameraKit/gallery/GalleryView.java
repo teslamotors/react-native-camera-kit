@@ -22,6 +22,10 @@ import java.util.ArrayList;
  */
 public class GalleryView extends RecyclerView {
 
+    public void setUnsupportedUIParams(String overlayColor, Drawable unsupportedFinalImage, String unsupportedText, String unsupportedTextColor) {
+        adapter.setUnsupportedUIParams(overlayColor, unsupportedFinalImage, unsupportedText, unsupportedTextColor);
+    }
+
     private class GridLayoutViewManagerWrapper extends GridLayoutManager {
 
         public GridLayoutViewManagerWrapper(Context context, int spanCount) {

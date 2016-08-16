@@ -6,13 +6,11 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.facebook.react.bridge.ReactContext;
@@ -20,6 +18,7 @@ import com.facebook.react.bridge.ReactContext;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 /**
  * Created by yedidyak on 30/06/2016.
@@ -32,7 +31,9 @@ public class SelectableImage extends FrameLayout {
     private Runnable currentLoader;
     private Drawable selectedDrawable;
     private Drawable unselectedDrawable;
-    private FrameLayout unsupportedFrame;
+    private LinearLayout unsupportedLayout;
+    private ImageView unsupportedImage;
+    private TextView unsupportedTextView;
 
     public SelectableImage(Context context) {
         super(context);
@@ -46,10 +47,31 @@ public class SelectableImage extends FrameLayout {
         createUnsupportedView();
     }
 
+    public void setUnsupportedUIParams(String overlayColor, Drawable unsupportedFinalImage, String unsupportedText, String unsupportedTextColor) {
+        unsupportedLayout.setBackgroundColor(overlayColor != null ? Color.parseColor(overlayColor) : Color.TRANSPARENT);
+        unsupportedImage.setImageDrawable(unsupportedFinalImage);
+        unsupportedTextView.setTextColor(unsupportedTextColor != null ? Color.parseColor(unsupportedTextColor) : Color.WHITE);
+        unsupportedTextView.setText(unsupportedText);
+
+        unsupportedImage.setVisibility(unsupportedFinalImage != null ? VISIBLE : GONE);
+        unsupportedTextView.setVisibility(unsupportedText != null && !unsupportedText.isEmpty() ? VISIBLE : GONE);
+    }
+
     private void createUnsupportedView() {
-        unsupportedFrame = new FrameLayout(getContext());
-        unsupportedFrame.setBackgroundColor(Color.RED);
-        addView(unsupportedFrame, MATCH_PARENT, MATCH_PARENT);
+        unsupportedLayout = new LinearLayout(getContext());
+        unsupportedLayout.setBackgroundColor(Color.RED);
+        addView(unsupportedLayout, MATCH_PARENT, MATCH_PARENT);
+        unsupportedLayout.setOrientation(LinearLayout.VERTICAL);
+        unsupportedLayout.setGravity(Gravity.CENTER);
+        unsupportedLayout.setPadding(10,10,10,10);
+
+        unsupportedImage = new ImageView(getContext());
+        unsupportedImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        unsupportedLayout.addView(unsupportedImage, new LinearLayout.LayoutParams(MATCH_PARENT, 0, 1));
+
+        unsupportedTextView = new TextView(getContext());
+        unsupportedTextView.setGravity(Gravity.CENTER);
+        unsupportedLayout.addView(unsupportedTextView, WRAP_CONTENT, WRAP_CONTENT);
     }
 
     @Override
@@ -92,7 +114,7 @@ public class SelectableImage extends FrameLayout {
             };
             executor.execute(currentLoader);
         }
-        unsupportedFrame.setVisibility(supported ? GONE : VISIBLE);
+        unsupportedLayout.setVisibility(supported ? GONE : VISIBLE);
     }
 
     public void setDrawables(Drawable selectedDrawable, Drawable unselectedDrawable) {

@@ -22,6 +22,11 @@ import java.util.concurrent.TimeUnit;
  */
 public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.StupidHolder> {
 
+    private String overlayColor;
+    private Drawable unsupportedFinalImage;
+    private String unsupportedText;
+    private String unsupportedTextColor;
+
     private class Image {
         String uri;
         Integer id;
@@ -40,7 +45,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.StupidHo
             MediaStore.Images.Media.MIME_TYPE
     };
 
-//    private ArrayList<String> uris = new ArrayList<>();
+    //    private ArrayList<String> uris = new ArrayList<>();
 //    private ArrayList<Integer> ids = new ArrayList<>();
     private ArrayList<Image> images = new ArrayList<>();
 
@@ -76,7 +81,8 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.StupidHo
         public StupidHolder(View itemView) {
             super(itemView);
         }
-//        int id;
+
+        //        int id;
 //        String uri;
         Image image;
     }
@@ -102,61 +108,61 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.StupidHo
     }
 
     public void refreshData() {
-        if(refreshing) return;
+        if (refreshing) return;
         refreshing = true;
 
         new Thread(new Runnable() {
-           @Override
-           public void run() {
+            @Override
+            public void run() {
 //               ids.clear();
 //               uris.clear();
-               images.clear();
+                images.clear();
 
-               String selection = "";
-               String[] args = null;
-               if(albumName != null && !albumName.isEmpty() && !albumName.equals("All Photos")) {
-                   selection = MediaStore.Images.Media.BUCKET_DISPLAY_NAME + "=?";
-                   args = new String[]{albumName};
-               }
+                String selection = "";
+                String[] args = null;
+                if (albumName != null && !albumName.isEmpty() && !albumName.equals("All Photos")) {
+                    selection = MediaStore.Images.Media.BUCKET_DISPLAY_NAME + "=?";
+                    args = new String[]{albumName};
+                }
 
-               Cursor cursor = view.getContext().getContentResolver().query(
-                       MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                       PROJECTION,
-                       selection,
-                       args,
-                       null
-               );
+                Cursor cursor = view.getContext().getContentResolver().query(
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        PROJECTION,
+                        selection,
+                        args,
+                        null
+                );
 
-               if (cursor.moveToFirst()) {
-                   int dataIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
-                   int idIndex = cursor.getColumnIndex(MediaStore.Images.Media._ID);
-                   int mimeIndex = cursor.getColumnIndex(MediaStore.Images.Media.MIME_TYPE);
-                   do {
+                if (cursor.moveToFirst()) {
+                    int dataIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
+                    int idIndex = cursor.getColumnIndex(MediaStore.Images.Media._ID);
+                    int mimeIndex = cursor.getColumnIndex(MediaStore.Images.Media.MIME_TYPE);
+                    do {
 //                       uris.add(cursor.getString(dataIndex));
 //                       ids.add(cursor.getInt(idIndex));
-                       images.add(new Image(cursor.getString(dataIndex), cursor.getInt(idIndex), cursor.getString(mimeIndex)));
-                   } while(cursor.moveToNext());
-               }
+                        images.add(new Image(cursor.getString(dataIndex), cursor.getInt(idIndex), cursor.getString(mimeIndex)));
+                    } while (cursor.moveToNext());
+                }
 //
 //               Collections.reverse(uris);
 //               Collections.reverse(ids);
-               Collections.reverse(images);
+                Collections.reverse(images);
 
-               cursor.close();
-               
-               refreshing = false;
+                cursor.close();
 
-               notifyView();
+                refreshing = false;
 
-           }
-       }).start();
+                notifyView();
+
+            }
+        }).start();
     }
 
     public void notifyView() {
         view.post(new Runnable() {
             @Override
             public void run() {
-                if(!view.isComputingLayout()) {
+                if (!view.isComputingLayout()) {
                     notifyDataSetChanged();
                 } else {
                     notifyView();
@@ -165,10 +171,12 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.StupidHo
         });
     }
 
-//    private void setData(ArrayList<Integer> ids, ArrayList<String> uris) {
-//        this.ids = ids;
-//        this.uris = uris;
-//    }
+    public void setUnsupportedUIParams(String overlayColor, Drawable unsupportedFinalImage, String unsupportedText, String unsupportedTextColor) {
+        this.overlayColor = overlayColor;
+        this.unsupportedFinalImage = unsupportedFinalImage;
+        this.unsupportedText = unsupportedText;
+        this.unsupportedTextColor = unsupportedTextColor;
+    }
 
 
     @Override
@@ -188,6 +196,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.StupidHo
         holder.image = images.get(position);
         boolean selected = (selectedUris.indexOf(holder.image.uri) + 1) > 0;
         boolean supported = isSupported(holder.image);
+        selectableImageView.setUnsupportedUIParams(overlayColor, unsupportedFinalImage, unsupportedText, unsupportedTextColor);
         selectableImageView.setDrawables(selectedDrawable, unselectedDrawable);
         selectableImageView.bind(executor, selected, holder.image.id, supported);
         selectableImageView.setOnClickListener(new View.OnClickListener() {
