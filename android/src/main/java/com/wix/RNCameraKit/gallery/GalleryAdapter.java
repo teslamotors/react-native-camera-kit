@@ -3,9 +3,7 @@ package com.wix.RNCameraKit.gallery;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.provider.MediaStore;
-import android.support.v4.util.Pair;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by yedidyak on 30/06/2016.
  */
-public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.StupidHolder> {
+public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ImageHolder> {
 
     private String overlayColor;
     private Drawable unsupportedFinalImage;
@@ -45,8 +43,6 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.StupidHo
             MediaStore.Images.Media.MIME_TYPE
     };
 
-    //    private ArrayList<String> uris = new ArrayList<>();
-//    private ArrayList<Integer> ids = new ArrayList<>();
     private ArrayList<Image> images = new ArrayList<>();
 
     private ArrayList<String> selectedUris = new ArrayList<>();
@@ -67,23 +63,18 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.StupidHo
 
     public void setUnselectedDrawable(Drawable unselectedDrawable) {
         this.unselectedDrawable = unselectedDrawable;
-    }
-
-    public Drawable getUnselectedDrawable() {
-        return unselectedDrawable;
+        notifyView();
     }
 
     public void setSupportedFileTypes(ArrayList<String> supportedFileTypes) {
         this.supportedFileTypes = supportedFileTypes;
+        notifyView();
     }
 
-    public class StupidHolder extends RecyclerView.ViewHolder {
-        public StupidHolder(View itemView) {
+    public class ImageHolder extends RecyclerView.ViewHolder {
+        public ImageHolder(View itemView) {
             super(itemView);
         }
-
-        //        int id;
-//        String uri;
         Image image;
     }
 
@@ -92,6 +83,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.StupidHo
 
     public GalleryAdapter(GalleryView context) {
         this.view = context;
+        setHasStableIds(true);
         int cores = Runtime.getRuntime().availableProcessors();
         executor = new ThreadPoolExecutor(cores, cores, 1, TimeUnit.SECONDS, new LinkedBlockingDeque<Runnable>());
         setAlbum(albumName);
@@ -114,8 +106,6 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.StupidHo
         new Thread(new Runnable() {
             @Override
             public void run() {
-//               ids.clear();
-//               uris.clear();
                 images.clear();
 
                 String selection = "";
@@ -138,32 +128,31 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.StupidHo
                     int idIndex = cursor.getColumnIndex(MediaStore.Images.Media._ID);
                     int mimeIndex = cursor.getColumnIndex(MediaStore.Images.Media.MIME_TYPE);
                     do {
-//                       uris.add(cursor.getString(dataIndex));
-//                       ids.add(cursor.getInt(idIndex));
                         images.add(new Image(cursor.getString(dataIndex), cursor.getInt(idIndex), cursor.getString(mimeIndex)));
                     } while (cursor.moveToNext());
                 }
-//
-//               Collections.reverse(uris);
-//               Collections.reverse(ids);
                 Collections.reverse(images);
-
                 cursor.close();
-
                 refreshing = false;
-
-                notifyView();
-
+                notifyView(true);
             }
         }).start();
     }
 
+
     public void notifyView() {
+        notifyView(false);
+    }
+
+    public void notifyView(final boolean refreshAll) {
         view.post(new Runnable() {
             @Override
             public void run() {
                 if (!view.isComputingLayout()) {
-                    notifyDataSetChanged();
+                    view.swapAdapter(GalleryAdapter.this, false);
+                    if(refreshAll) {
+                        notifyItemRangeChanged(0, getItemCount());
+                    }
                 } else {
                     notifyView();
                 }
@@ -180,19 +169,18 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.StupidHo
 
 
     @Override
-    public StupidHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ImageHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         SelectableImage v = new SelectableImage(view.getContext());
         v.setScaleType(ImageView.ScaleType.CENTER_CROP);
         v.setBackgroundColor(Color.LTGRAY);
-        return new StupidHolder(v);
+        return new ImageHolder(v);
     }
 
+
+
     @Override
-    public void onBindViewHolder(final StupidHolder holder, final int position) {
+    public void onBindViewHolder(final ImageHolder holder, final int position) {
         final SelectableImage selectableImageView = (SelectableImage)holder.itemView;
-//        holder.id = ids.get(position);
-//        holder.uri = uris.get(position);
-//        holder.supported =
         holder.image = images.get(position);
         boolean selected = (selectedUris.indexOf(holder.image.uri) + 1) > 0;
         final boolean supported = isSupported(holder.image);
@@ -204,11 +192,17 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.StupidHo
             public void onClick(View v) {
                 if(supported) {
                     view.onTapImage(holder.image.uri);
+                    v.setSelected(!v.isSelected());
                 } else {
-                    //
+
                 }
             }
         });
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return images.get(position).id;
     }
 
     private boolean isSupported(Image image) {

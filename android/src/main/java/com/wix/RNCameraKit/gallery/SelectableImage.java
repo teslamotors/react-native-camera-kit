@@ -8,6 +8,12 @@ import android.graphics.drawable.Drawable;
 import android.provider.MediaStore;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.BounceInterpolator;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.ScaleAnimation;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -34,6 +40,7 @@ public class SelectableImage extends FrameLayout {
     private LinearLayout unsupportedLayout;
     private ImageView unsupportedImage;
     private TextView unsupportedTextView;
+    private boolean selected;
 
     public SelectableImage(Context context) {
         super(context);
@@ -84,7 +91,7 @@ public class SelectableImage extends FrameLayout {
     }
 
     public void bind(ThreadPoolExecutor executor, boolean selected, final Integer id, boolean supported) {
-//        selectedView.setVisibility(selected ? VISIBLE : INVISIBLE);
+        this.selected = selected;
         selectedView.setImageDrawable(selected ? selectedDrawable : unselectedDrawable);
         if (this.id != id) {
             this.id = id;
@@ -115,6 +122,50 @@ public class SelectableImage extends FrameLayout {
             executor.execute(currentLoader);
         }
         unsupportedLayout.setVisibility(supported ? GONE : VISIBLE);
+    }
+
+    @Override
+    public void setOnClickListener(final OnClickListener l) {
+        super.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                animateBounce();
+
+                l.onClick(v);
+            }
+        });
+    }
+
+    private void animateBounce() {
+//        final float growTo = 0.9f;
+//        final long duration = 100;
+//
+//        ScaleAnimation grow = new ScaleAnimation(1, growTo, 1, growTo,
+//                Animation.RELATIVE_TO_SELF, 0.5f,
+//                Animation.RELATIVE_TO_SELF, 0.5f);
+//        grow.setDuration(duration / 2);
+//        ScaleAnimation shrink = new ScaleAnimation(growTo, 1, growTo, 1,
+//                Animation.RELATIVE_TO_SELF, 0.5f,
+//                Animation.RELATIVE_TO_SELF, 0.5f);
+//        shrink.setDuration(duration / 2);
+//        shrink.setStartOffset(duration / 2);
+//        AnimationSet growAndShrink = new AnimationSet(true);
+//        growAndShrink.setInterpolator(new BounceInterpolator());
+//        growAndShrink.addAnimation(shrink);
+//        growAndShrink.addAnimation(grow);
+//        this.startAnimation(growAndShrink);
+    }
+
+    @Override
+    public boolean isSelected() {
+        return selected;
+    }
+
+    @Override
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+        selectedView.setImageDrawable(selected ? selectedDrawable : unselectedDrawable);
     }
 
     public void setDrawables(Drawable selectedDrawable, Drawable unselectedDrawable) {
