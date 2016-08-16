@@ -122,6 +122,7 @@ public class SelectableImage extends FrameLayout {
             executor.execute(currentLoader);
         }
         unsupportedLayout.setVisibility(supported ? GONE : VISIBLE);
+        selectedView.setVisibility(supported ? VISIBLE : GONE);
     }
 
     @Override
