@@ -56,7 +56,7 @@ export default class GalleryScreenNative extends Component {
             fileTypeSupport={{
                       supportedFileTypes: ['image/png'],
                       unsupportedOverlayColor: "#00000055",
-                      unsupportedImage: resolveAssetSource(require('./images/unsupportedImage.png')).uri,
+                      unsupportedImage: require('./images/unsupportedImage.png'),
                       //unsupportedText: 'JPEG!!',
                       unsupportedTextColor: '#ff0000'
           }}
