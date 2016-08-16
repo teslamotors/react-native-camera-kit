@@ -195,14 +195,18 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.StupidHo
 //        holder.supported =
         holder.image = images.get(position);
         boolean selected = (selectedUris.indexOf(holder.image.uri) + 1) > 0;
-        boolean supported = isSupported(holder.image);
+        final boolean supported = isSupported(holder.image);
         selectableImageView.setUnsupportedUIParams(overlayColor, unsupportedFinalImage, unsupportedText, unsupportedTextColor);
         selectableImageView.setDrawables(selectedDrawable, unselectedDrawable);
         selectableImageView.bind(executor, selected, holder.image.id, supported);
         selectableImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                view.onTapImage(holder.image.uri);
+                if(supported) {
+                    view.onTapImage(holder.image.uri);
+                } else {
+                    //
+                }
             }
         });
     }
