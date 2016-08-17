@@ -5,12 +5,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.hardware.Camera;
-import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Environment;
 import android.provider.MediaStore;
-import android.util.Log;
 
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.metadata.Metadata;
@@ -22,10 +19,6 @@ import com.facebook.react.bridge.ReactMethod;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 
 /**
  * Created by yedidyak on 04/07/2016.
@@ -141,6 +134,9 @@ public class CameraModule extends ReactContextBaseJavaModule {
                             break;  // left bottom
                         default:
                             break;  // Unknown
+                    }
+                    if(CameraViewManager.getCameraInfo().facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+                        bitmapMatrix.postRotate(180);
                     }
                     // Create new bitmap.
                     image = Bitmap.createBitmap(image, 0, 0, image.getWidth(), image.getHeight(), bitmapMatrix, false);

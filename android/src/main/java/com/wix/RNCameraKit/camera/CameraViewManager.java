@@ -148,10 +148,15 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
         camera.setParameters(parameters);
     }
 
-    public static int getRotation(Activity activity) {
-        Camera.CameraInfo info =
-                new Camera.CameraInfo();
+    public static Camera.CameraInfo getCameraInfo() {
+        Camera.CameraInfo info = new Camera.CameraInfo();
         Camera.getCameraInfo(currentCamera, info);
+        return info;
+    }
+
+    public static int getRotation(Activity activity) {
+        Camera.CameraInfo info = getCameraInfo();
+
         int rotation = activity.getWindowManager().getDefaultDisplay()
                 .getRotation();
         int degrees = 0;
