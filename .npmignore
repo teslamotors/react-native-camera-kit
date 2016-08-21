@@ -2,3 +2,4 @@ node_modules/
 example/
 android/build/
 img/
+ios/lib/DerivedData/
