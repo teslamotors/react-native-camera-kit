@@ -8,7 +8,6 @@ import android.hardware.Camera;
 import android.view.Display;
 import android.view.Surface;
 import android.view.WindowManager;
-import android.widget.Toast;
 
 import com.facebook.react.uimanager.SimpleViewManager;
 import com.facebook.react.uimanager.ThemedReactContext;
@@ -17,9 +16,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Stack;
 
-/**
- * Created by yedidyak on 04/07/2016.
- */
 public class CameraViewManager extends SimpleViewManager<CameraView> {
 
     private static Camera camera = null;
