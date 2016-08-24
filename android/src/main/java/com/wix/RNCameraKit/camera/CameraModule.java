@@ -1,6 +1,8 @@
 package com.wix.RNCameraKit.camera;
 
+import android.Manifest;
 import android.hardware.Camera;
+import android.support.v4.content.PermissionChecker;
 
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -59,5 +61,12 @@ public class CameraModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void capture(boolean saveToCameraRoll, final Promise promise) {
         new Capture(getReactApplicationContext()).execute(promise);
+    }
+
+    @ReactMethod
+    public void hasCameraPermission(Promise promise) {
+        boolean hasPermission = PermissionChecker.checkSelfPermission(getReactApplicationContext(), Manifest.permission.CAMERA)
+                == PermissionChecker.PERMISSION_GRANTED;
+        promise.resolve(hasPermission);
     }
 }

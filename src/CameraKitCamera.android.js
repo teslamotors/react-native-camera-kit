@@ -42,4 +42,9 @@ export default class CameraKitCamera extends React.Component {
 		return success;
 	}
 
+	static async hasCameraPermission() {
+		const success = await NativeCameraModule.hasCameraPermission();
+		return success;
+	}
+
 }
