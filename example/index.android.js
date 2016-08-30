@@ -7,11 +7,8 @@ import {
     ListView,
     TouchableOpacity,
     Image,
-    AlertIOS
+    Alert
 } from 'react-native';
-
-import _ from 'lodash';
-import Immutable from 'seamless-immutable';
 
 import CameraScreen from  './CameraScreen';
 import AlbumsScreen from  './AlbumsScreen';
@@ -52,14 +49,44 @@ class example extends Component {
             </Text>
           </TouchableOpacity>
 
+          <TouchableOpacity onPress={() => this.onCheckCameraAuthoPressed()}>
+            <Text style={styles.buttonText}>
+              Check Camera Autotization Status
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => this.onCheckGalleryAuthoPressed()}>
+            <Text style={styles.buttonText}>
+              Check Photos Autotization Status
+            </Text>
+          </TouchableOpacity>
+
         </View>
 
     );
   }
 
-  async onCheckAuthoPressed() {
 
+  async onCheckCameraAuthoPressed() {
+    const success = await CameraKitCamera.checkDeviceCameraAuthorizationStatus();
+    if (success) {
+      Alert.alert('You have permission!')
+    }
+    else {
+      Alert.alert('No permission :(')
+    }
   }
+
+  async onCheckGalleryAuthoPressed() {
+    const success = await CameraKitGallery.checkDevicePhotosAuthorizationStatus();
+    if (success) {
+      Alert.alert('You have permission!')
+    }
+    else {
+      Alert.alert('No permission :(')
+    }
+  }
+
 }
 
 

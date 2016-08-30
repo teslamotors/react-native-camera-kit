@@ -43,7 +43,6 @@ export default class CameraKitCamera extends React.Component {
 		return success;
 	}
 
-
 	static async checkDeviceCameraAuthorizationStatus() {
 		return this.hasCameraPermission();
 	}

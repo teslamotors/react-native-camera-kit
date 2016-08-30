@@ -10,8 +10,6 @@ import {
   AlertIOS
 } from 'react-native';
 
-import Immutable from 'seamless-immutable';
-
 import {
   CameraKitCamera,
   CameraKitGallery
