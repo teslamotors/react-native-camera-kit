@@ -67,22 +67,22 @@ class example extends Component {
   }
 
   async onCheckCameraAuthoPressed() {
-    const success = await CameraKitCamera.checkDeviceAuthorizarionStatus();
+    const success = await CameraKitCamera.checkDeviceCameraAuthorizationStatus();
     if (success) {
-      AlertIOS.alert('You rock!')
+      AlertIOS.alert('You have permission!')
     }
     else {
-      AlertIOS.alert('You fucked!')
+      AlertIOS.alert('No permission :(')
     }
   }
 
   async onCheckGalleryAuthoPressed() {
-    const success = await CameraKitGallery.checkDeviceGalleryAuthorizationStatus();
+    const success = await CameraKitGallery.checkDevicePhotosAuthorizationStatus();
     if (success) {
-      AlertIOS.alert('You rock!')
+      AlertIOS.alert('You have permission!')
     }
     else {
-      AlertIOS.alert('You fucked!')
+      AlertIOS.alert('No permission :(')
     }
   }
 }
