@@ -8,12 +8,6 @@ import android.graphics.drawable.Drawable;
 import android.provider.MediaStore;
 import android.util.TypedValue;
 import android.view.Gravity;
-import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationSet;
-import android.view.animation.BounceInterpolator;
-import android.view.animation.LinearInterpolator;
-import android.view.animation.ScaleAnimation;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -44,6 +38,8 @@ public class SelectableImage extends FrameLayout {
 
     public SelectableImage(Context context) {
         super(context);
+        setPadding(1, 1, 1, 1);
+        setBackgroundColor(0xedeff0);
         imageView = new ImageView(context);
         addView(imageView, MATCH_PARENT, MATCH_PARENT);
         selectedView = new ImageView(context);
@@ -123,39 +119,6 @@ public class SelectableImage extends FrameLayout {
         }
         unsupportedLayout.setVisibility(supported ? GONE : VISIBLE);
         selectedView.setVisibility(supported ? VISIBLE : GONE);
-    }
-
-    @Override
-    public void setOnClickListener(final OnClickListener l) {
-        super.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                animateBounce();
-
-                l.onClick(v);
-            }
-        });
-    }
-
-    private void animateBounce() {
-//        final float growTo = 0.9f;
-//        final long duration = 100;
-//
-//        ScaleAnimation grow = new ScaleAnimation(1, growTo, 1, growTo,
-//                Animation.RELATIVE_TO_SELF, 0.5f,
-//                Animation.RELATIVE_TO_SELF, 0.5f);
-//        grow.setDuration(duration / 2);
-//        ScaleAnimation shrink = new ScaleAnimation(growTo, 1, growTo, 1,
-//                Animation.RELATIVE_TO_SELF, 0.5f,
-//                Animation.RELATIVE_TO_SELF, 0.5f);
-//        shrink.setDuration(duration / 2);
-//        shrink.setStartOffset(duration / 2);
-//        AnimationSet growAndShrink = new AnimationSet(true);
-//        growAndShrink.setInterpolator(new BounceInterpolator());
-//        growAndShrink.addAnimation(shrink);
-//        growAndShrink.addAnimation(grow);
-//        this.startAnimation(growAndShrink);
     }
 
     @Override
