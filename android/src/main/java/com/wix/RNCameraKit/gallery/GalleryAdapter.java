@@ -210,7 +210,11 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ImageHol
             return true;
         } else {
             for(String supportedMime : supportedFileTypes) {
-                if (image.mimeType.toLowerCase().equals(supportedMime.toLowerCase())) {
+                if (supportedMime == null) {
+                    continue;
+                } else if (image.mimeType == null) {
+                    return false;
+                } else if (image.mimeType.toLowerCase().equals(supportedMime.toLowerCase())) {
                     return true;
                 }
             }
