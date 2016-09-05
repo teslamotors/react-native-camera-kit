@@ -104,7 +104,7 @@ public class NativeGalleryModule extends ReactContextBaseJavaModule {
 
     private Bitmap getThumbnail(int thumbId) {
         return MediaStore.Images.Thumbnails.getThumbnail(
-            getCurrentActivity().getContentResolver(),
+            getReactApplicationContext().getContentResolver(),
             thumbId,
             MediaStore.Images.Thumbnails.MINI_KIND,
             null);
@@ -113,7 +113,7 @@ public class NativeGalleryModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void getAlbumsWithThumbnails(Promise promise) {
 
-        Cursor imagesCursor = getCurrentActivity().getContentResolver().query(
+        Cursor imagesCursor = getReactApplicationContext().getContentResolver().query(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI, ALBUMS_PROJECTION, null, null, null);
         AlbumList albums = getAlbumListFromCursor(imagesCursor);
         WritableArray arr = Arguments.createArray();
@@ -144,7 +144,7 @@ public class NativeGalleryModule extends ReactContextBaseJavaModule {
         builder.append(")");
         String selection = builder.toString();
 
-        Cursor cursor = getCurrentActivity().getContentResolver().query(
+        Cursor cursor = getReactApplicationContext().getContentResolver().query(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                 IMAGES_PROJECTION,
                 selection,
