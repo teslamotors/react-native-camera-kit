@@ -47,6 +47,7 @@
 @property (nonatomic, strong) NSString *selectedBase64Image;
 @property (nonatomic, strong) UIImage *selectedImageIcon;
 @property (nonatomic, strong) UIImage *unSelectedImageIcon;
+@property (nonatomic, strong) UIColor *imageStrokeColor;
 
 
 //supported
@@ -179,6 +180,11 @@ static NSString * const CellReuseIdentifier = @"Cell";
 -(void)setUnSelectedImageIcon:(UIImage *)unSelectedImage {
     [CKGalleryCollectionViewCell setUnSlectedImageIcon:unSelectedImage];
 }
+
+-(void)setImageStrokeColor:(UIColor *)imageStrokeColor {
+    [CKGalleryCollectionViewCell setImageStrokeColor:imageStrokeColor];
+}
+
 
 
 -(void)setFileTypeSupport:(NSDictionary *)supported {
@@ -393,7 +399,7 @@ RCT_EXPORT_VIEW_PROPERTY(selectedImageIcon, UIImage);
 RCT_EXPORT_VIEW_PROPERTY(unSelectedImageIcon, UIImage);
 RCT_EXPORT_VIEW_PROPERTY(selectedImages, NSArray);
 RCT_EXPORT_VIEW_PROPERTY(fileTypeSupport, NSDictionary);
-
+RCT_EXPORT_VIEW_PROPERTY(imageStrokeColor, UIColor);
 
 
 RCT_EXPORT_METHOD(getSelectedImages:(RCTPromiseResolveBlock)resolve

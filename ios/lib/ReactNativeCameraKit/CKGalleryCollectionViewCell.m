@@ -26,7 +26,7 @@ alpha:1.0]
 static UIImage *selectedImageIcon = nil;
 static UIImage *unSelectedImageIcon = nil;
 static NSDictionary *supported = nil;
-
+static UIColor *imageStrokeColor = nil;
 
 
 @interface CKGalleryCollectionViewCell ()
@@ -57,10 +57,15 @@ static NSDictionary *supported = nil;
     if (newSupported) supported = newSupported;
 }
 
++(void)setImageStrokeColor:(UIColor*)strokeColor {
+    if (strokeColor) imageStrokeColor = strokeColor;
+}
+
 +(void)cleanStaticsVariables {
     selectedImageIcon = nil;
     unSelectedImageIcon = nil;
     supported = nil;
+    imageStrokeColor = nil;
 }
 
 
@@ -68,6 +73,12 @@ static NSDictionary *supported = nil;
     self = [super initWithFrame:frame];
     
     CGRect imageViewFrame = self.bounds;
+    
+    if(imageStrokeColor) {
+        imageViewFrame.size.height -= 2;
+        imageViewFrame.size.width -= 2;
+        self.backgroundColor = imageStrokeColor;
+    }
     
     self.imageView = [[UIImageView alloc] initWithFrame:imageViewFrame];
     self.imageView.center = CGPointMake(CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds));

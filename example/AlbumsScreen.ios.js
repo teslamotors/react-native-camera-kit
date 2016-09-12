@@ -75,12 +75,12 @@ export default class AlbumsScreen extends Component {
                     this.imageTapped(result.nativeEvent.selected);
           }}
           fileTypeSupport={{
-                      supportedFileTypes: ['image/png'],
                       unsupportedOverlayColor: "#00000055",
                       unsupportedImage: require('./images/unsupportedImage.png'),
                       unsupportedText: 'Unsupported',
                       unsupportedTextColor: '#ffffff'
           }}
+          imageStrokeColor={'#edeff0'}
         />
         <TouchableOpacity onPress={() => this.getImagesForIds()}>
           <Text style={styles.buttonText}>

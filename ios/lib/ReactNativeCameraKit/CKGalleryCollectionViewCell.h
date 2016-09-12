@@ -20,6 +20,7 @@
 +(void)setSelectedImageIcon:(UIImage*)image;
 +(void)setUnSlectedImageIcon:(UIImage*)image;
 +(void)setSupported:(NSDictionary*)newSupported;
++(void)setImageStrokeColor:(UIColor*)strokeColor;
 
 +(void)cleanStaticsVariables;
 
