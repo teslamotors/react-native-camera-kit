@@ -3,6 +3,7 @@ package com.wix.RNCameraKit.gallery;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.provider.MediaStore;
@@ -25,6 +26,9 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
  */
 public class SelectableImage extends FrameLayout {
 
+    private static final int MINI_THUMB_HEIGHT = 512;
+    private static final int MINI_THUMB_WIDTH = 384;
+
     private final ImageView imageView;
     private final ImageView selectedView;
     private int id = -1;
@@ -35,6 +39,7 @@ public class SelectableImage extends FrameLayout {
     private ImageView unsupportedImage;
     private TextView unsupportedTextView;
     private boolean selected;
+    private int inSampleSize;
 
     public SelectableImage(Context context) {
         super(context);
@@ -45,7 +50,7 @@ public class SelectableImage extends FrameLayout {
         selectedView = new ImageView(context);
         int dp22 = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 22, context.getResources().getDisplayMetrics());
         LayoutParams params = new FrameLayout.LayoutParams(dp22, dp22, Gravity.TOP | Gravity.RIGHT);
-        params.setMargins(30,30,30,30);
+        params.setMargins(30, 30, 30, 30);
         addView(selectedView, params);
         createUnsupportedView();
     }
@@ -66,7 +71,7 @@ public class SelectableImage extends FrameLayout {
         addView(unsupportedLayout, MATCH_PARENT, MATCH_PARENT);
         unsupportedLayout.setOrientation(LinearLayout.VERTICAL);
         unsupportedLayout.setGravity(Gravity.CENTER);
-        unsupportedLayout.setPadding(10,10,10,10);
+        unsupportedLayout.setPadding(10, 10, 10, 10);
 
         unsupportedImage = new ImageView(getContext());
         unsupportedImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
@@ -80,6 +85,12 @@ public class SelectableImage extends FrameLayout {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, widthMeasureSpec);
+    }
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        this.inSampleSize = calculateInSampleSize(w, h);
     }
 
     public void setScaleType(ImageView.ScaleType scaleType) {
@@ -96,14 +107,22 @@ public class SelectableImage extends FrameLayout {
             if (currentLoader != null) {
                 executor.remove(currentLoader);
             }
+
             currentLoader = new Runnable() {
                 @Override
                 public void run() {
+
+                    BitmapFactory.Options options = new BitmapFactory.Options();
+                    if (inSampleSize == 0) {
+                        inSampleSize = calculateInSampleSize(getWidth(), getHeight());
+                    }
+                    options.inSampleSize = inSampleSize;
+
                     final Bitmap bmp = MediaStore.Images.Thumbnails.getThumbnail(
                             getContext().getContentResolver(),
                             id,
                             MediaStore.Images.Thumbnails.MINI_KIND,
-                            null);
+                            options);
 
                     if (SelectableImage.this.id == id) {
                         ((Activity) ((ReactContext) getContext()).getBaseContext()).runOnUiThread(new Runnable() {
@@ -113,6 +132,7 @@ public class SelectableImage extends FrameLayout {
                             }
                         });
                     }
+
                 }
             };
             executor.execute(currentLoader);
@@ -135,5 +155,22 @@ public class SelectableImage extends FrameLayout {
     public void setDrawables(Drawable selectedDrawable, Drawable unselectedDrawable) {
         this.selectedDrawable = selectedDrawable;
         this.unselectedDrawable = unselectedDrawable;
+    }
+
+    public static int calculateInSampleSize(int reqWidth, int reqHeight) {
+        int inSampleSize = 1;
+
+        if (MINI_THUMB_HEIGHT > reqHeight || MINI_THUMB_WIDTH > reqWidth) {
+
+            final int halfHeight = MINI_THUMB_HEIGHT / 2;
+            final int halfWidth = MINI_THUMB_WIDTH / 2;
+
+            while ((halfHeight / inSampleSize) >= reqHeight
+                    && (halfWidth / inSampleSize) >= reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
     }
 }
