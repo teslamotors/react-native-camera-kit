@@ -28,6 +28,7 @@ public class SelectableImage extends FrameLayout {
 
     private static final int MINI_THUMB_HEIGHT = 512;
     private static final int MINI_THUMB_WIDTH = 384;
+    public static final int MAX_SAMPLE_SIZE = 8;
 
     private final ImageView imageView;
     private final ImageView selectedView;
@@ -158,6 +159,11 @@ public class SelectableImage extends FrameLayout {
     }
 
     public static int calculateInSampleSize(int reqWidth, int reqHeight) {
+
+        if (reqHeight == 0 || reqWidth == 0) {
+            return 1;
+        }
+
         int inSampleSize = 1;
 
         if (MINI_THUMB_HEIGHT > reqHeight || MINI_THUMB_WIDTH > reqWidth) {
@@ -165,7 +171,8 @@ public class SelectableImage extends FrameLayout {
             final int halfHeight = MINI_THUMB_HEIGHT / 2;
             final int halfWidth = MINI_THUMB_WIDTH / 2;
 
-            while ((halfHeight / inSampleSize) >= reqHeight
+            while (inSampleSize <= MAX_SAMPLE_SIZE
+                    && (halfHeight / inSampleSize) >= reqHeight
                     && (halfWidth / inSampleSize) >= reqWidth) {
                 inSampleSize *= 2;
             }
