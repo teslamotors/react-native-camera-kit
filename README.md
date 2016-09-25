@@ -97,7 +97,7 @@ const image = await this.camera.capture(true);
 
 ####setFlashMode
 
-Set flesh mode (`auto`/`on`/`off`)
+Set flash mode (`auto`/`on`/`off`)
 
 ```javascript
 const success = await this.camera.setFlashMode(newFlashData.mode);
