@@ -38,11 +38,14 @@
 	<false/>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string></string>
-  <key>NSAppTransportSecurity</key>
-  <dict>
-    <!--See http://ste.vn/2015/06/10/configuring-app-transport-security-ios-9-osx-10-11/ -->
-    <key>NSAllowsArbitraryLoads</key>
-    <true/>
-  </dict>
+	<key>NSCameraUsageDescription</key>
+	<string>Used to taking photos</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Used to save and fetch photos</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
 </dict>
 </plist>

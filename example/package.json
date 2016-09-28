@@ -7,8 +7,8 @@
   },
   "dependencies": {
     "lodash": "^4.13.1",
-    "react": "0.14.5",
-    "react-native": "0.25.1",
+    "react": ">=0.14.5",
+    "react-native": "0.31.0",
     "react-native-camera-kit": "file:../",
     "seamless-immutable": "^6.1.0"
   }
