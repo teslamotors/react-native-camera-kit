@@ -85,7 +85,6 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 @property (nonatomic) AVCaptureFlashMode flashMode;
 @property (nonatomic) CKCameraFocushMode focusMode;
 @property (nonatomic) CKCameraZoomMode zoomMode;
-@property (nonatomic, strong) PHFetchOptions *fetchOptions;
 @property (nonatomic, strong) NSString* ratioOverlayString;
 @property (nonatomic, strong) UIColor *ratioOverlayColor;
 
@@ -104,16 +103,16 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 }
 
 -(PHFetchOptions *)fetchOptions {
-    if (!_fetchOptions) {
-        PHFetchOptions *fetchOptions = [PHFetchOptions new];
-        fetchOptions.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:NO]];
-        // iOS 9+
-        if ([fetchOptions respondsToSelector:@selector(fetchLimit)]) {
-            fetchOptions.fetchLimit = 1;
-        }
-        _fetchOptions = fetchOptions;
+    
+    PHFetchOptions *fetchOptions = [PHFetchOptions new];
+    fetchOptions.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:NO]];
+    fetchOptions.predicate = [NSPredicate predicateWithFormat:@"mediaType = %d && creationDate <= %@",PHAssetMediaTypeImage, [NSDate date]];
+    // iOS 9+
+    if ([fetchOptions respondsToSelector:@selector(fetchLimit)]) {
+        fetchOptions.fetchLimit = 1;
     }
-    return _fetchOptions;
+    
+    return fetchOptions;
 }
 
 - (void)removeReactSubview:(UIView *)subview
