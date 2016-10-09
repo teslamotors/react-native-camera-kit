@@ -15,11 +15,14 @@ import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.MetadataException;
 import com.drew.metadata.exif.ExifIFD0Directory;
+import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
+import com.facebook.react.bridge.WritableMap;
 import com.wix.RNCameraKit.camera.CameraViewManager;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 
 public class Capture implements Command {
@@ -61,24 +64,38 @@ public class Capture implements Command {
         protected Void doInBackground(byte[]... data) {
             byte[] rawImageData = data[0];
             Bitmap image = decodeAndRotateIfNeeded(rawImageData);
-            String filePath = saveToMediaStore(image);
-            if (filePath == null)
+            WritableMap imageInfo = saveToMediaStore(image);
+            if (imageInfo == null)
                 promise.reject("CameraKit", "failed to save image to MediaStore");
             else {
-                promise.resolve(filePath);
+                promise.resolve(imageInfo);
                 CameraViewManager.reconnect();
             }
             return null;
         }
 
-        private String saveToMediaStore(Bitmap image) {
+        private WritableMap saveToMediaStore(Bitmap image) {
             try {
                 String fileUri = MediaStore.Images.Media.insertImage(context.getContentResolver(), image, System.currentTimeMillis() + "", "");
-                Cursor cursor = context.getContentResolver().query(Uri.parse(fileUri), new String[]{MediaStore.Images.ImageColumns.DATA}, null, null, null);
+                Cursor cursor = context.getContentResolver().query(Uri.parse(fileUri), new String[]{
+                        MediaStore.Images.ImageColumns.DATA,
+                        MediaStore.Images.ImageColumns.DISPLAY_NAME
+                }, null, null, null);
                 cursor.moveToFirst();
-                String filePath = cursor.getString(0);
+                int pathIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.DATA);
+                int nameIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.DISPLAY_NAME);
+                String filePath = cursor.getString(pathIndex);
+                String fileName = cursor.getString(nameIndex);
+                long fileSize = new File(filePath).length();
                 cursor.close();
-                return filePath;
+
+                WritableMap imageInfo = Arguments.createMap();
+                imageInfo.putString("uri", filePath);
+                imageInfo.putString("id", filePath);
+                imageInfo.putString("name", fileName);
+                imageInfo.putInt("size", (int) fileSize);
+
+                return imageInfo;
             } catch (Exception e) {
                 return null;
             }
