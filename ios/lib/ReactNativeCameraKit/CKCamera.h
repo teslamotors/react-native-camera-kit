@@ -10,7 +10,7 @@
 @import AVFoundation;
 #import "RCTConvert.h"
 
-typedef void (^CaptureBlock)(NSString *imagePath);
+typedef void (^CaptureBlock)(NSDictionary *imageObject);
 typedef void (^CallbackBlock)(BOOL success);
 
 typedef NS_ENUM(NSInteger, CKCameraFlashMode) {

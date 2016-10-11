@@ -60,10 +60,10 @@ RCT_EXPORT_METHOD(capture:(BOOL)shouldSaveToCameraRoll
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
     
-    [self.camera snapStillImage:shouldSaveToCameraRoll success:^(NSString *imagePath) {
-        if (imagePath) {
+    [self.camera snapStillImage:shouldSaveToCameraRoll success:^(NSDictionary *imageObject) {
+        if (imageObject) {
             if (resolve) {
-                resolve(imagePath);
+                resolve(imageObject);
             }
         }
     }];
