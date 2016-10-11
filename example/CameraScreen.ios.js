@@ -1,134 +1,296 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import {
-	AppRegistry,
-	StyleSheet,
-	Text,
-	View,
-	ListView,
-	TouchableOpacity,
-	Image,
-	AlertIOS
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Image
 } from 'react-native';
 
-import {
-	CameraKitGallery,
-	CameraKitCamera,
-} from 'react-native-camera-kit';
 
-const FLASH_MODE_AUTO = "auto";
-const FLASH_MODE_ON = "on";
-const FLASH_MODE_OFF = "off";
+import _ from 'lodash';
 
-const RATIOS = ['3:4', '6:9', '1:1', '2:1'];
+
+import {CameraKitCamera} from 'react-native-camera-kit';
+
+const FLASH_MODE_AUTO = 'auto';
+const FLASH_MODE_ON = 'on';
+const FLASH_MODE_OFF = 'off';
+
+const OVERLAY_DEFAULT_COLOR = '#00000077';
+
+const flashAutoImage = require('./images/flashAuto.png');
+const flashOnImage = require('./images/flashOn.png');
+const flashOffImage = require('./images/flashOff.png');
+const flashArray = [
+  {
+    mode: FLASH_MODE_AUTO,
+    image: flashAutoImage
+  },
+  {
+    mode: FLASH_MODE_ON,
+    image: flashOnImage
+  },
+  {
+    mode: FLASH_MODE_OFF,
+    image: flashOffImage
+  }
+];
+
 
 export default class CameraScreen extends Component {
 
-	constructor(props) {
-
-		super(props);
-		const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-		this.state = {
-			albums:{},
-			albumsDS: ds,
-			shouldOpenCamera: false,
-			shouldShowListView: false,
-			image:{imageURI:""},
-			flashMode:FLASH_MODE_AUTO,
-      ratiosArrayPosition: 0
-		}
-	}
-	render() {
-			return (
-				this._renderCameraView()
-			);
-	}
-
-	_renderCameraView() {
-		return (
-			<View style={{ flex:1,  backgroundColor: 'gray', marginBottom:8}}>
-
-				<View style={{flex: 1, flexDirection:'column', backgroundColor:'black'}} onPress={this.onTakeIt.bind(this)}>
-					<CameraKitCamera
-						ref={(cam) => {
-                  this.camera = cam;
-                }}
-						style={{flex: 1, backgroundColor:'white'}}
-						cameraOptions= {{
-                    flashMode: 'auto',    // on/off/auto(default)
-                    focusMode: 'on',      // off/on(default)
-                    zoomMode: 'on',        // off/on(default)
-                    ratioOverlay:RATIOS[this.state.ratiosArrayPosition],
-                    ratioOverlayColor: '#00000077'
-                  }}
-					/>
-					<TouchableOpacity style={{alignSelf:'center', marginHorizontal: 4}} onPress={this.onTakeIt.bind(this)}>
-						<Text style={{fontSize: 22, color: 'lightgray', backgroundColor: 'hotpink'}}>TAKE IT!</Text>
-					</TouchableOpacity>
-				</View>
-
-
-				<View style={{flexDirection: 'row'}}>
-
-					<Image
-						style={{ flexDirection:'row', backgroundColor: 'black', width: 100, height: 100}}
-						source={{uri: this.state.image.imageURI, scale: 3}}
-					/>
-
-					<TouchableOpacity style={{alignSelf:'center', marginHorizontal: 4}} onPress={this.onSwitchCameraPressed.bind(this)}>
-						<Text>switch camera</Text>
-					</TouchableOpacity>
-
-					<View style={{ flexDirection:'column', justifyContent: 'space-between'}}>
-						<TouchableOpacity style={{ marginHorizontal: 4}} onPress={this.onSetFlash.bind(this, FLASH_MODE_AUTO)}>
-							<Text>flash auto</Text>
-						</TouchableOpacity>
-
-						<TouchableOpacity style={{ marginHorizontal: 4, }} onPress={this.onSetFlash.bind(this, FLASH_MODE_ON)}>
-							<Text>flash on</Text>
-						</TouchableOpacity>
-
-						<TouchableOpacity style={{ marginHorizontal: 4,}} onPress={this.onSetFlash.bind(this, FLASH_MODE_OFF)}>
-							<Text>flash off</Text>
-						</TouchableOpacity>
-					</View>
-
-          <TouchableOpacity style={{ justifyContent:'center'}} onPress={() =>this.ratioPressed() }>
-            <Text>{RATIOS[this.state.ratiosArrayPosition]}</Text>
-          </TouchableOpacity>
-
-				</View>
-			</View>
-		)
-	}
-
-  ratioPressed() {
-    this.setState({ratiosArrayPosition: (this.state.ratiosArrayPosition+1)%(RATIOS.length)})
+  constructor(props) {
+    super(props);
+    this.currentFlashArrayPosition = 0;
+    this.state = {
+      images: [],
+      flashData: flashArray[this.currentFlashArrayPosition],
+      ratios: [],
+      cameraOptions: {},
+      ratioArrayPosition: -1,
+      imageCaptured: undefined
+    };
+    this.onSetFlash = this.onSetFlash.bind(this);
+    this.onSwitchCameraPressed = this.onSwitchCameraPressed.bind(this);
   }
 
-	async onSwitchCameraPressed() {
-    const success = await this.camera.changeCamera();
-	}
+  componentDidMount() {
+    const cameraOptions = this.getCameraOptions();
+    let ratios = [];
+    if (this.props.cameraRatioOverlay) {
+      ratios = this.props.cameraRatioOverlay.ratios || [];
+    }
+    this.setState({
+      cameraOptions,
+      ratios: (ratios || []),
+      ratioArrayPosition: ((ratios.length > 0) ? 0 : -1)
+    });
+  }
 
-	async onCheckAuthoPressed() {
-		const success = await CameraKitCamera.checkDeviceAuthorizarionStatus();
-		if (success){
-			AlertIOS.alert('You rock!')
-		}
-		else {
-			AlertIOS.alert('You fucked!')
-		}
-	}
+  getCameraOptions() {
+    const cameraOptions = {
+      flashMode: 'auto',
+      focusMode: 'on',
+      zoomMode: 'on'
+    };
+    if (this.props.cameraRatioOverlay) {
+      const overlay = this.props.cameraRatioOverlay;
+      cameraOptions.ratioOverlayColor = overlay.color || OVERLAY_DEFAULT_COLOR;
 
-	async onSetFlash(flashMode) {
-		const success = await this.camera.setFlashMode(flashMode);
+      if (overlay.ratios && overlay.ratios.length > 0) {
+        cameraOptions.ratioOverlay = overlay.ratios[0];
+      }
+    }
 
-	}
+    return cameraOptions;
+  }
 
-	async onTakeIt() {
-		const imageURI = await this.camera.capture(true);
-		let newImage = {imageURI: imageURI.uri};
+  renderFlashButton() {
+    return (
+      <TouchableOpacity style={{paddingHorizontal: 15}} onPress={() => this.onSetFlash(FLASH_MODE_AUTO)}>
+        <Image
+          style={{flex: 1, justifyContent: 'center'}}
+          source={this.state.flashData.image}
+          resizeMode={Image.resizeMode.contain}
+        />
+      </TouchableOpacity>
+    );
+  }
 
-		this.setState({...this.state, image:newImage});
-	}
+  renderSwitchCameraButton() {
+    return (
+      <TouchableOpacity style={{paddingHorizontal: 15}} onPress={this.onSwitchCameraPressed}>
+        <Image
+          style={{flex: 1, justifyContent: 'center'}}
+          source={require('./images/cameraFlipIcon@2x.png')}
+          resizeMode={Image.resizeMode.contain}
+        />
+      </TouchableOpacity>
+    );
+  }
+
+  renderTopButtons() {
+    return (
+      <View style={styles.topButtons}>
+        {this.renderFlashButton()}
+        {this.renderSwitchCameraButton()}
+      </View>
+    );
+  }
+
+  renderCamera() {
+    return (
+      <View style={styles.cameraContainer}>
+        <CameraKitCamera
+          ref={(cam) => this.camera = cam}
+          style={{flex: 1, justifyContent: 'flex-end'}}
+          cameraOptions={this.state.cameraOptions}
+        />
+      </View>
+    );
+  }
+
+  renderPreview() {
+    if (!this.state.imageCaptured) {
+      return <View style={{flex: 1, justifyContent: 'center', padding: 10}}/>
+
+    }
+    return (
+      <View style={{flex: 1, justifyContent: 'center', padding: 10}}>
+
+        <Image
+          style={{flex: 1}}
+          source={{uri: this.state.imageCaptured.uri}}
+          resizeMode={Image.resizeMode.contain}
+        />
+      </View>
+    )
+  }
+
+  renderCaptureButton() {
+    return (
+      <View style={styles.captureButtonContainer}>
+        <TouchableOpacity
+          onPress={() => this.onCaptureImagePressed()}
+        >
+          <Image
+            style={styles.captureButton}
+            source={require('./images/cameraButton@2x.png')}
+            resizeMode={'contain'}
+          />
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  renderGap() {
+      return (
+        <View
+          style={styles.gap}
+        >
+        </View>
+      );
+
+  }
+
+  renderRatioStrip() {
+    if (this.state.ratios.length === 0) {
+      return null;
+    }
+    return (
+      <View style={{flex: 1, flexDirection: 'column', justifyContent: 'flex-end'}}>
+        <View style={{flexDirection: 'row', alignItems: 'center', paddingRight: 10, paddingLeft: 20}}>
+          <Text style={styles.ratioBestText}>Your images look best at a {this.state.ratios[0] || ''} ratio</Text>
+          <TouchableOpacity
+            style={{flex: 1, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', padding: 8}}
+            onPress={() => this.onRatioButtonPressed()}
+          >
+            <Text style={styles.ratioText}>{this.state.cameraOptions.ratioOverlay}</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
+
+  renderBottomButtons() {
+    return (
+      <View style={styles.bottomButtons}>
+        {this.renderPreview()}
+        {this.renderCaptureButton()}
+        {this.renderGap()}
+      </View>
+    );
+  }
+
+  render() {
+    return (
+      <View style={{flex: 1, backgroundColor: 'black'}}>
+        {this.renderTopButtons()}
+        {this.renderCamera()}
+        {this.renderRatioStrip()}
+        {this.renderBottomButtons()}
+      </View>
+    );
+  }
+
+  onSwitchCameraPressed() {
+    this.camera.changeCamera();
+  }
+
+  async onSetFlash() {
+    this.currentFlashArrayPosition = (this.currentFlashArrayPosition + 1) % 3;
+    const newFlashData = flashArray[this.currentFlashArrayPosition];
+    this.setState({flashData: newFlashData});
+    this.camera.setFlashMode(newFlashData.mode);
+  }
+
+  async onCaptureImagePressed() {
+    const image = await this.camera.capture(true);
+
+    if (image) {
+      this.setState({imageCaptured: image});
+    }
+  }
+
+  onRatioButtonPressed() {
+    const newRatiosArrayPosition = ((this.state.ratioArrayPosition + 1) % this.state.ratios.length);
+    const newCameraOptions = _.update(this.state.cameraOptions, 'ratioOverlay', (val) => this.state.ratios[newRatiosArrayPosition]);
+    this.setState({ratioArrayPosition: newRatiosArrayPosition, cameraOptions: newCameraOptions});
+  }
 }
 
+const styles = StyleSheet.create({
+  textStyle: {
+    color: 'white',
+    fontSize: 20
+  },
+  ratioBestText: {
+    color: 'white',
+    fontSize: 18,
+  },
+  ratioText: {
+    color: '#ffc233',
+    fontSize: 18
+  },
+  topButtons: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingTop: 8,
+    paddingBottom: 0
+  },
+  cameraContainer: {
+    flex: 10,
+    flexDirection: 'column'
+  },
+  bottomButtons: {
+    flex: 2,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 10
+  },
+  gap: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    padding: 10
+  },
+  captureButtonContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  captureButton: {
+    flex: 1,
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  captureNumber: {
+    justifyContent: 'center',
+    color: 'black',
+    backgroundColor: 'transparent'
+  }
+});
