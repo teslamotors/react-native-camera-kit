@@ -204,12 +204,15 @@ RCT_EXPORT_METHOD(getImagesForIds:(NSArray*)imagesIdArray
     for (PHAsset *asset in assets) {
         
         NSDictionary *assetInfoDict = [CKGalleryViewManager infoForAsset:asset imageRequestOptions:imageRequestOptions];
-        
-        if (assetInfoDict && assetInfoDict[@"uri"] && assetInfoDict[@"size"] && assetInfoDict[@"name"] ) {
-            
+        NSString *assetLocalId = asset.localIdentifier;
+
+        if (assetInfoDict && assetInfoDict[@"uri"] && assetInfoDict[@"size"] && assetInfoDict[@"name"] && assetLocalId) {
+
+
             [assetsArray addObject:@{@"uri": assetInfoDict[@"uri"],
                                      @"size": assetInfoDict[@"size"],
-                                     @"name": assetInfoDict[@"name"]}];
+                                     @"name": assetInfoDict[@"name"],
+                                     @"id": assetLocalId}];
         }
     }
     
