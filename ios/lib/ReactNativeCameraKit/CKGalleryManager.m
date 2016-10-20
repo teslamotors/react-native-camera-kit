@@ -194,7 +194,7 @@ RCT_EXPORT_METHOD(getImagesForIds:(NSArray*)imagesIdArray
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(__unused RCTPromiseRejectBlock)reject) {
     
-    NSMutableArray *assetsArray = [[NSMutableArray alloc] init];
+    NSMutableArray *assetsArray = [[NSMutableArray alloc] initWithArray:imagesIdArray];
     
     PHImageRequestOptions *imageRequestOptions = [[PHImageRequestOptions alloc] init];
     imageRequestOptions.synchronous = YES;
@@ -205,21 +205,31 @@ RCT_EXPORT_METHOD(getImagesForIds:(NSArray*)imagesIdArray
         
         NSDictionary *assetInfoDict = [CKGalleryViewManager infoForAsset:asset imageRequestOptions:imageRequestOptions];
         NSString *assetLocalId = asset.localIdentifier;
-
+        
         if (assetInfoDict && assetInfoDict[@"uri"] && assetInfoDict[@"size"] && assetInfoDict[@"name"] && assetLocalId) {
-
-
-            [assetsArray addObject:@{@"uri": assetInfoDict[@"uri"],
-                                     @"size": assetInfoDict[@"size"],
-                                     @"name": assetInfoDict[@"name"],
-                                     @"id": assetLocalId}];
+            
+            NSUInteger originalArrayIndex = [imagesIdArray indexOfObject:assetLocalId];
+            
+            [assetsArray replaceObjectAtIndex:originalArrayIndex withObject:@{@"uri": assetInfoDict[@"uri"],
+                                                                              @"size": assetInfoDict[@"size"],
+                                                                              @"name": assetInfoDict[@"name"],
+                                                                              @"id": assetLocalId}];
+        }
+    }
+    
+    NSMutableArray *resolveArray = [NSMutableArray new];
+    for (id obj in assetsArray) {
+        if ([obj isKindOfClass:[NSDictionary class]]) {
+            [resolveArray addObject:obj];
         }
     }
     
     if (resolve) {
-        resolve(@{@"images": assetsArray});
+        resolve(@{@"images": resolveArray});
     }
 }
+
+
 
 
 RCT_EXPORT_METHOD(checkDevicePhotosAuthorizationStatus:(RCTPromiseResolveBlock)resolve
