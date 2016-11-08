@@ -116,7 +116,7 @@ public class GalleryView extends RecyclerView {
             event = Arguments.createMap();
             event.putString("selected", uri);
             event.putString("id", "onTapImage");
-            init(0, System.currentTimeMillis());
+            init(0);
         }
 
         @Override
