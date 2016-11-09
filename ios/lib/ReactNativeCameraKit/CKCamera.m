@@ -365,7 +365,8 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 }
 
 -(void)setOverlayRatioView {
-    if (!self.cameraOverlayView && self.ratioOverlayString) {
+    if (self.ratioOverlayString) {
+        [self.cameraOverlayView removeFromSuperview];
         self.cameraOverlayView = [[CKCameraOverlayView alloc] initWithFrame:self.bounds ratioString:self.ratioOverlayString overlayColor:self.ratioOverlayColor];
         [self addSubview:self.cameraOverlayView];
     }
