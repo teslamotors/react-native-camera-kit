@@ -2,9 +2,11 @@ package com.wix.RNCameraKit.camera.commands;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.util.Base64;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -22,15 +24,18 @@ import com.wix.RNCameraKit.camera.CameraViewManager;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 
 public class Capture implements Command {
 
     private final Context context;
+    private static boolean saveToCameraRoll;
 
-    public Capture(Context context) {
+    public Capture(Context context, boolean saveToCameraRoll) {
         this.context = context;
+        Capture.saveToCameraRoll = saveToCameraRoll;
     }
 
     @Override
@@ -47,58 +52,38 @@ public class Capture implements Command {
             @Override
             public void onPictureTaken(byte[] data, Camera camera) {
                 camera.stopPreview();
-                new SaveImageTask(promise).execute(data);
+                try {
+                  Bitmap image = new DecodeImageTask().execute(data).get();
+                  if (Capture.saveToCameraRoll)
+                    new SaveImageTask(promise).execute(image);
+                  else {
+                    WritableMap imageInfo = Arguments.createMap();
+                    imageInfo.putString("uri", Base64.encodeToString(getBytesFromBitmap(image), Base64.NO_WRAP));
+                    imageInfo.putInt("width", image.getWidth());
+                    imageInfo.putInt("height", image.getHeight());
+                    promise.resolve(imageInfo);
+                  }
+                } catch (Exception e) {
+                  e.printStackTrace();
+                }
+            }
+
+            private byte[] getBytesFromBitmap(Bitmap bitmap) {
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                bitmap.compress(CompressFormat.JPEG, 70, stream);
+                return stream.toByteArray();
             }
         });
     }
 
-    private class SaveImageTask extends AsyncTask<byte[], Void, Void> {
-
-        private final Promise promise;
-
-        private SaveImageTask(Promise promise) {
-            this.promise = promise;
-        }
+    private class DecodeImageTask extends AsyncTask<byte[], Void, Bitmap> {
 
         @Override
-        protected Void doInBackground(byte[]... data) {
-            byte[] rawImageData = data[0];
-            Bitmap image = decodeAndRotateIfNeeded(rawImageData);
-            WritableMap imageInfo = saveToMediaStore(image);
-            if (imageInfo == null)
-                promise.reject("CameraKit", "failed to save image to MediaStore");
-            else {
-                promise.resolve(imageInfo);
-                CameraViewManager.reconnect();
-            }
-            return null;
-        }
-
-        private WritableMap saveToMediaStore(Bitmap image) {
-            try {
-                String fileUri = MediaStore.Images.Media.insertImage(context.getContentResolver(), image, System.currentTimeMillis() + "", "");
-                Cursor cursor = context.getContentResolver().query(Uri.parse(fileUri), new String[]{
-                        MediaStore.Images.ImageColumns.DATA,
-                        MediaStore.Images.ImageColumns.DISPLAY_NAME
-                }, null, null, null);
-                cursor.moveToFirst();
-                int pathIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.DATA);
-                int nameIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.DISPLAY_NAME);
-                String filePath = cursor.getString(pathIndex);
-                String fileName = cursor.getString(nameIndex);
-                long fileSize = new File(filePath).length();
-                cursor.close();
-
-                WritableMap imageInfo = Arguments.createMap();
-                imageInfo.putString("uri", filePath);
-                imageInfo.putString("id", filePath);
-                imageInfo.putString("name", fileName);
-                imageInfo.putInt("size", (int) fileSize);
-
-                return imageInfo;
-            } catch (Exception e) {
-                return null;
-            }
+        protected Bitmap doInBackground(byte[]... data) {
+          byte[] rawImageData = data[0];
+          Bitmap image = decodeAndRotateIfNeeded(rawImageData);
+          CameraViewManager.reconnect();
+          return image;
         }
 
         private Bitmap decodeAndRotateIfNeeded(byte[] rawImageData) {
@@ -184,6 +169,57 @@ public class Capture implements Command {
                 if (inputStream != null) inputStream.close();
             }
             return metadata;
+        }
+    }
+
+    private class SaveImageTask extends AsyncTask<Bitmap, Void, Void> {
+
+        private final Promise promise;
+
+        private SaveImageTask(Promise promise) {
+            this.promise = promise;
+        }
+
+        @Override
+        protected Void doInBackground(Bitmap... images) {
+            for(Bitmap image : images) {
+              WritableMap imageInfo = saveToMediaStore(image);
+              if (imageInfo == null)
+                  promise.reject("CameraKit", "failed to save image to MediaStore");
+              else {
+                  promise.resolve(imageInfo);
+                  CameraViewManager.reconnect();
+              }
+            };
+
+            return null;
+        }
+
+        private WritableMap saveToMediaStore(Bitmap image) {
+            try {
+                String fileUri = MediaStore.Images.Media.insertImage(context.getContentResolver(), image, System.currentTimeMillis() + "", "");
+                Cursor cursor = context.getContentResolver().query(Uri.parse(fileUri), new String[]{
+                        MediaStore.Images.ImageColumns.DATA,
+                        MediaStore.Images.ImageColumns.DISPLAY_NAME
+                }, null, null, null);
+                cursor.moveToFirst();
+                int pathIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.DATA);
+                int nameIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.DISPLAY_NAME);
+                String filePath = cursor.getString(pathIndex);
+                String fileName = cursor.getString(nameIndex);
+                long fileSize = new File(filePath).length();
+                cursor.close();
+
+                WritableMap imageInfo = Arguments.createMap();
+                imageInfo.putString("uri", filePath);
+                imageInfo.putString("id", filePath);
+                imageInfo.putString("name", fileName);
+                imageInfo.putInt("size", (int) fileSize);
+
+                return imageInfo;
+            } catch (Exception e) {
+                return null;
+            }
         }
     }
 }
