@@ -19,12 +19,6 @@
 }
 
 
--(void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event{
-    [super touchesMoved:touches withEvent:event];
-    self.state = UIGestureRecognizerStateFailed;
-}
-
-
 -(void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event{
     [super touchesEnded:touches withEvent:event];
     self.state = UIGestureRecognizerStateEnded;

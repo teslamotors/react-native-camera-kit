@@ -245,7 +245,7 @@ static UIColor *imageStrokeColor = nil;
             
         }];
     }
-    else if (gesture.state == UIGestureRecognizerStateEnded || gesture.state == UIGestureRecognizerStateCancelled || gesture.state == UIGestureRecognizerStateChanged)
+    else if (gesture.state == UIGestureRecognizerStateEnded || gesture.state == UIGestureRecognizerStateCancelled)
     {
         [UIView animateWithDuration:0.1 animations:^{
             self.transform = CGAffineTransformIdentity;
