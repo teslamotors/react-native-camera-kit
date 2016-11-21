@@ -97,7 +97,6 @@ static UIColor *imageStrokeColor = nil;
     self.badgeImageView = [[UIImageView alloc] initWithFrame:badgeRect];
     [self addSubview:self.badgeImageView];
     
-    self.isSelected = NO;
     self.isSupported = YES;
     
     
@@ -197,6 +196,9 @@ static UIColor *imageStrokeColor = nil;
 -(void)setIsSelected:(BOOL)isSelected {
     
     _isSelected = isSelected;
+    
+    if (self.disableSelectionIcons) return;
+    
     if (_isSelected) {
         self.imageOveray.alpha = IMAGE_OVERLAY_ALPHA;
         if (selectedImageIcon) {

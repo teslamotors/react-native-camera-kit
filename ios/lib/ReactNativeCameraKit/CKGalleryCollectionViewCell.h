@@ -29,5 +29,6 @@
 
 @property (nonatomic) BOOL isSelected;
 @property (nonatomic) BOOL isSupported;
+@property (nonatomic) BOOL disableSelectionIcons;
 
 @end

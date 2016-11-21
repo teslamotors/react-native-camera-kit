@@ -48,6 +48,7 @@
 @property (nonatomic, strong) UIImage *selectedImageIcon;
 @property (nonatomic, strong) UIImage *unSelectedImageIcon;
 @property (nonatomic, strong) UIColor *imageStrokeColor;
+@property (nonatomic, strong) NSNumber *disableSelectionIcons;
 
 
 //supported
@@ -280,8 +281,9 @@ static NSString * const CellReuseIdentifier = @"Cell";
     NSString *MIMETypeString = (__bridge_transfer NSString *)MIMEType;
     
     __block CKGalleryCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:CellReuseIdentifier forIndexPath:indexPath];
+    cell.disableSelectionIcons = self.disableSelectionIcons ? self.disableSelectionIcons.boolValue : false;
     cell.isSelected = ((NSNumber*)assetDictionary[@"isSelected"]).boolValue;
-//    cell.isSupported = YES;
+
     
     if (self.supportedFileTypesArray) {
         cell.isSupported = [self.supportedFileTypesArray containsObject:[MIMETypeString lowercaseString]];
@@ -358,7 +360,6 @@ static NSString * const CellReuseIdentifier = @"Cell";
 
 +(PHFetchResult*)filterFetchResults:(PHFetchResult*)fetchResults typesArray:(NSArray*)typesArray {
     
-    
     [fetchResults enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         NSLog(@"obj");
     }];
@@ -400,6 +401,8 @@ RCT_EXPORT_VIEW_PROPERTY(unSelectedImageIcon, UIImage);
 RCT_EXPORT_VIEW_PROPERTY(selectedImages, NSArray);
 RCT_EXPORT_VIEW_PROPERTY(fileTypeSupport, NSDictionary);
 RCT_EXPORT_VIEW_PROPERTY(imageStrokeColor, UIColor);
+RCT_EXPORT_VIEW_PROPERTY(disableSelectionIcons, NSNumber);
+
 
 
 RCT_EXPORT_METHOD(getSelectedImages:(RCTPromiseResolveBlock)resolve
