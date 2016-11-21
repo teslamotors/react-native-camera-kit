@@ -145,12 +145,13 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         self.sessionQueue = dispatch_queue_create( "session queue", DISPATCH_QUEUE_SERIAL );
         
         [self handleCameraPermission];
+
+#if !(TARGET_IPHONE_SIMULATOR)
         [self setupCaptionSession];
-        
         self.previewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:self.session];
         [self.layer addSublayer:self.previewLayer];
-        
         self.previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
+#endif
         
         UIView *focusView = [[UIView alloc] initWithFrame:CGRectZero];
         focusView.backgroundColor = [UIColor clearColor];
@@ -313,7 +314,14 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 -(void)reactSetFrame:(CGRect)frame {
     [super reactSetFrame:frame];
+    
+#if TARGET_IPHONE_SIMULATOR
+    return;
+#endif
+    
     self.previewLayer.frame = self.bounds;
+    
+    
     
     [self setOverlayRatioView];
     
