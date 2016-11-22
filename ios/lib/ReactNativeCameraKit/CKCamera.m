@@ -524,6 +524,12 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
                                     //NSLog( @"Could not save to camera roll");
                                 }
                             }];
+                        } else {
+                            NSString *encodedString = [imageData base64Encoding];
+                            imageInfoDict[@"uri"] = [NSString stringWithFormat:@"data:image/jpg;base64,%@", encodedString];
+                            if (block) {
+                                block(imageInfoDict);
+                            }
                         }
                         
                         
