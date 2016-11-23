@@ -1,13 +1,8 @@
 package com.wix.RNCameraKit.gallery;
 
-import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
+import android.support.annotation.NonNull;
 
-import com.facebook.react.bridge.Promise;
-import com.facebook.react.bridge.ReactContext;
-import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.common.MapBuilder;
@@ -20,12 +15,8 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
-/**
- * Created by yedidyak on 30/06/2016.
- */
 public class GalleryViewManager extends SimpleViewManager<GalleryView> {
-
-    public static final int COMMAND_REFRESH_GALLERY = 1;
+    private static final int COMMAND_REFRESH_GALLERY = 1;
     private ThemedReactContext reactContext;
 
     @Override
@@ -61,11 +52,20 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
 
     @ReactProp(name = "selectedImages")
     public void setSelectedUris(GalleryView view, ReadableArray uris) {
+        view.setSelectedUris(readableArrayToList(uris));
+    }
+
+    @ReactProp(name = "dirtyImages")
+    public void setDirtyImages(final GalleryView view, final ReadableArray uris) {
+        view.setDirtyImages(readableArrayToList(uris));
+    }
+
+    private @NonNull ArrayList<String> readableArrayToList(ReadableArray uris) {
         ArrayList<String> list = new ArrayList<>();
         for(int i = 0; i < uris.size(); i++) {
             list.add(uris.getString(i));
         }
-        view.setSelectedUris(list);
+        return list;
     }
 
     @ReactProp(name = "selectedImageIcon")
@@ -172,7 +172,7 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
     @Nullable
     @Override
     public Map<String, Integer> getCommandsMap() {
-        return MapBuilder.of("rereshGalleryView", COMMAND_REFRESH_GALLERY);
+        return MapBuilder.of("refreshGalleryView", COMMAND_REFRESH_GALLERY);
     }
 
     @Override

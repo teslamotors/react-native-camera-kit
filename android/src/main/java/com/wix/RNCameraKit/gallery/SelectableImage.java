@@ -21,11 +21,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
-/**
- * Created by yedidyak on 30/06/2016.
- */
 public class SelectableImage extends FrameLayout {
-
     private static final int MINI_THUMB_HEIGHT = 512;
     private static final int MINI_THUMB_WIDTH = 384;
     public static final int MAX_SAMPLE_SIZE = 8;
@@ -98,10 +94,10 @@ public class SelectableImage extends FrameLayout {
         imageView.setScaleType(scaleType);
     }
 
-    public void bind(ThreadPoolExecutor executor, boolean selected, final Integer id, boolean supported) {
+    public void bind(ThreadPoolExecutor executor, boolean selected, boolean forceBind, final Integer id, boolean supported) {
         this.selected = selected;
         selectedView.setImageDrawable(selected ? selectedDrawable : unselectedDrawable);
-        if (this.id != id) {
+        if (this.id != id || forceBind) {
             this.id = id;
             imageView.setImageBitmap(null);
             imageView.setBackgroundColor(Color.LTGRAY);

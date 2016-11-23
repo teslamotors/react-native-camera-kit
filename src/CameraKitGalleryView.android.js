@@ -8,23 +8,20 @@ import _ from 'lodash';
 
 const GalleryView = requireNativeComponent('GalleryView', null);
 const ALL_PHOTOS = 'All Photos';
-export default class CameraKitGalleryView extends Component {
+const COMMAND_REFRESH_GALLERY = 1;
 
-  static propTypes = {
-      //TODO
-  };
+export default class CameraKitGalleryView extends Component {
 
   constructor(props) {
     super(props);
     this.onTapImage = this.onTapImage.bind(this);
   }
 
-  async refreshGalleryView(selectedImages = []) {
-
+  async refreshGalleryView(lastEditedImage = '') {
     UIManager.dispatchViewManagerCommand(
         ReactNative.findNodeHandle(this),
-        1,
-        [selectedImages]
+        COMMAND_REFRESH_GALLERY,
+        [lastEditedImage]
     );
     return true;
   }

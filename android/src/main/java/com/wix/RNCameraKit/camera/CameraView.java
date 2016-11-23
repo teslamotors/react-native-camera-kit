@@ -11,11 +11,7 @@ import com.facebook.react.uimanager.ThemedReactContext;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
-/**
- * Created by yedidyak on 04/07/2016.
- */
 public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
-
     private ThemedReactContext context;
     private SurfaceView surface;
 

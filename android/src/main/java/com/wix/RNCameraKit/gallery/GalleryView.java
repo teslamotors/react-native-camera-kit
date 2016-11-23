@@ -17,9 +17,6 @@ import com.facebook.react.uimanager.events.RCTEventEmitter;
 
 import java.util.ArrayList;
 
-/**
- * Created by yedidyak on 30/06/2016.
- */
 public class GalleryView extends RecyclerView {
 
     public void setUnsupportedUIParams(String overlayColor, Drawable unsupportedFinalImage, String unsupportedText, String unsupportedTextColor) {
@@ -28,7 +25,7 @@ public class GalleryView extends RecyclerView {
 
     private class GridLayoutViewManagerWrapper extends GridLayoutManager {
 
-        public GridLayoutViewManagerWrapper(Context context, int spanCount) {
+        GridLayoutViewManagerWrapper(Context context, int spanCount) {
             super(context, spanCount);
         }
 
@@ -96,6 +93,11 @@ public class GalleryView extends RecyclerView {
         adapter.notifyView();
     }
 
+    public void setDirtyImages(ArrayList<String> dirtyUris) {
+        adapter.setDirtyUris(dirtyUris);
+        adapter.notifyView();
+    }
+
     public void setSelectedDrawable(Drawable drawable) {
         adapter.setSelectedDrawable(drawable);
     }
@@ -112,11 +114,11 @@ public class GalleryView extends RecyclerView {
 
         private WritableMap event;
 
-        public TapImageEvent(String uri) {
+        TapImageEvent(String uri) {
             event = Arguments.createMap();
             event.putString("selected", uri);
             event.putString("id", "onTapImage");
-            init(0);
+            init(0, System.currentTimeMillis());
         }
 
         @Override

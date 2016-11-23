@@ -11,19 +11,17 @@ import android.widget.ImageView;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Created by yedidyak on 30/06/2016.
- */
 public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ImageHolder> {
-
     private String overlayColor;
     private Drawable unsupportedFinalImage;
     private String unsupportedText;
     private String unsupportedTextColor;
+    private List<String> dirtyUris = new ArrayList<>();
 
     private class Image {
         String uri;
@@ -54,6 +52,10 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ImageHol
 
     public void setSelectedUris(ArrayList<String> selectedUris) {
         this.selectedUris = selectedUris;
+    }
+
+    void setDirtyUris(List<String> dirtyUris) {
+        this.dirtyUris = dirtyUris;
     }
 
     public void setSelectedDrawable(Drawable selectedDrawable) {
@@ -99,7 +101,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ImageHol
         return 0;
     }
 
-    public void refreshData() {
+    void refreshData() {
         if (refreshing) return;
         refreshing = true;
 
@@ -139,7 +141,6 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ImageHol
         }).start();
     }
 
-
     public void notifyView() {
         notifyView(false);
     }
@@ -150,7 +151,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ImageHol
             public void run() {
                 if (!view.isComputingLayout()) {
                     view.swapAdapter(GalleryAdapter.this, false);
-                    if(refreshAll) {
+                    if (refreshAll) {
                         notifyItemRangeChanged(0, getItemCount());
                     }
                 } else {
@@ -177,20 +178,20 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ImageHol
     }
 
 
-
     @Override
     public void onBindViewHolder(final ImageHolder holder, final int position) {
-        final SelectableImage selectableImageView = (SelectableImage)holder.itemView;
+        final SelectableImage selectableImageView = (SelectableImage) holder.itemView;
         holder.image = images.get(position);
         boolean selected = (selectedUris.indexOf(holder.image.uri) + 1) > 0;
+        boolean forceBind = hasImageChanged(holder);
         final boolean supported = isSupported(holder.image);
         selectableImageView.setUnsupportedUIParams(overlayColor, unsupportedFinalImage, unsupportedText, unsupportedTextColor);
         selectableImageView.setDrawables(selectedDrawable, unselectedDrawable);
-        selectableImageView.bind(executor, selected, holder.image.id, supported);
+        selectableImageView.bind(executor, selected, forceBind, holder.image.id, supported);
         selectableImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(supported) {
+                if (supported) {
                     view.onTapImage(holder.image.uri);
                     v.setSelected(!v.isSelected());
                 } else {
@@ -200,16 +201,24 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ImageHol
         });
     }
 
+    private boolean hasImageChanged(ImageHolder holder) {
+        boolean hasImageChanged = (dirtyUris.indexOf(holder.image.uri)) >= 0;
+        if (hasImageChanged) {
+            dirtyUris.remove(holder.image.uri);
+        }
+        return hasImageChanged;
+    }
+
     @Override
     public long getItemId(int position) {
         return images.get(position).id;
     }
 
     private boolean isSupported(Image image) {
-        if(supportedFileTypes.isEmpty()) {
+        if (supportedFileTypes.isEmpty()) {
             return true;
         } else {
-            for(String supportedMime : supportedFileTypes) {
+            for (String supportedMime : supportedFileTypes) {
                 if (supportedMime == null) {
                     continue;
                 } else if (image.mimeType == null) {

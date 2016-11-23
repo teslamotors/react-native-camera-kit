@@ -4,7 +4,6 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.widget.ImageView;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
@@ -14,8 +13,6 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
-import com.facebook.stetho.common.StringUtil;
-import com.wix.RNCameraKit.Utils;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -154,19 +151,22 @@ public class NativeGalleryModule extends ReactContextBaseJavaModule {
 
         WritableArray arr = Arguments.createArray();
 
-        if(cursor.moveToFirst()) {
-            int dataIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
-            int sizeIndex = cursor.getColumnIndex(MediaStore.Images.Media.SIZE);
-            int nameIndex = cursor.getColumnIndex(MediaStore.Images.Media.TITLE);
-            int mimeIndex = cursor.getColumnIndex(MediaStore.Images.Media.MIME_TYPE);
-            do {
-                WritableMap map = Arguments.createMap();
-                map.putString("uri", "file://" + cursor.getString(dataIndex));
-                map.putInt("size", cursor.getInt(sizeIndex));
-                map.putString("mime_type", cursor.getString(mimeIndex));
-                map.putString("name", cursor.getString(nameIndex));
-                arr.pushMap(map);
-            } while (cursor.moveToNext());
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                int dataIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
+                int sizeIndex = cursor.getColumnIndex(MediaStore.Images.Media.SIZE);
+                int nameIndex = cursor.getColumnIndex(MediaStore.Images.Media.TITLE);
+                int mimeIndex = cursor.getColumnIndex(MediaStore.Images.Media.MIME_TYPE);
+                do {
+                    WritableMap map = Arguments.createMap();
+                    map.putString("uri", "file://" + cursor.getString(dataIndex));
+                    map.putInt("size", cursor.getInt(sizeIndex));
+                    map.putString("mime_type", cursor.getString(mimeIndex));
+                    map.putString("name", cursor.getString(nameIndex));
+                    arr.pushMap(map);
+                } while (cursor.moveToNext());
+            }
+            cursor.close();
         }
         WritableMap ret = Arguments.createMap();
         ret.putArray("images", arr);
