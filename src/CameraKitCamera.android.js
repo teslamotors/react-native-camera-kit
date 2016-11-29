@@ -20,7 +20,7 @@ export default class CameraKitCamera extends React.Component {
 	}
 
 	static async requestDeviceCameraAuthorization() {
-		return this.hasCameraPermission();
+		return await this.hasCameraPermission();
 	}
 
 	async capture(saveToCameraRoll = true) {
@@ -44,7 +44,7 @@ export default class CameraKitCamera extends React.Component {
 	}
 
 	static async checkDeviceCameraAuthorizationStatus() {
-		return this.hasCameraPermission();
+		return await this.hasCameraPermission();
 	}
 
 }

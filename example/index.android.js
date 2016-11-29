@@ -9,6 +9,10 @@ import {
     Image,
     Alert
 } from 'react-native';
+import {
+  CameraKitCamera,
+  CameraKitGallery
+} from 'react-native-camera-kit';
 
 import CameraScreen from  './CameraScreen';
 import AlbumsScreen from  './AlbumsScreen';
@@ -40,12 +44,6 @@ class example extends Component {
           <TouchableOpacity onPress={() => this.setState({example: AlbumsScreen})}>
             <Text style={styles.buttonText}>
               Albums Screen
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={this.onCheckAuthoPressed.bind(this)}>
-            <Text style={styles.buttonText}>
-              Check Autotization Status
             </Text>
           </TouchableOpacity>
 

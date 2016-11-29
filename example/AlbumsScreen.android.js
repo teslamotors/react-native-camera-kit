@@ -58,13 +58,14 @@ export default class AlbumsScreen extends Component {
   }
 
   _renderRow(rowData) {
-    const base64Image = 'data:image/png;base64,' + rowData.image;
+    const image = 'file://' + rowData.thumbUri;
+    //console.error(rowData)
     return (
         <View style={{flex:1, backgroundColor: '#95a5a6', flexDirection: 'row', padding: 8 }}>
           <Image
 
               style={{width: 60, height: 60, backgroundColor: 'white'}}
-              source={{uri: base64Image, scale: 3}}
+              source={{uri: image, scale: 3}}
           />
           <TouchableOpacity style={{alignSelf: 'center', padding: 4}} onPress={() => this.setState({albumName: rowData.albumName})}>
             <Text style={{fontSize: 18}}>{rowData.albumName}</Text>

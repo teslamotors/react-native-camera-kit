@@ -33,7 +33,7 @@ export default class CameraScreen extends Component {
 			albumsDS: ds,
 			shouldOpenCamera: false,
 			shouldShowListView: false,
-			image:{imageURI:""},
+			image: null,
 			flashMode:FLASH_MODE_AUTO
 		}
 	}
@@ -67,10 +67,13 @@ export default class CameraScreen extends Component {
 
 				<View style={{flexDirection: 'row'}}>
 
-					<Image
-						style={{ flexDirection:'row', backgroundColor: 'black', width: 100, height: 100}}
-						source={{uri: this.state.image.imageURI, scale: 3}}
-					/>
+
+          {this.state.image &&
+          <Image
+            style={{ flexDirection:'row', backgroundColor: 'black', width: 100, height: 100}}
+            source={{uri: this.state.image.imageURI, scale: 3}}
+          />}
+
 
 					<TouchableOpacity style={{alignSelf:'center', marginHorizontal: 4}} onPress={this.onLogData.bind(this)}>
 						<Text>log data</Text>
@@ -111,15 +114,6 @@ export default class CameraScreen extends Component {
 		const success = await this.camera.logData();
 	}
 
-	async onCheckAuthoPressed() {
-		const success = await CameraKitCamera.checkDeviceAuthorizarionStatus();
-		//if (success){
-		//	AlertIOS.alert('You rock!')
-		//}
-		//else {
-		//	AlertIOS.alert('You fucked!')
-		//}
-	}
 
 	async onSetFlash(flashMode) {
 		const success = await this.camera.setFlashMode(flashMode);
@@ -127,7 +121,7 @@ export default class CameraScreen extends Component {
 
 	async onTakeIt() {
 		const imageURI = await this.camera.capture(true);
-		let newImage = {imageURI: imageURI.uri};
+		let newImage = {imageURI: "file://" + imageURI.uri};
 
 		this.setState({...this.state, image:newImage});
 	}
