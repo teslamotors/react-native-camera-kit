@@ -162,8 +162,9 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         
         [self addSubview:self.focusView];
         
+        // defualts
         self.zoomMode = CKCameraZoomModeOn;
-        self.flashMode = CKCameraFlashModeOn;
+        self.flashMode = CKCameraFlashModeAuto;
         self.focusMode = CKCameraFocushModeOn;
     }
     
@@ -243,7 +244,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         if ( [self.session canAddInput:videoDeviceInput] ) {
             [self.session addInput:videoDeviceInput];
             self.videoDeviceInput = videoDeviceInput;
-            [CKCamera setFlashMode:AVCaptureFlashModeAuto forDevice:self.videoDeviceInput.device];
+            [CKCamera setFlashMode:self.flashMode forDevice:self.videoDeviceInput.device];
         }
         else {
             //NSLog( @"Could not add video device input to the session" );
@@ -430,6 +431,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 
 - (void)setFlashMode:(AVCaptureFlashMode)flashMode callback:(CallbackBlock)block {
+    _flashMode = flashMode;
     [CKCamera setFlashMode:flashMode forDevice:self.videoDeviceInput.device];
     if (block) {
         block(self.videoDeviceInput.device.flashMode == flashMode);
@@ -585,7 +587,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         if ( [self.session canAddInput:videoDeviceInput] ) {
             [[NSNotificationCenter defaultCenter] removeObserver:self name:AVCaptureDeviceSubjectAreaDidChangeNotification object:currentVideoDevice];
             
-            [CKCamera setFlashMode:AVCaptureFlashModeAuto forDevice:videoDevice];
+            [CKCamera setFlashMode:self.flashMode forDevice:videoDevice];
             [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(subjectAreaDidChange:) name:AVCaptureDeviceSubjectAreaDidChangeNotification object:videoDevice];
             
             [self.session addInput:videoDeviceInput];
