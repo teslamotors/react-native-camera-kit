@@ -210,9 +210,12 @@ RCT_EXPORT_METHOD(getImagesForIds:(NSArray*)imagesIdArray
             
             NSUInteger originalArrayIndex = [imagesIdArray indexOfObject:assetLocalId];
             
+            NSNumber *width = asset.pixelWidth ? [NSNumber numberWithInt:asset.pixelWidth] : [NSNumber numberWithInt:0];
+            NSNumber *height = asset.pixelHeight ? [NSNumber numberWithInt:asset.pixelHeight] : [NSNumber numberWithInt:0];
+            
             [assetsArray replaceObjectAtIndex:originalArrayIndex withObject:@{@"uri": assetInfoDict[@"uri"],
-                                                                              @"width": @(asset.pixelWidth),
-                                                                              @"height": @(asset.pixelHeight),
+                                                                              @"width": width,
+                                                                              @"height": height,
                                                                               @"size": assetInfoDict[@"size"],
                                                                               @"name": assetInfoDict[@"name"],
                                                                               @"id": assetLocalId}];
