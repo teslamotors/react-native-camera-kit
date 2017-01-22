@@ -31,6 +31,8 @@ public class NativeGalleryModule extends ReactContextBaseJavaModule {
         MediaStore.Images.Media.SIZE,
         MediaStore.Images.Media.MIME_TYPE,
         MediaStore.Images.Media.TITLE,
+        MediaStore.Images.Media.WIDTH,
+        MediaStore.Images.Media.HEIGHT,
         MediaStore.Images.Media.DATA
     };
     public static final String ALL_PHOTOS = "All Photos";
@@ -157,10 +159,14 @@ public class NativeGalleryModule extends ReactContextBaseJavaModule {
                 int sizeIndex = cursor.getColumnIndex(MediaStore.Images.Media.SIZE);
                 int nameIndex = cursor.getColumnIndex(MediaStore.Images.Media.TITLE);
                 int mimeIndex = cursor.getColumnIndex(MediaStore.Images.Media.MIME_TYPE);
+                int widthIndex = cursor.getColumnIndex(MediaStore.Images.Media.WIDTH);
+                int heightIndex = cursor.getColumnIndex(MediaStore.Images.Media.HEIGHT);
                 do {
                     WritableMap map = Arguments.createMap();
                     map.putString("uri", "file://" + cursor.getString(dataIndex));
                     map.putInt("size", cursor.getInt(sizeIndex));
+                    map.putInt("width", cursor.getInt(widthIndex));
+                    map.putInt("height", cursor.getInt(heightIndex));
                     map.putString("mime_type", cursor.getString(mimeIndex));
                     map.putString("name", cursor.getString(nameIndex));
                     arr.pushMap(map);
