@@ -211,6 +211,8 @@ RCT_EXPORT_METHOD(getImagesForIds:(NSArray*)imagesIdArray
             NSUInteger originalArrayIndex = [imagesIdArray indexOfObject:assetLocalId];
             
             [assetsArray replaceObjectAtIndex:originalArrayIndex withObject:@{@"uri": assetInfoDict[@"uri"],
+                                                                              @"width": @(asset.pixelWidth),
+                                                                              @"height": @(asset.pixelHeight),
                                                                               @"size": assetInfoDict[@"size"],
                                                                               @"name": assetInfoDict[@"name"],
                                                                               @"id": assetLocalId}];
