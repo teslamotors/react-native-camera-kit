@@ -6,6 +6,7 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 
 import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
@@ -13,6 +14,7 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
+import com.wix.RNCameraKit.gallery.permission.StoragePermission;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -36,6 +38,7 @@ public class NativeGalleryModule extends ReactContextBaseJavaModule {
         MediaStore.Images.Media.DATA
     };
     public static final String ALL_PHOTOS = "All Photos";
+    private Promise checkPermissionStatusPromise;
 
     private class Album {
         String name;
@@ -65,8 +68,39 @@ public class NativeGalleryModule extends ReactContextBaseJavaModule {
         }
     }
 
+    private final StoragePermission storagePermission;
+
     public NativeGalleryModule(ReactApplicationContext reactContext) {
         super(reactContext);
+        storagePermission = new StoragePermission();
+        checkPermissionWhenActivityIsAvailable();
+    }
+
+    private void checkPermissionWhenActivityIsAvailable() {
+        getReactApplicationContext().addLifecycleEventListener(new LifecycleEventListener() {
+            @Override
+            public void onHostResume() {
+                if (checkPermissionStatusPromise != null  && getCurrentActivity() != null) {
+                    getCurrentActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            checkPermissionStatusPromise.resolve(storagePermission.checkAuthorizationStatus(getCurrentActivity()));
+                            checkPermissionStatusPromise = null;
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onHostPause() {
+
+            }
+
+            @Override
+            public void onHostDestroy() {
+
+            }
+        });
     }
 
     @Override
@@ -107,6 +141,29 @@ public class NativeGalleryModule extends ReactContextBaseJavaModule {
             thumbId,
             MediaStore.Images.Thumbnails.MINI_KIND,
             null);
+    }
+
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        storagePermission.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @ReactMethod
+    public void checkDeviceStorageAuthorizationStatus(final Promise promise) {
+        if (getCurrentActivity() == null) {
+            checkPermissionStatusPromise = promise;
+        } else {
+            getCurrentActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    promise.resolve(storagePermission.checkAuthorizationStatus(getCurrentActivity()));
+                }
+            });
+        }
+    }
+
+    @ReactMethod
+    public void requestDeviceStorageAuthorization(Promise promise) {
+        storagePermission.requestAccess(getCurrentActivity(), promise);
     }
 
     @ReactMethod

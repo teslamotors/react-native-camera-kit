@@ -13,11 +13,13 @@ async function getImagesForIds(imagesUris = []) {
 }
 
 async function checkDevicePhotosAuthorizationStatus() {
-  return true;
+  const isAuthorized = await NativeGalleryModule.checkDeviceStorageAuthorizationStatus();
+  return isAuthorized;
 }
 
 async function requestDevicePhotosAuthorization() {
-  return true;
+  const isAuthorized = await NativeGalleryModule.requestDeviceStorageAuthorization();
+  return isAuthorized;
 }
 
 export default {
