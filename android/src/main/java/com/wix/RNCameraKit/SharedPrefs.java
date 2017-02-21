@@ -15,7 +15,7 @@ public class SharedPrefs {
     }
 
     private static SharedPreferences prefs(Context context) {
-        return context.getSharedPreferences("MEDIA_MANAGER", Context.MODE_PRIVATE);
+        return context.getSharedPreferences("RN_CAMERA_KIT", Context.MODE_PRIVATE);
     }
 
 
