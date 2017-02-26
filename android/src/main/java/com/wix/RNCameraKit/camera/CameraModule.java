@@ -1,24 +1,70 @@
 package com.wix.RNCameraKit.camera;
 
-import android.Manifest;
 import android.hardware.Camera;
-import android.support.v4.content.PermissionChecker;
 
+import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.wix.RNCameraKit.camera.commands.Capture;
+import com.wix.RNCameraKit.camera.permission.CameraPermission;
 
 public class CameraModule extends ReactContextBaseJavaModule {
 
+    private final CameraPermission cameraPermission;
+    private Promise checkPermissionStatusPromise;
+
     public CameraModule(ReactApplicationContext reactContext) {
         super(reactContext);
+        cameraPermission = new CameraPermission();
+        checkPermissionWhenActivityIsAvailable();
+    }
+
+    private void checkPermissionWhenActivityIsAvailable() {
+        getReactApplicationContext().addLifecycleEventListener(new LifecycleEventListener() {
+            @Override
+            public void onHostResume() {
+                if (checkPermissionStatusPromise != null  && getCurrentActivity() != null) {
+                    getCurrentActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            checkPermissionStatusPromise.resolve(cameraPermission.checkAuthorizationStatus(getCurrentActivity()));
+                            checkPermissionStatusPromise = null;
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onHostPause() {
+
+            }
+
+            @Override
+            public void onHostDestroy() {
+
+            }
+        });
     }
 
     @Override
     public String getName() {
         return "CameraModule";
+    }
+
+    @ReactMethod
+    public void checkDeviceCameraAuthorizationStatus(Promise promise) {
+        if (getCurrentActivity() == null) {
+            checkPermissionStatusPromise = promise;
+        } else {
+            promise.resolve(cameraPermission.checkAuthorizationStatus(getCurrentActivity()));
+        }
+    }
+
+    @ReactMethod
+    public void requestDeviceCameraAuthorization(Promise promise) {
+        cameraPermission.requestAccess(getCurrentActivity(), promise);
     }
 
     @ReactMethod
@@ -63,10 +109,7 @@ public class CameraModule extends ReactContextBaseJavaModule {
         new Capture(getReactApplicationContext()).execute(promise);
     }
 
-    @ReactMethod
-    public void hasCameraPermission(Promise promise) {
-        boolean hasPermission = PermissionChecker.checkSelfPermission(getReactApplicationContext(), Manifest.permission.CAMERA)
-                == PermissionChecker.PERMISSION_GRANTED;
-        promise.resolve(hasPermission);
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        cameraPermission.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 }
