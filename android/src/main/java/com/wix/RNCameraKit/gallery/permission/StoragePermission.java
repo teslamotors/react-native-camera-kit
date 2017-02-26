@@ -73,6 +73,6 @@ public class StoragePermission {
     }
 
     private boolean isReadWritePermissionsGranted(Activity activity) {
-        return checkAuthorizationStatus(activity) == PERMISSION_DENIED;
+        return checkAuthorizationStatus(activity) == PERMISSION_GRANTED;
     }
 }
