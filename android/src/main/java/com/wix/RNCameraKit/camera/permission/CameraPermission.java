@@ -17,6 +17,9 @@ public class CameraPermission {
     private Promise requestAccessPromise;
 
     public void requestAccess(Activity activity, Promise promise) {
+        if (isPermissionGranted(activity)) {
+            promise.resolve(true);
+        }
         requestAccessPromise = promise;
         permissionRequested(activity, Manifest.permission.CAMERA);
         ActivityCompat.requestPermissions(activity,
@@ -52,5 +55,9 @@ public class CameraPermission {
 
     private void permissionRequested(Activity activity, String permissionName) {
         SharedPrefs.putBoolean(activity, permissionName, true);
+    }
+
+    private boolean isPermissionGranted(Activity activity) {
+        return checkAuthorizationStatus(activity) == PermissionChecker.PERMISSION_GRANTED;
     }
 }

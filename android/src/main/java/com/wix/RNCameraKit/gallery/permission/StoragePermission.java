@@ -16,6 +16,9 @@ public class StoragePermission {
     private Promise requestAccessPromise;
 
     public void requestAccess(Activity activity, Promise promise) {
+        if (isReadWritePermissionsGranted(activity)) {
+            promise.resolve(true);
+        }
         requestAccessPromise = promise;
         permissionRequested(activity, Manifest.permission.READ_EXTERNAL_STORAGE);
         permissionRequested(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
@@ -67,5 +70,9 @@ public class StoragePermission {
 
     private void permissionRequested(Activity activity, String permissionName) {
         SharedPrefs.putBoolean(activity, permissionName, true);
+    }
+
+    private boolean isReadWritePermissionsGranted(Activity activity) {
+        return checkAuthorizationStatus(activity) == PERMISSION_DENIED;
     }
 }
