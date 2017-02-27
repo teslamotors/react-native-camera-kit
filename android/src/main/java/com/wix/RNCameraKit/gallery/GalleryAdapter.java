@@ -57,7 +57,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
         @Override
         public void onClick(View v) {
             if (this.isSupported) {
-                view.onTapImage(ImageHolder.this.image.uri);
+                view.onTapImage(this.image.uri);
                 v.setSelected(!v.isSelected());
             }
         }
@@ -244,14 +244,14 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
             @Override
             public void run() {
                 if (!view.isComputingLayout()) {
+                    if (Math.min(preCount, postCount) > 0) {
+                        notifyItemRangeChanged(0, Math.min(preCount, postCount));
+                    }
+
                     if (postCount > preCount) {
                         notifyItemRangeInserted(preCount, postCount - preCount);
                     } else if (postCount < preCount) {
                         notifyItemRangeRemoved(postCount, preCount - postCount);
-                    }
-
-                    if (preCount > 0) {
-                        notifyItemRangeChanged(0, Math.min(preCount, postCount));
                     }
                 } else {
                     view.postDelayed(new Runnable() {
