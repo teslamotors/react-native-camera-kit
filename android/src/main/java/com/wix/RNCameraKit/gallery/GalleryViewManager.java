@@ -16,7 +16,15 @@ import java.util.Map;
 import javax.annotation.Nullable;
 
 public class GalleryViewManager extends SimpleViewManager<GalleryView> {
+
     private static final int COMMAND_REFRESH_GALLERY = 1;
+
+    private final String UNSUPPORTED_IMAGE_KEY = "unsupportedImage";
+    private final String UNSUPPORTED_TEXT_KEY = "unsupportedText";
+    private final String UNSUPPORTED_TEXT_COLOR_KEY = "unsupportedTextColor";
+    private final String SUPPORTED_TYPES_KEY = "supportedFileTypes";
+    private final String UNSUPPORTED_OVERLAY_KEY = "unsupportedOverlayColor";
+
     private ThemedReactContext reactContext;
 
     @Override
@@ -28,6 +36,11 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
     protected GalleryView createViewInstance(ThemedReactContext reactContext) {
         this.reactContext = reactContext;
         return new GalleryView(reactContext);
+    }
+
+    @Override
+    protected void onAfterUpdateTransaction(GalleryView view) {
+        view.refresh();
     }
 
     @ReactProp(name = "albumName")
@@ -56,16 +69,13 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
     }
 
     @ReactProp(name = "dirtyImages")
-    public void setDirtyImages(final GalleryView view, final ReadableArray uris) {
+    public void setDirtyImages(GalleryView view, final ReadableArray uris) {
         view.setDirtyImages(readableArrayToList(uris));
     }
 
-    private @NonNull ArrayList<String> readableArrayToList(ReadableArray uris) {
-        ArrayList<String> list = new ArrayList<>();
-        for(int i = 0; i < uris.size(); i++) {
-            list.add(uris.getString(i));
-        }
-        return list;
+    @ReactProp(name = "dirtyImages")
+    public void setEmbedCameraButton(GalleryView view, boolean embedCamera) {
+        view.setEmbedCameraButton(embedCamera);
     }
 
     @ReactProp(name = "selectedImageIcon")
@@ -108,19 +118,6 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
 //                unsupportedTextColor: '#ffffff'
 //    }}
 
-    private final String UNSUPPORTED_IMAGE_KEY = "unsupportedImage";
-    private final String UNSUPPORTED_TEXT_KEY = "unsupportedText";
-    private final String UNSUPPORTED_TEXT_COLOR_KEY = "unsupportedTextColor";
-    private final String SUPPORTED_TYPES_KEY = "supportedFileTypes";
-    private final String UNSUPPORTED_OVERLAY_KEY = "unsupportedOverlayColor";
-
-    private @Nullable String getStringSafe(ReadableMap map, String key) {
-        if(map.hasKey(key)) {
-            return map.getString(key);
-        }
-        return null;
-    }
-
     @ReactProp(name = "fileTypeSupport")
     public void setFileTypeSupport(final GalleryView view, final ReadableMap fileTypeSupport) {
         final ReadableArray supportedFileTypes = fileTypeSupport.getArray(SUPPORTED_TYPES_KEY);
@@ -153,12 +150,10 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
                                 unsupportedText,
                                 unsupportedTextColor);
                         view.setSupportedFileTypes(supportedFileTypesList);
-                        view.refresh();
                     }
                 });
             }
         }).start();
-
     }
 
     @Nullable
@@ -180,5 +175,20 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
         if (commandId == COMMAND_REFRESH_GALLERY) {
             root.refresh();
         }
+    }
+
+    private @Nullable String getStringSafe(ReadableMap map, String key) {
+        if(map.hasKey(key)) {
+            return map.getString(key);
+        }
+        return null;
+    }
+
+    private @NonNull ArrayList<String> readableArrayToList(ReadableArray uris) {
+        ArrayList<String> list = new ArrayList<>();
+        for(int i = 0; i < uris.size(); i++) {
+            list.add(uris.getString(i));
+        }
+        return list;
     }
 }

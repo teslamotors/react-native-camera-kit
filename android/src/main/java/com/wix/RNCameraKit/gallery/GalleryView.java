@@ -19,10 +19,6 @@ import java.util.ArrayList;
 
 public class GalleryView extends RecyclerView {
 
-    public void setUnsupportedUIParams(String overlayColor, Drawable unsupportedFinalImage, String unsupportedText, String unsupportedTextColor) {
-        adapter.setUnsupportedUIParams(overlayColor, unsupportedFinalImage, unsupportedText, unsupportedTextColor);
-    }
-
     private class GridLayoutViewManagerWrapper extends GridLayoutManager {
 
         GridLayoutViewManagerWrapper(Context context, int spanCount) {
@@ -90,12 +86,10 @@ public class GalleryView extends RecyclerView {
 
     public void setSelectedUris(ArrayList<String> selectedUris) {
         adapter.setSelectedUris(selectedUris);
-        adapter.notifyView();
     }
 
     public void setDirtyImages(ArrayList<String> dirtyUris) {
         adapter.setDirtyUris(dirtyUris);
-        adapter.notifyView();
     }
 
     public void setSelectedDrawable(Drawable drawable) {
@@ -104,6 +98,14 @@ public class GalleryView extends RecyclerView {
 
     public void setUnselectedDrawable(Drawable drawable) {
         adapter.setUnselectedDrawable(drawable);
+    }
+
+    public void setUnsupportedUIParams(String overlayColor, Drawable unsupportedFinalImage, String unsupportedText, String unsupportedTextColor) {
+        adapter.setUnsupportedUIParams(overlayColor, unsupportedFinalImage, unsupportedText, unsupportedTextColor);
+    }
+
+    public void setEmbedCameraButton(boolean embedCamera) {
+        adapter.setEmbedCameraButton(embedCamera);
     }
 
     public void refresh() {
