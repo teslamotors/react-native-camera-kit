@@ -43,23 +43,26 @@ export default class GalleryScreenNative extends Component {
     return (
         <CameraKitGalleryView
             ref={(gallery) => {
-                  this.gallery = gallery;
-                }}
+                this.gallery = gallery;
+            }}
             style={{flex:1, margin: 0, backgroundColor: '#ffffff', marginTop: 50}}
             albumName={this.state.album}
             minimumInteritemSpacing={10}
             minimumLineSpacing={10}
             columnCount={3}
             onSelected={(result) => {
-
-        }}
+            }}
             fileTypeSupport={{
-                      supportedFileTypes: ['image/png'],
-                      unsupportedOverlayColor: "#00000055",
-                      unsupportedImage: require('./images/unsupportedImage.png'),
-                      //unsupportedText: 'JPEG!!',
-                      unsupportedTextColor: '#ff0000'
-          }}
+                supportedFileTypes: ['image/png'],
+                unsupportedOverlayColor: "#00000055",
+                unsupportedImage: require('./images/unsupportedImage.png'),
+                //unsupportedText: 'JPEG!!',
+                unsupportedTextColor: '#ff0000'
+            }}
+            customButton={{
+                customImage: require('./images/openCamera.png'),
+                backgroundColor: '#654321'
+            }}
         />
     )
   }
