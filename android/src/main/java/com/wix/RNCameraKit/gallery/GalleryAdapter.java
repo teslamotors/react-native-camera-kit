@@ -112,7 +112,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
     private String unsupportedText;
     private String unsupportedTextColor;
     private List<String> dirtyUris = new ArrayList<>();
-    private boolean embedCameraButton = true;
+    private boolean embedCameraButton;
 
     private class Image {
         String uri;
