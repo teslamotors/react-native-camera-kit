@@ -104,8 +104,12 @@ public class GalleryView extends RecyclerView {
         adapter.setUnsupportedUIParams(overlayColor, unsupportedFinalImage, unsupportedText, unsupportedTextColor);
     }
 
-    public void setEmbedCameraButton(boolean embedCamera) {
-        adapter.setEmbedCameraButton(embedCamera);
+    public void setCustomButtonImage(Drawable customButtonImage) {
+        adapter.setCustomButtonImage(customButtonImage);
+    }
+
+    public void setCustomButtonBackgroundColor(String color) {
+        adapter.setCustomButtonBackgroundColor(color);
     }
 
     public void refresh() {

@@ -24,6 +24,8 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
     private final String UNSUPPORTED_TEXT_COLOR_KEY = "unsupportedTextColor";
     private final String SUPPORTED_TYPES_KEY = "supportedFileTypes";
     private final String UNSUPPORTED_OVERLAY_KEY = "unsupportedOverlayColor";
+    private final String CUSTOM_BUTTON_IMAGE_KEY = "customImage";
+    private final String CUSTOM_BUTTON_BCK_COLOR_KEY = "backgroundColor";
 
     private ThemedReactContext reactContext;
 
@@ -71,11 +73,6 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
     @ReactProp(name = "dirtyImages")
     public void setDirtyImages(GalleryView view, final ReadableArray uris) {
         view.setDirtyImages(readableArrayToList(uris));
-    }
-
-    @ReactProp(name = "dirtyImages")
-    public void setEmbedCameraButton(GalleryView view, boolean embedCamera) {
-        view.setEmbedCameraButton(embedCamera);
     }
 
     @ReactProp(name = "selectedImageIcon")
@@ -150,6 +147,27 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
                                 unsupportedText,
                                 unsupportedTextColor);
                         view.setSupportedFileTypes(supportedFileTypesList);
+                    }
+                });
+            }
+        }).start();
+    }
+
+    @ReactProp(name = "customButton")
+    public void setCustomButton(final GalleryView view, final ReadableMap props) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final String imageResource = getStringSafe(props, CUSTOM_BUTTON_IMAGE_KEY);
+                final String backgroundColor = getStringSafe(props, CUSTOM_BUTTON_BCK_COLOR_KEY);
+                final Drawable drawable = ResourceDrawableIdHelper.getIcon(view.getContext(), imageResource);
+                reactContext.runOnUiQueueThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        view.setCustomButtonImage(drawable);
+                        if (backgroundColor != null) {
+                            view.setCustomButtonBackgroundColor(backgroundColor);
+                        }
                     }
                 });
             }

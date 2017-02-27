@@ -1,11 +1,11 @@
+import _ from 'lodash';
 import React, {Component} from 'react';
 import ReactNative, {
     requireNativeComponent,
     UIManager
 } from 'react-native';
-const resolveAssetSource = require('react-native/Libraries/Image/resolveAssetSource');
-import _ from 'lodash';
 
+const resolveAssetSource = require('react-native/Libraries/Image/resolveAssetSource');
 const GalleryView = requireNativeComponent('GalleryView', null);
 const ALL_PHOTOS = 'All Photos';
 const COMMAND_REFRESH_GALLERY = 1;
@@ -31,6 +31,9 @@ export default class CameraKitGalleryView extends Component {
     transformedProps.albumName = this.props.albumName ? this.props.albumName : ALL_PHOTOS;
     if (transformedProps.fileTypeSupport && transformedProps.fileTypeSupport.unsupportedImage) {
       _.update(transformedProps, 'fileTypeSupport.unsupportedImage', (image) => resolveAssetSource(image).uri);
+    }
+    if (_.get(transformedProps, 'customButton.customImage')) {
+      _.update(transformedProps, 'customButton.customImage', (image) => resolveAssetSource(image).uri);
     }
     return <GalleryView {...transformedProps} onTapImage={this.onTapImage}/>
   }

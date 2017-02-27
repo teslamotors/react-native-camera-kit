@@ -9,8 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.wix.RNCameraKit.R;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -19,6 +17,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewHolder> {
+
+    private static final String DEFAULT_CUSTOM_BUTTON_BACKGROUND_COLOR = "#f2f4f5";
 
     private static int VIEW_TYPE_IMAGE = 0;
     private static int VIEW_TYPE_TAKE_PICTURE = 1;
@@ -101,9 +101,9 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
         @Override
         public void bind(int position) {
             ImageView imageView = (ImageView) this.itemView;
-            imageView.setImageResource(R.drawable.open_camera);
+            imageView.setImageDrawable(GalleryAdapter.this.customButtonImage);
             imageView.setScaleType(ImageView.ScaleType.CENTER);
-            imageView.setBackgroundColor(Color.parseColor("#f2f4f5"));
+            imageView.setBackgroundColor(Color.parseColor(GalleryAdapter.this.customButtonBackgroundColor));
         }
     }
 
@@ -112,7 +112,8 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
     private String unsupportedText;
     private String unsupportedTextColor;
     private List<String> dirtyUris = new ArrayList<>();
-    private boolean embedCameraButton;
+    private Drawable customButtonImage;
+    private String customButtonBackgroundColor = DEFAULT_CUSTOM_BUTTON_BACKGROUND_COLOR;
 
     private class Image {
         String uri;
@@ -161,8 +162,12 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
         this.supportedFileTypes = supportedFileTypes;
     }
 
-    public void setEmbedCameraButton(boolean embedCamera) {
-        this.embedCameraButton = embedCamera;
+    public void setCustomButtonImage(Drawable customButtonImage) {
+        this.customButtonImage = customButtonImage;
+    }
+
+    public void setCustomButtonBackgroundColor(String color) {
+        this.customButtonBackgroundColor = color;
     }
 
     private GalleryView view;
@@ -182,7 +187,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
 
     @Override
     public int getItemViewType(int position) {
-        if (shouldShowCameraButton() && position == 0) {
+        if (shouldShowCustomButton() && position == 0) {
             return VIEW_TYPE_TAKE_PICTURE;
         }
         return VIEW_TYPE_IMAGE;
@@ -223,7 +228,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
                     } while (cursor.moveToNext());
                 }
 
-                if (shouldShowCameraButton()) {
+                if (shouldShowCustomButton()) {
                     images.add(new Image(null, -1, ""));
                 }
                 Collections.reverse(images);
@@ -299,7 +304,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
         return images.size();
     }
 
-    private boolean shouldShowCameraButton() {
-        return embedCameraButton;
+    private boolean shouldShowCustomButton() {
+        return customButtonImage != null;
     }
 }
