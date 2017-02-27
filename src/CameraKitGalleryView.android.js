@@ -35,6 +35,9 @@ export default class CameraKitGalleryView extends Component {
     if (_.get(transformedProps, 'customButton.customImage')) {
       _.update(transformedProps, 'customButton.customImage', (image) => resolveAssetSource(image).uri);
     }
+    if (transformedProps.selectedImageIcon) {
+      transformedProps.selectedImageIcon = resolveAssetSource(transformedProps.selectedImageIcon).uri;
+    }
     return <GalleryView {...transformedProps} onTapImage={this.onTapImage}/>
   }
 
