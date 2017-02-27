@@ -52,8 +52,9 @@ export default class GalleryScreenNative extends Component {
             columnCount={3}
             onSelected={(result) => {
             }}
+            selectedImageIcon={require('./images/wix_logo.png')}
             fileTypeSupport={{
-                supportedFileTypes: ['image/png'],
+                supportedFileTypes: ['image/jpeg'],
                 unsupportedOverlayColor: "#00000055",
                 unsupportedImage: require('./images/unsupportedImage.png'),
                 //unsupportedText: 'JPEG!!',
@@ -61,7 +62,7 @@ export default class GalleryScreenNative extends Component {
             }}
             customButton={{
                 customImage: require('./images/openCamera.png'),
-                backgroundColor: '#654321'
+                backgroundColor: '#2dcedb'
             }}
         />
     )
