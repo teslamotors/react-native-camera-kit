@@ -1,7 +1,10 @@
 package com.wix.RNCameraKit.gallery;
 
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.support.annotation.NonNull;
+import android.view.View;
 
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
@@ -29,6 +32,16 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
 
     private ThemedReactContext reactContext;
 
+    /**
+     * A handler is required in order to sync configurations made to the adapter - some must run off the UI thread (e.g. drawables
+     * fetching), so that the finalizing call to refreshData() (from within {@link #onAfterUpdateTransaction(View)}) will be made
+     * <u>strictly after all configurations have settled in</u>.
+     *
+     * <p>Note: It is not mandatory to invoke <b>all</b> config set-ups via the handler, but we do so anyway so as to avoid
+     * races between multiple threads.</p>
+     */
+    private Handler adapterConfigHandler;
+
     @Override
     public String getName() {
         return "GalleryView";
@@ -38,14 +51,23 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
     protected GalleryView createViewInstance(ThemedReactContext reactContext) {
         this.reactContext = reactContext;
 
+        final HandlerThread handlerThread = new HandlerThread("GalleryViewManager.configThread");
+        handlerThread.start();
+        adapterConfigHandler = new Handler(handlerThread.getLooper());
+
         GalleryView view = new GalleryView(reactContext);
         view.setAdapter(new GalleryAdapter(view));
         return view;
     }
 
     @Override
-    protected void onAfterUpdateTransaction(GalleryView view) {
-        getViewAdapter(view).refreshData();
+    protected void onAfterUpdateTransaction(final GalleryView view) {
+        dispatchOnConfigJobQueue(new Runnable() {
+            @Override
+            public void run() {
+                getViewAdapter(view).refreshData();
+            }
+        });
     }
 
     @ReactProp(name = "minimumInteritemSpacing")
@@ -59,8 +81,13 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
     }
 
     @ReactProp(name = "albumName")
-    public void setAlbumName(GalleryView view, String albumName) {
-        getViewAdapter(view).setAlbum(albumName);
+    public void setAlbumName(final GalleryView view, final String albumName) {
+        dispatchOnConfigJobQueue(new Runnable() {
+            @Override
+            public void run() {
+                getViewAdapter(view).setAlbum(albumName);
+            }
+        });
     }
 
     @ReactProp(name = "columnCount")
@@ -69,45 +96,45 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
     }
 
     @ReactProp(name = "selectedImages")
-    public void setSelectedUris(GalleryView view, ReadableArray uris) {
-        getViewAdapter(view).setSelectedUris(readableArrayToList(uris));
+    public void setSelectedUris(final GalleryView view, final ReadableArray uris) {
+        dispatchOnConfigJobQueue(new Runnable() {
+            @Override
+            public void run() {
+                getViewAdapter(view).setSelectedUris(readableArrayToList(uris));
+            }
+        });
     }
 
     @ReactProp(name = "dirtyImages")
-    public void setDirtyImages(GalleryView view, final ReadableArray uris) {
-        getViewAdapter(view).setDirtyUris(readableArrayToList(uris));
+    public void setDirtyImages(final GalleryView view, final ReadableArray uris) {
+        dispatchOnConfigJobQueue(new Runnable() {
+            @Override
+            public void run() {
+                getViewAdapter(view).setDirtyUris(readableArrayToList(uris));
+            }
+        });
     }
 
     @ReactProp(name = "selectedImageIcon")
     public void setSelectedImage(final GalleryView view, final String imageSource) {
-        new Thread(new Runnable() {
+        dispatchOnConfigJobQueue(new Runnable() {
             @Override
             public void run() {
                 final Drawable drawable = ResourceDrawableIdHelper.getIcon(view.getContext(), imageSource);
-                reactContext.runOnUiQueueThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        getViewAdapter(view).setSelectedDrawable(drawable);
-                    }
-                });
+                getViewAdapter(view).setSelectedDrawable(drawable);
             }
-        }).start();
+        });
     }
 
     @ReactProp(name = "unSelectedImageIcon")
     public void setUnselectedImage(final GalleryView view, final String imageSource) {
-        new Thread(new Runnable() {
+        dispatchOnConfigJobQueue(new Runnable() {
             @Override
             public void run() {
                 final Drawable drawable = ResourceDrawableIdHelper.getIcon(view.getContext(), imageSource);
-                reactContext.runOnUiQueueThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        getViewAdapter(view).setUnselectedDrawable(drawable);
-                    }
-                });
+                getViewAdapter(view).setUnselectedDrawable(drawable);
             }
-        }).start();
+        });
     }
 
     @ReactProp(name = "fileTypeSupport")
@@ -118,7 +145,7 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
         final String unsupportedText = getStringSafe(fileTypeSupport, UNSUPPORTED_TEXT_KEY);
         final String unsupportedTextColor = getStringSafe(fileTypeSupport, UNSUPPORTED_TEXT_COLOR_KEY);
 
-        new Thread(new Runnable() {
+        dispatchOnConfigJobQueue(new Runnable() {
             @Override
             public void run() {
                 Drawable unsupportedImage = null;
@@ -133,41 +160,32 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
                     }
                 }
 
-                reactContext.runOnUiQueueThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        getViewAdapter(view)
-                                .setUnsupportedUIParams(
-                                    unsupportedOverlayColor,
-                                    unsupportedFinalImage,
-                                    unsupportedText,
-                                    unsupportedTextColor);
-                        getViewAdapter(view).setSupportedFileTypes(supportedFileTypesList);
-                    }
-                });
+                getViewAdapter(view)
+                        .setUnsupportedUIParams(
+                                unsupportedOverlayColor,
+                                unsupportedFinalImage,
+                                unsupportedText,
+                                unsupportedTextColor);
+                getViewAdapter(view).setSupportedFileTypes(supportedFileTypesList);
             }
-        }).start();
+        });
     }
 
     @ReactProp(name = "customButtonStyle")
     public void setCustomButton(final GalleryView view, final ReadableMap props) {
-        new Thread(new Runnable() {
+        dispatchOnConfigJobQueue(new Runnable() {
             @Override
             public void run() {
                 final String imageResource = getStringSafe(props, CUSTOM_BUTTON_IMAGE_KEY);
                 final String backgroundColor = getStringSafe(props, CUSTOM_BUTTON_BCK_COLOR_KEY);
                 final Drawable drawable = ResourceDrawableIdHelper.getIcon(view.getContext(), imageResource);
-                reactContext.runOnUiQueueThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        getViewAdapter(view).setCustomButtonImage(drawable);
-                        if (backgroundColor != null) {
-                            getViewAdapter(view).setCustomButtonBackgroundColor(backgroundColor);
-                        }
-                    }
-                });
+
+                getViewAdapter(view).setCustomButtonImage(drawable);
+                if (backgroundColor != null) {
+                    getViewAdapter(view).setCustomButtonBackgroundColor(backgroundColor);
+                }
             }
-        }).start();
+        });
     }
 
     @Nullable
@@ -190,6 +208,10 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
         if (commandId == COMMAND_REFRESH_GALLERY) {
             getViewAdapter(view).refreshData();
         }
+    }
+
+    private void dispatchOnConfigJobQueue(Runnable runnable) {
+        adapterConfigHandler.post(runnable);
     }
 
     private @Nullable String getStringSafe(ReadableMap map, String key) {
