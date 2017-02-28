@@ -52,6 +52,7 @@ export default class GalleryScreenNative extends Component {
             columnCount={3}
             onSelected={(result) => {
             }}
+            onTapImage={(event) => console.log('Tapped on an image: ' + event.nativeEvent.selected)}
             selectedImageIcon={require('./images/wix_logo.png')}
             fileTypeSupport={{
                 supportedFileTypes: ['image/jpeg'],
@@ -60,10 +61,11 @@ export default class GalleryScreenNative extends Component {
                 //unsupportedText: 'JPEG!!',
                 unsupportedTextColor: '#ff0000'
             }}
-            customButton={{
-                customImage: require('./images/openCamera.png'),
-                backgroundColor: '#2dcedb'
+            customButtonStyle={{
+                image: require('./images/openCamera.png'),
+                backgroundColor: '#06c4e9'
             }}
+            onCustomButtonPress={() => console.log('Tapped on custom button!')}
         />
     )
   }
