@@ -23,5 +23,11 @@
     "react": ">=0.14.5",
     "react-native": ">=0.25.1"
   },
+  "devDependencies": {
+    "react": "15.4.1",
+    "react-native": "^0.38",
+    "seamless-immutable": "^6.1.0",
+    "shell-utils": "*"
+  },
   "homepage": "https://github.com/wix/react-native-camera-kit"
 }
