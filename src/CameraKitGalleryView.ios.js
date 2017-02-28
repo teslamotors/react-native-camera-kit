@@ -23,6 +23,13 @@ export default class CameraKitGalleryView extends Component {
     if (transformedProps.fileTypeSupport && transformedProps.fileTypeSupport.unsupportedImage) {
       _.update(transformedProps, 'fileTypeSupport.unsupportedImage', (image) => resolveAssetSource(image));
     }
+    if (_.get(transformedProps, 'customButtonStyle.image')) {
+      _.update(transformedProps, 'customButtonStyle.image', (image) => resolveAssetSource(image));
+    }
+  
+    if (_.get(transformedProps, 'customButtonStyle.backgroundColor')) {
+      _.update(transformedProps, 'customButtonStyle.backgroundColor', (c) => processColor(c));
+    }
 
     return <GalleryView {...transformedProps}/>
   }

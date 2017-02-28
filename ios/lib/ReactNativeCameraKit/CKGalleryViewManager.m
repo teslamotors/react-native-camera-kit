@@ -9,6 +9,7 @@
 @import Photos;
 #import "CKGalleryViewManager.h"
 #import "CKGalleryCollectionViewCell.h"
+#import "CKGalleryCustomCollectionViewCell.h"
 #import "GalleryData.h"
 #import "UIView+React.h"
 #import "CKGalleryManager.h"
@@ -50,8 +51,11 @@
 @property (nonatomic, strong) UIColor *imageStrokeColor;
 @property (nonatomic, strong) NSNumber *disableSelectionIcons;
 
+//custom button props
+@property (nonatomic, strong) NSDictionary *customButtonStyle;
+@property (nonatomic, copy) RCTDirectEventBlock onCustomButtonPress;
 
-//supported
+//supported props
 @property (nonatomic, strong) NSDictionary *fileTypeSupport;
 @property (nonatomic, strong) NSArray *supportedFileTypesArray;
 
@@ -59,6 +63,7 @@
 @end
 
 static NSString * const CellReuseIdentifier = @"Cell";
+static NSString * const CustomCellReuseIdentifier = @"CustomCell";
 
 @implementation CKGalleryView
 
@@ -122,6 +127,7 @@ static NSString * const CellReuseIdentifier = @"Cell";
         self.collectionView.dataSource = self;
         
         [self.collectionView registerClass:[CKGalleryCollectionViewCell class] forCellWithReuseIdentifier:CellReuseIdentifier];
+        [self.collectionView registerClass:[CKGalleryCustomCollectionViewCell class] forCellWithReuseIdentifier:CustomCellReuseIdentifier];
         [self addSubview:self.collectionView];
         self.collectionView.backgroundColor = [UIColor whiteColor];
         
@@ -152,8 +158,6 @@ static NSString * const CellReuseIdentifier = @"Cell";
 }
 
 -(void)upadateCollectionView:(PHFetchResult*)fetchResults animated:(BOOL)animated {
-    
-    
     
     self.galleryData = [[GalleryData alloc] initWithFetchResults:fetchResults selectedImagesIds:self.selectedImages];
     
@@ -264,12 +268,29 @@ static NSString * const CellReuseIdentifier = @"Cell";
 
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    return self.galleryData.data.count;
+    NSUInteger itemsAmount = self.galleryData.data.count;
+    if (self.customButtonStyle) {
+        itemsAmount++;
+    }
+    return itemsAmount;
 }
 
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
-    NSDictionary *assetDictionary = (NSDictionary*)self.galleryData.data[indexPath.row];
+    
+    NSInteger cellIndex = indexPath.row;
+    if (self.customButtonStyle ) {
+        cellIndex--;
+        
+        if (indexPath.row == 0) {
+            CKGalleryCustomCollectionViewCell *customCell = [collectionView dequeueReusableCellWithReuseIdentifier:CustomCellReuseIdentifier forIndexPath:indexPath];
+            [customCell applyStyle:self.customButtonStyle];
+            return customCell;
+        }
+        
+    }
+    
+    NSDictionary *assetDictionary = (NSDictionary*)self.galleryData.data[cellIndex];
     PHAsset *asset = assetDictionary[@"asset"];
     
     NSString *fileType = [self extractFileTypeForAsset:asset];
@@ -283,7 +304,7 @@ static NSString * const CellReuseIdentifier = @"Cell";
     __block CKGalleryCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:CellReuseIdentifier forIndexPath:indexPath];
     cell.disableSelectionIcons = self.disableSelectionIcons ? self.disableSelectionIcons.boolValue : false;
     cell.isSelected = ((NSNumber*)assetDictionary[@"isSelected"]).boolValue;
-
+    
     
     if (self.supportedFileTypesArray) {
         cell.isSupported = [self.supportedFileTypesArray containsObject:[MIMETypeString lowercaseString]];
@@ -315,8 +336,18 @@ static NSString * const CellReuseIdentifier = @"Cell";
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     
+    NSInteger galleryDataIndex = indexPath.row;
+    if (self.customButtonStyle) {
+        galleryDataIndex--;
+    }
+    
+    if (indexPath.row == 0 && self.onCustomButtonPress) {
+        self.onCustomButtonPress(@{@"selected":@"customButtonPressed"});
+        return;
+    }
+    
     id selectedCell =[collectionView cellForItemAtIndexPath:indexPath];
-    NSMutableDictionary *assetDictionary = (NSMutableDictionary*)self.galleryData.data[indexPath.row];
+    NSMutableDictionary *assetDictionary = (NSMutableDictionary*)self.galleryData.data[galleryDataIndex];
     PHAsset *asset = assetDictionary[@"asset"];
     NSNumber *isSelectedNumber = assetDictionary[@"isSelected"];
     assetDictionary[@"isSelected"] = [NSNumber numberWithBool:!(isSelectedNumber.boolValue)];
@@ -402,6 +433,8 @@ RCT_EXPORT_VIEW_PROPERTY(selectedImages, NSArray);
 RCT_EXPORT_VIEW_PROPERTY(fileTypeSupport, NSDictionary);
 RCT_EXPORT_VIEW_PROPERTY(imageStrokeColor, UIColor);
 RCT_EXPORT_VIEW_PROPERTY(disableSelectionIcons, NSNumber);
+RCT_EXPORT_VIEW_PROPERTY(customButtonStyle, NSDictionary);
+RCT_EXPORT_VIEW_PROPERTY(onCustomButtonPress, RCTDirectEventBlock);
 
 
 

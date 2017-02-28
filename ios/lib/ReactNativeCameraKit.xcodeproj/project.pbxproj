@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		262564901E6572B300A7B90D /* CKGalleryCustomCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2625648F1E6572B300A7B90D /* CKGalleryCustomCollectionViewCell.m */; };
 		262E421D1D182C1200C82B27 /* CKGalleryViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 262E421C1D182C1200C82B27 /* CKGalleryViewManager.m */; };
 		262E42201D183A6B00C82B27 /* CKGalleryCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 262E421F1D183A6B00C82B27 /* CKGalleryCollectionViewCell.m */; };
 		26550AE61CFC2437007FF2DF /* CKGalleryManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 26550AE51CFC2437007FF2DF /* CKGalleryManager.m */; };
@@ -31,6 +32,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		2625648E1E6572B300A7B90D /* CKGalleryCustomCollectionViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CKGalleryCustomCollectionViewCell.h; sourceTree = "<group>"; };
+		2625648F1E6572B300A7B90D /* CKGalleryCustomCollectionViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CKGalleryCustomCollectionViewCell.m; sourceTree = "<group>"; };
 		262E421B1D182C1200C82B27 /* CKGalleryViewManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CKGalleryViewManager.h; sourceTree = "<group>"; };
 		262E421C1D182C1200C82B27 /* CKGalleryViewManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CKGalleryViewManager.m; sourceTree = "<group>"; };
 		262E421E1D183A6B00C82B27 /* CKGalleryCollectionViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CKGalleryCollectionViewCell.h; sourceTree = "<group>"; };
@@ -100,6 +103,8 @@
 				269292821D3B7D6000E07DDF /* CKCameraOverlayView.m */,
 				269292841D3B81C800E07DDF /* CKOverlayObject.h */,
 				269292851D3B81C800E07DDF /* CKOverlayObject.m */,
+				2625648E1E6572B300A7B90D /* CKGalleryCustomCollectionViewCell.h */,
+				2625648F1E6572B300A7B90D /* CKGalleryCustomCollectionViewCell.m */,
 			);
 			path = ReactNativeCameraKit;
 			sourceTree = "<group>";
@@ -162,6 +167,7 @@
 			files = (
 				26550AF61CFC7086007FF2DF /* CKCameraManager.m in Sources */,
 				262E42201D183A6B00C82B27 /* CKGalleryCollectionViewCell.m in Sources */,
+				262564901E6572B300A7B90D /* CKGalleryCustomCollectionViewCell.m in Sources */,
 				269292861D3B81C800E07DDF /* CKOverlayObject.m in Sources */,
 				26550AE61CFC2437007FF2DF /* CKGalleryManager.m in Sources */,
 				2685AA241CFD89A300E4A446 /* CKCamera.m in Sources */,

@@ -86,6 +86,14 @@ export default class AlbumsScreen extends Component {
             unsupportedTextColor: '#ffffff'
           }}
           imageStrokeColor={'#edeff0'}
+          customButtonStyle={{
+            image: require('./images/openCamera.png'),
+            backgroundColor: '#2dcedb'
+          }}
+          onCustomButtonPress={(result) => {
+            
+            this.onCustomButtonPressed();
+          }}
         />
         
         
@@ -104,6 +112,10 @@ export default class AlbumsScreen extends Component {
       
       </View>
     );
+  }
+  
+  onCustomButtonPressed() {
+    console.log('RANG', 'custom button pressed');
   }
   
   renderImagesDetails() {
