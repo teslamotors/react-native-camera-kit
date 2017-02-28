@@ -14,6 +14,7 @@
 #import "UIView+React.h"
 #import "CKGalleryManager.h"
 #import <MobileCoreServices/MobileCoreServices.h>
+#import "CKCamera.h"
 
 #define SCREEN_WIDTH ([[UIScreen mainScreen] bounds].size.width)
 #define SCREEN_HEIGHT ([[UIScreen mainScreen] bounds].size.height)
@@ -34,7 +35,9 @@
 @property (nonatomic, strong) NSNumber *minimumLineSpacing;
 @property (nonatomic, strong) NSNumber *minimumInteritemSpacing;
 @property (nonatomic, strong) NSNumber *columnCount;
+@property (nonatomic, strong) NSNumber *getUrlOnTapImage;
 @property (nonatomic, copy) RCTDirectEventBlock onTapImage;
+
 
 @property (nonatomic, strong) UICollectionView *collectionView;
 @property (nonatomic, strong) GalleryData *galleryData;
@@ -360,9 +363,8 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
         }
         
         ckCell.isSelected = !ckCell.isSelected;
-        NSString *assetLocalIdentifier = asset.localIdentifier;
         
-        [self onSelectChanged:assetLocalIdentifier];
+        [self onSelectChanged:asset];
     }
 }
 
@@ -382,9 +384,26 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
 #pragma mark - misc
 
 
--(void)onSelectChanged:(NSString*)tappedImageId {
+-(void)onSelectChanged:(PHAsset*)asset {
     if (self.onTapImage) {
-        self.onTapImage(@{@"selected":tappedImageId});
+        
+        BOOL shouldReturnUrl = self.getUrlOnTapImage ? [self.getUrlOnTapImage boolValue] : NO;
+        if (shouldReturnUrl) {
+            PHImageRequestOptions *imageRequestOptions = [[PHImageRequestOptions alloc] init];
+            imageRequestOptions.synchronous = YES;
+            NSDictionary *info = [CKGalleryViewManager infoForAsset:asset imageRequestOptions:imageRequestOptions];
+            NSString *uriString = info[@"uri"];
+            if (uriString) {
+                self.onTapImage(@{@"selected": uriString});
+            }
+            else {
+                self.onTapImage(@{@"Error": @"Could not get image uri"});
+            }
+            
+        }
+        else {
+            self.onTapImage(@{@"selected":asset.localIdentifier});
+        }
     }
 }
 
@@ -435,6 +454,7 @@ RCT_EXPORT_VIEW_PROPERTY(imageStrokeColor, UIColor);
 RCT_EXPORT_VIEW_PROPERTY(disableSelectionIcons, NSNumber);
 RCT_EXPORT_VIEW_PROPERTY(customButtonStyle, NSDictionary);
 RCT_EXPORT_VIEW_PROPERTY(onCustomButtonPress, RCTDirectEventBlock);
+RCT_EXPORT_VIEW_PROPERTY(getUrlOnTapImage, NSNumber)
 
 
 

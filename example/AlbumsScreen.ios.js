@@ -8,7 +8,8 @@ import {
   TouchableOpacity,
   Image,
   AlertIOS,
-  Dimensions
+  Dimensions,
+  Switch
 } from 'react-native';
 
 import {
@@ -35,7 +36,9 @@ export default class AlbumsScreen extends Component {
       dropdownVisible: false,
       images: [],
       imagesDetails: undefined,
-      shouldRenderCameraScreen: false
+      shouldRenderCameraScreen: false,
+      tappedImage: undefined,
+      getUrlOnTapImage: false
     }
   }
   
@@ -57,7 +60,7 @@ export default class AlbumsScreen extends Component {
   imageTapped(selected) {
     if (this.state.images.indexOf(selected) < 0) {
       console.log('RANG', 'imageTapped', 'selected', selected);
-      this.setState({images: _.concat(this.state.images, selected) });
+      this.setState({images: _.concat(this.state.images, selected), tappedImage: selected});
     }
     else {
       this.setState({images: _.without(this.state.images, selected)})
@@ -97,18 +100,35 @@ export default class AlbumsScreen extends Component {
           imageStrokeColor={'#edeff0'}
           customButtonStyle={{
             image: require('./images/openCamera.png'),
-            backgroundColor: '#2dcedb'
+            backgroundColor: '#f2f4f5'
           }}
           onCustomButtonPress={(result) => {
             
             this.onCustomButtonPressed();
           }}
+          getUrlOnTapImage={this.state.getUrlOnTapImage}
         />
         
         <View style={{
           alignItems: 'center',
           justifyContent: 'space-between',}}>
           {this.renderImagesDetails()}
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <Switch
+              onValueChange={(value) => this.setState({getUrlOnTapImage: value})}
+              value={this.state.getUrlOnTapImage}
+              style={{margin: 10}}
+            />
+            <Text>
+              getUrlOnTapImage
+            </Text>
+          </View>
+          
+          {this.state.getUrlOnTapImage && <Image
+            style={{width: 100, height: 100}}
+            source={{uri: this.state.tappedImage}}
+          />}
+          
           
           <TouchableOpacity  onPress={() => this.getImagesForIds()}>
             <Text style={styles.buttonText}>
