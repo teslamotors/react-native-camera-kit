@@ -9,6 +9,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.facebook.react.bridge.ReactContext;
+import com.facebook.react.uimanager.UIManagerModule;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -22,6 +25,24 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
 
     private static int VIEW_TYPE_IMAGE = 0;
     private static int VIEW_TYPE_TAKE_PICTURE = 1;
+
+    public static final String[] PROJECTION = new String[]{
+            MediaStore.Images.Media.DATA,
+            MediaStore.Images.Media._ID,
+            MediaStore.Images.Media.MIME_TYPE
+    };
+
+    private class Image {
+        String uri;
+        Integer id;
+        String mimeType;
+
+        public Image(String uri, Integer id, String mimeType) {
+            this.uri = uri;
+            this.id = id;
+            this.mimeType = mimeType;
+        }
+    }
 
     abstract class AbsViewHolder extends RecyclerView.ViewHolder {
         AbsViewHolder(View itemView) {
@@ -50,14 +71,14 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
             final SelectableImage selectableImageView = (SelectableImage) this.itemView;
             selectableImageView.setUnsupportedUIParams(overlayColor, unsupportedFinalImage, unsupportedText, unsupportedTextColor);
             selectableImageView.setDrawables(selectedDrawable, unselectedDrawable);
-            selectableImageView.bind(executor, selected, forceBind, image.id, this.isSupported);
+            selectableImageView.bind(executor, selected, forceBind, image.id, isSupported);
             selectableImageView.setOnClickListener(this);
         }
 
         @Override
         public void onClick(View v) {
-            if (this.isSupported) {
-                view.onTapImage(this.image.uri);
+            if (isSupported) {
+                onTapImage(image.uri);
                 v.setSelected(!v.isSelected());
             }
         }
@@ -92,18 +113,26 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
         }
     }
 
-    class OpenCameraButtonHolder extends AbsViewHolder {
+    class OpenCameraButtonHolder extends AbsViewHolder implements View.OnClickListener {
 
         OpenCameraButtonHolder() {
             super(new ImageView(GalleryAdapter.this.view.getContext()));
+
+            final ImageView imageView = (ImageView) this.itemView;
+            imageView.setScaleType(ImageView.ScaleType.CENTER);
+            imageView.setOnClickListener(this);
         }
 
         @Override
         public void bind(int position) {
-            ImageView imageView = (ImageView) this.itemView;
+            final ImageView imageView = (ImageView) this.itemView;
             imageView.setImageDrawable(GalleryAdapter.this.customButtonImage);
-            imageView.setScaleType(ImageView.ScaleType.CENTER);
             imageView.setBackgroundColor(Color.parseColor(GalleryAdapter.this.customButtonBackgroundColor));
+        }
+
+        @Override
+        public void onClick(View v) {
+            onTapCustomButton();
         }
     }
 
@@ -112,35 +141,30 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
     private String unsupportedText;
     private String unsupportedTextColor;
     private List<String> dirtyUris = new ArrayList<>();
-    private Drawable customButtonImage;
-    private String customButtonBackgroundColor = DEFAULT_CUSTOM_BUTTON_BACKGROUND_COLOR;
-
-    private class Image {
-        String uri;
-        Integer id;
-        String mimeType;
-
-        public Image(String uri, Integer id, String mimeType) {
-            this.uri = uri;
-            this.id = id;
-            this.mimeType = mimeType;
-        }
-    }
-
-    public static final String[] PROJECTION = new String[]{
-            MediaStore.Images.Media.DATA,
-            MediaStore.Images.Media._ID,
-            MediaStore.Images.Media.MIME_TYPE
-    };
-
-    private ArrayList<Image> images = new ArrayList<>();
-
     private ArrayList<String> selectedUris = new ArrayList<>();
     private ArrayList<String> supportedFileTypes = new ArrayList<>();
     private String albumName = "";
     private Drawable selectedDrawable;
     private Drawable unselectedDrawable;
+    private Drawable customButtonImage;
+    private String customButtonBackgroundColor = DEFAULT_CUSTOM_BUTTON_BACKGROUND_COLOR;
+
+    private ArrayList<Image> images = new ArrayList<>();
     private boolean refreshing = false;
+    private GalleryView view;
+    private ThreadPoolExecutor executor;
+
+    public GalleryAdapter(GalleryView view) {
+        this.view = view;
+        setHasStableIds(true);
+        int cores = Runtime.getRuntime().availableProcessors();
+        executor = new ThreadPoolExecutor(cores, cores, 1, TimeUnit.SECONDS, new LinkedBlockingDeque<Runnable>());
+        setAlbum(albumName);
+    }
+
+    public void setAlbum(String albumName) {
+        this.albumName = albumName;
+    }
 
     public void setSelectedUris(ArrayList<String> selectedUris) {
         this.selectedUris = selectedUris;
@@ -162,27 +186,19 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
         this.supportedFileTypes = supportedFileTypes;
     }
 
+    public void setUnsupportedUIParams(String overlayColor, Drawable unsupportedFinalImage, String unsupportedText, String unsupportedTextColor) {
+        this.overlayColor = overlayColor;
+        this.unsupportedFinalImage = unsupportedFinalImage;
+        this.unsupportedText = unsupportedText;
+        this.unsupportedTextColor = unsupportedTextColor;
+    }
+
     public void setCustomButtonImage(Drawable customButtonImage) {
         this.customButtonImage = customButtonImage;
     }
 
     public void setCustomButtonBackgroundColor(String color) {
         this.customButtonBackgroundColor = color;
-    }
-
-    private GalleryView view;
-    private ThreadPoolExecutor executor;
-
-    public GalleryAdapter(GalleryView context) {
-        this.view = context;
-        setHasStableIds(true);
-        int cores = Runtime.getRuntime().availableProcessors();
-        executor = new ThreadPoolExecutor(cores, cores, 1, TimeUnit.SECONDS, new LinkedBlockingDeque<Runnable>());
-        setAlbum(albumName);
-    }
-
-    public void setAlbum(String albumName) {
-        this.albumName = albumName;
     }
 
     @Override
@@ -265,14 +281,6 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
         });
     }
 
-    public void setUnsupportedUIParams(String overlayColor, Drawable unsupportedFinalImage, String unsupportedText, String unsupportedTextColor) {
-        this.overlayColor = overlayColor;
-        this.unsupportedFinalImage = unsupportedFinalImage;
-        this.unsupportedText = unsupportedText;
-        this.unsupportedTextColor = unsupportedTextColor;
-    }
-
-
     @Override
     public AbsViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == VIEW_TYPE_IMAGE) {
@@ -306,5 +314,19 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
 
     private boolean shouldShowCustomButton() {
         return customButtonImage != null;
+    }
+
+    public void onTapImage(String uri) {
+        final ReactContext reactContext = ((ReactContext) view.getContext());
+        reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(new TapImageEvent(getRootViewId(), uri));
+    }
+
+    public void onTapCustomButton() {
+        final ReactContext reactContext = ((ReactContext) view.getContext());
+        reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(new TapCustomButtonEvent(getRootViewId()));
+    }
+
+    private int getRootViewId() {
+        return view.getId();
     }
 }

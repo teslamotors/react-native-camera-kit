@@ -2,20 +2,10 @@ package com.wix.RNCameraKit.gallery;
 
 import android.content.Context;
 import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
-
-import com.facebook.react.bridge.Arguments;
-import com.facebook.react.bridge.ReactContext;
-import com.facebook.react.bridge.WritableMap;
-import com.facebook.react.uimanager.UIManagerModule;
-import com.facebook.react.uimanager.events.Event;
-import com.facebook.react.uimanager.events.RCTEventEmitter;
-
-import java.util.ArrayList;
 
 public class GalleryView extends RecyclerView {
 
@@ -35,15 +25,12 @@ public class GalleryView extends RecyclerView {
         }
     }
 
-    private GalleryAdapter adapter;
     private int itemSpacing;
     private int lineSpacing;
 
     public GalleryView(Context context) {
         super(context);
         setHasFixedSize(true);
-        adapter = new GalleryAdapter(this);
-        setAdapter(adapter);
         getRecycledViewPool().setMaxRecycledViews(0, 20);
     }
 
@@ -57,10 +44,6 @@ public class GalleryView extends RecyclerView {
                 outRect.bottom = lineSpacing;
             }
         });
-    }
-
-    public void setAlbumName(String albumName) {
-        adapter.setAlbum(albumName);
     }
 
     public void setItemSpacing(int itemSpacing) {
@@ -79,66 +62,4 @@ public class GalleryView extends RecyclerView {
         setLayoutManager(layoutManager);
     }
 
-    public void onTapImage(String uri) {
-        final ReactContext reactContext = ((ReactContext)getContext());
-        reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(new TapImageEvent(uri));
-    }
-
-    public void setSelectedUris(ArrayList<String> selectedUris) {
-        adapter.setSelectedUris(selectedUris);
-    }
-
-    public void setDirtyImages(ArrayList<String> dirtyUris) {
-        adapter.setDirtyUris(dirtyUris);
-    }
-
-    public void setSelectedDrawable(Drawable drawable) {
-        adapter.setSelectedDrawable(drawable);
-    }
-
-    public void setUnselectedDrawable(Drawable drawable) {
-        adapter.setUnselectedDrawable(drawable);
-    }
-
-    public void setUnsupportedUIParams(String overlayColor, Drawable unsupportedFinalImage, String unsupportedText, String unsupportedTextColor) {
-        adapter.setUnsupportedUIParams(overlayColor, unsupportedFinalImage, unsupportedText, unsupportedTextColor);
-    }
-
-    public void setCustomButtonImage(Drawable customButtonImage) {
-        adapter.setCustomButtonImage(customButtonImage);
-    }
-
-    public void setCustomButtonBackgroundColor(String color) {
-        adapter.setCustomButtonBackgroundColor(color);
-    }
-
-    public void refresh() {
-        adapter.refreshData();
-    }
-
-    private class TapImageEvent extends Event<TapImageEvent> {
-
-        private WritableMap event;
-
-        TapImageEvent(String uri) {
-            event = Arguments.createMap();
-            event.putString("selected", uri);
-            event.putString("id", "onTapImage");
-            init(0);
-        }
-
-        @Override
-        public String getEventName() {
-            return "onTapImage";
-        }
-
-        @Override
-        public void dispatch(RCTEventEmitter rctEventEmitter) {
-            rctEventEmitter.receiveEvent(getId(), "onTapImage", event);
-        }
-    }
-
-    public void setSupportedFileTypes(ArrayList<String> supportedFileTypes) {
-        adapter.setSupportedFileTypes(supportedFileTypes);
-    }
 }

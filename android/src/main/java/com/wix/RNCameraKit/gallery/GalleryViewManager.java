@@ -24,7 +24,7 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
     private final String UNSUPPORTED_TEXT_COLOR_KEY = "unsupportedTextColor";
     private final String SUPPORTED_TYPES_KEY = "supportedFileTypes";
     private final String UNSUPPORTED_OVERLAY_KEY = "unsupportedOverlayColor";
-    private final String CUSTOM_BUTTON_IMAGE_KEY = "customImage";
+    private final String CUSTOM_BUTTON_IMAGE_KEY = "image";
     private final String CUSTOM_BUTTON_BCK_COLOR_KEY = "backgroundColor";
 
     private ThemedReactContext reactContext;
@@ -37,17 +37,15 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
     @Override
     protected GalleryView createViewInstance(ThemedReactContext reactContext) {
         this.reactContext = reactContext;
-        return new GalleryView(reactContext);
+
+        GalleryView view = new GalleryView(reactContext);
+        view.setAdapter(new GalleryAdapter(view));
+        return view;
     }
 
     @Override
     protected void onAfterUpdateTransaction(GalleryView view) {
-        view.refresh();
-    }
-
-    @ReactProp(name = "albumName")
-    public void setAlbumName(GalleryView view, String albumName) {
-        view.setAlbumName(albumName);
+        getViewAdapter(view).refreshData();
     }
 
     @ReactProp(name = "minimumInteritemSpacing")
@@ -60,6 +58,11 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
         view.setLineSpacing(lineSpacing/2);
     }
 
+    @ReactProp(name = "albumName")
+    public void setAlbumName(GalleryView view, String albumName) {
+        getViewAdapter(view).setAlbum(albumName);
+    }
+
     @ReactProp(name = "columnCount")
     public void setColumnCount(GalleryView view, int columnCount) {
         view.setColumnCount(columnCount);
@@ -67,12 +70,12 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
 
     @ReactProp(name = "selectedImages")
     public void setSelectedUris(GalleryView view, ReadableArray uris) {
-        view.setSelectedUris(readableArrayToList(uris));
+        getViewAdapter(view).setSelectedUris(readableArrayToList(uris));
     }
 
     @ReactProp(name = "dirtyImages")
     public void setDirtyImages(GalleryView view, final ReadableArray uris) {
-        view.setDirtyImages(readableArrayToList(uris));
+        getViewAdapter(view).setDirtyUris(readableArrayToList(uris));
     }
 
     @ReactProp(name = "selectedImageIcon")
@@ -84,7 +87,7 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
                 reactContext.runOnUiQueueThread(new Runnable() {
                     @Override
                     public void run() {
-                        view.setSelectedDrawable(drawable);
+                        getViewAdapter(view).setSelectedDrawable(drawable);
                     }
                 });
             }
@@ -100,20 +103,12 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
                 reactContext.runOnUiQueueThread(new Runnable() {
                     @Override
                     public void run() {
-                        view.setUnselectedDrawable(drawable);
+                        getViewAdapter(view).setUnselectedDrawable(drawable);
                     }
                 });
             }
         }).start();
     }
-
-//    fileTypeSupport={{
-//        supportedFileTypes: ['image/jpeg', 'image/png'],
-//        unsupportedOverlayColor: "#00000055",
-//                unsupportedImage: require('./images/unsupportedImage.png'),
-//                unsupportedText: 'Unsupported',
-//                unsupportedTextColor: '#ffffff'
-//    }}
 
     @ReactProp(name = "fileTypeSupport")
     public void setFileTypeSupport(final GalleryView view, final ReadableMap fileTypeSupport) {
@@ -141,19 +136,20 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
                 reactContext.runOnUiQueueThread(new Runnable() {
                     @Override
                     public void run() {
-                        view.setUnsupportedUIParams(
-                                unsupportedOverlayColor,
-                                unsupportedFinalImage,
-                                unsupportedText,
-                                unsupportedTextColor);
-                        view.setSupportedFileTypes(supportedFileTypesList);
+                        getViewAdapter(view)
+                                .setUnsupportedUIParams(
+                                    unsupportedOverlayColor,
+                                    unsupportedFinalImage,
+                                    unsupportedText,
+                                    unsupportedTextColor);
+                        getViewAdapter(view).setSupportedFileTypes(supportedFileTypesList);
                     }
                 });
             }
         }).start();
     }
 
-    @ReactProp(name = "customButton")
+    @ReactProp(name = "customButtonStyle")
     public void setCustomButton(final GalleryView view, final ReadableMap props) {
         new Thread(new Runnable() {
             @Override
@@ -164,9 +160,9 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
                 reactContext.runOnUiQueueThread(new Runnable() {
                     @Override
                     public void run() {
-                        view.setCustomButtonImage(drawable);
+                        getViewAdapter(view).setCustomButtonImage(drawable);
                         if (backgroundColor != null) {
-                            view.setCustomButtonBackgroundColor(backgroundColor);
+                            getViewAdapter(view).setCustomButtonBackgroundColor(backgroundColor);
                         }
                     }
                 });
@@ -179,6 +175,7 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
     public Map getExportedCustomDirectEventTypeConstants() {
         return MapBuilder.builder()
                 .put("onTapImage", MapBuilder.of("registrationName", "onTapImage"))
+                .put("onCustomButtonPress", MapBuilder.of("registrationName", "onCustomButtonPress"))
                 .build();
     }
 
@@ -189,14 +186,14 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
     }
 
     @Override
-    public void receiveCommand(GalleryView root, int commandId, @Nullable ReadableArray args) {
+    public void receiveCommand(GalleryView view, int commandId, @Nullable ReadableArray args) {
         if (commandId == COMMAND_REFRESH_GALLERY) {
-            root.refresh();
+            getViewAdapter(view).refreshData();
         }
     }
 
     private @Nullable String getStringSafe(ReadableMap map, String key) {
-        if(map.hasKey(key)) {
+        if (map.hasKey(key)) {
             return map.getString(key);
         }
         return null;
@@ -208,5 +205,9 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
             list.add(uris.getString(i));
         }
         return list;
+    }
+
+    private GalleryAdapter getViewAdapter(GalleryView view) {
+        return ((GalleryAdapter) view.getAdapter());
     }
 }
