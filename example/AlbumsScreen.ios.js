@@ -19,6 +19,7 @@ import {
 import _ from 'lodash';
 
 import GalleryScreen from './GalleryScreen';
+import CameraScreen from './CameraScreen';
 
 const {height, width} = Dimensions.get('window');
 
@@ -33,7 +34,8 @@ export default class AlbumsScreen extends Component {
       albums: [],
       dropdownVisible: false,
       images: [],
-      imagesDetails: undefined
+      imagesDetails: undefined,
+      shouldRenderCameraScreen: false
     }
   }
   
@@ -65,6 +67,13 @@ export default class AlbumsScreen extends Component {
   }
   
   render() {
+    
+    if (this.state.shouldRenderCameraScreen) {
+      return (
+        <CameraScreen/>
+      );
+    }
+    
     return (
       <View style={styles.container}>
         <CameraKitGalleryView
@@ -96,8 +105,6 @@ export default class AlbumsScreen extends Component {
           }}
         />
         
-        
-        
         <View style={{
           alignItems: 'center',
           justifyContent: 'space-between',}}>
@@ -114,8 +121,14 @@ export default class AlbumsScreen extends Component {
     );
   }
   
+  renderCameraScreen() {
+    
+    return <CameraScreen/>
+  }
+  
   onCustomButtonPressed() {
     console.log('RANG', 'custom button pressed');
+    this.setState({shouldRenderCameraScreen: true});
   }
   
   renderImagesDetails() {
