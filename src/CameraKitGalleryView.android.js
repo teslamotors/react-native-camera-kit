@@ -32,8 +32,8 @@ export default class CameraKitGalleryView extends Component {
     if (transformedProps.fileTypeSupport && transformedProps.fileTypeSupport.unsupportedImage) {
       _.update(transformedProps, 'fileTypeSupport.unsupportedImage', (image) => resolveAssetSource(image).uri);
     }
-    if (_.get(transformedProps, 'customButton.customImage')) {
-      _.update(transformedProps, 'customButton.customImage', (image) => resolveAssetSource(image).uri);
+    if (_.get(transformedProps, 'customButtonStyle.image')) {
+      _.update(transformedProps, 'customButtonStyle.image', (image) => resolveAssetSource(image).uri);
     }
     if (transformedProps.selectedImageIcon) {
       transformedProps.selectedImageIcon = resolveAssetSource(transformedProps.selectedImageIcon).uri;
