@@ -51,8 +51,8 @@ export default class GalleryScreenNative extends Component {
             onTapImage={this.onTapImage.bind(this)}
             selection={{
               selectedImage: require('./images/wix_logo.png'),
-              position: 'bottom-right',
-              size: 'large',
+              imagePosition: 'bottom-right',
+              imageSizeAndroid: 'large',
               enable: (Object.keys(this.state.images).length < 3)
             }}
             fileTypeSupport={{
