@@ -91,9 +91,7 @@ export default class AlbumsScreen extends Component {
             this.imageTapped(result.nativeEvent.selected);
           }}
           selection={{
-            selectedImage: require('./images/wix_logo.png'),
-            unselectedImage: require('./images/unsupportedImage.png'),
-            imagePosition: 'center',
+            selectedImage: require('./images/selected.png'),
             imageSizeAndroid: 'large',
             overlayColor: '#ecf0f1aa'
           }}
