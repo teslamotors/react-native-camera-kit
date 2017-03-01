@@ -89,10 +89,17 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
 
         @Override
         public void onClick(View v) {
-            if (isSupported) {
-                onTapImage(image.uri);
-                v.setSelected(!v.isSelected());
+            if (!isSupported) {
+                return;
             }
+
+            final boolean isSelected = v.isSelected();
+            if (!enableSelection && !isSelected) {
+                return;
+            }
+
+            onTapImage(image.uri);
+            v.setSelected(!isSelected);
         }
 
         private boolean isSelected() {
@@ -162,7 +169,9 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
     private Integer selectedDrawableSize;
     private Drawable unselectedDrawable;
     private String customButtonBackgroundColor = DEFAULT_CUSTOM_BUTTON_BACKGROUND_COLOR;
+    private boolean enableSelection;
 
+    private boolean isDirty = true;
     private ArrayList<Image> images = new ArrayList<>();
     private boolean refreshing = false;
     private GalleryView view;
@@ -178,6 +187,8 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
 
     public void setAlbum(String albumName) {
         this.albumName = albumName;
+
+        isDirty = true;
     }
 
     public void setSelectedUris(ArrayList<String> selectedUris) {
@@ -186,6 +197,8 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
 
     void setDirtyUris(List<String> dirtyUris) {
         this.dirtyUris = dirtyUris;
+
+        isDirty = true;
     }
 
     public void setSelectedDrawable(Drawable selectedDrawable) {
@@ -206,6 +219,8 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
 
     public void setSupportedFileTypes(ArrayList<String> supportedFileTypes) {
         this.supportedFileTypes = supportedFileTypes;
+
+        isDirty = true;
     }
 
     public void setUnsupportedUIParams(String overlayColor, Drawable unsupportedFinalImage, String unsupportedText, String unsupportedTextColor) {
@@ -223,6 +238,10 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
         this.customButtonBackgroundColor = color;
     }
 
+    public void setShouldEnabledSelection(Boolean enable) {
+        this.enableSelection = enable;
+    }
+
     @Override
     public int getItemViewType(int position) {
         if (shouldShowCustomButton() && position == 0) {
@@ -232,9 +251,16 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
     }
 
     void refreshData() {
-        if (refreshing) return;
-        refreshing = true;
+        if (!isDirty) {
+            return;
+        }
+        isDirty = false;
 
+        if (refreshing) {
+            return;
+        }
+
+        refreshing = true;
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -282,6 +308,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
             @Override
             public void run() {
                 if (!view.isComputingLayout()) {
+                    // TODO revisit this sequence
                     if (Math.min(preCount, postCount) > 0) {
                         notifyItemRangeChanged(0, Math.min(preCount, postCount));
                     }

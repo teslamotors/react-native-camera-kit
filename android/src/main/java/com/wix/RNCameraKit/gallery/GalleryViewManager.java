@@ -3,7 +3,6 @@ package com.wix.RNCameraKit.gallery;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.support.annotation.NonNull;
 import android.view.View;
 
 import com.facebook.react.bridge.ReadableArray;
@@ -17,6 +16,8 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import javax.annotation.Nullable;
+
+import static com.wix.RNCameraKit.Utils.*;
 
 public class GalleryViewManager extends SimpleViewManager<GalleryView> {
 
@@ -33,6 +34,7 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
     private final String SELECTION_UNSELECTED_IMAGE_KEY = "unselectedImage";
     private final String SELECTION_POSITION_KEY = "position";
     private final String SELECTION_SIZE_KEY = "size";
+    private final String SELECTION_ENABLED_KEY = "enable";
 
     /**
      * A handler is required in order to sync configurations made to the adapter - some must run off the UI thread (e.g. drawables
@@ -144,6 +146,7 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
         final String unselectedImage = getStringSafe(selectionProps, SELECTION_UNSELECTED_IMAGE_KEY);
         final Integer position = getIntSafe(selectionProps, SELECTION_POSITION_KEY);
         final String size = getStringSafe(selectionProps, SELECTION_SIZE_KEY);
+        final Boolean enabled = getBooleanSafe(selectionProps, SELECTION_ENABLED_KEY);
         dispatchOnConfigJobQueue(new Runnable() {
             @Override
             public void run() {
@@ -167,6 +170,8 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
                     final int sizeCode = size.equalsIgnoreCase("large") ? GalleryAdapter.SELECTED_IMAGE_SIZE_LARGE : GalleryAdapter.SELECTED_IMAGE_SIZE_NORMAL;
                     viewAdapter.setSelectedDrawableSize(sizeCode);
                 }
+
+                viewAdapter.setShouldEnabledSelection(enabled != null ? enabled : true);
             }
         });
     }
@@ -246,28 +251,6 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
 
     private void dispatchOnConfigJobQueue(Runnable runnable) {
         adapterConfigHandler.post(runnable);
-    }
-
-    private @Nullable String getStringSafe(ReadableMap map, String key) {
-        if (map.hasKey(key)) {
-            return map.getString(key);
-        }
-        return null;
-    }
-
-    private @Nullable Integer getIntSafe(ReadableMap map, String key) {
-        if (map.hasKey(key)) {
-            return map.getInt(key);
-        }
-        return null;
-    }
-
-    private @NonNull ArrayList<String> readableArrayToList(ReadableArray uris) {
-        ArrayList<String> list = new ArrayList<>();
-        for(int i = 0; i < uris.size(); i++) {
-            list.add(uris.getString(i));
-        }
-        return list;
     }
 
     private GalleryAdapter getViewAdapter(GalleryView view) {
