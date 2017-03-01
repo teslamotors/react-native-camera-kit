@@ -33,7 +33,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
             Gravity.CENTER
     };
 
-    private static final String DEFAULT_CUSTOM_BUTTON_BACKGROUND_COLOR = "#f2f4f5";
+    private static final int DEFAULT_CUSTOM_BUTTON_BACKGROUND_COLOR = Color.parseColor("#f2f4f5");
 
     private static int VIEW_TYPE_IMAGE = 0;
     private static int VIEW_TYPE_TAKE_PICTURE = 1;
@@ -146,7 +146,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
         public void bind(int position) {
             final ImageView imageView = (ImageView) this.itemView;
             imageView.setImageDrawable(GalleryAdapter.this.customButtonImage);
-            imageView.setBackgroundColor(Color.parseColor(GalleryAdapter.this.customButtonBackgroundColor));
+            imageView.setBackgroundColor(GalleryAdapter.this.customButtonBackgroundColor);
         }
 
         @Override
@@ -168,7 +168,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
     private Integer selectedDrawableGravity;
     private Integer selectedDrawableSize;
     private Drawable unselectedDrawable;
-    private String customButtonBackgroundColor = DEFAULT_CUSTOM_BUTTON_BACKGROUND_COLOR;
+    private int customButtonBackgroundColor = DEFAULT_CUSTOM_BUTTON_BACKGROUND_COLOR;
     private boolean enableSelection;
 
     private boolean isDirty = true;
@@ -234,7 +234,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
         this.customButtonImage = customButtonImage;
     }
 
-    public void setCustomButtonBackgroundColor(String color) {
+    public void setCustomButtonBackgroundColor(int color) {
         this.customButtonBackgroundColor = color;
     }
 

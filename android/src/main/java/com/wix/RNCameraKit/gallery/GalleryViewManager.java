@@ -216,7 +216,7 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
             @Override
             public void run() {
                 final String imageResource = getStringSafe(props, CUSTOM_BUTTON_IMAGE_KEY);
-                final String backgroundColor = getStringSafe(props, CUSTOM_BUTTON_BCK_COLOR_KEY);
+                final Integer backgroundColor = getIntSafe(props, CUSTOM_BUTTON_BCK_COLOR_KEY);
                 final Drawable drawable = ResourceDrawableIdHelper.getIcon(view.getContext(), imageResource);
 
                 getViewAdapter(view).setCustomButtonImage(drawable);

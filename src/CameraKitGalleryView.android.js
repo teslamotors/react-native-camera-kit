@@ -2,7 +2,8 @@ import _ from 'lodash';
 import React, {Component} from 'react';
 import ReactNative, {
     requireNativeComponent,
-    UIManager
+    UIManager,
+    processColor
 } from 'react-native';
 
 const resolveAssetSource = require('react-native/Libraries/Image/resolveAssetSource');
@@ -35,6 +36,11 @@ export default class CameraKitGalleryView extends Component {
 
     if (_.get(transformedProps, 'customButtonStyle.image')) {
       _.update(transformedProps, 'customButtonStyle.image', (image) => resolveAssetSource(image).uri);
+    }
+
+    const customButtonBkgColor = _.get(transformedProps, 'customButtonStyle.backgroundColor');
+    if (customButtonBkgColor) {
+      _.update(transformedProps, 'customButtonStyle.backgroundColor', (color) => processColor(customButtonBkgColor));
     }
 
     if (transformedProps.selectedImageIcon) {
