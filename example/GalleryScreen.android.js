@@ -25,6 +25,7 @@ export default class GalleryScreenNative extends Component {
     super(props);
     this.state = {
       album: this.props.albumName,
+      images: {},
       shouldRenderCameraScreen: false
     }
   }
@@ -44,13 +45,15 @@ export default class GalleryScreenNative extends Component {
             minimumInteritemSpacing={10}
             minimumLineSpacing={10}
             columnCount={3}
+            selectedImages={Object.keys(this.state.images)}
             onSelected={(result) => {
             }}
-            onTapImage={(event) => console.log('Tapped on an image: ' + event.nativeEvent.selected)}
+            onTapImage={this.onTapImage.bind(this)}
             selection={{
               selectedImage: require('./images/wix_logo.png'),
-              position: "bottomRight",
-              size: "large"
+              position: 'bottom-right',
+              size: 'large',
+              enable: (Object.keys(this.state.images).length < 3)
             }}
             fileTypeSupport={{
                 supportedFileTypes: ['image/jpeg'],
@@ -66,5 +69,17 @@ export default class GalleryScreenNative extends Component {
             onCustomButtonPress={() => this.setState({shouldRenderCameraScreen: true})}
         />
     )
+  }
+
+  onTapImage(event) {
+    const uri = event.nativeEvent.selected;
+    console.log('Tapped on an image: ' + uri);
+
+    if (this.state.images[uri]) {
+      delete this.state.images[uri];
+    } else {
+      this.state.images[uri] = true;
+    }
+    this.setState({images: {...this.state.images}})
   }
 }
