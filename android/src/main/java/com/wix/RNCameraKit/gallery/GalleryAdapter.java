@@ -169,7 +169,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
     private Integer selectedDrawableSize;
     private Drawable unselectedDrawable;
     private int customButtonBackgroundColor = DEFAULT_CUSTOM_BUTTON_BACKGROUND_COLOR;
-    private boolean enableSelection;
+    private boolean enableSelection = true;
 
     private boolean isDirty = true;
     private ArrayList<Image> images = new ArrayList<>();
