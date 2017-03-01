@@ -312,7 +312,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
                         notifyItemRangeInserted(0, postCount);
                     } else {
                         view.swapAdapter(GalleryAdapter.this, true);
-                        view.getLayoutManager().requestLayout();
+                        view.scrollBy(0, 0);
                     }
                 } else {
                     view.postDelayed(new Runnable() {
