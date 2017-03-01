@@ -59,7 +59,6 @@ export default class AlbumsScreen extends Component {
   
   imageTapped(selected) {
     if (this.state.images.indexOf(selected) < 0) {
-      console.log('RANG', 'imageTapped', 'selected', selected);
       this.setState({images: _.concat(this.state.images, selected), tappedImage: selected});
     }
     else {
@@ -91,6 +90,14 @@ export default class AlbumsScreen extends Component {
           onTapImage={(result) => {
             this.imageTapped(result.nativeEvent.selected);
           }}
+          selection={{
+            selectedImage: require('./images/wix_logo.png'),
+            unselectedImage: require('./images/unsupportedImage.png'),
+            imagePosition: 'center',
+            imageSizeAndroid: 'large',
+            overlayColor: '#ecf0f1aa'
+          }}
+          selectedImageOverlayColor={'black'}
           fileTypeSupport={{
             unsupportedOverlayColor: "#00000055",
             unsupportedImage: require('./images/unsupportedImage.png'),
@@ -103,7 +110,6 @@ export default class AlbumsScreen extends Component {
             backgroundColor: '#f2f4f5'
           }}
           onCustomButtonPress={(result) => {
-            
             this.onCustomButtonPressed();
           }}
           getUrlOnTapImage={this.state.getUrlOnTapImage}

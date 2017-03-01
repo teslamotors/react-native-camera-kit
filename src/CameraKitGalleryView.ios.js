@@ -30,6 +30,18 @@ export default class CameraKitGalleryView extends Component {
     if (_.get(transformedProps, 'customButtonStyle.backgroundColor')) {
       _.update(transformedProps, 'customButtonStyle.backgroundColor', (c) => processColor(c));
     }
+  
+    if (_.get(transformedProps, 'selection.selectedImage')) {
+      _.update(transformedProps, 'selection.selectedImage', (image) => resolveAssetSource(image));
+    }
+  
+    if (_.get(transformedProps, 'selection.unselectedImage')) {
+      _.update(transformedProps, 'selection.unselectedImage', (image) => resolveAssetSource(image));
+    }
+    
+    if (_.get(transformedProps, 'selection.overlayColor')) {
+      _.update(transformedProps, 'selection.overlayColor', (c) => processColor(c));
+    }
 
     return <GalleryView {...transformedProps}/>
   }

@@ -53,6 +53,7 @@
 @property (nonatomic, strong) UIImage *unSelectedImageIcon;
 @property (nonatomic, strong) UIColor *imageStrokeColor;
 @property (nonatomic, strong) NSNumber *disableSelectionIcons;
+@property (nonatomic, strong) NSDictionary *selection;
 
 //custom button props
 @property (nonatomic, strong) NSDictionary *customButtonStyle;
@@ -193,6 +194,9 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
     [CKGalleryCollectionViewCell setImageStrokeColor:imageStrokeColor];
 }
 
+-(void)setSelection:(NSDictionary *)selection {
+    [CKGalleryCollectionViewCell setSelection:selection];
+}
 
 
 -(void)setFileTypeSupport:(NSDictionary *)supported {
@@ -454,8 +458,8 @@ RCT_EXPORT_VIEW_PROPERTY(imageStrokeColor, UIColor);
 RCT_EXPORT_VIEW_PROPERTY(disableSelectionIcons, NSNumber);
 RCT_EXPORT_VIEW_PROPERTY(customButtonStyle, NSDictionary);
 RCT_EXPORT_VIEW_PROPERTY(onCustomButtonPress, RCTDirectEventBlock);
-RCT_EXPORT_VIEW_PROPERTY(getUrlOnTapImage, NSNumber)
-
+RCT_EXPORT_VIEW_PROPERTY(getUrlOnTapImage, NSNumber);
+RCT_EXPORT_VIEW_PROPERTY(selection, NSDictionary);
 
 
 RCT_EXPORT_METHOD(getSelectedImages:(RCTPromiseResolveBlock)resolve

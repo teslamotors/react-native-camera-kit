@@ -21,6 +21,8 @@
 +(void)setUnSlectedImageIcon:(UIImage*)image;
 +(void)setSupported:(NSDictionary*)newSupported;
 +(void)setImageStrokeColor:(UIColor*)strokeColor;
++(void)setSelection:(NSDictionary*)selectionDict;
+
 
 +(void)cleanStaticsVariables;
 

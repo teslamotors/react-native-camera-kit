@@ -9,11 +9,17 @@
 #import "CKGalleryCollectionViewCell.h"
 #import "SelectionGesture.h"
 #import "GalleryData.h"
+#import "RCTConvert.h"
 
 #define BADGE_SIZE              22
 #define BADGE_MARGIN            5
 #define BADGE_COLOR             0x00ADF5
 #define IMAGE_OVERLAY_ALPHA     0.5
+
+#define SELECTION_SELECTED_IMAGE        @"selectedImage"
+#define SELECTION_UNSELECTED_IMAGE      @"unselectedImage"
+#define SELECTION_IMAGE_POSITION        @"imagePosition"
+#define SELECTION_OVERLAY_COLOR         @"overlayColor"
 
 #define UIColorFromRGB(rgbValue) \
 [UIColor colorWithRed:((float)((rgbValue & 0xFF0000) >> 16))/255.0 \
@@ -27,6 +33,9 @@ static UIImage *selectedImageIcon = nil;
 static UIImage *unSelectedImageIcon = nil;
 static NSDictionary *supported = nil;
 static UIColor *imageStrokeColor = nil;
+static NSDictionary *selection = nil;
+static NSString *imagePosition = nil;
+static UIColor *selectionOverlayColor = nil;
 
 
 @interface CKGalleryCollectionViewCell ()
@@ -61,12 +70,22 @@ static UIColor *imageStrokeColor = nil;
     if (strokeColor) imageStrokeColor = strokeColor;
 }
 
++(void)setSelection:(NSDictionary*)selectionDict {
+    if (selectionDict) selection = selectionDict;
+}
+
+
 +(void)cleanStaticsVariables {
     selectedImageIcon = nil;
     unSelectedImageIcon = nil;
     supported = nil;
     imageStrokeColor = nil;
+    selection = nil;
+    imagePosition = nil;
+    selectionOverlayColor = nil;
 }
+
+
 
 
 -(instancetype)initWithFrame:(CGRect)frame {
@@ -89,8 +108,9 @@ static UIColor *imageStrokeColor = nil;
     [self addSubview:self.imageView];
     
     self.imageOveray = [[UIView alloc] initWithFrame:self.imageView.bounds];
-    self.imageOveray.backgroundColor = [UIColor whiteColor];
-    self.imageOveray.alpha = 0;
+    self.imageOveray.opaque = NO;
+    self.imageOveray.backgroundColor = [UIColor clearColor];
+    
     [self.imageView addSubview:self.imageOveray];
     
     CGRect badgeRect = CGRectMake(self.imageView.bounds.size.width - (BADGE_SIZE + BADGE_MARGIN), BADGE_MARGIN, BADGE_SIZE, BADGE_SIZE);
@@ -105,7 +125,61 @@ static UIColor *imageStrokeColor = nil;
     self.gesture.cancelsTouchesInView = NO;
     self.gesture.delegate = self;
     
+    [self applyStyleOnInit];
+    
     return self;
+}
+
+-(void)applyStyleOnInit {
+    id selectedImageIconProp = selection[SELECTION_SELECTED_IMAGE];
+    if(selectedImageIconProp) {
+        selectedImageIcon = [RCTConvert UIImage:selectedImageIconProp];
+    }
+    
+    id unselectedImageIconProp = selection[SELECTION_UNSELECTED_IMAGE];
+    if(unselectedImageIconProp) {
+        unSelectedImageIcon = [RCTConvert UIImage:unselectedImageIconProp];
+    }
+    
+    id imagePositionProp = selection[SELECTION_IMAGE_POSITION];
+    if(imagePositionProp) {
+        CGRect badgeRect = [self frameforImagePosition:imagePositionProp];
+        if (!CGRectIsEmpty(badgeRect)) {
+            self.badgeImageView.frame = badgeRect;
+        };
+    }
+    
+    id overlayColorProp = selection[SELECTION_OVERLAY_COLOR];
+    if(overlayColorProp) {
+        selectionOverlayColor = [RCTConvert UIColor:overlayColorProp];
+    }
+    
+}
+
+-(CGRect)frameforImagePosition:(NSString*)position {
+    CGRect badgeRect;
+    
+    if ([position isEqualToString:@"top-right"]) {
+        badgeRect= CGRectMake(self.imageView.bounds.size.width - (BADGE_SIZE + BADGE_MARGIN), BADGE_MARGIN, BADGE_SIZE, BADGE_SIZE);
+    }
+    else if ([position isEqualToString:@"top-left"]) {
+        badgeRect= CGRectMake(BADGE_MARGIN, BADGE_MARGIN, BADGE_SIZE, BADGE_SIZE);
+    }
+    else if ([position isEqualToString:@"bottom-right"]) {
+        badgeRect= CGRectMake(self.imageView.bounds.size.width - (BADGE_SIZE + BADGE_MARGIN), self.imageView.bounds.size.height - (BADGE_SIZE + BADGE_MARGIN), BADGE_SIZE, BADGE_SIZE);
+    }
+    else if ([position isEqualToString:@"bottom-left"]) {
+        badgeRect= CGRectMake(BADGE_MARGIN, self.imageView.bounds.size.height - (BADGE_SIZE + BADGE_MARGIN), BADGE_SIZE, BADGE_SIZE);
+    }
+    else if ([position isEqualToString:@"center"]) {
+        badgeRect= CGRectMake(self.imageView.center.x - (BADGE_SIZE/2), self.imageView.center.y - (BADGE_SIZE/2), BADGE_SIZE, BADGE_SIZE);
+    }
+    else {
+        badgeRect = CGRectZero;
+    }
+    
+    return badgeRect;
+    
 }
 
 
@@ -200,9 +274,9 @@ static UIColor *imageStrokeColor = nil;
     if (self.disableSelectionIcons) return;
     
     if (_isSelected) {
-        self.imageOveray.alpha = IMAGE_OVERLAY_ALPHA;
+        self.imageOveray.backgroundColor = selectionOverlayColor ? selectionOverlayColor : [UIColor whiteColor];
+        
         if (selectedImageIcon) {
-            
             double frameDuration = 1.0/2.0; // 4 = number of keyframes
             self.badgeImageView.image = selectedImageIcon;
             self.badgeImageView.transform = CGAffineTransformMakeScale(0.5, 0.5);
@@ -220,18 +294,8 @@ static UIColor *imageStrokeColor = nil;
         }
     }
     else {
-        self.imageOveray.alpha = 0;
-        if (unSelectedImageIcon) {
-            [UIView animateWithDuration:0.3 animations:^{
-                self.badgeImageView.image = unSelectedImageIcon;
-            } completion:^(BOOL finished) {
-                
-            }];
-            
-        }
-        else {
-            self.badgeImageView.backgroundColor = [[UIColor grayColor] colorWithAlphaComponent:0.7];
-        }
+        self.imageOveray.backgroundColor = [UIColor clearColor];
+        self.badgeImageView.image = unSelectedImageIcon;
     }
 }
 
