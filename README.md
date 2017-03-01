@@ -149,7 +149,7 @@ selectedImages | Array | Selected images (will show the selected badge)
 selectedImageIcon | `require(_PATH_)`  | - _DEPRECATED_ use Selection - Selected image badge image
 unSelectedImageIcon | `require(_PATH_)` | - _DEPRECATED_ use Selection - Unselected image badge image
 selection | Object |   See Selection section 
-getUrlOnTapImage | Boolean| iOS only - On image tap return the image uri (intead of `Photos.framework` asset id)
+getUrlOnTapImage | Boolean| iOS only - On image tap return the image internal  (tmp folder) uri (intead of `Photos.framework` asset id)
 customButtonStyle | Object | See Custom Button section
 onCustomButtonPress | Function | Callback when custom button tapped
 
