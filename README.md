@@ -56,13 +56,13 @@ to the list
 ```
 ###CameraKitCamera cameraOptions
 
-Attribute | type | values | description
+Attribute  | Values | Description
 -------- | ----- | ------ | ------------
-flashMode | [String] | `'on'`/`'off'`/`'auto'` | camera flash mode (default is `auto`)
-focusMode | [String] | `'on'`/`'off'` | camera focus mode (default is `on`)
-zoomMode | [String] | `'on'`/`'off'`/ | camera zoom mode 
-ratioOverlay | [Array] | `'number':'number'` | overlay ontop of the camera view (crop the image to the selected size) Example: `['16:9', '1:1', '3:4']`
-ratioOverlayColor | [Color] | `'#ffffff77'` | any color with alpha (default is ```'#ffffff77'```)
+flashMode |`'on'`/`'off'`/`'auto'` | camera flash mode (default is `auto`)
+focusMode | `'on'`/`'off'` | camera focus mode (default is `on`)
+zoomMode | `'on'`/`'off'`/ | camera zoom mode 
+ratioOverlay | `['int':'int', ...]` | overlay ontop of the camera view (crop the image to the selected size) Example: `['16:9', '1:1', '3:4']`
+ratioOverlayColor |  Color | any color with alpha (default is ```'#ffffff77'```)
 
 
 ###CameraKitCamera API
@@ -137,7 +137,7 @@ Native Gallery View (based on `UICollectionView`)
 />
 ```
 
-Attribute | type | description
+Attribute | Values | Description
 -------- | ----- | ------------
 minimumInteritemSpacing | float  | Minimum inner Item spacing
 minimumLineSpacing | Float | Minimum line spacing
@@ -154,7 +154,7 @@ customButtonStyle | Object | See Custom Button section
 onCustomButtonPress | Function | Callback when custom button tapped
 
 #### Custom Button
-Attribute | type | description
+Attribute | Values | Description
 -------- | ----- | ------------
 image | `require(_PATH_)` | Custom button image
 backgroundColor | Color | Custom button background color
@@ -162,7 +162,7 @@ backgroundColor | Color | Custom button background color
 #### Selection
 
 
-Attribute | type | description
+Attribute | Values | Description
 -------- | ----- | ------------
 selectedImage |`require(_PATH_)`|Selected image badge image
 unselectedImage |`require(_PATH_)`|Unselected image badge image
