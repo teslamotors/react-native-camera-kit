@@ -135,3 +135,36 @@ README in progress :)
           unSelectedImageIcon={require('<IMAGE_FILE_PATH>')}
 />
 ```
+
+Attribute | type | description
+-------- | ----- | ------------
+minimumInteritemSpacing | float  | Minimum inner Item spacing
+minimumLineSpacing | Float | Minimum line spacing
+imageStrokeColor | Color | Image storke color
+albumName | String |Album name to show
+columnCount | Integer | How many clumns in one row
+onTapImage | Function | Callback when image tapped
+selectedImages | Array | Selected images (will show the selected badge)
+selectedImageIcon | `require(_PATH_)`  | Selected image badge image
+unSelectedImageIcon | `require(_PATH_)` | Unselected image badge image
+selection | Object |   See Selection section 
+getUrlOnTapImage | Boolean| iOS only - On image tap return the image uri (intead of `Photos.framework` asset id)
+customButtonStyle | Object | See Custom Button section
+onCustomButtonPress | Function | Callback when custom button tapped
+
+#### Custom Button
+Attribute | type | description
+-------- | ----- | ------------
+image | `require(_PATH_)` | Custom button image
+backgroundColor | Color | Custom button background color
+
+#### Selection
+
+
+Attribute | type | description
+-------- | ----- | ------------
+selectedImage |`require(_PATH_)`|Selected image badge image
+unselectedImage |`require(_PATH_)`|Unselected image badge image
+imagePosition |`bottom/top-right/left` / `center`|  Selected/Unselected badge image position (Default:`top-right`)
+overlayColor |Color| Image selected overlay color
+imageSizeAndroid |`large`/`medium`| Android Only - Selected badge image size
