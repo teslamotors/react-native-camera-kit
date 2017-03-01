@@ -274,7 +274,7 @@ static UIColor *selectionOverlayColor = nil;
     if (self.disableSelectionIcons) return;
     
     if (_isSelected) {
-        self.imageOveray.backgroundColor = selectionOverlayColor ? selectionOverlayColor : [UIColor whiteColor];
+        self.imageOveray.backgroundColor = selectionOverlayColor ? selectionOverlayColor : [[UIColor whiteColor] colorWithAlphaComponent:0.5];
         
         if (selectedImageIcon) {
             double frameDuration = 1.0/2.0; // 4 = number of keyframes
