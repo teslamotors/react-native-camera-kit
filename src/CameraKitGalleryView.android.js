@@ -38,12 +38,30 @@ export default class CameraKitGalleryView extends Component {
     if (transformedProps.selectedImageIcon) {
       transformedProps.selectedImageIcon = resolveAssetSource(transformedProps.selectedImageIcon).uri;
     }
+    if (_.get(transformedProps, 'selection.selectedImage')) {
+      _.update(transformedProps, 'selection.selectedImage', (image) => resolveAssetSource(image).uri);
+    }
+    if (_.get(transformedProps, 'selection.position')) {
+      const position = this.transformSelectedImagePosition(_.get(transformedProps, 'selection.position'));
+      _.update(transformedProps, 'selection.position', (pos) => position);
+    }
     return <GalleryView {...transformedProps} onTapImage={this.onTapImage}/>
   }
 
   onTapImage(event) {
     if(this.props.onTapImage) {
       this.props.onTapImage(event);
+    }
+  }
+
+  transformSelectedImagePosition(position) {
+    switch (position) {
+      case 'top-right': return 0;
+      case 'top-left': return 1;
+      case 'bottom-right': return 2;
+      case 'bottom-left': return 3;
+      case 'center': return 4;
+      default: return null;
     }
   }
 }

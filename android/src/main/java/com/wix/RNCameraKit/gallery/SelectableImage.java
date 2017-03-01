@@ -24,7 +24,11 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 public class SelectableImage extends FrameLayout {
     private static final int MINI_THUMB_HEIGHT = 512;
     private static final int MINI_THUMB_WIDTH = 384;
-    public static final int MAX_SAMPLE_SIZE = 8;
+    private static final int MAX_SAMPLE_SIZE = 8;
+    private static final int DEFAULT_SELECTED_IMAGE_GRAVITY = Gravity.TOP | Gravity.RIGHT;
+
+    public static final int SELECTED_IMAGE_NORMAL_SIZE_DP = 22;
+    public static final int SELECTED_IMAGE_LARGE_SIZE_DP = 36;
 
     private final ImageView imageView;
     private final ImageView selectedView;
@@ -38,17 +42,16 @@ public class SelectableImage extends FrameLayout {
     private boolean selected;
     private int inSampleSize;
 
-    public SelectableImage(Context context) {
+    public SelectableImage(Context context, Integer selectedImageGravity, Integer selectedImageSize) {
         super(context);
         setPadding(1, 1, 1, 1);
         setBackgroundColor(0xedeff0);
         imageView = new ImageView(context);
         addView(imageView, MATCH_PARENT, MATCH_PARENT);
+
         selectedView = new ImageView(context);
-        int dp22 = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 22, context.getResources().getDisplayMetrics());
-        LayoutParams params = new FrameLayout.LayoutParams(dp22, dp22, Gravity.TOP | Gravity.RIGHT);
-        params.setMargins(30, 30, 30, 30);
-        addView(selectedView, params);
+        addView(selectedView, createSelectedImageParams(selectedImageGravity, selectedImageSize));
+
         createUnsupportedView();
     }
 
@@ -175,5 +178,16 @@ public class SelectableImage extends FrameLayout {
         }
 
         return inSampleSize;
+    }
+
+    private LayoutParams createSelectedImageParams(Integer gravity, Integer sizeDp) {
+        gravity = gravity != null ? gravity : DEFAULT_SELECTED_IMAGE_GRAVITY;
+        sizeDp = sizeDp != null ? sizeDp : SELECTED_IMAGE_NORMAL_SIZE_DP;
+
+        final int sizePx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, sizeDp, getResources().getDisplayMetrics());
+
+        final LayoutParams params = new FrameLayout.LayoutParams(sizePx, sizePx, gravity);
+        params.setMargins(30, 30, 30, 30);
+        return params;
     }
 }

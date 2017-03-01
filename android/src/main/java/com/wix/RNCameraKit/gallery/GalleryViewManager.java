@@ -29,8 +29,10 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
     private final String UNSUPPORTED_OVERLAY_KEY = "unsupportedOverlayColor";
     private final String CUSTOM_BUTTON_IMAGE_KEY = "image";
     private final String CUSTOM_BUTTON_BCK_COLOR_KEY = "backgroundColor";
-
-    private ThemedReactContext reactContext;
+    private final String SELECTION_SELECTED_IMAGE_KEY = "selectedImage";
+    private final String SELECTION_UNSELECTED_IMAGE_KEY = "unselectedImage";
+    private final String SELECTION_POSITION_KEY = "position";
+    private final String SELECTION_SIZE_KEY = "size";
 
     /**
      * A handler is required in order to sync configurations made to the adapter - some must run off the UI thread (e.g. drawables
@@ -49,8 +51,6 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
 
     @Override
     protected GalleryView createViewInstance(ThemedReactContext reactContext) {
-        this.reactContext = reactContext;
-
         final HandlerThread handlerThread = new HandlerThread("GalleryViewManager.configThread");
         handlerThread.start();
         adapterConfigHandler = new Handler(handlerThread.getLooper());
@@ -68,6 +68,7 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
                 getViewAdapter(view).refreshData();
             }
         });
+        super.onAfterUpdateTransaction(view);
     }
 
     @ReactProp(name = "minimumInteritemSpacing")
@@ -133,6 +134,39 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
             public void run() {
                 final Drawable drawable = ResourceDrawableIdHelper.getIcon(view.getContext(), imageSource);
                 getViewAdapter(view).setUnselectedDrawable(drawable);
+            }
+        });
+    }
+
+    @ReactProp(name = "selection")
+    public void setSelectionProperties(final GalleryView view, final ReadableMap selectionProps) {
+        final String selectedImage = getStringSafe(selectionProps, SELECTION_SELECTED_IMAGE_KEY);
+        final String unselectedImage = getStringSafe(selectionProps, SELECTION_UNSELECTED_IMAGE_KEY);
+        final Integer position = getIntSafe(selectionProps, SELECTION_POSITION_KEY);
+        final String size = getStringSafe(selectionProps, SELECTION_SIZE_KEY);
+        dispatchOnConfigJobQueue(new Runnable() {
+            @Override
+            public void run() {
+                final GalleryAdapter viewAdapter = getViewAdapter(view);
+
+                if (selectedImage != null) {
+                    final Drawable selectedDrawable = ResourceDrawableIdHelper.getIcon(view.getContext(), selectedImage);
+                    viewAdapter.setSelectedDrawable(selectedDrawable);
+                }
+
+                if (unselectedImage != null) {
+                    final Drawable unselectedDrawable = ResourceDrawableIdHelper.getIcon(view.getContext(), unselectedImage);
+                    viewAdapter.setUnselectedDrawable(unselectedDrawable);
+                }
+
+                if (position != null) {
+                    viewAdapter.setSelectionDrawablePosition(position);
+                }
+
+                if (size != null) {
+                    final int sizeCode = size.equalsIgnoreCase("large") ? GalleryAdapter.SELECTED_IMAGE_SIZE_LARGE : GalleryAdapter.SELECTED_IMAGE_SIZE_NORMAL;
+                    viewAdapter.setSelectedDrawableSize(sizeCode);
+                }
             }
         });
     }
@@ -217,6 +251,13 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
     private @Nullable String getStringSafe(ReadableMap map, String key) {
         if (map.hasKey(key)) {
             return map.getString(key);
+        }
+        return null;
+    }
+
+    private @Nullable Integer getIntSafe(ReadableMap map, String key) {
+        if (map.hasKey(key)) {
+            return map.getInt(key);
         }
         return null;
     }

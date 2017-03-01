@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.provider.MediaStore;
 import android.support.v7.widget.RecyclerView;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -21,12 +22,23 @@ import java.util.concurrent.TimeUnit;
 
 public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewHolder> {
 
+    public static final int SELECTED_IMAGE_SIZE_NORMAL = SelectableImage.SELECTED_IMAGE_NORMAL_SIZE_DP;
+    public static final int SELECTED_IMAGE_SIZE_LARGE = SelectableImage.SELECTED_IMAGE_LARGE_SIZE_DP;
+
+    private static final int[] selectedPositionTypeToGravity = new int[] {
+            Gravity.TOP | Gravity.RIGHT,
+            Gravity.TOP | Gravity.LEFT,
+            Gravity.BOTTOM | Gravity.RIGHT,
+            Gravity.BOTTOM | Gravity.LEFT,
+            Gravity.CENTER
+    };
+
     private static final String DEFAULT_CUSTOM_BUTTON_BACKGROUND_COLOR = "#f2f4f5";
 
     private static int VIEW_TYPE_IMAGE = 0;
     private static int VIEW_TYPE_TAKE_PICTURE = 1;
 
-    public static final String[] PROJECTION = new String[]{
+    private static final String[] PROJECTION = new String[]{
             MediaStore.Images.Media.DATA,
             MediaStore.Images.Media._ID,
             MediaStore.Images.Media.MIME_TYPE
@@ -145,8 +157,10 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
     private ArrayList<String> supportedFileTypes = new ArrayList<>();
     private String albumName = "";
     private Drawable selectedDrawable;
-    private Drawable unselectedDrawable;
     private Drawable customButtonImage;
+    private Integer selectedDrawableGravity;
+    private Integer selectedDrawableSize;
+    private Drawable unselectedDrawable;
     private String customButtonBackgroundColor = DEFAULT_CUSTOM_BUTTON_BACKGROUND_COLOR;
 
     private ArrayList<Image> images = new ArrayList<>();
@@ -180,6 +194,14 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
 
     public void setUnselectedDrawable(Drawable unselectedDrawable) {
         this.unselectedDrawable = unselectedDrawable;
+    }
+
+    public void setSelectionDrawablePosition(int positionType) {
+        this.selectedDrawableGravity = selectedPositionTypeToGravity[positionType];
+    }
+
+    public void setSelectedDrawableSize(int selectedDrawableSize) {
+        this.selectedDrawableSize = selectedDrawableSize;
     }
 
     public void setSupportedFileTypes(ArrayList<String> supportedFileTypes) {
@@ -284,7 +306,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
     @Override
     public AbsViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == VIEW_TYPE_IMAGE) {
-            SelectableImage v = new SelectableImage(view.getContext());
+            SelectableImage v = new SelectableImage(view.getContext(), selectedDrawableGravity, selectedDrawableSize);
             v.setScaleType(ImageView.ScaleType.CENTER_CROP);
             v.setBackgroundColor(Color.LTGRAY);
             return new ImageHolder(v);
