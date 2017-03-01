@@ -32,8 +32,8 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
     private final String CUSTOM_BUTTON_BCK_COLOR_KEY = "backgroundColor";
     private final String SELECTION_SELECTED_IMAGE_KEY = "selectedImage";
     private final String SELECTION_UNSELECTED_IMAGE_KEY = "unselectedImage";
-    private final String SELECTION_POSITION_KEY = "position";
-    private final String SELECTION_SIZE_KEY = "size";
+    private final String SELECTION_POSITION_KEY = "imagePosition";
+    private final String SELECTION_SIZE_KEY = "imageSizeAndroid";
     private final String SELECTION_ENABLED_KEY = "enable";
 
     /**

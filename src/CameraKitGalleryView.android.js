@@ -45,10 +45,10 @@ export default class CameraKitGalleryView extends Component {
       _.update(transformedProps, 'selection.selectedImage', (image) => resolveAssetSource(image).uri);
     }
 
-    const selectionPosition = _.get(transformedProps, 'selection.position');
+    const selectionPosition = _.get(transformedProps, 'selection.imagePosition');
     if (selectionPosition) {
       const positionCode = this.transformSelectedImagePosition(selectionPosition);
-      _.update(transformedProps, 'selection.position', (position) => positionCode);
+      _.update(transformedProps, 'selection.imagePosition', (position) => positionCode);
     }
 
     return <GalleryView {...transformedProps} onTapImage={this.onTapImage}/>
