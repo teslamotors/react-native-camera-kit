@@ -97,7 +97,6 @@ export default class AlbumsScreen extends Component {
             imageSizeAndroid: 'large',
             overlayColor: '#ecf0f1aa'
           }}
-          selectedImageOverlayColor={'black'}
           fileTypeSupport={{
             unsupportedOverlayColor: "#00000055",
             unsupportedImage: require('./images/unsupportedImage.png'),
