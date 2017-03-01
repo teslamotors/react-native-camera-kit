@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import {
     AppRegistry,
-    StyleSheet,
     Text,
     View,
     ListView,
@@ -16,30 +15,25 @@ import {
     CameraKitGalleryView
 } from 'react-native-camera-kit';
 
-const size = Math.floor((Dimensions.get('window').width) / 3);
-const innerSize = size - 6;
+import CameraScreen from './CameraScreen';
 
 const resolveAssetSource = require('react-native/Libraries/Image/resolveAssetSource');
 
 export default class GalleryScreenNative extends Component {
 
-  static navigatorButtons = {
-    rightButtons: [
-      {
-        title: 'Done',
-        id: 'navBarDone'
-      }
-    ]
-  };
-
   constructor(props) {
     super(props);
     this.state = {
       album: this.props.albumName,
+      shouldRenderCameraScreen: false
     }
   }
 
   render() {
+    if (this.state.shouldRenderCameraScreen) {
+      return (<CameraScreen/>);
+    }
+
     return (
         <CameraKitGalleryView
             ref={(gallery) => {
@@ -53,7 +47,11 @@ export default class GalleryScreenNative extends Component {
             onSelected={(result) => {
             }}
             onTapImage={(event) => console.log('Tapped on an image: ' + event.nativeEvent.selected)}
-            selectedImageIcon={require('./images/wix_logo.png')}
+            selection={{
+              selectedImage: require('./images/wix_logo.png'),
+              position: "bottomRight",
+              size: "large"
+            }}
             fileTypeSupport={{
                 supportedFileTypes: ['image/jpeg'],
                 unsupportedOverlayColor: "#00000055",
@@ -65,11 +63,8 @@ export default class GalleryScreenNative extends Component {
                 image: require('./images/openCamera.png'),
                 backgroundColor: '#06c4e9'
             }}
-            onCustomButtonPress={() => console.log('Tapped on custom button!')}
+            onCustomButtonPress={() => this.setState({shouldRenderCameraScreen: true})}
         />
     )
   }
 }
-
-const styles = StyleSheet.create({});
-
