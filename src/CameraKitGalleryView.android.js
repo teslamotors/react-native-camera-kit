@@ -43,19 +43,23 @@ export default class CameraKitGalleryView extends Component {
       _.update(transformedProps, 'customButtonStyle.backgroundColor', (color) => processColor(customButtonBkgColor));
     }
 
-    if (transformedProps.selectedImageIcon) {
-      transformedProps.selectedImageIcon = resolveAssetSource(transformedProps.selectedImageIcon).uri;
+    const selectedImageDeprecated = transformedProps.selectedImageIcon;
+    if (selectedImageDeprecated && _.isNumber(selectedImageDeprecated)) {
+      transformedProps.selectedImageIcon = resolveAssetSource(selectedImageDeprecated).uri;
     }
 
-    if (transformedProps.unSelectedImageIcon) {
-      transformedProps.unSelectedImageIcon = resolveAssetSource(transformedProps.unSelectedImageIcon).uri;
+    const unselectedImageDeprecated = transformedProps.unSelectedImageIcon;
+    if (unselectedImageDeprecated && _.isNumber(unselectedImageDeprecated)) {
+      transformedProps.unSelectedImageIcon = resolveAssetSource(unselectedImageDeprecated).uri;
     }
 
-    if (_.get(transformedProps, 'selection.selectedImage')) {
+    const selectedImage = _.get(transformedProps, 'selection.selectedImage');
+    if (selectedImage && _.isNumber(selectedImage)) {
       _.update(transformedProps, 'selection.selectedImage', (image) => resolveAssetSource(image).uri);
     }
 
-    if (_.get(transformedProps, 'selection.unselectedImage')) {
+    const unselectedImage = _.get(transformedProps, 'selection.unselectedImage');
+    if (unselectedImage && _.isNumber(unselectedImage)) {
       _.update(transformedProps, 'selection.unselectedImage', (image) => resolveAssetSource(image).uri);
     }
 
