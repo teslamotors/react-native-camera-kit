@@ -58,13 +58,13 @@ public class StoragePermission {
         if (statusCode == PermissionChecker.PERMISSION_GRANTED) {
             return PERMISSION_GRANTED;
         }
-        if (hasPreviouslyRequestedPermission(activity, permissionName)) {
+        if (requestingPermissionForFirstTime(activity, permissionName)) {
             return PERMISSION_NOT_DETERMINED;
         }
         return PERMISSION_DENIED;
     }
 
-    private boolean hasPreviouslyRequestedPermission(Activity activity, String permissionName) {
+    private boolean requestingPermissionForFirstTime(Activity activity, String permissionName) {
         return !SharedPrefs.getBoolean(activity, permissionName);
     }
 

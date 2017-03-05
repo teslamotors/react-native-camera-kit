@@ -43,13 +43,13 @@ public class CameraPermission {
         if (statusCode == PermissionChecker.PERMISSION_GRANTED) {
             return PERMISSION_GRANTED;
         }
-        if (hasPreviouslyRequestedPermission(activity, Manifest.permission.CAMERA)) {
+        if (requestingPermissionForFirstTime(activity, Manifest.permission.CAMERA)) {
             return PERMISSION_NOT_DETERMINED;
         }
         return PERMISSION_DENIED;
     }
 
-    private boolean hasPreviouslyRequestedPermission(Activity activity, String permissionName) {
+    private boolean requestingPermissionForFirstTime(Activity activity, String permissionName) {
         return !SharedPrefs.getBoolean(activity, permissionName);
     }
 
