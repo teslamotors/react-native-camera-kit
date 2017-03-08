@@ -36,7 +36,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
     private static final int DEFAULT_CUSTOM_BUTTON_BACKGROUND_COLOR = Color.parseColor("#f2f4f5");
 
     private static int VIEW_TYPE_IMAGE = 0;
-    private static int VIEW_TYPE_TAKE_PICTURE = 1;
+    private static int VIEW_TYPE_CUSTOM_BUTTON = 1;
 
     private static final String[] PROJECTION = new String[]{
             MediaStore.Images.Media.DATA,
@@ -132,9 +132,9 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
         }
     }
 
-    class OpenCameraButtonHolder extends AbsViewHolder implements View.OnClickListener {
+    class CustomButtonViewHolder extends AbsViewHolder implements View.OnClickListener {
 
-        OpenCameraButtonHolder() {
+        CustomButtonViewHolder() {
             super(new ImageView(GalleryAdapter.this.view.getContext()));
 
             final ImageView imageView = (ImageView) this.itemView;
@@ -173,7 +173,6 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
 
     private boolean isDirty = true;
     private ArrayList<Image> images = new ArrayList<>();
-    private boolean refreshing = false;
     private GalleryView view;
     private ThreadPoolExecutor executor;
 
@@ -245,7 +244,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
     @Override
     public int getItemViewType(int position) {
         if (shouldShowCustomButton() && position == 0) {
-            return VIEW_TYPE_TAKE_PICTURE;
+            return VIEW_TYPE_CUSTOM_BUTTON;
         }
         return VIEW_TYPE_IMAGE;
     }
@@ -256,51 +255,39 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
         }
         isDirty = false;
 
-        if (refreshing) {
-            return;
+        int preItemsCount = getItemCount();
+        images.clear();
+
+        String selection = "";
+        String[] args = null;
+        if (albumName != null && !albumName.isEmpty() && !albumName.equals("All Photos")) {
+            selection = MediaStore.Images.Media.BUCKET_DISPLAY_NAME + "=?";
+            args = new String[]{albumName};
         }
 
-        refreshing = true;
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                int preItemsCount = getItemCount();
+        Cursor cursor = view.getContext().getContentResolver().query(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                PROJECTION,
+                selection,
+                args,
+                null
+        );
 
-                images.clear();
+        if (cursor.moveToFirst()) {
+            int dataIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
+            int idIndex = cursor.getColumnIndex(MediaStore.Images.Media._ID);
+            int mimeIndex = cursor.getColumnIndex(MediaStore.Images.Media.MIME_TYPE);
+            do {
+                images.add(new Image(cursor.getString(dataIndex), cursor.getInt(idIndex), cursor.getString(mimeIndex)));
+            } while (cursor.moveToNext());
+        }
 
-                String selection = "";
-                String[] args = null;
-                if (albumName != null && !albumName.isEmpty() && !albumName.equals("All Photos")) {
-                    selection = MediaStore.Images.Media.BUCKET_DISPLAY_NAME + "=?";
-                    args = new String[]{albumName};
-                }
-
-                Cursor cursor = view.getContext().getContentResolver().query(
-                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                        PROJECTION,
-                        selection,
-                        args,
-                        null
-                );
-
-                if (cursor.moveToFirst()) {
-                    int dataIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
-                    int idIndex = cursor.getColumnIndex(MediaStore.Images.Media._ID);
-                    int mimeIndex = cursor.getColumnIndex(MediaStore.Images.Media.MIME_TYPE);
-                    do {
-                        images.add(new Image(cursor.getString(dataIndex), cursor.getInt(idIndex), cursor.getString(mimeIndex)));
-                    } while (cursor.moveToNext());
-                }
-
-                if (shouldShowCustomButton()) {
-                    images.add(new Image(null, -1, ""));
-                }
-                Collections.reverse(images);
-                cursor.close();
-                refreshing = false;
-                notifyItemsLoaded(preItemsCount, getItemCount());
-            }
-        }).start();
+        if (shouldShowCustomButton()) {
+            images.add(new Image(null, -1, ""));
+        }
+        Collections.reverse(images);
+        cursor.close();
+        notifyItemsLoaded(preItemsCount, getItemCount());
     }
 
     private void notifyItemsLoaded(final int preCount, final int postCount) {
@@ -336,8 +323,8 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
             return new ImageHolder(v);
         }
 
-        if (viewType == VIEW_TYPE_TAKE_PICTURE) {
-            return new OpenCameraButtonHolder();
+        if (viewType == VIEW_TYPE_CUSTOM_BUTTON) {
+            return new CustomButtonViewHolder();
         }
 
         return null;
