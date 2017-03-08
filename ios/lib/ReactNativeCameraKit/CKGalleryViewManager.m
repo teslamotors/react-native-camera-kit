@@ -36,6 +36,7 @@
 @property (nonatomic, strong) NSNumber *minimumInteritemSpacing;
 @property (nonatomic, strong) NSNumber *columnCount;
 @property (nonatomic, strong) NSNumber *getUrlOnTapImage;
+@property (nonatomic, strong) NSNumber *autoSyncSelection;
 @property (nonatomic, copy) RCTDirectEventBlock onTapImage;
 
 
@@ -310,8 +311,6 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
     
     __block CKGalleryCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:CellReuseIdentifier forIndexPath:indexPath];
     cell.disableSelectionIcons = self.disableSelectionIcons ? self.disableSelectionIcons.boolValue : false;
-    cell.isSelected = ((NSNumber*)assetDictionary[@"isSelected"]).boolValue;
-    
     
     if (self.supportedFileTypesArray) {
         cell.isSupported = [self.supportedFileTypesArray containsObject:[MIMETypeString lowercaseString]];
@@ -372,9 +371,46 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
     }
 }
 
+- (void)collectionView:(UICollectionView *)collectionView willDisplayCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
+    if([cell isKindOfClass:[CKGalleryCollectionViewCell class]]) {
+        CKGalleryCollectionViewCell *ckCell = (CKGalleryCollectionViewCell*)cell;
+        
+        NSInteger galleryDataIndex = indexPath.row;
+        if (self.customButtonStyle) {
+            galleryDataIndex--;
+        }
+        NSDictionary *assetDictionary = (NSDictionary*)self.galleryData.data[galleryDataIndex];
+        ((CKGalleryCollectionViewCell*)cell).isSelected = ((NSNumber*)assetDictionary[@"isSelected"]).boolValue;
+    }
+}
+
+-(BOOL)isSelectionDirty:(NSMutableArray *)newSelectedImages {
+    if(![self.autoSyncSelection boolValue]) {
+        return NO;
+    }
+    NSArray *mergedArray = [newSelectedImages arrayByAddingObjectsFromArray:self.selectedImages];
+    NSArray *arrayWithoutDuplicates = [[NSOrderedSet orderedSetWithArray:mergedArray] array];
+    return (arrayWithoutDuplicates.count > 0);
+}
+
 -(void)setSelectedImages:(NSMutableArray *)selectedImages {
+    BOOL selectionDirty = [self isSelectionDirty:selectedImages];
     if (selectedImages) {
         _selectedImages = selectedImages;
+    }
+    
+    if(selectionDirty && [self.autoSyncSelection boolValue]) {
+        //sync visible cells
+        for (CKGalleryCollectionViewCell *cell in [self.collectionView visibleCells]) {
+            if([cell respondsToSelector:@selector(representedAssetIdentifier)]) {
+                cell.isSelected = ([selectedImages indexOfObject:cell.representedAssetIdentifier] != NSNotFound);
+            }
+        }
+        //sync data
+        for (NSMutableDictionary *dataDic in self.galleryData.data) {
+            PHAsset *asset = dataDic[@"asset"];
+            dataDic[@"isSelected"] = @([selectedImages indexOfObject:asset.localIdentifier] != NSNotFound);
+        }
     }
 }
 
@@ -459,6 +495,7 @@ RCT_EXPORT_VIEW_PROPERTY(disableSelectionIcons, NSNumber);
 RCT_EXPORT_VIEW_PROPERTY(customButtonStyle, NSDictionary);
 RCT_EXPORT_VIEW_PROPERTY(onCustomButtonPress, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(getUrlOnTapImage, NSNumber);
+RCT_EXPORT_VIEW_PROPERTY(autoSyncSelection, NSNumber);
 RCT_EXPORT_VIEW_PROPERTY(selection, NSDictionary);
 
 
