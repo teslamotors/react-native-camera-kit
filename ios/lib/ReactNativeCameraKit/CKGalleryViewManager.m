@@ -398,7 +398,7 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
             NSDictionary *info = [CKGalleryViewManager infoForAsset:asset imageRequestOptions:imageRequestOptions];
             NSString *uriString = info[@"uri"];
             if (uriString) {
-                self.onTapImage(@{@"selected": uriString});
+                self.onTapImage(@{@"selected": uriString, @"selectedId": asset.localIdentifier});
             }
             else {
                 self.onTapImage(@{@"Error": @"Could not get image uri"});
