@@ -11,7 +11,6 @@
 #import "GalleryData.h"
 #import "RCTConvert.h"
 
-#define BADGE_SIZE              22
 #define BADGE_MARGIN            5
 #define BADGE_COLOR             0x00ADF5
 #define IMAGE_OVERLAY_ALPHA     0.5
@@ -113,8 +112,7 @@ static UIColor *selectionOverlayColor = nil;
     
     [self.imageView addSubview:self.imageOveray];
     
-    CGRect badgeRect = CGRectMake(self.imageView.bounds.size.width - (BADGE_SIZE + BADGE_MARGIN), BADGE_MARGIN, BADGE_SIZE, BADGE_SIZE);
-    self.badgeImageView = [[UIImageView alloc] initWithFrame:badgeRect];
+    self.badgeImageView = [[UIImageView alloc] init];
     [self addSubview:self.badgeImageView];
     
     self.isSupported = YES;
@@ -141,14 +139,6 @@ static UIColor *selectionOverlayColor = nil;
         unSelectedImageIcon = [RCTConvert UIImage:unselectedImageIconProp];
     }
     
-    id imagePositionProp = selection[SELECTION_IMAGE_POSITION];
-    if(imagePositionProp) {
-        CGRect badgeRect = [self frameforImagePosition:imagePositionProp];
-        if (!CGRectIsEmpty(badgeRect)) {
-            self.badgeImageView.frame = badgeRect;
-        };
-    }
-    
     id overlayColorProp = selection[SELECTION_OVERLAY_COLOR];
     if(overlayColorProp) {
         selectionOverlayColor = [RCTConvert UIColor:overlayColorProp];
@@ -156,23 +146,23 @@ static UIColor *selectionOverlayColor = nil;
     
 }
 
--(CGRect)frameforImagePosition:(NSString*)position {
+-(CGRect)frameforImagePosition:(NSString*)position image:(UIImage*)image {
     CGRect badgeRect;
     
     if ([position isEqualToString:@"top-right"]) {
-        badgeRect= CGRectMake(self.imageView.bounds.size.width - (BADGE_SIZE + BADGE_MARGIN), BADGE_MARGIN, BADGE_SIZE, BADGE_SIZE);
+        badgeRect= CGRectMake(self.imageView.bounds.size.width - (image.size.width + BADGE_MARGIN), BADGE_MARGIN, image.size.width, image.size.height);
     }
     else if ([position isEqualToString:@"top-left"]) {
-        badgeRect= CGRectMake(BADGE_MARGIN, BADGE_MARGIN, BADGE_SIZE, BADGE_SIZE);
+        badgeRect= CGRectMake(BADGE_MARGIN, BADGE_MARGIN, image.size.width, image.size.height);
     }
     else if ([position isEqualToString:@"bottom-right"]) {
-        badgeRect= CGRectMake(self.imageView.bounds.size.width - (BADGE_SIZE + BADGE_MARGIN), self.imageView.bounds.size.height - (BADGE_SIZE + BADGE_MARGIN), BADGE_SIZE, BADGE_SIZE);
+        badgeRect= CGRectMake(self.imageView.bounds.size.width - (image.size.width + BADGE_MARGIN), self.imageView.bounds.size.height - (image.size.height + BADGE_MARGIN), image.size.width, image.size.height);
     }
     else if ([position isEqualToString:@"bottom-left"]) {
-        badgeRect= CGRectMake(BADGE_MARGIN, self.imageView.bounds.size.height - (BADGE_SIZE + BADGE_MARGIN), BADGE_SIZE, BADGE_SIZE);
+        badgeRect= CGRectMake(BADGE_MARGIN, self.imageView.bounds.size.height - (image.size.height + BADGE_MARGIN), image.size.width, image.size.height);
     }
     else if ([position isEqualToString:@"center"]) {
-        badgeRect= CGRectMake(self.imageView.center.x - (BADGE_SIZE/2), self.imageView.center.y - (BADGE_SIZE/2), BADGE_SIZE, BADGE_SIZE);
+        badgeRect = CGRectMake((self.imageView.bounds.size.width - image.size.width) * 0.5, (self.imageView.bounds.size.height - image.size.height) * 0.5, image.size.width, image.size.height);
     }
     else {
         badgeRect = CGRectZero;
@@ -182,6 +172,15 @@ static UIColor *selectionOverlayColor = nil;
     
 }
 
+-(void)updateBadgeImageViewFrame {
+    id imagePositionProp = selection[SELECTION_IMAGE_POSITION];
+    if(imagePositionProp) {
+        CGRect badgeRect = [self frameforImagePosition:imagePositionProp image:self.badgeImageView.image];
+        if (!CGRectIsEmpty(badgeRect)) {
+            self.badgeImageView.frame = badgeRect;
+        };
+    }
+}
 
 - (void)prepareForReuse {
     [super prepareForReuse];
@@ -269,6 +268,10 @@ static UIColor *selectionOverlayColor = nil;
 
 -(void)setIsSelected:(BOOL)isSelected {
     
+    if(_isSelected == isSelected) {
+        return;
+    }
+    
     _isSelected = isSelected;
     
     if (self.disableSelectionIcons) return;
@@ -279,6 +282,7 @@ static UIColor *selectionOverlayColor = nil;
         if (selectedImageIcon) {
             double frameDuration = 1.0/2.0; // 4 = number of keyframes
             self.badgeImageView.image = selectedImageIcon;
+            [self updateBadgeImageViewFrame];
             self.badgeImageView.transform = CGAffineTransformMakeScale(0.5, 0.5);
             [UIView animateKeyframesWithDuration:0.2 delay:0 options:0 animations:^{
                 
@@ -296,6 +300,7 @@ static UIColor *selectionOverlayColor = nil;
     else {
         self.imageOveray.backgroundColor = [UIColor clearColor];
         self.badgeImageView.image = unSelectedImageIcon;
+        [self updateBadgeImageViewFrame];
     }
 }
 
