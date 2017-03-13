@@ -100,7 +100,7 @@ export default class CameraScreen extends Component {
         <TouchableOpacity style={{ paddingHorizontal: 15 }} onPress={this.onSwitchCameraPressed}>
           <Image
             style={{ flex: 1, justifyContent: 'center' }}
-            source={_.get(this.props, 'cameraFlipImage', require('./../images/cameraFlipIcon.png'))}
+            source={this.props.cameraFlipImage}
             resizeMode={Image.resizeMode.contain}
           />
         </TouchableOpacity>
@@ -132,19 +132,22 @@ export default class CameraScreen extends Component {
 
 
   renderCaptureButton() {
-    return (
-      <View style={styles.captureButtonContainer}>
-        <TouchableOpacity
-          onPress={() => this.onCaptureImagePressed()}
-        >
-          <Image
-            style={styles.captureButton}
-            source={_.get(this.props, 'captureButtonImage', require('./../images/cameraButton.png'))}
-            resizeMode={'contain'}
-          />
-        </TouchableOpacity>
-      </View>
-    );
+    if (this.props.captureButtonImage) {
+      return (
+        <View style={styles.captureButtonContainer}>
+          <TouchableOpacity
+            onPress={() => this.onCaptureImagePressed()}
+          >
+            <Image
+              style={styles.captureButton}
+              source={this.props.captureButtonImage}
+              resizeMode={'contain'}
+            />
+          </TouchableOpacity>
+        </View>
+      );
+    }
+    return null;
   }
 
   renderGap() {
@@ -186,7 +189,7 @@ export default class CameraScreen extends Component {
     if (buttonText) {
       return (
         <TouchableOpacity
-          style={[styles.bottomButton, {justifyContent: type === 'left' ? 'flex-start' : 'flex-end'}]}
+          style={[styles.bottomButton, { justifyContent: type === 'left' ? 'flex-start' : 'flex-end' }]}
           onPress={() => this.onButtonPressed(type)}
         >
           <Text style={styles.textStyle}>{_.get(this.props, `actions.${type}ButtonText`, type)}</Text>
