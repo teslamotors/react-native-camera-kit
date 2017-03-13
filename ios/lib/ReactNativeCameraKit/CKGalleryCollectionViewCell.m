@@ -174,12 +174,12 @@ static UIColor *selectionOverlayColor = nil;
 
 -(void)updateBadgeImageViewFrame {
     id imagePositionProp = selection[SELECTION_IMAGE_POSITION];
-    if(imagePositionProp) {
-        CGRect badgeRect = [self frameforImagePosition:imagePositionProp image:self.badgeImageView.image];
-        if (!CGRectIsEmpty(badgeRect)) {
-            self.badgeImageView.frame = badgeRect;
-        };
-    }
+    if(!imagePositionProp) imagePositionProp = @"top-right"; // defualt
+    CGRect badgeRect = [self frameforImagePosition:imagePositionProp image:self.badgeImageView.image];
+    if (!CGRectIsEmpty(badgeRect)) {
+        self.badgeImageView.frame = badgeRect;
+    };
+    
 }
 
 - (void)prepareForReuse {
@@ -268,10 +268,6 @@ static UIColor *selectionOverlayColor = nil;
 
 -(void)setIsSelected:(BOOL)isSelected {
     
-    if(_isSelected == isSelected) {
-        return;
-    }
-    
     _isSelected = isSelected;
     
     if (self.disableSelectionIcons) return;
@@ -298,9 +294,11 @@ static UIColor *selectionOverlayColor = nil;
         }
     }
     else {
-        self.imageOveray.backgroundColor = [UIColor clearColor];
-        self.badgeImageView.image = unSelectedImageIcon;
-        [self updateBadgeImageViewFrame];
+        if (unSelectedImageIcon) {
+            self.imageOveray.backgroundColor = [UIColor clearColor];
+            self.badgeImageView.image = unSelectedImageIcon;
+            [self updateBadgeImageViewFrame];
+        }
     }
 }
 
