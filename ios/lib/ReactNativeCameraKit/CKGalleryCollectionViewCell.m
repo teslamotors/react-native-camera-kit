@@ -294,10 +294,13 @@ static UIColor *selectionOverlayColor = nil;
         }
     }
     else {
+        self.imageOveray.backgroundColor = [UIColor clearColor];
         if (unSelectedImageIcon) {
-            self.imageOveray.backgroundColor = [UIColor clearColor];
             self.badgeImageView.image = unSelectedImageIcon;
             [self updateBadgeImageViewFrame];
+        }
+        else {
+            self.badgeImageView.image = nil;
         }
     }
 }
