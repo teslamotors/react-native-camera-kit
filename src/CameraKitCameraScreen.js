@@ -44,7 +44,8 @@ export default class CameraScreen extends Component {
       ratios: [],
       cameraOptions: {},
       ratioArrayPosition: -1,
-      imageCaptured: undefined
+      imageCaptured: undefined,
+      captured: false
     };
     this.onSetFlash = this.onSetFlash.bind(this);
     this.onSwitchCameraPressed = this.onSwitchCameraPressed.bind(this);
@@ -130,6 +131,17 @@ export default class CameraScreen extends Component {
     );
   }
 
+  numberOfImagesTaken() {
+    const numberTook = this.state.captureImages.length;
+    if (numberTook >= 2) {
+      return numberTook;
+    } else if (this.state.captured) {
+      return '1';
+    } else {
+      return '';
+    }
+  }
+
 
   renderCaptureButton() {
     if (this.props.captureButtonImage) {
@@ -141,10 +153,15 @@ export default class CameraScreen extends Component {
             <Image
               style={styles.captureButton}
               source={this.props.captureButtonImage}
-              resizeMode={'contain'}
-            />
+              resizeMode={'contain'}>
+
+              <Text style={styles.captureNumber}>
+                {this.numberOfImagesTaken()}
+              </Text>
+
+            </Image>
           </TouchableOpacity>
-        </View>
+        </View >
       );
     }
     return null;
@@ -227,7 +244,7 @@ export default class CameraScreen extends Component {
     const image = await this.camera.capture(true);
 
     if (image) {
-      this.setState({ imageCaptured: image, captureImages: _.concat(this.state.captureImages, image) });
+      this.setState({ captured: true, imageCaptured: image, captureImages: _.concat(this.state.captureImages, image) });
     }
 
   }
