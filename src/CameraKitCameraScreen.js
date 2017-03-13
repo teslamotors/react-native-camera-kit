@@ -247,6 +247,10 @@ export default class CameraScreen extends Component {
       this.setState({ captured: true, imageCaptured: image, captureImages: _.concat(this.state.captureImages, image) });
     }
 
+    if (this.props.onBottomButtonPressed) {
+      this.props.onBottomButtonPressed({ type: 'capture', image })
+    }
+
   }
 
   onRatioButtonPressed() {
