@@ -11,16 +11,13 @@ import {
 import _ from 'lodash';
 
 
-import CameraKitCamera from './CameraKitCamera';
+import CameraKitCamera from './../CameraKitCamera';
 
 const FLASH_MODE_AUTO = 'auto';
 const FLASH_MODE_ON = 'on';
 const FLASH_MODE_OFF = 'off';
 
-
-
-
-export default class CameraScreen extends Component {
+export default class CameraScreenBase extends Component {
 
   constructor(props) {
     super(props);
@@ -95,6 +92,9 @@ export default class CameraScreen extends Component {
     );
   }
 
+
+
+
   renderSwitchCameraButton() {
     if (this.props.cameraFlipImage) {
       return (
@@ -167,10 +167,10 @@ export default class CameraScreen extends Component {
     return null;
   }
 
-  renderGap() {
+  renderBootomContainerGap() {
     return (
       <View
-        style={styles.gap}
+        style={styles.bottomContainerGap}
       >
       </View>
     );
@@ -214,7 +214,7 @@ export default class CameraScreen extends Component {
       );
     }
     return (
-      this.renderGap()
+      this.renderBootomContainerGap()
     );
   }
 
@@ -260,18 +260,12 @@ export default class CameraScreen extends Component {
   }
 
   render() {
-    return (
-      <View style={{ flex: 1, backgroundColor: 'black' }}>
-        {this.renderTopButtons()}
-        {this.renderCamera()}
-        {this.renderRatioStrip()}
-        {this.renderBottomButtons()}
-      </View>
-    );
+    throw ('Implemented in CameraKitCameraScreen!');
   }
 }
 
-const styles = StyleSheet.create({
+import styleObject from './CameraKitCameraScreenStyleObject';
+const styles = StyleSheet.create(_.merge(styleObject, {
   textStyle: {
     color: 'white',
     fontSize: 20
@@ -295,19 +289,6 @@ const styles = StyleSheet.create({
     flex: 10,
     flexDirection: 'column'
   },
-  bottomButtons: {
-    flex: 2,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    padding: 14
-  },
-  gap: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    padding: 10
-  },
   captureButtonContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -329,5 +310,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 10
+  },
+  bottomContainerGap: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    padding: 10
   }
-});
+}));
