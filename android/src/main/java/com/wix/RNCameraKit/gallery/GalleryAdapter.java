@@ -250,7 +250,11 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
     }
 
     void refreshData() {
-        if (!isDirty) {
+        refreshData(false);
+    }
+
+    void refreshData(boolean force) {
+        if (!isDirty && !force) {
             return;
         }
         isDirty = false;

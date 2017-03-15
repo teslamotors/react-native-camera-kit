@@ -64,7 +64,7 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
 
     @Override
     protected void onAfterUpdateTransaction(final GalleryView view) {
-        dispatchRefreshDataOnJobQueue(view);
+        dispatchRefreshDataOnJobQueue(view, false);
         super.onAfterUpdateTransaction(view);
     }
 
@@ -240,7 +240,7 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
     @Override
     public void receiveCommand(GalleryView view, int commandId, @Nullable ReadableArray args) {
         if (commandId == COMMAND_REFRESH_GALLERY) {
-            dispatchRefreshDataOnJobQueue(view);
+            dispatchRefreshDataOnJobQueue(view, true);
         }
     }
 
@@ -248,11 +248,11 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
         adapterConfigHandler.post(runnable);
     }
 
-    private void dispatchRefreshDataOnJobQueue(final GalleryView view) {
+    private void dispatchRefreshDataOnJobQueue(final GalleryView view, final boolean force) {
         dispatchOnConfigJobQueue(new Runnable() {
             @Override
             public void run() {
-                getViewAdapter(view).refreshData();
+                getViewAdapter(view).refreshData(force);
             }
         });
     }
