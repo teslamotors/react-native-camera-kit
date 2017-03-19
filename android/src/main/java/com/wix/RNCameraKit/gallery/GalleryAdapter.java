@@ -303,9 +303,9 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
                         notifyItemRangeInserted(0, postCount);
                     } else {
                         view.swapAdapter(GalleryAdapter.this, true);
-                        // http://stackoverflow.com/a/42549611/453052
-                        view.scrollBy(0, 0);
                     }
+                    // http://stackoverflow.com/a/42549611/453052
+                    view.scrollBy(0, 0);
                 } else {
                     view.postDelayed(new Runnable() {
                         @Override
