@@ -7,9 +7,19 @@ async function getAlbumsWithThumbnails() {
   return albums;
 }
 
+async function getImageUriForId(imageId) {
+  // Return what getImagesForIds() typically returns in the 'uri' field.
+  return `file://${imageId}`;
+}
+
 async function getImagesForIds(imagesUris = []) {
-  const images = await NativeGalleryModule.getImagesForUris(imagesUris);
-  return images;
+  return await NativeGalleryModule.getImagesForUris(imagesUris);
+}
+
+async function getImageForTapEvent(nativeEvent) {
+  const selectedImageId = nativeEvent.selected;
+  const imageUri = selectedImageId && await getImageUriForId(selectedImageId);
+  return {selectedImageId, imageUri};
 }
 
 async function checkDevicePhotosAuthorizationStatus() {
@@ -26,5 +36,7 @@ export default {
   checkDevicePhotosAuthorizationStatus,
   requestDevicePhotosAuthorization,
   getAlbumsWithThumbnails,
-  getImagesForIds
+  getImageUriForId,
+  getImagesForIds,
+  getImageForTapEvent
 }
