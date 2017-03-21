@@ -1,23 +1,32 @@
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import {
   StyleSheet,
   Text,
   View,
   TouchableOpacity,
-  Image
+  Image,
+  NativeModules,
+  Platform
 } from 'react-native';
-
-
 import _ from 'lodash';
-
-
 import CameraKitCamera from './../CameraKitCamera';
+
+const IsIOS = Platform.OS === 'ios';
+const CKGallery = IsIOS ? NativeModules.CKGalleryManager : null;
 
 const FLASH_MODE_AUTO = 'auto';
 const FLASH_MODE_ON = 'on';
 const FLASH_MODE_OFF = 'off';
 
 export default class CameraScreenBase extends Component {
+
+  static propTypes = {
+    allowCaptureRetake: PropTypes.bool,
+  };
+
+  static defaultProps = {
+    allowCaptureRetake: false,
+  };
 
   constructor(props) {
     super(props);
@@ -46,7 +55,6 @@ export default class CameraScreenBase extends Component {
     };
     this.onSetFlash = this.onSetFlash.bind(this);
     this.onSwitchCameraPressed = this.onSwitchCameraPressed.bind(this);
-
   }
 
   componentDidMount() {
@@ -60,6 +68,10 @@ export default class CameraScreenBase extends Component {
       ratios: (ratios || []),
       ratioArrayPosition: ((ratios.length > 0) ? 0 : -1)
     });
+  }
+
+  isCaptureRetakeMode() {
+    return !!(this.props.allowCaptureRetake && !_.isUndefined(this.state.imageCaptured));
   }
 
   getCameraOptions() {
@@ -81,7 +93,7 @@ export default class CameraScreenBase extends Component {
   }
 
   renderFlashButton() {
-    return (
+    return !this.isCaptureRetakeMode() &&
       <TouchableOpacity style={{ paddingHorizontal: 15 }} onPress={() => this.onSetFlash(FLASH_MODE_AUTO)}>
         <Image
           style={{ flex: 1, justifyContent: 'center' }}
@@ -89,25 +101,17 @@ export default class CameraScreenBase extends Component {
           resizeMode={Image.resizeMode.contain}
         />
       </TouchableOpacity>
-    );
   }
 
-
-
-
   renderSwitchCameraButton() {
-    if (this.props.cameraFlipImage) {
-      return (
-        <TouchableOpacity style={{ paddingHorizontal: 15 }} onPress={this.onSwitchCameraPressed}>
-          <Image
-            style={{ flex: 1, justifyContent: 'center' }}
-            source={this.props.cameraFlipImage}
-            resizeMode={Image.resizeMode.contain}
-          />
-        </TouchableOpacity>
-      );
-    }
-    return null;
+    return (this.props.cameraFlipImage && !this.isCaptureRetakeMode()) &&
+      <TouchableOpacity style={{ paddingHorizontal: 15 }} onPress={this.onSwitchCameraPressed}>
+        <Image
+          style={{ flex: 1, justifyContent: 'center' }}
+          source={this.props.cameraFlipImage}
+          resizeMode={Image.resizeMode.contain}
+        />
+      </TouchableOpacity>
   }
 
   renderTopButtons() {
@@ -122,11 +126,18 @@ export default class CameraScreenBase extends Component {
   renderCamera() {
     return (
       <View style={styles.cameraContainer}>
-        <CameraKitCamera
-          ref={(cam) => this.camera = cam}
-          style={{ flex: 1, justifyContent: 'flex-end' }}
-          cameraOptions={this.state.cameraOptions}
-        />
+        {
+          this.isCaptureRetakeMode() ?
+          <Image
+            style={{ flex: 1, justifyContent: 'flex-end'}}
+            source={{uri: this.state.imageCaptured.uri}}
+          /> :
+          <CameraKitCamera
+            ref={(cam) => this.camera = cam}
+            style={{ flex: 1, justifyContent: 'flex-end' }}
+            cameraOptions={this.state.cameraOptions}
+          />
+        }
       </View>
     );
   }
@@ -142,39 +153,23 @@ export default class CameraScreenBase extends Component {
     }
   }
 
-
   renderCaptureButton() {
-    if (this.props.captureButtonImage) {
-      return (
-        <View style={styles.captureButtonContainer}>
-          <TouchableOpacity
-            onPress={() => this.onCaptureImagePressed()}
+    return (this.props.captureButtonImage && !this.isCaptureRetakeMode()) &&
+      <View style={styles.captureButtonContainer}>
+        <TouchableOpacity
+          onPress={() => this.onCaptureImagePressed()}
+        >
+          <Image
+            style={styles.captureButton}
+            source={this.props.captureButtonImage}
+            resizeMode={'contain'}
           >
-            <Image
-              style={styles.captureButton}
-              source={this.props.captureButtonImage}
-              resizeMode={'contain'}>
-
-              <Text style={styles.captureNumber}>
-                {this.numberOfImagesTaken()}
-              </Text>
-
-            </Image>
-          </TouchableOpacity>
-        </View >
-      );
-    }
-    return null;
-  }
-
-  renderBootomContainerGap() {
-    return (
-      <View
-        style={styles.bottomContainerGap}
-      >
-      </View>
-    );
-
+            <Text style={styles.captureNumber}>
+              {this.numberOfImagesTaken()}
+            </Text>
+          </Image>
+        </TouchableOpacity>
+      </View >
   }
 
   renderRatioStrip() {
@@ -196,26 +191,56 @@ export default class CameraScreenBase extends Component {
     );
   }
 
-  onButtonPressed(type) {
-    this.props.onBottomButtonPressed({ type, captureImages: this.state.captureImages })
+  sendBottomButtonPressedAction(type, captureRetakeMode, image) {
+    if(this.props.onBottomButtonPressed) {
+      this.props.onBottomButtonPressed({ type, captureImages: this.state.captureImages, captureRetakeMode, image })
+    }
   }
 
+  async onButtonPressed(type) {
+    const captureRetakeMode = this.isCaptureRetakeMode();
+    if (captureRetakeMode) {
+      if(type === 'left') {
+        this.setState({imageCaptured: undefined});
+      }
+      if(type === 'right') {
+        if(CKGallery !== null) {
+          const result = await CKGallery.saveImageURLToCameraRoll(this.state.imageCaptured.uri);
+          const savedImage = {...this.state.imageCaptured, id: result.id};
+          this.setState({imageCaptured: undefined, captureImages: _.concat(this.state.captureImages, savedImage)}, () => {
+            this.sendBottomButtonPressedAction(type, captureRetakeMode);
+          });
+        } else {
+          console.warn('Not implemented on Android yet');
+          this.sendBottomButtonPressedAction(type, captureRetakeMode);
+        }
+      }
+    } else {
+      this.sendBottomButtonPressedAction(type, captureRetakeMode);
+    }
+  }
 
   renderBottomButton(type) {
-    const buttonText = _(this.props).get(`actions.${type}ButtonText`)
-    if (buttonText) {
+    let showButton = true;
+    if (type === 'right') {
+      showButton = this.state.captureImages.length || this.isCaptureRetakeMode();
+    }
+    if (showButton) {
+      const buttonNameSuffix = this.isCaptureRetakeMode() ? 'CaptureRetakeButtonText' : 'ButtonText';
+      const buttonText = _(this.props).get(`actions.${type}${buttonNameSuffix}`)
       return (
         <TouchableOpacity
           style={[styles.bottomButton, { justifyContent: type === 'left' ? 'flex-start' : 'flex-end' }]}
           onPress={() => this.onButtonPressed(type)}
         >
-          <Text style={styles.textStyle}>{_.get(this.props, `actions.${type}ButtonText`, type)}</Text>
+          <Text style={styles.textStyle}>{buttonText}</Text>
         </TouchableOpacity>
       );
+    } else {
+      return (
+        <View style={styles.bottomContainerGap} />
+      );
     }
-    return (
-      this.renderBootomContainerGap()
-    );
   }
 
   renderBottomButtons() {
@@ -227,7 +252,6 @@ export default class CameraScreenBase extends Component {
       </View>
     );
   }
-
 
   onSwitchCameraPressed() {
     this.camera.changeCamera();
@@ -241,16 +265,17 @@ export default class CameraScreenBase extends Component {
   }
 
   async onCaptureImagePressed() {
-    const image = await this.camera.capture(true);
+    const shouldSaveToCameraRoll = !this.props.allowCaptureRetake;
+    const image = await this.camera.capture(shouldSaveToCameraRoll);
 
-    if (image) {
-      this.setState({ captured: true, imageCaptured: image, captureImages: _.concat(this.state.captureImages, image) });
+    if (this.props.allowCaptureRetake) {
+      this.setState({ imageCaptured: image });
+    } else {
+      if (image) {
+        this.setState({ captured: true, imageCaptured: image, captureImages: _.concat(this.state.captureImages, image) });
+      }
+      this.sendBottomButtonPressedAction('capture', false, image);
     }
-
-    if (this.props.onBottomButtonPressed) {
-      this.props.onBottomButtonPressed({ type: 'capture', image })
-    }
-
   }
 
   onRatioButtonPressed() {

@@ -12,7 +12,7 @@
 #import "UIView+React.h"
 #import "RCTConvert.h"
 #import "CKCameraOverlayView.h"
-
+#import "CKGalleryManager.h"
 
 static void * CapturingStillImageContext = &CapturingStillImageContext;
 static void * SessionRunningContext = &SessionRunningContext;
@@ -505,31 +505,23 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
                         imageInfoDict[@"size"] = [NSNumber numberWithInteger:imageData.length];
                         
                         if (shouldSaveToCameraRoll) {
-                            [self saveImageToCameraRoll:imageData temporaryFileURL:temporaryFileURL block:^(BOOL success) {
+                            [CKGalleryManager saveImageToCameraRoll:imageData temporaryFileURL:temporaryFileURL fetchOptions:self.fetchOptions block:^(BOOL success, NSString *localIdentifier) {
                                 if (success) {
-                                    
-                                    PHFetchResult *fetchResult = [PHAsset fetchAssetsWithMediaType:PHAssetMediaTypeImage options:self.fetchOptions];
-                                    PHAsset *lastImageAsset = [fetchResult firstObject];
-                                    
-                                    if (lastImageAsset.localIdentifier) {
-                                        imageInfoDict[@"id"] = lastImageAsset.localIdentifier;
+                                    if (localIdentifier) {
+                                        imageInfoDict[@"id"] = localIdentifier;
                                     }
-                                    
-                                    
                                     
                                     if (block) {
                                         block(imageInfoDict);
                                     }
-                                    
                                 }
                                 else {
                                     //NSLog( @"Could not save to camera roll");
                                 }
                             }];
+                        } else if (block) {
+                            block(imageInfoDict);
                         }
-                        
-                        
-                        
                     }
                 }];
             }
@@ -613,54 +605,6 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         } );
     } );
 }
-
-
-
--(void)saveImageToCameraRoll:(NSData*)imageData
-            temporaryFileURL:(NSURL*)temporaryFileURL
-                       block:(CallbackBlock)block{
-    
-    // To preserve the metadata, we create an asset from the JPEG NSData representation.
-    // Note that creating an asset from a UIImage discards the metadata.
-    // In iOS 9, we can use -[PHAssetCreationRequest addResourceWithType:data:options].
-    // In iOS 8, we save the image to a temporary file and use +[PHAssetChangeRequest creationRequestForAssetFromImageAtFileURL:].
-    if ( [PHAssetCreationRequest class] ) {
-        [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
-            [[PHAssetCreationRequest creationRequestForAsset] addResourceWithType:PHAssetResourceTypePhoto data:imageData options:nil];
-            
-            
-            
-        } completionHandler:^( BOOL success, NSError *error ) {
-            if ( ! success ) {
-                //NSLog( @"Error occurred while saving image to photo library: %@", error );
-                block(NO);
-            }
-            else {
-                block(YES);
-            }
-        }];
-    }
-    else {
-        [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
-            NSError *error = nil;
-            if ( error ) {
-                //NSLog( @"Error occured while writing image data to a temporary file: %@", error );
-            }
-            else {
-                [PHAssetChangeRequest creationRequestForAssetFromImageAtFileURL:temporaryFileURL];
-            }
-        } completionHandler:^( BOOL success, NSError *error ) {
-            if ( ! success ) {
-                //NSLog( @"Error occurred while saving image to photo library: %@", error );
-                block(NO);
-            }
-            else {
-                block(YES);
-            }
-        }];
-    }
-}
-
 
 -(NSURL*)saveToTmpFolder:(NSData*)data {
     NSString *temporaryFileName = [NSProcessInfo processInfo].globallyUniqueString;
