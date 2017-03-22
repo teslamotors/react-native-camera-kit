@@ -350,4 +350,24 @@ RCT_EXPORT_METHOD(saveImageURLToCameraRoll:(NSString*)imageURL
     }];
 }
 
+RCT_EXPORT_METHOD(deleteTempImage:(NSString*)tempImageURL
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject) {
+    NSError *error;
+    NSFileManager *defaultFileManager = [NSFileManager defaultManager];
+    NSMutableDictionary *result = [NSMutableDictionary dictionaryWithDictionary:@{@"success": @(YES)}];
+    tempImageURL = [tempImageURL stringByReplacingOccurrencesOfString:@"file://" withString:@""];
+    if([defaultFileManager fileExistsAtPath:tempImageURL]) {
+        BOOL success = [[NSFileManager defaultManager] removeItemAtPath:tempImageURL error:&error];
+        result[@"success"] = @(success);
+        if(error) {
+            result[@"error"] = [error description];
+        }
+    }
+    
+    if(resolve) {
+        resolve(result);
+    }
+}
+
 @end

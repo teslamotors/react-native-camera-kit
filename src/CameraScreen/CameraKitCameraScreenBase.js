@@ -12,7 +12,7 @@ import _ from 'lodash';
 import CameraKitCamera from './../CameraKitCamera';
 
 const IsIOS = Platform.OS === 'ios';
-const CKGallery = IsIOS ? NativeModules.CKGalleryManager : null;
+const GalleryManager = IsIOS ? NativeModules.CKGalleryManager : NativeModules.NativeGalleryModule;
 
 const FLASH_MODE_AUTO = 'auto';
 const FLASH_MODE_ON = 'on';
@@ -129,12 +129,12 @@ export default class CameraScreenBase extends Component {
         {
           this.isCaptureRetakeMode() ?
           <Image
-            style={{ flex: 1, justifyContent: 'flex-end'}}
+            style={{flex: 1, justifyContent: 'flex-end'}}
             source={{uri: this.state.imageCaptured.uri}}
           /> :
           <CameraKitCamera
             ref={(cam) => this.camera = cam}
-            style={{ flex: 1, justifyContent: 'flex-end' }}
+            style={{flex: 1, justifyContent: 'flex-end'}}
             cameraOptions={this.state.cameraOptions}
           />
         }
@@ -201,19 +201,15 @@ export default class CameraScreenBase extends Component {
     const captureRetakeMode = this.isCaptureRetakeMode();
     if (captureRetakeMode) {
       if(type === 'left') {
+        GalleryManager.deleteTempImage(this.state.imageCaptured.uri);
         this.setState({imageCaptured: undefined});
       }
-      if(type === 'right') {
-        if(CKGallery !== null) {
-          const result = await CKGallery.saveImageURLToCameraRoll(this.state.imageCaptured.uri);
-          const savedImage = {...this.state.imageCaptured, id: result.id};
-          this.setState({imageCaptured: undefined, captureImages: _.concat(this.state.captureImages, savedImage)}, () => {
-            this.sendBottomButtonPressedAction(type, captureRetakeMode);
-          });
-        } else {
-          console.warn('Not implemented on Android yet');
+      else if(type === 'right') {
+        const result = await GalleryManager.saveImageURLToCameraRoll(this.state.imageCaptured.uri);
+        const savedImage = {...this.state.imageCaptured, id: result.id};
+        this.setState({imageCaptured: undefined, captureImages: _.concat(this.state.captureImages, savedImage)}, () => {
           this.sendBottomButtonPressedAction(type, captureRetakeMode);
-        }
+        });
       }
     } else {
       this.sendBottomButtonPressedAction(type, captureRetakeMode);

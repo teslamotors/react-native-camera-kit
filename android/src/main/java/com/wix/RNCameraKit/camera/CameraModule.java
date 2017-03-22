@@ -10,6 +10,7 @@ import com.facebook.react.bridge.ReactMethod;
 import com.wix.RNCameraKit.camera.commands.Capture;
 import com.wix.RNCameraKit.camera.permission.CameraPermission;
 
+
 public class CameraModule extends ReactContextBaseJavaModule {
 
     private final CameraPermission cameraPermission;
@@ -106,7 +107,7 @@ public class CameraModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void capture(boolean saveToCameraRoll, final Promise promise) {
-        new Capture(getReactApplicationContext()).execute(promise);
+        new Capture(getReactApplicationContext(), saveToCameraRoll).execute(promise);
     }
 
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {

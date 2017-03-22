@@ -2,6 +2,7 @@ package com.wix.RNCameraKit.gallery;
 
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 
@@ -14,8 +15,12 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
+import com.wix.RNCameraKit.SaveImageTask;
 import com.wix.RNCameraKit.gallery.permission.StoragePermission;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 
@@ -234,5 +239,26 @@ public class NativeGalleryModule extends ReactContextBaseJavaModule {
         WritableMap ret = Arguments.createMap();
         ret.putArray("images", arr);
         promise.resolve(ret);
+    }
+
+    @ReactMethod
+    public void saveImageURLToCameraRoll(String imageUrl, final Promise promise) {
+        new SaveImageTask(imageUrl,  getReactApplicationContext(), promise, true).execute();
+    }
+
+    @ReactMethod
+    public void deleteTempImage(String imageUrl, final Promise promise) {
+        boolean success = true;
+        String imagePath = imageUrl.replace("file://","");
+        File imageFile = new File(imagePath);
+        if (imageFile.exists()) {
+            success = imageFile.delete();
+        }
+
+        if(promise != null) {
+            WritableMap result = Arguments.createMap();
+            result.putBoolean("success", success);
+            promise.resolve(result);
+        }
     }
 }
