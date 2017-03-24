@@ -491,26 +491,26 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
                 CGImageRef imageRef = CGImageCreateWithImageInRect(capturedImage.CGImage, rectToCrop);
                 capturedImage = [UIImage imageWithCGImage:imageRef scale:capturedImage.scale orientation:UIImageOrientationUp];
                 imageData = UIImageJPEGRepresentation(capturedImage, capturedImage.scale); // TODO: check JPEG representation
-                
-                [PHPhotoLibrary requestAuthorization:^( PHAuthorizationStatus status ) {
-                    if ( status == PHAuthorizationStatusAuthorized ) {
-                        
-                        NSMutableDictionary *imageInfoDict = [[NSMutableDictionary alloc] init];
-                        
-                        NSURL *temporaryFileURL = [self saveToTmpFolder:imageData];
-                        if (temporaryFileURL) {
-                            imageInfoDict[@"uri"] = temporaryFileURL.description;
-                            imageInfoDict[@"name"] = temporaryFileURL.lastPathComponent;
-                        }
-                        imageInfoDict[@"size"] = [NSNumber numberWithInteger:imageData.length];
-                        
-                        if (shouldSaveToCameraRoll) {
+
+                NSMutableDictionary *imageInfoDict = [[NSMutableDictionary alloc] init];
+
+                NSURL *temporaryFileURL = [self saveToTmpFolder:imageData];
+                if (temporaryFileURL) {
+                    imageInfoDict[@"uri"] = temporaryFileURL.description;
+                    imageInfoDict[@"name"] = temporaryFileURL.lastPathComponent;
+                }
+                imageInfoDict[@"size"] = [NSNumber numberWithInteger:imageData.length];
+
+
+                if (shouldSaveToCameraRoll) {
+                    [PHPhotoLibrary requestAuthorization:^( PHAuthorizationStatus status ) {
+                        if ( status == PHAuthorizationStatusAuthorized ) {
                             [CKGalleryManager saveImageToCameraRoll:imageData temporaryFileURL:temporaryFileURL fetchOptions:self.fetchOptions block:^(BOOL success, NSString *localIdentifier) {
                                 if (success) {
                                     if (localIdentifier) {
                                         imageInfoDict[@"id"] = localIdentifier;
                                     }
-                                    
+
                                     if (block) {
                                         block(imageInfoDict);
                                     }
@@ -519,11 +519,11 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
                                     //NSLog( @"Could not save to camera roll");
                                 }
                             }];
-                        } else if (block) {
-                            block(imageInfoDict);
                         }
-                    }
-                }];
+                    }];
+                } else if (block) {
+                    block(imageInfoDict);
+                }
             }
             else {
                 //NSLog( @"Could not capture still image: %@", error );
