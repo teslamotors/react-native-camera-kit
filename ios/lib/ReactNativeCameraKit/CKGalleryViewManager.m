@@ -55,6 +55,7 @@
 @property (nonatomic, strong) UIColor *imageStrokeColor;
 @property (nonatomic, strong) NSNumber *disableSelectionIcons;
 @property (nonatomic, strong) NSDictionary *selection;
+@property (nonatomic)         UIEdgeInsets contentInset;
 
 //custom button props
 @property (nonatomic, strong) NSDictionary *customButtonStyle;
@@ -82,6 +83,8 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
         
         self.imageRequestOptions = [[PHImageRequestOptions alloc] init];
         self.imageRequestOptions.synchronous = YES;
+        
+        self.contentInset = UIEdgeInsetsZero;
     }
     
     return self;
@@ -117,17 +120,17 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
 
 -(void)reactSetFrame:(CGRect)frame {
     [super reactSetFrame:frame];
-    //NSLog(@"### reactSetFrame #####");
     
     if (CGRectIsEmpty(frame)) return;
     
     if (!self.collectionView) {
-        //NSLog(@"### collection view create new#####");
         UICollectionViewFlowLayout* flowLayout = [[UICollectionViewFlowLayout alloc] init];
         flowLayout.itemSize = self.cellSize;
         [flowLayout setScrollDirection:UICollectionViewScrollDirectionVertical];
         
         self.collectionView = [[UICollectionView alloc] initWithFrame:self.bounds collectionViewLayout:flowLayout];
+        self.collectionView.contentInset = self.contentInset;
+        self.collectionView.scrollIndicatorInsets = self.contentInset;
         self.collectionView.delegate = self;
         self.collectionView.dataSource = self;
         
@@ -135,10 +138,8 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
         [self.collectionView registerClass:[CKGalleryCustomCollectionViewCell class] forCellWithReuseIdentifier:CustomCellReuseIdentifier];
         [self addSubview:self.collectionView];
         self.collectionView.backgroundColor = [UIColor whiteColor];
-        
     }
     else {
-        //NSLog(@"### collection view using exists #####");
         self.collectionView.frame = self.bounds;
     }
 }
@@ -199,6 +200,12 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
     [CKGalleryCollectionViewCell setSelection:selection];
 }
 
+-(void)setContentInset:(UIEdgeInsets)contentInset {
+    if(self.collectionView) {
+        self.collectionView.contentInset = contentInset;
+    }
+    _contentInset = contentInset;
+}
 
 -(void)setFileTypeSupport:(NSDictionary *)supported {
     _fileTypeSupport = supported;
@@ -497,7 +504,7 @@ RCT_EXPORT_VIEW_PROPERTY(onCustomButtonPress, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(getUrlOnTapImage, NSNumber);
 RCT_EXPORT_VIEW_PROPERTY(autoSyncSelection, NSNumber);
 RCT_EXPORT_VIEW_PROPERTY(selection, NSDictionary);
-
+RCT_EXPORT_VIEW_PROPERTY(contentInset, UIEdgeInsets);
 
 RCT_EXPORT_METHOD(getSelectedImages:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {

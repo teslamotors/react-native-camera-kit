@@ -152,6 +152,7 @@ selection | Object |   See Selection section
 getUrlOnTapImage | Boolean| iOS only - On image tap return the image internal  (tmp folder) uri (intead of `Photos.framework` asset id)
 customButtonStyle | Object | See Custom Button section
 onCustomButtonPress | Function | Callback when custom button tapped
+contentInset (iOS) | Object | The amount by which the gellery view content is inset from its edges (similar to `ScrollView` contentInset)
 
 #### Custom Button
 Attribute | Values | Description
