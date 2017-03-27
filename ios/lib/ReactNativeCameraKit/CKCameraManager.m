@@ -10,8 +10,6 @@
 #import "CKCamera.h"
 
 
-
-
 @interface CKCameraManager ()
 
 @property (nonatomic, strong) CKCamera *camera;

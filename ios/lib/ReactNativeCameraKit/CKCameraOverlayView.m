@@ -9,7 +9,6 @@
 #import "CKCameraOverlayView.h"
 
 
-
 @interface CKCameraOverlayView ()
 
 @property (nonatomic, strong, readwrite) CKOverlayObject *overlayObject;

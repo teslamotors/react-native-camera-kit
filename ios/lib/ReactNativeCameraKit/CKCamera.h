@@ -8,7 +8,13 @@
 
 #import <UIKit/UIKit.h>
 @import AVFoundation;
+
+#if __has_include(<React/RCTBridge.h>)
+#import <React/RCTConvert.h>
+#else
 #import "RCTConvert.h"
+#endif
+
 
 typedef void (^CaptureBlock)(NSDictionary *imageObject);
 typedef void (^CallbackBlock)(BOOL success);

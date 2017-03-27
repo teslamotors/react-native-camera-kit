@@ -6,10 +6,17 @@
 //  Copyright © 2016 Wix. All rights reserved.
 //
 
+#if __has_include(<React/RCTBridge.h>)
+#import <React/RCTConvert.h>
+#else
+#import "RCTConvert.h"
+#endif
+
+
+
 #import "CKGalleryCollectionViewCell.h"
 #import "SelectionGesture.h"
 #import "GalleryData.h"
-#import "RCTConvert.h"
 
 #define BADGE_MARGIN            5
 #define BADGE_COLOR             0x00ADF5

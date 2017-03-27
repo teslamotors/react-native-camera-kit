@@ -6,8 +6,13 @@
 //  Copyright © 2016 Wix. All rights reserved.
 //
 
-#import "CKGalleryManager.h"
+#if __has_include(<React/RCTBridge.h>)
+#import <React/RCTConvert.h>
+#else
 #import "RCTConvert.h"
+#endif
+
+#import "CKGalleryManager.h"
 #import "CKGalleryViewManager.h"
 
 typedef void (^AlbumsBlock)(NSDictionary *albums);

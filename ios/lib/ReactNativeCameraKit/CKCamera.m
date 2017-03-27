@@ -8,9 +8,17 @@
 
 @import Foundation;
 @import Photos;
-#import "CKCamera.h"
+
+#if __has_include(<React/RCTBridge.h>)
+#import <React/UIView+React.h>
+#import <React/RCTConvert.h>
+#else
 #import "UIView+React.h"
 #import "RCTConvert.h"
+#endif
+
+
+#import "CKCamera.h"
 #import "CKCameraOverlayView.h"
 #import "CKGalleryManager.h"
 
