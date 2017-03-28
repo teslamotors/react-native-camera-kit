@@ -10,15 +10,18 @@ async function getAlbumsWithThumbnails() {
 }
 
 async function getImageUriForId(imageId) {
-  const images = await CKGallery.getImagesForIds(imagesId);
+  const images = await CKGallery.getImagesForIds([imageId]);
   if (!images) {
     return;
   }
-  return images.uri;
+  if (images.length === 1) {
+    return images[0].uri;
+  }
+  return;
 }
 
-async function getImagesForIds(imagesId = []) {
-  const images = await CKGallery.getImagesForIds(imagesId);
+async function getImagesForIds(imagesId = [], imageQuality) {
+  const images = await CKGallery.getImagesForIds(imagesId, imageQuality);
   return images;
 }
 
