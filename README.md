@@ -4,24 +4,29 @@ Native camera control.
 
 ![](img/crazyUnicorn.png)  ![](img/zoom.png)
 
-## Install
+## Installation
 
-#### Install using npm:
+### Install using npm:
 `npm install react-native-camera-kit --save`
 
-####IOS
+### IOS
 - Locate the module lib folder in your node modules: `PROJECT_DIR/node_modules/react-native-camera-kit/lib`
 - Drag the `ReactNativeCameraKit.xcodeproj` project file into your project
-- Add `libReactNativeCameraKit.a` to all your target **Linked Frameworks and Libraries** (prone to be forgotten) 
+- In Build Phases in Xcode, add `libReactNativeCameraKit.a` to all your target **Linked Frameworks and Libraries** (prone to be forgotten)
+- iOS 10 and above: Add the following keys to `Info.plist` with strings describing why you want the permissions.
+  - `NSPhotoLibraryUsageDescription`
+  - `NSCameraUsageDescription`
+  - `NSMicrophoneUsageDescription` (for video only)
+  - **If you don't do this, the app will crash on SIGABRT**.
 
-####Android
-Add 
+### Android
+Add
 
             include ':rncamerakit'
             project(':rncamerakit').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-camera-kit/android/')
 to your project's `settings.gradle`
 
-Then add 
+Then add
 
             compile project(":rncamerakit")
 to your app `app/build.gradle` in the `dependencies` section.
@@ -29,45 +34,44 @@ to your app `app/build.gradle` in the `dependencies` section.
 Then in `MainActivity.java` add:
 
             import com.wix.RNCameraKit.RNCameraKitPackage;
-and in `getPackages` add 
+and in `getPackages` add
 
-            new RNCameraKitPackage() 
+            new RNCameraKitPackage()
 to the list
 
 
 ## How to use
 
-###CameraKitCamera inside the `render` function
+### CameraKitCamera inside the `render` function
 ```javascript
 <CameraKitCamera
-        ref={(cam) => {
-        					this.camera = cam;
-        					}
-        		}
-        style={{flex: 1, backgroundColor:'white'}}
-        cameraOptions={{
-                    flashMode: 'auto',             // on/off/auto(default)
-                    focusMode: 'on',               // off/on(default)
-                    zoomMode: 'on',                // off/on(default)
-                    ratioOverlay:'1:1',            // optional, ratio overlay on the camera and crop the image seamlessly 
-                    ratioOverlayColor: '#00000077' // optional
-                    }}
+  ref={(cam) => {
+      this.camera = cam;
+  }}
+  style={{flex: 1, backgroundColor: 'white'}}
+  cameraOptions={{
+    flashMode: 'auto',             // on/off/auto(default)
+    focusMode: 'on',               // off/on(default)
+    zoomMode: 'on',                // off/on(default)
+    ratioOverlay: '1:1',           // optional, ratio overlay on the camera and crop the image seamlessly
+    ratioOverlayColor: '#00000077' // optional
+  }}
 />
 ```
-###CameraKitCamera cameraOptions
+### CameraKitCamera cameraOptions
 
 Attribute  | Values | Description
--------- | ----- | ------ | ------------
+-------- | ----- | ------
 flashMode |`'on'`/`'off'`/`'auto'` | camera flash mode (default is `auto`)
 focusMode | `'on'`/`'off'` | camera focus mode (default is `on`)
-zoomMode | `'on'`/`'off'`/ | camera zoom mode 
+zoomMode | `'on'`/`'off'`/ | camera zoom mode
 ratioOverlay | `['int':'int', ...]` | overlay ontop of the camera view (crop the image to the selected size) Example: `['16:9', '1:1', '3:4']`
 ratioOverlayColor |  Color | any color with alpha (default is ```'#ffffff77'```)
 
 
-###CameraKitCamera API
+### CameraKitCamera API
 
-####checkDeviceCameraAuthorizationStatus
+#### checkDeviceCameraAuthorizationStatus
 ```javascript
 const isCameraAuthorized = await CameraKitCamera.checkDeviceCameraAuthorizationStatus();
 ```
@@ -79,7 +83,7 @@ return values:
 
 otherwise, returns ```false```
 
-####requestDeviceCameraAuthorization
+#### requestDeviceCameraAuthorization
 ```javascript
 const isUserAuthorizedCamera = await CameraKitCamera.requestDeviceCameraAuthorization();
 ```
@@ -88,14 +92,14 @@ const isUserAuthorizedCamera = await CameraKitCamera.requestDeviceCameraAuthoriz
 otherwise, returns `false`
 
 
-####capture
+#### capture
 Capture image
 
 ```javascript
 const image = await this.camera.capture(true);
 ```
 
-####setFlashMode
+#### setFlashMode
 
 Set flash mode (`auto`/`on`/`off`)
 
@@ -103,7 +107,7 @@ Set flash mode (`auto`/`on`/`off`)
 const success = await this.camera.setFlashMode(newFlashData.mode);
 ```
 
-####changeCamera
+#### changeCamera
 
 Change to fornt/rear camera
 
@@ -111,7 +115,7 @@ Change to fornt/rear camera
 const success = await this.camera.changeCamera();
 ```
 
-###CameraKitGalleryView
+### CameraKitGalleryView
 
 Native Gallery View (based on `UICollectionView`)
 
@@ -120,20 +124,20 @@ Native Gallery View (based on `UICollectionView`)
 
 ```javascript
 <CameraKitGalleryView
-          ref={(gallery) => {
-              this.gallery = gallery;
-             }}
-          style={{flex: 1, marginTop: 20}}
-          minimumInteritemSpacing={10}
-          minimumLineSpacing={10}
-          albumName={<ALBUM_NAME>}
-          columnCount={3}
-          onTapImage={(event) => {
-              //result.nativeEvent.selected - ALL selected images Photos Framework ids
-          }}
-          selectedImages={<MAINTAIN_SELECETED_IMAGES>}
-          selectedImageIcon={require('<IMAGE_FILE_PATH>'))}
-          unSelectedImageIcon={require('<IMAGE_FILE_PATH>')}
+  ref={(gallery) => {
+    this.gallery = gallery;
+  }}
+  style={{flex: 1, marginTop: 20}}
+  minimumInteritemSpacing={10}
+  minimumLineSpacing={10}
+  albumName={<ALBUM_NAME>}
+  columnCount={3}
+  onTapImage={(event) => {
+    //result.nativeEvent.selected - ALL selected images Photos Framework ids
+  }}
+  selectedImages={<MAINTAIN_SELECETED_IMAGES>}
+  selectedImageIcon={require('<IMAGE_FILE_PATH>'))}
+  unSelectedImageIcon={require('<IMAGE_FILE_PATH>')}
 />
 ```
 
@@ -148,7 +152,7 @@ onTapImage | Function | Callback when image tapped
 selectedImages | Array | Selected images (will show the selected badge)
 selectedImageIcon | `require(_PATH_)`  | - _DEPRECATED_ use Selection - Selected image badge image
 unSelectedImageIcon | `require(_PATH_)` | - _DEPRECATED_ use Selection - Unselected image badge image
-selection | Object |   See Selection section 
+selection | Object |   See Selection section
 getUrlOnTapImage | Boolean| iOS only - On image tap return the image internal  (tmp folder) uri (intead of `Photos.framework` asset id)
 customButtonStyle | Object | See Custom Button section
 onCustomButtonPress | Function | Callback when custom button tapped
