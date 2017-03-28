@@ -438,7 +438,7 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
         if (shouldReturnUrl) {
             PHImageRequestOptions *imageRequestOptions = [[PHImageRequestOptions alloc] init];
             imageRequestOptions.synchronous = YES;
-            NSDictionary *info = [CKGalleryViewManager infoForAsset:asset imageRequestOptions:imageRequestOptions];
+            NSDictionary *info = [CKGalleryViewManager infoForAsset:asset imageRequestOptions:imageRequestOptions imageQuality:nil];
             NSString *uriString = info[@"uri"];
             if (uriString) {
                 self.onTapImage(@{@"selected": uriString, @"selectedId": asset.localIdentifier});
@@ -570,7 +570,9 @@ RCT_EXPORT_METHOD(refreshGalleryView:(NSArray*)selectedImages
 #pragma mark - Static functions
 
 
-+(NSMutableDictionary*)infoForAsset:(PHAsset*)asset imageRequestOptions:(PHImageRequestOptions*)imageRequestOptions {
++(NSMutableDictionary*)infoForAsset:(PHAsset*)asset
+                imageRequestOptions:(PHImageRequestOptions*)imageRequestOptions
+                       imageQuality:(NSString*)imageQuality {
     
     NSError *error = nil;
     NSURL *directoryURL = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:[[NSProcessInfo processInfo] globallyUniqueString]] isDirectory:YES];
@@ -586,12 +588,21 @@ RCT_EXPORT_METHOD(refreshGalleryView:(NSArray*)selectedImages
     
     [[PHCachingImageManager defaultManager] requestImageDataForAsset:asset options:imageRequestOptions resultHandler:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
         
+        NSData *compressedImageData = imageData;
+        UIImage *compressedImage = [UIImage imageWithData:imageData];
+        if (imageQuality) {
+            compressedImage = [CKGalleryViewManager compressImage:compressedImage imageQuality:imageQuality];
+            compressedImageData = UIImageJPEGRepresentation(compressedImage, 1);
+        }
         
         NSURL *fileURLKey = info[@"PHImageFileURLKey"];
         
         if (fileURLKey) {
             
             assetInfoDict = [[NSMutableDictionary alloc] init];
+            
+            assetInfoDict[@"width"] = [NSNumber numberWithFloat:compressedImage.size.width];
+            assetInfoDict[@"height"] = [NSNumber numberWithFloat:compressedImage.size.height];
             
             NSString *fileName = ((NSURL*)info[@"PHImageFileURLKey"]).lastPathComponent;
             if (fileName) {
@@ -601,15 +612,15 @@ RCT_EXPORT_METHOD(refreshGalleryView:(NSArray*)selectedImages
             }
             
             float imageSize = 0;
-            if (imageData) {
-                imageSize= imageData.length;
+            if (compressedImageData) {
+                imageSize = compressedImageData.length;
             }
             assetInfoDict[@"size"] = [NSNumber numberWithFloat:imageSize];
             
             NSURL *fileURL = [directoryURL URLByAppendingPathComponent:fileName];
             NSError *error = nil;
             
-            [imageData writeToURL:fileURL options:NSDataWritingAtomic error:&error];
+            [compressedImageData writeToURL:fileURL options:NSDataWritingAtomic error:&error];
             
             if (!error && fileURL) {
                 assetInfoDict[@"uri"] = fileURL.absoluteString;
@@ -625,6 +636,36 @@ RCT_EXPORT_METHOD(refreshGalleryView:(NSArray*)selectedImages
     }
     
     return assetInfoDict;
+}
+
+
++(UIImage *)compressImage:(UIImage *)image imageQuality:(NSString*)imageQuality{
+    CGFloat max = 1200.0f;
+    if ([imageQuality isEqualToString:@"high"]) {
+        max = 1200.0f;
+    }
+    else if ([imageQuality isEqualToString:@"medium"]) {
+        max = 800.0f;
+    }
+    else {
+        return image;
+    }
+    float actualHeight = image.size.height;
+    float actualWidth = image.size.width;
+    
+    float imgRatio = actualWidth/actualHeight;
+    
+    float newHeight = (actualHeight > actualWidth) ? max : max*(actualWidth/actualHeight);
+    float newWidth = (actualHeight > actualWidth) ? max*(actualWidth/actualHeight) : max;
+    
+    
+    CGRect rect = CGRectMake(0.0, 0.0, newWidth, newHeight);
+    UIGraphicsBeginImageContext(rect.size);
+    [image drawInRect:rect];
+    UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
+    NSData *imageData = UIImageJPEGRepresentation(img, 0.8f);
+    UIGraphicsEndImageContext();
+    return [UIImage imageWithData:imageData];
 }
 
 

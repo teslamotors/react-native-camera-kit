@@ -21,7 +21,9 @@
 
 @interface CKGalleryViewManager : RCTViewManager
 
-+(NSMutableDictionary*)infoForAsset:(PHAsset*)asset imageRequestOptions:(PHImageRequestOptions*)imageRequestOptions;
++(NSMutableDictionary*)infoForAsset:(PHAsset*)asset
+                imageRequestOptions:(PHImageRequestOptions*)imageRequestOptions
+                       imageQuality:(NSString*)imageQuality;
 
 
 @end

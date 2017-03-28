@@ -197,6 +197,22 @@ RCT_EXPORT_METHOD(getAlbumsWithThumbnails:(RCTPromiseResolveBlock)resolve
 RCT_EXPORT_METHOD(getImagesForIds:(NSArray*)imagesIdArray
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(__unused RCTPromiseRejectBlock)reject) {
+    [self imagesForIds:imagesIdArray imageQuality:nil resolve:resolve reject:reject];
+}
+
+
+RCT_EXPORT_METHOD(getImagesForIds:(NSArray*)imagesIdArray
+                  imageQuality:(NSString*)imageQuality
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(__unused RCTPromiseRejectBlock)reject) {
+    
+    [self imagesForIds:imagesIdArray imageQuality:imageQuality resolve:resolve reject:reject];
+}
+
+-(void)imagesForIds:(NSArray*)imagesIdArray
+          imageQuality:(NSString*)imageQuality
+               resolve:(RCTPromiseResolveBlock)resolve
+                reject:(__unused RCTPromiseRejectBlock)reject {
     
     NSMutableArray *assetsArray = [[NSMutableArray alloc] initWithArray:imagesIdArray];
     
@@ -207,19 +223,19 @@ RCT_EXPORT_METHOD(getImagesForIds:(NSArray*)imagesIdArray
     
     for (PHAsset *asset in assets) {
         
-        NSDictionary *assetInfoDict = [CKGalleryViewManager infoForAsset:asset imageRequestOptions:imageRequestOptions];
+        NSDictionary *assetInfoDict = [CKGalleryViewManager infoForAsset:asset imageRequestOptions:imageRequestOptions imageQuality:imageQuality];
         NSString *assetLocalId = asset.localIdentifier;
         
         if (assetInfoDict && assetInfoDict[@"uri"] && assetInfoDict[@"size"] && assetInfoDict[@"name"] && assetLocalId) {
             
             NSUInteger originalArrayIndex = [imagesIdArray indexOfObject:assetLocalId];
             
-            NSNumber *width = asset.pixelWidth ? [NSNumber numberWithInt:asset.pixelWidth] : [NSNumber numberWithInt:0];
-            NSNumber *height = asset.pixelHeight ? [NSNumber numberWithInt:asset.pixelHeight] : [NSNumber numberWithInt:0];
+            // NSNumber *width = asset.pixelWidth ? [NSNumber numberWithInt:asset.pixelWidth] : [NSNumber numberWithInt:0];
+            // NSNumber *height = asset.pixelHeight ? [NSNumber numberWithInt:asset.pixelHeight] : [NSNumber numberWithInt:0];
             
             [assetsArray replaceObjectAtIndex:originalArrayIndex withObject:@{@"uri": assetInfoDict[@"uri"],
-                                                                              @"width": width,
-                                                                              @"height": height,
+                                                                              @"width": assetInfoDict[@"width"],
+                                                                              @"height": assetInfoDict[@"height"],
                                                                               @"size": assetInfoDict[@"size"],
                                                                               @"name": assetInfoDict[@"name"],
                                                                               @"id": assetLocalId}];
@@ -236,9 +252,9 @@ RCT_EXPORT_METHOD(getImagesForIds:(NSArray*)imagesIdArray
     if (resolve) {
         resolve(@{@"images": resolveArray});
     }
+
+    
 }
-
-
 
 
 RCT_EXPORT_METHOD(checkDevicePhotosAuthorizationStatus:(RCTPromiseResolveBlock)resolve

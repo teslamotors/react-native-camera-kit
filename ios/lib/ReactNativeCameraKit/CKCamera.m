@@ -498,7 +498,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
                 
                 CGImageRef imageRef = CGImageCreateWithImageInRect(capturedImage.CGImage, rectToCrop);
                 capturedImage = [UIImage imageWithCGImage:imageRef scale:capturedImage.scale orientation:UIImageOrientationUp];
-                imageData = UIImageJPEGRepresentation(capturedImage, capturedImage.scale); // TODO: check JPEG representation
+                imageData = UIImageJPEGRepresentation(capturedImage, 0.85f);
                 
                 [PHPhotoLibrary requestAuthorization:^( PHAuthorizationStatus status ) {
                     if ( status == PHAuthorizationStatusAuthorized ) {
