@@ -37,6 +37,7 @@
 @property (nonatomic, strong) NSNumber *columnCount;
 @property (nonatomic, strong) NSNumber *getUrlOnTapImage;
 @property (nonatomic, strong) NSNumber *autoSyncSelection;
+@property (nonatomic, strong) NSString *imageQualityOnTap;
 @property (nonatomic, copy) RCTDirectEventBlock onTapImage;
 
 
@@ -438,7 +439,7 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
         if (shouldReturnUrl) {
             PHImageRequestOptions *imageRequestOptions = [[PHImageRequestOptions alloc] init];
             imageRequestOptions.synchronous = YES;
-            NSDictionary *info = [CKGalleryViewManager infoForAsset:asset imageRequestOptions:imageRequestOptions imageQuality:nil];
+            NSDictionary *info = [CKGalleryViewManager infoForAsset:asset imageRequestOptions:imageRequestOptions imageQuality:self.imageQualityOnTap];
             NSString *uriString = info[@"uri"];
             if (uriString) {
                 self.onTapImage(@{@"selected": uriString, @"selectedId": asset.localIdentifier});
@@ -505,6 +506,7 @@ RCT_EXPORT_VIEW_PROPERTY(getUrlOnTapImage, NSNumber);
 RCT_EXPORT_VIEW_PROPERTY(autoSyncSelection, NSNumber);
 RCT_EXPORT_VIEW_PROPERTY(selection, NSDictionary);
 RCT_EXPORT_VIEW_PROPERTY(contentInset, UIEdgeInsets);
+RCT_EXPORT_VIEW_PROPERTY(imageQualityOnTap, NSString);
 
 RCT_EXPORT_METHOD(getSelectedImages:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
@@ -592,7 +594,7 @@ RCT_EXPORT_METHOD(refreshGalleryView:(NSArray*)selectedImages
         UIImage *compressedImage = [UIImage imageWithData:imageData];
         if (imageQuality) {
             compressedImage = [CKGalleryViewManager compressImage:compressedImage imageQuality:imageQuality];
-            compressedImageData = UIImageJPEGRepresentation(compressedImage, 1);
+            compressedImageData = UIImageJPEGRepresentation(compressedImage, 0.85f);
         }
         
         NSURL *fileURLKey = info[@"PHImageFileURLKey"];
@@ -663,9 +665,8 @@ RCT_EXPORT_METHOD(refreshGalleryView:(NSArray*)selectedImages
     UIGraphicsBeginImageContext(rect.size);
     [image drawInRect:rect];
     UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
-    NSData *imageData = UIImageJPEGRepresentation(img, 0.8f);
     UIGraphicsEndImageContext();
-    return [UIImage imageWithData:imageData];
+    return img;
 }
 
 
