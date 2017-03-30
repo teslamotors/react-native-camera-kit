@@ -505,7 +505,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
                         
                         NSMutableDictionary *imageInfoDict = [[NSMutableDictionary alloc] init];
                         
-                        NSURL *temporaryFileURL = [self saveToTmpFolder:imageData];
+                        NSURL *temporaryFileURL = [CKCamera saveToTmpFolder:imageData];
                         if (temporaryFileURL) {
                             imageInfoDict[@"uri"] = temporaryFileURL.description;
                             imageInfoDict[@"name"] = temporaryFileURL.lastPathComponent;
@@ -513,7 +513,9 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
                         imageInfoDict[@"size"] = [NSNumber numberWithInteger:imageData.length];
                         
                         if (shouldSaveToCameraRoll) {
-                            [CKGalleryManager saveImageToCameraRoll:imageData temporaryFileURL:temporaryFileURL fetchOptions:self.fetchOptions block:^(BOOL success, NSString *localIdentifier) {
+                            NSData *compressedImageData = UIImageJPEGRepresentation(capturedImage, 1.0f);
+
+                            [CKGalleryManager saveImageToCameraRoll:compressedImageData temporaryFileURL:temporaryFileURL fetchOptions:self.fetchOptions block:^(BOOL success, NSString *localIdentifier) {
                                 if (success) {
                                     if (localIdentifier) {
                                         imageInfoDict[@"id"] = localIdentifier;
@@ -614,7 +616,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
     } );
 }
 
--(NSURL*)saveToTmpFolder:(NSData*)data {
++(NSURL*)saveToTmpFolder:(NSData*)data {
     NSString *temporaryFileName = [NSProcessInfo processInfo].globallyUniqueString;
     NSString *temporaryFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[temporaryFileName stringByAppendingPathExtension:@"jpg"]];
     NSURL *temporaryFileURL = [NSURL fileURLWithPath:temporaryFilePath];

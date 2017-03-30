@@ -592,10 +592,6 @@ RCT_EXPORT_METHOD(refreshGalleryView:(NSArray*)selectedImages
         
         NSData *compressedImageData = imageData;
         UIImage *compressedImage = [UIImage imageWithData:imageData];
-        if (imageQuality) {
-            compressedImage = [CKGalleryViewManager compressImage:compressedImage imageQuality:imageQuality];
-            compressedImageData = UIImageJPEGRepresentation(compressedImage, 0.85f);
-        }
         
         NSURL *fileURLKey = info[@"PHImageFileURLKey"];
         

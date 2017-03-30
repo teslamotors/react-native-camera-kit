@@ -38,6 +38,15 @@ async function getImageForTapEvent(nativeEvent) {
   return {selectedImageId, imageUri};
 }
 
+
+async function resizeImage(image = {}, quality = 'original') {
+  if (quality === 'original') {
+    return images;
+  }
+  const ans = await CKGallery.resizeImage(image, quality);
+  return ans;
+}
+
 async function checkDevicePhotosAuthorizationStatus() {
     const isAuthorized = await CKGallery.checkDevicePhotosAuthorizationStatus();
     return isAuthorized;
@@ -48,11 +57,13 @@ async function requestDevicePhotosAuthorization() {
   return isAuthorized;
 }
 
+
 export default {
   getAlbumsWithThumbnails,
   getImageUriForId,
   getImagesForIds,
   getImageForTapEvent,
   checkDevicePhotosAuthorizationStatus,
-  requestDevicePhotosAuthorization
+  requestDevicePhotosAuthorization,
+  resizeImage
 }

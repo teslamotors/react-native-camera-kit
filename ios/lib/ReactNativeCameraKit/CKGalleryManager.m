@@ -209,10 +209,38 @@ RCT_EXPORT_METHOD(getImagesForIds:(NSArray*)imagesIdArray
     [self imagesForIds:imagesIdArray imageQuality:imageQuality resolve:resolve reject:reject];
 }
 
+RCT_EXPORT_METHOD(resizeImage:(NSDictionary*)image
+                  quality:(NSString*)quality
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(__unused RCTPromiseRejectBlock)reject) {
+    
+    NSMutableDictionary *ans = [NSMutableDictionary dictionaryWithDictionary:image];
+    
+    NSString *imageUrlString = image[@"uri"];
+    if (imageUrlString) {
+        
+        NSURL *url = [NSURL URLWithString:imageUrlString];
+        NSData *data = [NSData dataWithContentsOfURL:url];
+        
+        UIImage *originalImage = [UIImage imageWithData:data];
+        NSData *compressedImageData = [CKGalleryManager compressImage:originalImage imageQuality:quality];
+        
+        
+        NSURL *temporaryFileURL = [CKCamera saveToTmpFolder:compressedImageData];
+        if (temporaryFileURL) {
+            ans[@"uri"] = temporaryFileURL.description;
+            ans[@"name"] = temporaryFileURL.lastPathComponent;
+            ans[@"size"] = @(data.length);
+        }
+    }
+    resolve(ans);
+}
+
+
 -(void)imagesForIds:(NSArray*)imagesIdArray
-          imageQuality:(NSString*)imageQuality
-               resolve:(RCTPromiseResolveBlock)resolve
-                reject:(__unused RCTPromiseRejectBlock)reject {
+       imageQuality:(NSString*)imageQuality
+            resolve:(RCTPromiseResolveBlock)resolve
+             reject:(__unused RCTPromiseRejectBlock)reject {
     
     NSMutableArray *assetsArray = [[NSMutableArray alloc] initWithArray:imagesIdArray];
     
@@ -252,7 +280,7 @@ RCT_EXPORT_METHOD(getImagesForIds:(NSArray*)imagesIdArray
     if (resolve) {
         resolve(@{@"images": resolveArray});
     }
-
+    
     
 }
 
@@ -389,6 +417,36 @@ RCT_EXPORT_METHOD(deleteTempImage:(NSString*)tempImageURL
     if(resolve) {
         resolve(result);
     }
+}
+
+
++(NSData *)compressImage:(UIImage *)image imageQuality:(NSString*)imageQuality{
+    CGFloat max = 1200.0f;
+    if ([imageQuality isEqualToString:@"high"]) {
+        max = 1200.0f;
+    }
+    else if ([imageQuality isEqualToString:@"medium"]) {
+        max = 800.0f;
+    }
+    else {
+        return image;
+    }
+    float actualHeight = image.size.height;
+    float actualWidth = image.size.width;
+    
+    float imgRatio = actualWidth/actualHeight;
+    
+    float newHeight = (actualHeight > actualWidth) ? max : max/imgRatio;
+    float newWidth = (actualHeight > actualWidth) ? max*imgRatio : max;
+    
+    
+    CGRect rect = CGRectMake(0.0, 0.0, newWidth, newHeight);
+    UIGraphicsBeginImageContext(rect.size);
+    [image drawInRect:rect];
+    UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
+    NSData *imageData = UIImageJPEGRepresentation(img, 0.85f);
+    UIGraphicsEndImageContext();
+    return imageData;
 }
 
 @end
