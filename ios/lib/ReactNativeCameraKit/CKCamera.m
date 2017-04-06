@@ -515,8 +515,9 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
                         if (shouldSaveToCameraRoll) {
                             NSData *compressedImageData = UIImageJPEGRepresentation(capturedImage, 1.0f);
 
-                            [CKGalleryManager saveImageToCameraRoll:compressedImageData temporaryFileURL:temporaryFileURL fetchOptions:self.fetchOptions block:^(BOOL success, NSString *localIdentifier) {
+                            [CKGalleryManager saveImageToCameraRoll:compressedImageData temporaryFileURL:temporaryFileURL block:^(BOOL success) {
                                 if (success) {
+                                    NSString *localIdentifier = [CKGalleryManager getImageLocalIdentifierForFetchOptions:self.fetchOptions];
                                     if (localIdentifier) {
                                         imageInfoDict[@"id"] = localIdentifier;
                                     }
