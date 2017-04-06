@@ -534,6 +534,8 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
                         }
                     }
                 }];
+                
+                CGImageRelease(imageRef);
             }
             else {
                 //NSLog( @"Could not capture still image: %@", error );
