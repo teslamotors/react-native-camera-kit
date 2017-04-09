@@ -9,12 +9,12 @@ Native camera control.
 #### Install using npm:
 `npm install react-native-camera-kit --save`
 
-####IOS
+#### iOS
 - Locate the module lib folder in your node modules: `PROJECT_DIR/node_modules/react-native-camera-kit/lib`
 - Drag the `ReactNativeCameraKit.xcodeproj` project file into your project
 - Add `libReactNativeCameraKit.a` to all your target **Linked Frameworks and Libraries** (prone to be forgotten) 
 
-####Android
+#### Android
 Add 
 
             include ':rncamerakit'
@@ -37,7 +37,7 @@ to the list
 
 ## How to use
 
-###CameraKitCamera inside the `render` function
+### CameraKitCamera inside the `render` function
 ```javascript
 <CameraKitCamera
         ref={(cam) => {
@@ -54,7 +54,7 @@ to the list
                     }}
 />
 ```
-###CameraKitCamera cameraOptions
+### CameraKitCamera cameraOptions
 
 Attribute  | Values | Description
 -------- | ----- | ------ | ------------
@@ -65,9 +65,9 @@ ratioOverlay | `['int':'int', ...]` | overlay ontop of the camera view (crop the
 ratioOverlayColor |  Color | any color with alpha (default is ```'#ffffff77'```)
 
 
-###CameraKitCamera API
+### CameraKitCamera API
 
-####checkDeviceCameraAuthorizationStatus
+#### checkDeviceCameraAuthorizationStatus
 ```javascript
 const isCameraAuthorized = await CameraKitCamera.checkDeviceCameraAuthorizationStatus();
 ```
@@ -79,7 +79,7 @@ return values:
 
 otherwise, returns ```false```
 
-####requestDeviceCameraAuthorization
+#### requestDeviceCameraAuthorization
 ```javascript
 const isUserAuthorizedCamera = await CameraKitCamera.requestDeviceCameraAuthorization();
 ```
@@ -88,14 +88,14 @@ const isUserAuthorizedCamera = await CameraKitCamera.requestDeviceCameraAuthoriz
 otherwise, returns `false`
 
 
-####capture
+#### capture
 Capture image
 
 ```javascript
 const image = await this.camera.capture(true);
 ```
 
-####setFlashMode
+#### setFlashMode
 
 Set flash mode (`auto`/`on`/`off`)
 
@@ -103,7 +103,7 @@ Set flash mode (`auto`/`on`/`off`)
 const success = await this.camera.setFlashMode(newFlashData.mode);
 ```
 
-####changeCamera
+#### changeCamera
 
 Change to fornt/rear camera
 
@@ -111,7 +111,7 @@ Change to fornt/rear camera
 const success = await this.camera.changeCamera();
 ```
 
-###CameraKitGalleryView
+### CameraKitGalleryView
 
 Native Gallery View (based on `UICollectionView`)
 
