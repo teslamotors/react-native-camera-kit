@@ -38,7 +38,7 @@ Then add to your app `app/build.gradle` in the `dependencies` section:
 
 ```diff
 + compile project(":rncamerakit")
-
+```
 
 Then in `MainActivity.java` add:
 
