@@ -57,6 +57,7 @@
 @property (nonatomic, strong) NSNumber *disableSelectionIcons;
 @property (nonatomic, strong) NSDictionary *selection;
 @property (nonatomic)         UIEdgeInsets contentInset;
+@property (nonatomic)         BOOL alwaysBounce;
 
 //custom button props
 @property (nonatomic, strong) NSDictionary *customButtonStyle;
@@ -132,6 +133,7 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
         self.collectionView = [[UICollectionView alloc] initWithFrame:self.bounds collectionViewLayout:flowLayout];
         self.collectionView.contentInset = self.contentInset;
         self.collectionView.scrollIndicatorInsets = self.contentInset;
+        self.collectionView.alwaysBounceVertical = self.alwaysBounce;
         self.collectionView.delegate = self;
         self.collectionView.dataSource = self;
         
@@ -206,6 +208,13 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
         self.collectionView.contentInset = contentInset;
     }
     _contentInset = contentInset;
+}
+
+-(void)setAlwaysBounce:(BOOL)alwaysBounce {
+    if(self.collectionView) {
+        self.collectionView.alwaysBounceVertical = alwaysBounce;
+    }
+    _alwaysBounce = alwaysBounce;
 }
 
 -(void)setFileTypeSupport:(NSDictionary *)supported {
@@ -507,6 +516,7 @@ RCT_EXPORT_VIEW_PROPERTY(autoSyncSelection, NSNumber);
 RCT_EXPORT_VIEW_PROPERTY(selection, NSDictionary);
 RCT_EXPORT_VIEW_PROPERTY(contentInset, UIEdgeInsets);
 RCT_EXPORT_VIEW_PROPERTY(imageQualityOnTap, NSString);
+RCT_EXPORT_VIEW_PROPERTY(alwaysBounce, BOOL);
 
 RCT_EXPORT_METHOD(getSelectedImages:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
