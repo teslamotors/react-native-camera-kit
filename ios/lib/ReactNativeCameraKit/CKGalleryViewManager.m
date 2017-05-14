@@ -568,6 +568,16 @@ RCT_EXPORT_METHOD(refreshGalleryView:(NSArray*)selectedImages
         resolve(@YES);
 }
 
+RCT_EXPORT_METHOD(modifyGalleryViewContentOffset:(NSDictionary*)params) {
+    CGPoint newOffset = self.galleryView.collectionView.contentOffset;
+    if(params[@"x"] != nil) {
+        newOffset.x += [params[@"x"] floatValue];
+    }
+    if(params[@"y"] != nil) {
+        newOffset.y += [params[@"y"] floatValue];
+    }
+    [self.galleryView.collectionView setContentOffset:newOffset];
+}
 
 #pragma mark - Static functions
 
