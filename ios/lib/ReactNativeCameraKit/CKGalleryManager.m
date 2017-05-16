@@ -14,6 +14,7 @@
 
 #import "CKGalleryManager.h"
 #import "CKGalleryViewManager.h"
+#import "CKCompressedIMage.h"
 
 typedef void (^AlbumsBlock)(NSDictionary *albums);
 
@@ -223,14 +224,16 @@ RCT_EXPORT_METHOD(resizeImage:(NSDictionary*)image
         NSData *data = [NSData dataWithContentsOfURL:url];
         
         UIImage *originalImage = [UIImage imageWithData:data];
-        NSData *compressedImageData = [CKGalleryManager compressImage:originalImage imageQuality:quality];
+        CKCompressedImage *compressedImage = [[CKCompressedImage alloc] initWithImage:originalImage imageQuality:quality];
         
         
-        NSURL *temporaryFileURL = [CKCamera saveToTmpFolder:compressedImageData];
+        NSURL *temporaryFileURL = [CKCamera saveToTmpFolder:compressedImage.data];
         if (temporaryFileURL) {
             ans[@"uri"] = temporaryFileURL.description;
             ans[@"name"] = temporaryFileURL.lastPathComponent;
-            ans[@"size"] = @(data.length);
+            ans[@"size"] = @(compressedImage.data.length);
+            ans[@"width"] = @(compressedImage.image.size.width);
+            ans[@"height"] = @(compressedImage.image.size.height);
         }
     }
     resolve(ans);
@@ -412,34 +415,5 @@ RCT_EXPORT_METHOD(deleteTempImage:(NSString*)tempImageURL
     }
 }
 
-
-+(NSData *)compressImage:(UIImage *)image imageQuality:(NSString*)imageQuality{
-    CGFloat max = 1200.0f;
-    if ([imageQuality isEqualToString:@"high"]) {
-        max = 1200.0f;
-    }
-    else if ([imageQuality isEqualToString:@"medium"]) {
-        max = 800.0f;
-    }
-    else {
-        return UIImageJPEGRepresentation(image, 1.0f);
-    }
-    float actualHeight = image.size.height;
-    float actualWidth = image.size.width;
-    
-    float imgRatio = actualWidth/actualHeight;
-    
-    float newHeight = (actualHeight > actualWidth) ? max : max/imgRatio;
-    float newWidth = (actualHeight > actualWidth) ? max*imgRatio : max;
-    
-    
-    CGRect rect = CGRectMake(0.0, 0.0, newWidth, newHeight);
-    UIGraphicsBeginImageContext(rect.size);
-    [image drawInRect:rect];
-    UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
-    NSData *imageData = UIImageJPEGRepresentation(img, 0.85f);
-    UIGraphicsEndImageContext();
-    return imageData;
-}
 
 @end

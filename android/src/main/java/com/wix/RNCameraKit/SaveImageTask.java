@@ -95,12 +95,14 @@ public class SaveImageTask extends AsyncTask<byte[], Void, Void> {
         return null;
     }
 
-    private WritableMap createImageInfo(String filePath, String id, String fileName, long fileSize) {
+    private WritableMap createImageInfo(String filePath, String id, String fileName, long fileSize, int width, int height) {
         WritableMap imageInfo = Arguments.createMap();
         imageInfo.putString("uri",  filePath);
         imageInfo.putString("id", id);
         imageInfo.putString("name", fileName);
         imageInfo.putInt("size", (int) fileSize);
+        imageInfo.putInt("width", width);
+        imageInfo.putInt("height", height);
         return imageInfo;
     }
 
@@ -119,7 +121,7 @@ public class SaveImageTask extends AsyncTask<byte[], Void, Void> {
             long fileSize = new File(filePath).length();
             cursor.close();
 
-            return createImageInfo(filePath, filePath, fileName, fileSize);
+            return createImageInfo(filePath, filePath, fileName, fileSize, image.getWidth(), image.getHeight());
         } catch (Exception e) {
             return null;
         }
@@ -230,6 +232,6 @@ public class SaveImageTask extends AsyncTask<byte[], Void, Void> {
             Log.d(TAG, "Error accessing file: " + e.getMessage());
             imageFile = null;
         }
-        return (imageFile != null) ? createImageInfo(Uri.fromFile(imageFile).toString(), imageFile.getAbsolutePath(), fileName, imageFile.length()) : null;
+        return (imageFile != null) ? createImageInfo(Uri.fromFile(imageFile).toString(), imageFile.getAbsolutePath(), fileName, imageFile.length(), image.getWidth(), image.getHeight()) : null;
     }
 }
