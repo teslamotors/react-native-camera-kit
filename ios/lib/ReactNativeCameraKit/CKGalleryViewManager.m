@@ -657,33 +657,4 @@ RCT_EXPORT_METHOD(modifyGalleryViewContentOffset:(NSDictionary*)params) {
 }
 
 
-+(UIImage *)compressImage:(UIImage *)image imageQuality:(NSString*)imageQuality{
-    CGFloat max = 1200.0f;
-    if ([imageQuality isEqualToString:@"high"]) {
-        max = 1200.0f;
-    }
-    else if ([imageQuality isEqualToString:@"medium"]) {
-        max = 800.0f;
-    }
-    else {
-        return image;
-    }
-    float actualHeight = image.size.height;
-    float actualWidth = image.size.width;
-    
-    float imgRatio = actualWidth/actualHeight;
-    
-    float newHeight = (actualHeight > actualWidth) ? max : max*(actualWidth/actualHeight);
-    float newWidth = (actualHeight > actualWidth) ? max*(actualWidth/actualHeight) : max;
-    
-    
-    CGRect rect = CGRectMake(0.0, 0.0, newWidth, newHeight);
-    UIGraphicsBeginImageContext(rect.size);
-    [image drawInRect:rect];
-    UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    return img;
-}
-
-
 @end
