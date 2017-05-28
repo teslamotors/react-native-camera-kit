@@ -35,7 +35,7 @@ async function getImageForTapEvent(nativeEvent) {
     selectedImageId = nativeEvent.selected;
     imageUri = await getImageUriForId(selectedImageId);
   }
-  return {selectedImageId, imageUri};
+  return {selectedImageId, imageUri, width: nativeEvent.width, height: nativeEvent.height};
 }
 
 

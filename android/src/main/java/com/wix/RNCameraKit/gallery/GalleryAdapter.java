@@ -41,18 +41,24 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
     private static final String[] PROJECTION = new String[]{
             MediaStore.Images.Media.DATA,
             MediaStore.Images.Media._ID,
-            MediaStore.Images.Media.MIME_TYPE
+            MediaStore.Images.Media.MIME_TYPE,
+            MediaStore.Images.Media.WIDTH,
+            MediaStore.Images.Media.HEIGHT
     };
 
     private class Image {
         String uri;
         Integer id;
         String mimeType;
+        Integer width;
+        Integer height;
 
-        public Image(String uri, Integer id, String mimeType) {
+        public Image(String uri, Integer id, String mimeType, Integer width, Integer height) {
             this.uri = uri;
             this.id = id;
             this.mimeType = mimeType;
+            this.width = width;
+            this.height = height;
         }
     }
 
@@ -98,7 +104,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
                 return;
             }
 
-            onTapImage(image.uri);
+            onTapImage(image.uri, image.width, image.height);
             v.setSelected(!isSelected);
         }
 
@@ -281,13 +287,15 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
             int dataIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
             int idIndex = cursor.getColumnIndex(MediaStore.Images.Media._ID);
             int mimeIndex = cursor.getColumnIndex(MediaStore.Images.Media.MIME_TYPE);
+            int widthIndex = cursor.getColumnIndex(MediaStore.Images.Media.WIDTH);
+            int heightIndex = cursor.getColumnIndex(MediaStore.Images.Media.HEIGHT);
             do {
-                images.add(new Image(cursor.getString(dataIndex), cursor.getInt(idIndex), cursor.getString(mimeIndex)));
+                images.add(new Image(cursor.getString(dataIndex), cursor.getInt(idIndex), cursor.getString(mimeIndex), cursor.getInt(widthIndex), cursor.getInt(heightIndex)));
             } while (cursor.moveToNext());
         }
 
         if (shouldShowCustomButton()) {
-            images.add(new Image(null, -1, ""));
+            images.add(new Image(null, -1, "", 0, 0));
         }
         Collections.reverse(images);
         cursor.close();
@@ -353,9 +361,9 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
         return customButtonImage != null;
     }
 
-    public void onTapImage(String uri) {
+    public void onTapImage(String uri, Integer width, Integer height) {
         final ReactContext reactContext = ((ReactContext) view.getContext());
-        reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(new TapImageEvent(getRootViewId(), uri));
+        reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(new TapImageEvent(getRootViewId(), uri, width, height));
     }
 
     public void onTapCustomButton() {

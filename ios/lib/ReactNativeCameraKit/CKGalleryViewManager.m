@@ -444,6 +444,9 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
 -(void)onSelectChanged:(PHAsset*)asset {
     if (self.onTapImage) {
         
+        NSMutableDictionary *imageTapInfo = [@{@"width": [NSNumber numberWithUnsignedInteger:asset.pixelWidth],
+                                               @"height": [NSNumber numberWithUnsignedInteger:asset.pixelHeight]} mutableCopy];
+        
         BOOL shouldReturnUrl = self.getUrlOnTapImage ? [self.getUrlOnTapImage boolValue] : NO;
         if (shouldReturnUrl) {
             PHImageRequestOptions *imageRequestOptions = [[PHImageRequestOptions alloc] init];
@@ -451,7 +454,8 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
             NSDictionary *info = [CKGalleryViewManager infoForAsset:asset imageRequestOptions:imageRequestOptions imageQuality:self.imageQualityOnTap];
             NSString *uriString = info[@"uri"];
             if (uriString) {
-                self.onTapImage(@{@"selected": uriString, @"selectedId": asset.localIdentifier});
+                [imageTapInfo addEntriesFromDictionary:@{@"selected": uriString, @"selectedId": asset.localIdentifier}];
+                self.onTapImage(imageTapInfo);
             }
             else {
                 self.onTapImage(@{@"Error": @"Could not get image uri"});
@@ -459,7 +463,8 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
             
         }
         else {
-            self.onTapImage(@{@"selected":asset.localIdentifier});
+            [imageTapInfo addEntriesFromDictionary:@{@"selected":asset.localIdentifier}];
+            self.onTapImage(imageTapInfo);
         }
     }
 }

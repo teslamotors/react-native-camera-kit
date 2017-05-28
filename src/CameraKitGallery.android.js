@@ -19,7 +19,7 @@ async function getImagesForIds(imagesUris = []) {
 async function getImageForTapEvent(nativeEvent) {
   const selectedImageId = nativeEvent.selected;
   const imageUri = selectedImageId && await getImageUriForId(selectedImageId);
-  return {selectedImageId, imageUri};
+  return {selectedImageId, imageUri, width: nativeEvent.width, height: nativeEvent.height};
 }
 
 async function checkDevicePhotosAuthorizationStatus() {
