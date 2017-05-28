@@ -397,7 +397,7 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
             galleryDataIndex--;
         }
         NSDictionary *assetDictionary = (NSDictionary*)self.galleryData.data[galleryDataIndex];
-        ((CKGalleryCollectionViewCell*)cell).isSelected = ((NSNumber*)assetDictionary[@"isSelected"]).boolValue;
+        ckCell.isSelected = ((NSNumber*)assetDictionary[@"isSelected"]).boolValue;
     }
 }
 
@@ -433,7 +433,7 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
 
 
 -(void)refreshGalleryView:(NSArray*)selectedImages {
-    self.selectedImages = selectedImages;
+    self.selectedImages = [NSMutableArray arrayWithArray:selectedImages];
     [self setAlbumName:self.albumName];
 }
 
