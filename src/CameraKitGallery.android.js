@@ -22,6 +22,21 @@ async function getImageForTapEvent(nativeEvent) {
   return {selectedImageId, imageUri, width: nativeEvent.width, height: nativeEvent.height};
 }
 
+async function getImagesForCameraEvent(event) {
+  if (!event.captureImages) {
+    return [];
+  }
+  
+  const images = [];
+  event.captureImages.forEach(async (image) => {
+    images.push({
+      ...image,
+      uri: await getImageUriForId(image.uri)
+    });
+  });
+  return images;
+}
+
 async function checkDevicePhotosAuthorizationStatus() {
   const isAuthorized = await NativeGalleryModule.checkDeviceStorageAuthorizationStatus();
   return isAuthorized;
@@ -38,5 +53,6 @@ export default {
   getAlbumsWithThumbnails,
   getImageUriForId,
   getImagesForIds,
-  getImageForTapEvent
+  getImageForTapEvent,
+  getImagesForCameraEvent
 }

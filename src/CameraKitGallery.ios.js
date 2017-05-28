@@ -38,6 +38,9 @@ async function getImageForTapEvent(nativeEvent) {
   return {selectedImageId, imageUri, width: nativeEvent.width, height: nativeEvent.height};
 }
 
+async function getImagesForCameraEvent(event) {
+  return event.captureImages || [];
+}
 
 async function resizeImage(image = {}, quality = 'original') {
   if (quality === 'original') {
@@ -63,6 +66,7 @@ export default {
   getImageUriForId,
   getImagesForIds,
   getImageForTapEvent,
+  getImagesForCameraEvent,
   checkDevicePhotosAuthorizationStatus,
   requestDevicePhotosAuthorization,
   resizeImage
