@@ -5,7 +5,8 @@ Native camera control.
 
 ![](img/crazyUnicorn.png)  ![](img/zoom.png)
 
-## Install
+## Installation
+
 
 #### Install using npm or yarn:
 
@@ -28,6 +29,7 @@ yarn add react-native-camera-kit
 #### Android
 
 Add the following to your project's `settings.gradle` file:
+
 
 ```diff
 + include ':rncamerakit'
