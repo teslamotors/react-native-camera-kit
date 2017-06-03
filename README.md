@@ -1,3 +1,4 @@
+
 # react-native-camera-kit
 
 Native camera control.
@@ -6,75 +7,93 @@ Native camera control.
 
 ## Installation
 
-### Install using npm:
-`npm install react-native-camera-kit --save`
 
-### IOS
+#### Install using npm or yarn:
+
+```bash
+npm install react-native-camera-kit --save
+```
+
+Or if you're using yarn:
+
+```bash
+yarn add react-native-camera-kit
+```
+
+#### iOS
+
 - Locate the module lib folder in your node modules: `PROJECT_DIR/node_modules/react-native-camera-kit/lib`
 - Drag the `ReactNativeCameraKit.xcodeproj` project file into your project
-- In Build Phases in Xcode, add `libReactNativeCameraKit.a` to all your target **Linked Frameworks and Libraries** (prone to be forgotten)
-- iOS 10 and above: Add the following keys to `Info.plist` with strings describing why you want the permissions.
-  - `NSPhotoLibraryUsageDescription`
-  - `NSCameraUsageDescription`
-  - `NSMicrophoneUsageDescription` (for video only)
-  - **If you don't do this, the app will crash on SIGABRT**.
+- Add `libReactNativeCameraKit.a` to all your target **Linked Frameworks and Libraries** (prone to be forgotten)
 
-### Android
-Add
+#### Android
 
-            include ':rncamerakit'
-            project(':rncamerakit').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-camera-kit/android/')
-to your project's `settings.gradle`
+Add the following to your project's `settings.gradle` file:
 
-Then add
 
-            compile project(":rncamerakit")
-to your app `app/build.gradle` in the `dependencies` section.
+```diff
++ include ':rncamerakit'
++ project(':rncamerakit').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-camera-kit/android/')
+```
+
+Then add to your app `app/build.gradle` in the `dependencies` section:
+
+```diff
++ compile project(":rncamerakit")
+```
 
 Then in `MainActivity.java` add:
 
-            import com.wix.RNCameraKit.RNCameraKitPackage;
-and in `getPackages` add
+```diff
++ import com.wix.RNCameraKit.RNCameraKitPackage;
+```
 
-            new RNCameraKitPackage()
-to the list
+And in the package list in the same file (e.g. `getPackages`) add:
 
+```diff
++ new RNCameraKitPackage()
+```
 
 ## How to use
 
 ### CameraKitCamera inside the `render` function
-```javascript
+
+```js
 <CameraKitCamera
-  ref={(cam) => {
-      this.camera = cam;
+  ref={cam => this.camera = cam}
+  style={{
+    flex: 1,
+    backgroundColor: 'white'
   }}
-  style={{flex: 1, backgroundColor: 'white'}}
   cameraOptions={{
     flashMode: 'auto',             // on/off/auto(default)
     focusMode: 'on',               // off/on(default)
     zoomMode: 'on',                // off/on(default)
-    ratioOverlay: '1:1',           // optional, ratio overlay on the camera and crop the image seamlessly
+    ratioOverlay:'1:1',            // optional, ratio overlay on the camera and crop the image seamlessly
     ratioOverlayColor: '#00000077' // optional
   }}
 />
 ```
+
 ### CameraKitCamera cameraOptions
 
-Attribute  | Values | Description
--------- | ----- | ------
-flashMode |`'on'`/`'off'`/`'auto'` | camera flash mode (default is `auto`)
-focusMode | `'on'`/`'off'` | camera focus mode (default is `on`)
-zoomMode | `'on'`/`'off'`/ | camera zoom mode
-ratioOverlay | `['int':'int', ...]` | overlay ontop of the camera view (crop the image to the selected size) Example: `['16:9', '1:1', '3:4']`
-ratioOverlayColor |  Color | any color with alpha (default is ```'#ffffff77'```)
+Attribute         | Values                 | Description
+----------------- | ---------------------- | -----------
+flashMode         |`'on'`/`'off'`/`'auto'` | camera flash mode (default is `auto`)
+focusMode         | `'on'`/`'off'`         | camera focus mode (default is `on`)
+zoomMode          | `'on'`/`'off'`         | camera zoom mode
+ratioOverlay      | `['int':'int', ...]`   | overlay on top of the camera view (crop the image to the selected size) Example: `['16:9', '1:1', '3:4']`
+ratioOverlayColor |  Color                 | any color with alpha (default is ```'#ffffff77'```)
 
 
 ### CameraKitCamera API
 
 #### checkDeviceCameraAuthorizationStatus
-```javascript
+
+```js
 const isCameraAuthorized = await CameraKitCamera.checkDeviceCameraAuthorizationStatus();
 ```
+
 return values:
 
 `AVAuthorizationStatusAuthorized` returns `true`
@@ -84,18 +103,20 @@ return values:
 otherwise, returns ```false```
 
 #### requestDeviceCameraAuthorization
-```javascript
+
+```js
 const isUserAuthorizedCamera = await CameraKitCamera.requestDeviceCameraAuthorization();
 ```
+
 `AVAuthorizationStatusAuthorized` returns `true`
 
 otherwise, returns `false`
 
-
 #### capture
+
 Capture image
 
-```javascript
+```js
 const image = await this.camera.capture(true);
 ```
 
@@ -103,7 +124,7 @@ const image = await this.camera.capture(true);
 
 Set flash mode (`auto`/`on`/`off`)
 
-```javascript
+```js
 const success = await this.camera.setFlashMode(newFlashData.mode);
 ```
 
@@ -111,7 +132,7 @@ const success = await this.camera.setFlashMode(newFlashData.mode);
 
 Change to fornt/rear camera
 
-```javascript
+```js
 const success = await this.camera.changeCamera();
 ```
 
@@ -121,19 +142,16 @@ Native Gallery View (based on `UICollectionView`)
 
 ![](img/camerakitgalleryview.png)
 
-
-```javascript
+```js
 <CameraKitGalleryView
-  ref={(gallery) => {
-    this.gallery = gallery;
-  }}
+  ref={gallery => this.gallery = gallery}
   style={{flex: 1, marginTop: 20}}
   minimumInteritemSpacing={10}
   minimumLineSpacing={10}
   albumName={<ALBUM_NAME>}
   columnCount={3}
-  onTapImage={(event) => {
-    //result.nativeEvent.selected - ALL selected images Photos Framework ids
+  onTapImage={event => {
+    // result.nativeEvent.selected - ALL selected images Photos Framework ids
   }}
   selectedImages={<MAINTAIN_SELECETED_IMAGES>}
   selectedImageIcon={require('<IMAGE_FILE_PATH>'))}
@@ -143,29 +161,29 @@ Native Gallery View (based on `UICollectionView`)
 
 Attribute | Values | Description
 -------- | ----- | ------------
-minimumInteritemSpacing | float  | Minimum inner Item spacing
-minimumLineSpacing | Float | Minimum line spacing
-imageStrokeColor | Color | Image storke color
-albumName | String |Album name to show
-columnCount | Integer | How many clumns in one row
-onTapImage | Function | Callback when image tapped
-selectedImages | Array | Selected images (will show the selected badge)
-selectedImageIcon | `require(_PATH_)`  | - _DEPRECATED_ use Selection - Selected image badge image
-unSelectedImageIcon | `require(_PATH_)` | - _DEPRECATED_ use Selection - Unselected image badge image
-selection | Object |   See Selection section
-getUrlOnTapImage | Boolean| iOS only - On image tap return the image internal  (tmp folder) uri (intead of `Photos.framework` asset id)
-customButtonStyle | Object | See Custom Button section
-onCustomButtonPress | Function | Callback when custom button tapped
-contentInset (iOS) | Object | The amount by which the gellery view content is inset from its edges (similar to `ScrollView` contentInset)
+minimumInteritemSpacing | Float             | Minimum inner Item spacing
+minimumLineSpacing      | Float             | Minimum line spacing
+imageStrokeColor        | Color             | Image stroke color
+albumName               | String            | Album name to show
+columnCount             | Integer           | How many clumns in one row
+onTapImage              | Function          | Callback when image tapped
+selectedImages          | Array             | Selected images (will show the selected badge)
+selectedImageIcon       | `require(_PATH_)` | - _DEPRECATED_ use Selection - Selected image badge image
+unSelectedImageIcon     | `require(_PATH_)` | - _DEPRECATED_ use Selection - Unselected image badge image
+selection               | Object            |   See Selection section
+getUrlOnTapImage        | Boolean           | iOS only - On image tap return the image internal  (tmp folder) uri (intead of `Photos.framework` asset id)
+customButtonStyle       | Object            | See Custom Button section
+onCustomButtonPress     | Function          | Callback when custom button tapped
+contentInset (iOS)      | Object            | The amount by which the gellery view content is inset from its edges (similar to `ScrollView` contentInset)
 
 #### Custom Button
+
 Attribute | Values | Description
 -------- | ----- | ------------
 image | `require(_PATH_)` | Custom button image
 backgroundColor | Color | Custom button background color
 
 #### Selection
-
 
 Attribute | Values | Description
 -------- | ----- | ------------

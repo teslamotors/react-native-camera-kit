@@ -17,6 +17,7 @@
 		269292831D3B7D6000E07DDF /* CKCameraOverlayView.m in Sources */ = {isa = PBXBuildFile; fileRef = 269292821D3B7D6000E07DDF /* CKCameraOverlayView.m */; };
 		269292861D3B81C800E07DDF /* CKOverlayObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 269292851D3B81C800E07DDF /* CKOverlayObject.m */; };
 		26F556721D2501C9007B1C11 /* GalleryData.m in Sources */ = {isa = PBXBuildFile; fileRef = 26F556711D2501C9007B1C11 /* GalleryData.m */; };
+		A7686BFE1EC9CFEC00959216 /* CKCompressedImage.m in Sources */ = {isa = PBXBuildFile; fileRef = A7686BFD1EC9CFEC00959216 /* CKCompressedImage.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -53,6 +54,8 @@
 		269292851D3B81C800E07DDF /* CKOverlayObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CKOverlayObject.m; sourceTree = "<group>"; };
 		26F556701D2501C9007B1C11 /* GalleryData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GalleryData.h; sourceTree = "<group>"; };
 		26F556711D2501C9007B1C11 /* GalleryData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GalleryData.m; sourceTree = "<group>"; };
+		A7686BFC1EC9CFEC00959216 /* CKCompressedImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CKCompressedImage.h; sourceTree = "<group>"; };
+		A7686BFD1EC9CFEC00959216 /* CKCompressedImage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CKCompressedImage.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -87,6 +90,8 @@
 			children = (
 				26550AE41CFC2437007FF2DF /* CKGalleryManager.h */,
 				26550AE51CFC2437007FF2DF /* CKGalleryManager.m */,
+				A7686BFC1EC9CFEC00959216 /* CKCompressedImage.h */,
+				A7686BFD1EC9CFEC00959216 /* CKCompressedImage.m */,
 				26550AF41CFC7086007FF2DF /* CKCameraManager.h */,
 				26550AF51CFC7086007FF2DF /* CKCameraManager.m */,
 				2685AA221CFD89A300E4A446 /* CKCamera.h */,
@@ -166,6 +171,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				26550AF61CFC7086007FF2DF /* CKCameraManager.m in Sources */,
+				A7686BFE1EC9CFEC00959216 /* CKCompressedImage.m in Sources */,
 				262E42201D183A6B00C82B27 /* CKGalleryCollectionViewCell.m in Sources */,
 				262564901E6572B300A7B90D /* CKGalleryCustomCollectionViewCell.m in Sources */,
 				269292861D3B81C800E07DDF /* CKOverlayObject.m in Sources */,

@@ -37,6 +37,7 @@
 @property (nonatomic, strong) NSNumber *columnCount;
 @property (nonatomic, strong) NSNumber *getUrlOnTapImage;
 @property (nonatomic, strong) NSNumber *autoSyncSelection;
+@property (nonatomic, strong) NSString *imageQualityOnTap;
 @property (nonatomic, copy) RCTDirectEventBlock onTapImage;
 
 
@@ -56,6 +57,7 @@
 @property (nonatomic, strong) NSNumber *disableSelectionIcons;
 @property (nonatomic, strong) NSDictionary *selection;
 @property (nonatomic)         UIEdgeInsets contentInset;
+@property (nonatomic)         BOOL alwaysBounce;
 
 //custom button props
 @property (nonatomic, strong) NSDictionary *customButtonStyle;
@@ -131,6 +133,7 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
         self.collectionView = [[UICollectionView alloc] initWithFrame:self.bounds collectionViewLayout:flowLayout];
         self.collectionView.contentInset = self.contentInset;
         self.collectionView.scrollIndicatorInsets = self.contentInset;
+        self.collectionView.alwaysBounceVertical = self.alwaysBounce;
         self.collectionView.delegate = self;
         self.collectionView.dataSource = self;
         
@@ -205,6 +208,13 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
         self.collectionView.contentInset = contentInset;
     }
     _contentInset = contentInset;
+}
+
+-(void)setAlwaysBounce:(BOOL)alwaysBounce {
+    if(self.collectionView) {
+        self.collectionView.alwaysBounceVertical = alwaysBounce;
+    }
+    _alwaysBounce = alwaysBounce;
 }
 
 -(void)setFileTypeSupport:(NSDictionary *)supported {
@@ -387,7 +397,7 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
             galleryDataIndex--;
         }
         NSDictionary *assetDictionary = (NSDictionary*)self.galleryData.data[galleryDataIndex];
-        ((CKGalleryCollectionViewCell*)cell).isSelected = ((NSNumber*)assetDictionary[@"isSelected"]).boolValue;
+        ckCell.isSelected = ((NSNumber*)assetDictionary[@"isSelected"]).boolValue;
     }
 }
 
@@ -423,7 +433,7 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
 
 
 -(void)refreshGalleryView:(NSArray*)selectedImages {
-    self.selectedImages = selectedImages;
+    self.selectedImages = [NSMutableArray arrayWithArray:selectedImages];
     [self setAlbumName:self.albumName];
 }
 
@@ -434,14 +444,18 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
 -(void)onSelectChanged:(PHAsset*)asset {
     if (self.onTapImage) {
         
+        NSMutableDictionary *imageTapInfo = [@{@"width": [NSNumber numberWithUnsignedInteger:asset.pixelWidth],
+                                               @"height": [NSNumber numberWithUnsignedInteger:asset.pixelHeight]} mutableCopy];
+        
         BOOL shouldReturnUrl = self.getUrlOnTapImage ? [self.getUrlOnTapImage boolValue] : NO;
         if (shouldReturnUrl) {
             PHImageRequestOptions *imageRequestOptions = [[PHImageRequestOptions alloc] init];
             imageRequestOptions.synchronous = YES;
-            NSDictionary *info = [CKGalleryViewManager infoForAsset:asset imageRequestOptions:imageRequestOptions];
+            NSDictionary *info = [CKGalleryViewManager infoForAsset:asset imageRequestOptions:imageRequestOptions imageQuality:self.imageQualityOnTap];
             NSString *uriString = info[@"uri"];
             if (uriString) {
-                self.onTapImage(@{@"selected": uriString, @"selectedId": asset.localIdentifier});
+                [imageTapInfo addEntriesFromDictionary:@{@"selected": uriString, @"selectedId": asset.localIdentifier}];
+                self.onTapImage(imageTapInfo);
             }
             else {
                 self.onTapImage(@{@"Error": @"Could not get image uri"});
@@ -449,7 +463,8 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
             
         }
         else {
-            self.onTapImage(@{@"selected":asset.localIdentifier});
+            [imageTapInfo addEntriesFromDictionary:@{@"selected":asset.localIdentifier}];
+            self.onTapImage(imageTapInfo);
         }
     }
 }
@@ -505,6 +520,8 @@ RCT_EXPORT_VIEW_PROPERTY(getUrlOnTapImage, NSNumber);
 RCT_EXPORT_VIEW_PROPERTY(autoSyncSelection, NSNumber);
 RCT_EXPORT_VIEW_PROPERTY(selection, NSDictionary);
 RCT_EXPORT_VIEW_PROPERTY(contentInset, UIEdgeInsets);
+RCT_EXPORT_VIEW_PROPERTY(imageQualityOnTap, NSString);
+RCT_EXPORT_VIEW_PROPERTY(alwaysBounce, BOOL);
 
 RCT_EXPORT_METHOD(getSelectedImages:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
@@ -566,11 +583,23 @@ RCT_EXPORT_METHOD(refreshGalleryView:(NSArray*)selectedImages
         resolve(@YES);
 }
 
+RCT_EXPORT_METHOD(modifyGalleryViewContentOffset:(NSDictionary*)params) {
+    CGPoint newOffset = self.galleryView.collectionView.contentOffset;
+    if(params[@"x"] != nil) {
+        newOffset.x += [params[@"x"] floatValue];
+    }
+    if(params[@"y"] != nil) {
+        newOffset.y += [params[@"y"] floatValue];
+    }
+    [self.galleryView.collectionView setContentOffset:newOffset];
+}
 
 #pragma mark - Static functions
 
 
-+(NSMutableDictionary*)infoForAsset:(PHAsset*)asset imageRequestOptions:(PHImageRequestOptions*)imageRequestOptions {
++(NSMutableDictionary*)infoForAsset:(PHAsset*)asset
+                imageRequestOptions:(PHImageRequestOptions*)imageRequestOptions
+                       imageQuality:(NSString*)imageQuality {
     
     NSError *error = nil;
     NSURL *directoryURL = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:[[NSProcessInfo processInfo] globallyUniqueString]] isDirectory:YES];
@@ -586,12 +615,17 @@ RCT_EXPORT_METHOD(refreshGalleryView:(NSArray*)selectedImages
     
     [[PHCachingImageManager defaultManager] requestImageDataForAsset:asset options:imageRequestOptions resultHandler:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
         
+        NSData *compressedImageData = imageData;
+        UIImage *compressedImage = [UIImage imageWithData:imageData];
         
         NSURL *fileURLKey = info[@"PHImageFileURLKey"];
         
         if (fileURLKey) {
             
             assetInfoDict = [[NSMutableDictionary alloc] init];
+            
+            assetInfoDict[@"width"] = [NSNumber numberWithFloat:compressedImage.size.width];
+            assetInfoDict[@"height"] = [NSNumber numberWithFloat:compressedImage.size.height];
             
             NSString *fileName = ((NSURL*)info[@"PHImageFileURLKey"]).lastPathComponent;
             if (fileName) {
@@ -601,15 +635,15 @@ RCT_EXPORT_METHOD(refreshGalleryView:(NSArray*)selectedImages
             }
             
             float imageSize = 0;
-            if (imageData) {
-                imageSize= imageData.length;
+            if (compressedImageData) {
+                imageSize = compressedImageData.length;
             }
             assetInfoDict[@"size"] = [NSNumber numberWithFloat:imageSize];
             
             NSURL *fileURL = [directoryURL URLByAppendingPathComponent:fileName];
             NSError *error = nil;
             
-            [imageData writeToURL:fileURL options:NSDataWritingAtomic error:&error];
+            [compressedImageData writeToURL:fileURL options:NSDataWritingAtomic error:&error];
             
             if (!error && fileURL) {
                 assetInfoDict[@"uri"] = fileURL.absoluteString;

@@ -206,7 +206,7 @@ export default class CameraScreenBase extends Component {
       }
       else if(type === 'right') {
         const result = await GalleryManager.saveImageURLToCameraRoll(this.state.imageCaptured.uri);
-        const savedImage = {...this.state.imageCaptured, id: result.id};
+        const savedImage = {...this.state.imageCaptured, ...result}; // Note: Can't just return 'result' as on iOS not all data is returned by the native call (just the ID).
         this.setState({imageCaptured: undefined, captureImages: _.concat(this.state.captureImages, savedImage)}, () => {
           this.sendBottomButtonPressedAction(type, captureRetakeMode);
         });

@@ -498,14 +498,14 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
                 
                 CGImageRef imageRef = CGImageCreateWithImageInRect(capturedImage.CGImage, rectToCrop);
                 capturedImage = [UIImage imageWithCGImage:imageRef scale:capturedImage.scale orientation:UIImageOrientationUp];
-                imageData = UIImageJPEGRepresentation(capturedImage, capturedImage.scale); // TODO: check JPEG representation
+                imageData = UIImageJPEGRepresentation(capturedImage, 0.85f);
                 
                 [PHPhotoLibrary requestAuthorization:^( PHAuthorizationStatus status ) {
                     if ( status == PHAuthorizationStatusAuthorized ) {
                         
                         NSMutableDictionary *imageInfoDict = [[NSMutableDictionary alloc] init];
                         
-                        NSURL *temporaryFileURL = [self saveToTmpFolder:imageData];
+                        NSURL *temporaryFileURL = [CKCamera saveToTmpFolder:imageData];
                         if (temporaryFileURL) {
                             imageInfoDict[@"uri"] = temporaryFileURL.description;
                             imageInfoDict[@"name"] = temporaryFileURL.lastPathComponent;
@@ -513,8 +513,11 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
                         imageInfoDict[@"size"] = [NSNumber numberWithInteger:imageData.length];
                         
                         if (shouldSaveToCameraRoll) {
-                            [CKGalleryManager saveImageToCameraRoll:imageData temporaryFileURL:temporaryFileURL fetchOptions:self.fetchOptions block:^(BOOL success, NSString *localIdentifier) {
+                            NSData *compressedImageData = UIImageJPEGRepresentation(capturedImage, 1.0f);
+
+                            [CKGalleryManager saveImageToCameraRoll:compressedImageData temporaryFileURL:temporaryFileURL block:^(BOOL success) {
                                 if (success) {
+                                    NSString *localIdentifier = [CKGalleryManager getImageLocalIdentifierForFetchOptions:self.fetchOptions];
                                     if (localIdentifier) {
                                         imageInfoDict[@"id"] = localIdentifier;
                                     }
@@ -532,6 +535,8 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
                         }
                     }
                 }];
+                
+                CGImageRelease(imageRef);
             }
             else {
                 //NSLog( @"Could not capture still image: %@", error );
@@ -614,7 +619,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
     } );
 }
 
--(NSURL*)saveToTmpFolder:(NSData*)data {
++(NSURL*)saveToTmpFolder:(NSData*)data {
     NSString *temporaryFileName = [NSProcessInfo processInfo].globallyUniqueString;
     NSString *temporaryFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[temporaryFileName stringByAppendingPathExtension:@"jpg"]];
     NSURL *temporaryFileURL = [NSURL fileURLWithPath:temporaryFilePath];

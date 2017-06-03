@@ -14,6 +14,7 @@
 
 #import "CKGalleryManager.h"
 #import "CKGalleryViewManager.h"
+#import "CKCompressedIMage.h"
 
 typedef void (^AlbumsBlock)(NSDictionary *albums);
 
@@ -197,6 +198,52 @@ RCT_EXPORT_METHOD(getAlbumsWithThumbnails:(RCTPromiseResolveBlock)resolve
 RCT_EXPORT_METHOD(getImagesForIds:(NSArray*)imagesIdArray
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(__unused RCTPromiseRejectBlock)reject) {
+    [self imagesForIds:imagesIdArray imageQuality:nil resolve:resolve reject:reject];
+}
+
+
+RCT_EXPORT_METHOD(getImagesForIds:(NSArray*)imagesIdArray
+                  imageQuality:(NSString*)imageQuality
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(__unused RCTPromiseRejectBlock)reject) {
+    
+    [self imagesForIds:imagesIdArray imageQuality:imageQuality resolve:resolve reject:reject];
+}
+
+RCT_EXPORT_METHOD(resizeImage:(NSDictionary*)image
+                  quality:(NSString*)quality
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(__unused RCTPromiseRejectBlock)reject) {
+    
+    NSMutableDictionary *ans = [NSMutableDictionary dictionaryWithDictionary:image];
+    
+    NSString *imageUrlString = image[@"uri"];
+    if (imageUrlString) {
+        
+        NSURL *url = [NSURL URLWithString:imageUrlString];
+        NSData *data = [NSData dataWithContentsOfURL:url];
+        
+        UIImage *originalImage = [UIImage imageWithData:data];
+        CKCompressedImage *compressedImage = [[CKCompressedImage alloc] initWithImage:originalImage imageQuality:quality];
+        
+        
+        NSURL *temporaryFileURL = [CKCamera saveToTmpFolder:compressedImage.data];
+        if (temporaryFileURL) {
+            ans[@"uri"] = temporaryFileURL.description;
+            ans[@"name"] = temporaryFileURL.lastPathComponent;
+            ans[@"size"] = @(compressedImage.data.length);
+            ans[@"width"] = @(compressedImage.image.size.width);
+            ans[@"height"] = @(compressedImage.image.size.height);
+        }
+    }
+    resolve(ans);
+}
+
+
+-(void)imagesForIds:(NSArray*)imagesIdArray
+       imageQuality:(NSString*)imageQuality
+            resolve:(RCTPromiseResolveBlock)resolve
+             reject:(__unused RCTPromiseRejectBlock)reject {
     
     NSMutableArray *assetsArray = [[NSMutableArray alloc] initWithArray:imagesIdArray];
     
@@ -207,19 +254,16 @@ RCT_EXPORT_METHOD(getImagesForIds:(NSArray*)imagesIdArray
     
     for (PHAsset *asset in assets) {
         
-        NSDictionary *assetInfoDict = [CKGalleryViewManager infoForAsset:asset imageRequestOptions:imageRequestOptions];
+        NSDictionary *assetInfoDict = [CKGalleryViewManager infoForAsset:asset imageRequestOptions:imageRequestOptions imageQuality:imageQuality];
         NSString *assetLocalId = asset.localIdentifier;
         
         if (assetInfoDict && assetInfoDict[@"uri"] && assetInfoDict[@"size"] && assetInfoDict[@"name"] && assetLocalId) {
             
             NSUInteger originalArrayIndex = [imagesIdArray indexOfObject:assetLocalId];
             
-            NSNumber *width = asset.pixelWidth ? [NSNumber numberWithInt:asset.pixelWidth] : [NSNumber numberWithInt:0];
-            NSNumber *height = asset.pixelHeight ? [NSNumber numberWithInt:asset.pixelHeight] : [NSNumber numberWithInt:0];
-            
             [assetsArray replaceObjectAtIndex:originalArrayIndex withObject:@{@"uri": assetInfoDict[@"uri"],
-                                                                              @"width": width,
-                                                                              @"height": height,
+                                                                              @"width": assetInfoDict[@"width"],
+                                                                              @"height": assetInfoDict[@"height"],
                                                                               @"size": assetInfoDict[@"size"],
                                                                               @"name": assetInfoDict[@"name"],
                                                                               @"id": assetLocalId}];
@@ -236,9 +280,9 @@ RCT_EXPORT_METHOD(getImagesForIds:(NSArray*)imagesIdArray
     if (resolve) {
         resolve(@{@"images": resolveArray});
     }
+    
+    
 }
-
-
 
 
 RCT_EXPORT_METHOD(checkDevicePhotosAuthorizationStatus:(RCTPromiseResolveBlock)resolve
@@ -299,7 +343,7 @@ RCT_EXPORT_METHOD(requestDevicePhotosAuthorization:(RCTPromiseResolveBlock)resol
     return lastImageAsset.localIdentifier;
 }
 
-+(void)saveImageToCameraRoll:(NSData*)imageData temporaryFileURL:(NSURL*)temporaryFileURL fetchOptions:(PHFetchOptions*)fetchOptions block:(SaveBlock)block {
++(void)saveImageToCameraRoll:(NSData*)imageData temporaryFileURL:(NSURL*)temporaryFileURL block:(SaveBlock)block {
     // To preserve the metadata, we create an asset from the JPEG NSData representation.
     // Note that creating an asset from a UIImage discards the metadata.
     // In iOS 9, we can use -[PHAssetCreationRequest addResourceWithType:data:options].
@@ -308,45 +352,41 @@ RCT_EXPORT_METHOD(requestDevicePhotosAuthorization:(RCTPromiseResolveBlock)resol
         [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
             [[PHAssetCreationRequest creationRequestForAsset] addResourceWithType:PHAssetResourceTypePhoto data:imageData options:nil];
         } completionHandler:^( BOOL success, NSError *error ) {
-            NSString *localIdentifier = [CKGalleryManager getImageLocalIdentifierForFetchOptions:fetchOptions];
-            if ( ! success ) {
-                block(NO, localIdentifier);
-            }
-            else {
-                block(YES, localIdentifier);
-            }
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if ( block ) {
+                    block(success);
+                }
+            });
+            
         }];
     }
     else {
         [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
             [PHAssetChangeRequest creationRequestForAssetFromImageAtFileURL:temporaryFileURL];
         } completionHandler:^( BOOL success, NSError *error ) {
-            NSString *localIdentifier = [CKGalleryManager getImageLocalIdentifierForFetchOptions:fetchOptions];
-            if ( ! success ) {
-                block(NO, localIdentifier);
-            }
-            else {
-                block(YES, localIdentifier);
+            if ( block ) {
+                block(success);
             }
         }];
     }
 }
 
-+(void)saveImageURLToCameraRoll:(NSString*)temporaryFileURL fetchOptions:(PHFetchOptions*)fetchOptions block:(SaveBlock)block {
++(void)saveImageURLToCameraRoll:(NSString*)temporaryFileURL block:(SaveBlock)block {
     NSURL *imageURL = [NSURL URLWithString:temporaryFileURL];
     if(!imageURL) {
-        block(NO, nil);
+        block(NO);
         return;
     }
-    [CKGalleryManager saveImageToCameraRoll:nil temporaryFileURL:imageURL fetchOptions:fetchOptions block:block];
+    [CKGalleryManager saveImageToCameraRoll:nil temporaryFileURL:imageURL block:block];
 }
 
 RCT_EXPORT_METHOD(saveImageURLToCameraRoll:(NSString*)imageURL
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
-    [CKGalleryManager saveImageURLToCameraRoll:imageURL fetchOptions:self.fetchOptions block:^(BOOL success, NSString *localIdentifier) {
+    [CKGalleryManager saveImageURLToCameraRoll:imageURL block:^(BOOL success) {
         if (resolve) {
             NSMutableDictionary *result = [NSMutableDictionary dictionaryWithDictionary:@{@"success": @(success)}];
+            NSString *localIdentifier = [CKGalleryManager getImageLocalIdentifierForFetchOptions:self.fetchOptions];
             if(localIdentifier) {
                 result[@"id"] = localIdentifier;
             }
@@ -374,5 +414,6 @@ RCT_EXPORT_METHOD(deleteTempImage:(NSString*)tempImageURL
         resolve(result);
     }
 }
+
 
 @end

@@ -55,4 +55,8 @@ export default class CameraKitGalleryView extends Component {
     const isSuccess = await GalleryViewManager.refreshGalleryView(selectedImages);
     return isSuccess;
   }
+
+  modifyGalleryViewContentOffset (offset) {
+    GalleryViewManager.modifyGalleryViewContentOffset(offset);
+  }
 }

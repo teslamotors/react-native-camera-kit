@@ -10,15 +10,18 @@ async function getAlbumsWithThumbnails() {
 }
 
 async function getImageUriForId(imageId) {
-  const images = await CKGallery.getImagesForIds(imagesId);
+  const images = await CKGallery.getImagesForIds([imageId]);
   if (!images) {
     return;
   }
-  return images.uri;
+  if (images.length === 1) {
+    return images[0].uri;
+  }
+  return;
 }
 
-async function getImagesForIds(imagesId = []) {
-  const images = await CKGallery.getImagesForIds(imagesId);
+async function getImagesForIds(imagesId = [], imageQuality) {
+  const images = await CKGallery.getImagesForIds(imagesId, imageQuality);
   return images;
 }
 
@@ -32,7 +35,19 @@ async function getImageForTapEvent(nativeEvent) {
     selectedImageId = nativeEvent.selected;
     imageUri = await getImageUriForId(selectedImageId);
   }
-  return {selectedImageId, imageUri};
+  return {selectedImageId, imageUri, width: nativeEvent.width, height: nativeEvent.height};
+}
+
+async function getImagesForCameraEvent(event) {
+  return event.captureImages || [];
+}
+
+async function resizeImage(image = {}, quality = 'original') {
+  if (quality === 'original') {
+    return images;
+  }
+  const ans = await CKGallery.resizeImage(image, quality);
+  return ans;
 }
 
 async function checkDevicePhotosAuthorizationStatus() {
@@ -45,11 +60,14 @@ async function requestDevicePhotosAuthorization() {
   return isAuthorized;
 }
 
+
 export default {
   getAlbumsWithThumbnails,
   getImageUriForId,
   getImagesForIds,
   getImageForTapEvent,
+  getImagesForCameraEvent,
   checkDevicePhotosAuthorizationStatus,
-  requestDevicePhotosAuthorization
+  requestDevicePhotosAuthorization,
+  resizeImage
 }

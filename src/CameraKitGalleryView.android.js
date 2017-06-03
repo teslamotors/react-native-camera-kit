@@ -27,6 +27,10 @@ export default class CameraKitGalleryView extends Component {
     return true;
   }
 
+  modifyGalleryViewContentOffset (offset) {
+    //do nothing. compatability with ios
+  }
+
   render() {
     const transformedProps = {...this.props};
     transformedProps.albumName = this.props.albumName ? this.props.albumName : ALL_PHOTOS;
