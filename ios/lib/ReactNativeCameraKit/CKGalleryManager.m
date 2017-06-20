@@ -14,7 +14,7 @@
 
 #import "CKGalleryManager.h"
 #import "CKGalleryViewManager.h"
-#import "CKCompressedIMage.h"
+#import "CKCompressedImage.h"
 
 typedef void (^AlbumsBlock)(NSDictionary *albums);
 

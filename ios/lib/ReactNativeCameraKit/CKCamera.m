@@ -564,6 +564,10 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 -(void)changeCamera:(CallbackBlock)block
 {
+#if TARGET_IPHONE_SIMULATOR
+    NSLog(@"changeCamera isn't support on simulator");
+    return;
+#endif
     
     dispatch_async( self.sessionQueue, ^{
         AVCaptureDevice *currentVideoDevice = self.videoDeviceInput.device;
