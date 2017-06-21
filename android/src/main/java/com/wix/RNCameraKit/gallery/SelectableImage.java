@@ -15,6 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.facebook.react.bridge.ReactContext;
+import com.wix.RNCameraKit.Utils;
 
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -24,7 +25,7 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 public class SelectableImage extends FrameLayout {
     private static final int MINI_THUMB_HEIGHT = 512;
     private static final int MINI_THUMB_WIDTH = 384;
-    private static final int MAX_SAMPLE_SIZE = 8;
+
     private static final int DEFAULT_SELECTED_IMAGE_GRAVITY = Gravity.TOP | Gravity.RIGHT;
 
     public static final int SELECTED_IMAGE_NORMAL_SIZE_DP = 22;
@@ -90,8 +91,9 @@ public class SelectableImage extends FrameLayout {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        this.inSampleSize = calculateInSampleSize(w, h);
+        this.inSampleSize = Utils.calculateInSampleSize(MINI_THUMB_WIDTH,MINI_THUMB_HEIGHT,w, h);
     }
+
 
     public void setScaleType(ImageView.ScaleType scaleType) {
         imageView.setScaleType(scaleType);
@@ -114,7 +116,7 @@ public class SelectableImage extends FrameLayout {
 
                     BitmapFactory.Options options = new BitmapFactory.Options();
                     if (inSampleSize == 0) {
-                        inSampleSize = calculateInSampleSize(getWidth(), getHeight());
+                        inSampleSize = Utils.calculateInSampleSize(MINI_THUMB_WIDTH,MINI_THUMB_HEIGHT, getWidth(), getHeight());
                     }
                     options.inSampleSize = inSampleSize;
 
@@ -157,28 +159,6 @@ public class SelectableImage extends FrameLayout {
         this.unselectedDrawable = unselectedDrawable;
     }
 
-    public static int calculateInSampleSize(int reqWidth, int reqHeight) {
-
-        if (reqHeight == 0 || reqWidth == 0) {
-            return 1;
-        }
-
-        int inSampleSize = 1;
-
-        if (MINI_THUMB_HEIGHT > reqHeight || MINI_THUMB_WIDTH > reqWidth) {
-
-            final int halfHeight = MINI_THUMB_HEIGHT / 2;
-            final int halfWidth = MINI_THUMB_WIDTH / 2;
-
-            while (inSampleSize <= MAX_SAMPLE_SIZE
-                    && (halfHeight / inSampleSize) >= reqHeight
-                    && (halfWidth / inSampleSize) >= reqWidth) {
-                inSampleSize *= 2;
-            }
-        }
-
-        return inSampleSize;
-    }
 
     private LayoutParams createSelectedImageParams(Integer gravity, Integer sizeDp) {
         gravity = gravity != null ? gravity : DEFAULT_SELECTED_IMAGE_GRAVITY;
