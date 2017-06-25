@@ -47,11 +47,6 @@ async function resizeImage(image = {}, quality = 'original') {
     return images;
   }
 
-  if (Platform.os === 'android') {
-    console.log('resize image not supported on Android');
-    return;
-  }
-
   const ans = await CKGallery.resizeImage(image, quality);
   return ans;
 }
