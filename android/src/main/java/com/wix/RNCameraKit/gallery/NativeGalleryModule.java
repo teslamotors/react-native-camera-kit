@@ -45,8 +45,8 @@ public class NativeGalleryModule extends ReactContextBaseJavaModule {
     private final String IMAGE_URI_KEY = "uri";
     private final String IMAGE_NAME_KEY = "name";
 
-    private final int HIGHE_DIMANTION = 1600;
-    private final int MEDIUM_DIMANTION = 1200;
+    private final int HIGHE_DIMANTION = 1200;
+    private final int MEDIUM_DIMANTION = 800;
     private final int LOW_DIMANTION = 600;
 
 
