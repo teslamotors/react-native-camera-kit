@@ -51,6 +51,15 @@ async function requestDevicePhotosAuthorization() {
   return isAuthorized;
 }
 
+async function resizeImage(image = {}, quality = 'original') {
+    if (quality === 'original') {
+        return images;
+    }
+    const ans = await NativeGalleryModule.resizeImage(image, quality);
+    return ans;
+}
+
+
 export default {
   checkDevicePhotosAuthorizationStatus,
   requestDevicePhotosAuthorization,
@@ -58,5 +67,6 @@ export default {
   getImageUriForId,
   getImagesForIds,
   getImageForTapEvent,
-  getImagesForCameraEvent
+  getImagesForCameraEvent,
+  resizeImage
 }

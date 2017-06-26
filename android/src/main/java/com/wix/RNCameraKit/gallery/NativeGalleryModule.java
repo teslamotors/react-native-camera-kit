@@ -1,10 +1,14 @@
 package com.wix.RNCameraKit.gallery;
 
+import android.content.ContentResolver;
+import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.LifecycleEventListener;
@@ -13,34 +17,59 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableArray;
+import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.wix.RNCameraKit.SaveImageTask;
+import com.wix.RNCameraKit.Utils;
 import com.wix.RNCameraKit.gallery.permission.StoragePermission;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
+
+import static com.wix.RNCameraKit.Utils.getStringSafe;
 
 /**
  * Created by yedidyak on 29/06/2016.
  */
 public class NativeGalleryModule extends ReactContextBaseJavaModule {
 
+
+    private final String IMAGE_URI_KEY = "uri";
+    private final String IMAGE_NAME_KEY = "name";
+
+    private final int HIGHE_DIMANTION = 1200;
+    private final int MEDIUM_DIMANTION = 800;
+    private final int LOW_DIMANTION = 600;
+
+
+    public static final int MEDIUM_COMPRESSION_QUALITY = 85;
+    public static final int HIGH_COMPRESSION_QUALITY = 92;
+
+    private final String HIGH_QUALITY = "high";
+    private final String MEDIUM_QUALITY = "medium";
+    private final String LOW_QUALITY = "low";
+
+
     public static final String[] ALBUMS_PROJECTION = new String[]{
-        MediaStore.Images.Media.DATA,
-        MediaStore.Images.Media.BUCKET_DISPLAY_NAME
+            MediaStore.Images.Media.DATA,
+            MediaStore.Images.Media.BUCKET_DISPLAY_NAME
     };
     public static final String[] IMAGES_PROJECTION = new String[]{
-        MediaStore.Images.Media. _ID,
-        MediaStore.Images.Media.SIZE,
-        MediaStore.Images.Media.MIME_TYPE,
-        MediaStore.Images.Media.TITLE,
-        MediaStore.Images.Media.WIDTH,
-        MediaStore.Images.Media.HEIGHT,
-        MediaStore.Images.Media.DATA
+            MediaStore.Images.Media._ID,
+            MediaStore.Images.Media.SIZE,
+            MediaStore.Images.Media.MIME_TYPE,
+            MediaStore.Images.Media.TITLE,
+            MediaStore.Images.Media.WIDTH,
+            MediaStore.Images.Media.HEIGHT,
+            MediaStore.Images.Media.DATA
     };
     public static final String ALL_PHOTOS = "All Photos";
     private Promise checkPermissionStatusPromise;
@@ -62,8 +91,7 @@ public class NativeGalleryModule extends ReactContextBaseJavaModule {
         public void addAlbum(String name, String uri) {
             if (!albums.containsKey(name)) {
                 albums.put(name, new Album(name, uri));
-            }
-            else {
+            } else {
                 albums.get(name).count++;
             }
         }
@@ -85,7 +113,7 @@ public class NativeGalleryModule extends ReactContextBaseJavaModule {
         getReactApplicationContext().addLifecycleEventListener(new LifecycleEventListener() {
             @Override
             public void onHostResume() {
-                if (checkPermissionStatusPromise != null  && getCurrentActivity() != null) {
+                if (checkPermissionStatusPromise != null && getCurrentActivity() != null) {
                     getCurrentActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -142,10 +170,10 @@ public class NativeGalleryModule extends ReactContextBaseJavaModule {
 
     private Bitmap getThumbnail(int thumbId) {
         return MediaStore.Images.Thumbnails.getThumbnail(
-            getReactApplicationContext().getContentResolver(),
-            thumbId,
-            MediaStore.Images.Thumbnails.MINI_KIND,
-            null);
+                getReactApplicationContext().getContentResolver(),
+                thumbId,
+                MediaStore.Images.Thumbnails.MINI_KIND,
+                null);
     }
 
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
@@ -173,7 +201,6 @@ public class NativeGalleryModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void getAlbumsWithThumbnails(Promise promise) {
-
         Cursor imagesCursor = getReactApplicationContext().getContentResolver().query(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI, ALBUMS_PROJECTION, null, null, null);
         AlbumList albums = getAlbumListFromCursor(imagesCursor);
@@ -189,16 +216,55 @@ public class NativeGalleryModule extends ReactContextBaseJavaModule {
         promise.resolve(ret);
     }
 
+
+    @ReactMethod
+    public void resizeImage(ReadableMap image, String quality, Promise promise) throws IOException {
+        try {
+
+            String imageName = Utils.getStringSafe(image, IMAGE_NAME_KEY);
+            String imageUrlString = getStringSafe(image, IMAGE_URI_KEY);
+            if (imageUrlString.startsWith(Utils.FILE_PREFIX)) {
+                imageUrlString = imageUrlString.replaceFirst(Utils.FILE_PREFIX, "");
+            }
+
+            // decide what is the wanted compression & resolution
+            int maxResolution;
+            int compressionQuality;
+            switch(quality) {
+                case HIGH_QUALITY:
+                    maxResolution = HIGHE_DIMANTION;
+                    compressionQuality = MEDIUM_COMPRESSION_QUALITY;
+                    break;
+                case MEDIUM_QUALITY:
+                    maxResolution = MEDIUM_DIMANTION;
+                    compressionQuality = MEDIUM_COMPRESSION_QUALITY;
+                    break;
+                case LOW_QUALITY:
+                    maxResolution = LOW_DIMANTION;
+                    compressionQuality = MEDIUM_COMPRESSION_QUALITY;
+                    break;
+                default:
+                    maxResolution = HIGHE_DIMANTION;
+                    compressionQuality = HIGH_COMPRESSION_QUALITY;
+            }
+
+            WritableMap ans = Utils.resizeImage(getReactApplicationContext(),imageName, imageUrlString, maxResolution, compressionQuality );
+            promise.resolve(ans);
+        } catch (IOException e) {
+            Log.d("","Failed resize image e: "+e.getMessage());
+        }
+    }
+
+
     @ReactMethod
     public void getImagesForUris(ReadableArray uris, Promise promise) {
-
         StringBuilder builder = new StringBuilder();
         builder.append(MediaStore.Images.Media.DATA + " IN (");
-        for (int i=0; i<uris.size(); i++) {
+        for (int i = 0; i < uris.size(); i++) {
             builder.append("\"");
             builder.append(uris.getString(i));
             builder.append("\"");
-            if(i != uris.size() -1) {
+            if (i != uris.size() - 1) {
                 builder.append(", ");
             }
         }
@@ -243,19 +309,19 @@ public class NativeGalleryModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void saveImageURLToCameraRoll(String imageUrl, final Promise promise) {
-        new SaveImageTask(imageUrl,  getReactApplicationContext(), promise, true).execute();
+        new SaveImageTask(imageUrl, getReactApplicationContext(), promise, true).execute();
     }
 
     @ReactMethod
     public void deleteTempImage(String imageUrl, final Promise promise) {
         boolean success = true;
-        String imagePath = imageUrl.replace("file://","");
+        String imagePath = imageUrl.replace("file://", "");
         File imageFile = new File(imagePath);
         if (imageFile.exists()) {
             success = imageFile.delete();
         }
 
-        if(promise != null) {
+        if (promise != null) {
             WritableMap result = Arguments.createMap();
             result.putBoolean("success", success);
             promise.resolve(result);
