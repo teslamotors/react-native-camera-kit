@@ -70,7 +70,7 @@ public class Utils {
 
 
     @NonNull
-    public static WritableMap resizeImage(Context context, String imageName, String imageUrlString, int maxResolution, int compressionQuality) throws IOException {
+    public static WritableMap resizeImage(Context context, ReadableMap image, String imageUrlString, int maxResolution, int compressionQuality) throws IOException {
         Bitmap sourceImage = null;
         sourceImage = Utils.loadBitmapFromFile(context, imageUrlString, maxResolution, maxResolution);
 
@@ -91,8 +91,8 @@ public class Utils {
         scaledImage.recycle();
 
         WritableMap ans = Arguments.createMap();
+        ans.merge(image);
         ans.putString("uri", FILE_PREFIX+resizedImagePath);
-        ans.putString("name", imageName);
         ans.putInt("size",  (int)new File(resizedImagePath).length());
         ans.putInt("width", scaledImage.getWidth());
         ans.putInt("height", scaledImage.getHeight());
