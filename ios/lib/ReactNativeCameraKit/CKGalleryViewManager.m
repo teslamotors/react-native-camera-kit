@@ -444,8 +444,18 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
 -(void)onSelectChanged:(PHAsset*)asset {
     if (self.onTapImage) {
         
+        CLLocation *loc = asset.location;
         NSMutableDictionary *imageTapInfo = [@{@"width": [NSNumber numberWithUnsignedInteger:asset.pixelWidth],
-                                               @"height": [NSNumber numberWithUnsignedInteger:asset.pixelHeight]} mutableCopy];
+                                               @"height": [NSNumber numberWithUnsignedInteger:asset.pixelHeight],
+                                               @"timestamp": @(asset.creationDate.timeIntervalSince1970),
+                                               @"location": loc ? @{
+                                                   @"latitude": @(loc.coordinate.latitude),
+                                                   @"longitude": @(loc.coordinate.longitude),
+                                                   @"altitude": @(loc.altitude),
+                                                   @"heading": @(loc.course),
+                                                   @"speed": @(loc.speed),
+                                                   } : @{},
+                                               } mutableCopy];
         
         BOOL shouldReturnUrl = self.getUrlOnTapImage ? [self.getUrlOnTapImage boolValue] : NO;
         if (shouldReturnUrl) {

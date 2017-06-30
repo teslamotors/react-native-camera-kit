@@ -20,6 +20,7 @@ import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.bridge.WritableNativeMap;
 import com.wix.RNCameraKit.SaveImageTask;
 import com.wix.RNCameraKit.Utils;
 import com.wix.RNCameraKit.gallery.permission.StoragePermission;
@@ -69,7 +70,10 @@ public class NativeGalleryModule extends ReactContextBaseJavaModule {
             MediaStore.Images.Media.TITLE,
             MediaStore.Images.Media.WIDTH,
             MediaStore.Images.Media.HEIGHT,
-            MediaStore.Images.Media.DATA
+            MediaStore.Images.Media.DATA,
+            MediaStore.Images.Media.DATE_TAKEN,
+            MediaStore.Images.Media.LATITUDE,
+            MediaStore.Images.Media.LONGITUDE
     };
     public static final String ALL_PHOTOS = "All Photos";
     private Promise checkPermissionStatusPromise;
@@ -288,6 +292,9 @@ public class NativeGalleryModule extends ReactContextBaseJavaModule {
                 int mimeIndex = cursor.getColumnIndex(MediaStore.Images.Media.MIME_TYPE);
                 int widthIndex = cursor.getColumnIndex(MediaStore.Images.Media.WIDTH);
                 int heightIndex = cursor.getColumnIndex(MediaStore.Images.Media.HEIGHT);
+                int dateIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATE_TAKEN);
+                int latitudeIndex = cursor.getColumnIndex(MediaStore.Images.Media.LATITUDE);
+                int longitudeIndex = cursor.getColumnIndex(MediaStore.Images.Media.LONGITUDE);
                 do {
                     WritableMap map = Arguments.createMap();
                     map.putString("uri", "file://" + cursor.getString(dataIndex));
@@ -296,6 +303,15 @@ public class NativeGalleryModule extends ReactContextBaseJavaModule {
                     map.putInt("height", cursor.getInt(heightIndex));
                     map.putString("mime_type", cursor.getString(mimeIndex));
                     map.putString("name", cursor.getString(nameIndex));
+                    map.putDouble("timestamp", cursor.getLong(dateIndex) / 1000d);
+                    WritableMap location = new WritableNativeMap();
+                    Double latitude = cursor.getDouble(latitudeIndex);
+                    Double longitude = cursor.getDouble(longitudeIndex);
+                    if (latitude > 0 || longitude > 0) {
+                        location.putDouble("latitude", latitude);
+                        location.putDouble("longitude", longitude);
+                    }
+                    map.putMap("location", location);
                     arr.pushMap(map);
                 } while (cursor.moveToNext());
             }
