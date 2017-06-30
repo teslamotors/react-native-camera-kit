@@ -35,6 +35,7 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
     private final String SELECTION_POSITION_KEY = "imagePosition";
     private final String SELECTION_SIZE_KEY = "imageSizeAndroid";
     private final String SELECTION_ENABLED_KEY = "enable";
+    private final String SELECTION_OVERLAY_KEY = "overlayColor";
 
     /**
      * A handler is required in order to sync configurations made to the adapter - some must run off the UI thread (e.g. drawables
@@ -142,6 +143,7 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
         final Integer position = getIntSafe(selectionProps, SELECTION_POSITION_KEY);
         final String size = getStringSafe(selectionProps, SELECTION_SIZE_KEY);
         final Boolean enabled = getBooleanSafe(selectionProps, SELECTION_ENABLED_KEY);
+        final Integer selectionOverlayColor = getIntSafe(selectionProps, SELECTION_OVERLAY_KEY);
         dispatchOnConfigJobQueue(new Runnable() {
             @Override
             public void run() {
@@ -167,6 +169,7 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
                 }
 
                 viewAdapter.setShouldEnabledSelection(enabled != null ? enabled : true);
+                viewAdapter.setSelectionOverlayColor(selectionOverlayColor);
             }
         });
     }

@@ -88,7 +88,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
 
             final SelectableImage selectableImageView = (SelectableImage) this.itemView;
             selectableImageView.setUnsupportedUIParams(overlayColor, unsupportedFinalImage, unsupportedText, unsupportedTextColor);
-            selectableImageView.setDrawables(selectedDrawable, unselectedDrawable);
+            selectableImageView.setDrawables(selectedDrawable, unselectedDrawable, selectionOverlayColor);
             selectableImageView.bind(executor, selected, forceBind, image.id, isSupported);
             selectableImageView.setOnClickListener(this);
         }
@@ -162,6 +162,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
     }
 
     private String overlayColor;
+    private Integer selectionOverlayColor;
     private Drawable unsupportedFinalImage;
     private String unsupportedText;
     private String unsupportedTextColor;
@@ -220,6 +221,10 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
 
     public void setSelectedDrawableSize(int selectedDrawableSize) {
         this.selectedDrawableSize = selectedDrawableSize;
+    }
+
+    public void setSelectionOverlayColor(Integer overlayColor) {
+        this.selectionOverlayColor = overlayColor;
     }
 
     public void setSupportedFileTypes(ArrayList<String> supportedFileTypes) {
