@@ -73,6 +73,11 @@ export default class CameraKitGalleryView extends Component {
       _.update(transformedProps, 'selection.imagePosition', (position) => positionCode);
     }
 
+    const selectionOverlayColor = _.get(transformedProps, 'selection.overlayColor');
+    if (selectionOverlayColor) {
+      _.update(transformedProps, 'selection.overlayColor', (color) => processColor(selectionOverlayColor));
+    }
+
     return <GalleryView {...transformedProps} onTapImage={this.onTapImage}/>
   }
 

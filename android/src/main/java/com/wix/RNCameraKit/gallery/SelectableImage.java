@@ -9,6 +9,7 @@ import android.graphics.drawable.Drawable;
 import android.provider.MediaStore;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -33,6 +34,7 @@ public class SelectableImage extends FrameLayout {
 
     private final ImageView imageView;
     private final ImageView selectedView;
+    private final View selectedOverlay;
     private int id = -1;
     private Runnable currentLoader;
     private Drawable selectedDrawable;
@@ -40,6 +42,7 @@ public class SelectableImage extends FrameLayout {
     private LinearLayout unsupportedLayout;
     private ImageView unsupportedImage;
     private TextView unsupportedTextView;
+    private int selectedOverlayColor = Color.parseColor("#80FFFFFF");
     private boolean selected;
     private int inSampleSize;
 
@@ -49,6 +52,9 @@ public class SelectableImage extends FrameLayout {
         setBackgroundColor(0xedeff0);
         imageView = new ImageView(context);
         addView(imageView, MATCH_PARENT, MATCH_PARENT);
+
+        selectedOverlay = new View(context);
+        addView(selectedOverlay, MATCH_PARENT, MATCH_PARENT);
 
         selectedView = new ImageView(context);
         addView(selectedView, createSelectedImageParams(selectedImageGravity, selectedImageSize));
@@ -152,11 +158,13 @@ public class SelectableImage extends FrameLayout {
     public void setSelected(boolean selected) {
         this.selected = selected;
         selectedView.setImageDrawable(selected ? selectedDrawable : unselectedDrawable);
+        selectedOverlay.setBackgroundColor(selected ? this.selectedOverlayColor : Color.TRANSPARENT);
     }
 
-    public void setDrawables(Drawable selectedDrawable, Drawable unselectedDrawable) {
+    public void setDrawables(Drawable selectedDrawable, Drawable unselectedDrawable, Integer overlayColor) {
         this.selectedDrawable = selectedDrawable;
         this.unselectedDrawable = unselectedDrawable;
+        this.selectedOverlayColor = overlayColor != null ? overlayColor : Color.parseColor("#80FFFFFF");
     }
 
 
