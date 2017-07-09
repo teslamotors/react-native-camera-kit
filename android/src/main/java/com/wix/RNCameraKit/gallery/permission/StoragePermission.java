@@ -18,6 +18,7 @@ public class StoragePermission {
     public void requestAccess(Activity activity, Promise promise) {
         if (isReadWritePermissionsGranted(activity)) {
             promise.resolve(true);
+            return;
         }
         requestAccessPromise = promise;
         permissionRequested(activity, Manifest.permission.READ_EXTERNAL_STORAGE);
@@ -31,6 +32,7 @@ public class StoragePermission {
         if (isStoragePermission(requestCode, permissions)) {
             if (requestAccessPromise != null) {
                 requestAccessPromise.resolve(grantResults[0] == PermissionChecker.PERMISSION_GRANTED && grantResults[1] == PermissionChecker.PERMISSION_GRANTED);
+                requestAccessPromise = null;
             }
         }
     }
