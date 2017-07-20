@@ -59,7 +59,7 @@ public class GalleryViewManager extends SimpleViewManager<GalleryView> {
         adapterConfigHandler = new Handler(handlerThread.getLooper());
 
         GalleryView view = new GalleryView(reactContext);
-        view.setAdapter(new GalleryAdapter(view));
+        view.setAdapter(new GalleryAdapter(reactContext, view));
         return view;
     }
 
