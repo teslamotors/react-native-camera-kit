@@ -54,7 +54,8 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
             return false;
         }
         Camera.Parameters parameters = camera.getParameters();
-        if(parameters.getSupportedFlashModes().contains(mode)) {
+        List supportedModes = parameters.getSupportedFlashModes();
+        if (supportedModes != null && supportedModes.contains(mode)) {
             flashMode = mode;
             parameters.setFlashMode(flashMode);
             camera.setParameters(parameters);
