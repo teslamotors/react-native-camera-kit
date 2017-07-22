@@ -42,7 +42,7 @@ Then add to your app `app/build.gradle` in the `dependencies` section:
 + compile project(":rncamerakit")
 ```
 
-Then in `MainActivity.java` add:
+Then in `MainApplication.java` add:
 
 ```diff
 + import com.wix.RNCameraKit.RNCameraKitPackage;
