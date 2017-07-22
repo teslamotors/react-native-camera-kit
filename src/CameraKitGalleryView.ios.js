@@ -15,7 +15,7 @@ const resolveAssetSource = require('react-native/Libraries/Image/resolveAssetSou
 
 export default class CameraKitGalleryView extends Component {
   render() {
-    const transformedProps = {...this.props};
+    const transformedProps = _.cloneDeep(this.props);
     transformedProps.albumName = this.props.albumName ? this.props.albumName : ALL_PHOTOS;
     transformedProps.columnCount = this.props.columnCount && this.props.columnCount > 0 ? this.props.columnCount : DEFAULT_COLUMN_COUNT;
     _.update(transformedProps, 'fileTypeSupport.unsupportedOverlayColor', (c) => processColor(c));
@@ -26,19 +26,19 @@ export default class CameraKitGalleryView extends Component {
     if (_.get(transformedProps, 'customButtonStyle.image')) {
       _.update(transformedProps, 'customButtonStyle.image', (image) => resolveAssetSource(image));
     }
-  
+
     if (_.get(transformedProps, 'customButtonStyle.backgroundColor')) {
       _.update(transformedProps, 'customButtonStyle.backgroundColor', (c) => processColor(c));
     }
-  
+
     if (_.get(transformedProps, 'selection.selectedImage')) {
       _.update(transformedProps, 'selection.selectedImage', (image) => resolveAssetSource(image));
     }
-  
+
     if (_.get(transformedProps, 'selection.unselectedImage')) {
       _.update(transformedProps, 'selection.unselectedImage', (image) => resolveAssetSource(image));
     }
-    
+
     if (_.get(transformedProps, 'selection.overlayColor')) {
       _.update(transformedProps, 'selection.overlayColor', (c) => processColor(c));
     }
