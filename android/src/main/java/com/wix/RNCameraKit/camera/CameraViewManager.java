@@ -132,6 +132,7 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
         } else if(camera != null){
             camera.release();
             camera = null;
+            currentCamera = 0;
         }
     }
 
