@@ -1,7 +1,5 @@
 package com.wix.RNCameraKit.gallery;
 
-import android.app.Activity;
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -34,7 +32,9 @@ public class SelectableImage extends FrameLayout {
 
     private final ImageView imageView;
     private final ImageView selectedView;
+    private final ReactContext reactContext;
     private final View selectedOverlay;
+
     private int id = -1;
     private Runnable currentLoader;
     private Drawable selectedDrawable;
@@ -46,17 +46,19 @@ public class SelectableImage extends FrameLayout {
     private boolean selected;
     private int inSampleSize;
 
-    public SelectableImage(Context context, Integer selectedImageGravity, Integer selectedImageSize) {
-        super(context);
+    public SelectableImage(ReactContext reactContext, Integer selectedImageGravity, Integer selectedImageSize) {
+        super(reactContext.getApplicationContext());
+        this.reactContext = reactContext;
+
         setPadding(1, 1, 1, 1);
         setBackgroundColor(0xedeff0);
-        imageView = new ImageView(context);
+        imageView = new ImageView(reactContext);
         addView(imageView, MATCH_PARENT, MATCH_PARENT);
 
-        selectedOverlay = new View(context);
+        selectedOverlay = new View(reactContext);
         addView(selectedOverlay, MATCH_PARENT, MATCH_PARENT);
 
-        selectedView = new ImageView(context);
+        selectedView = new ImageView(reactContext);
         addView(selectedView, createSelectedImageParams(selectedImageGravity, selectedImageSize));
 
         createUnsupportedView();
@@ -119,7 +121,6 @@ public class SelectableImage extends FrameLayout {
             currentLoader = new Runnable() {
                 @Override
                 public void run() {
-
                     BitmapFactory.Options options = new BitmapFactory.Options();
                     if (inSampleSize == 0) {
                         inSampleSize = Utils.calculateInSampleSize(MINI_THUMB_WIDTH,MINI_THUMB_HEIGHT, getWidth(), getHeight());
@@ -133,14 +134,13 @@ public class SelectableImage extends FrameLayout {
                             options);
 
                     if (SelectableImage.this.id == id) {
-                        ((Activity) ((ReactContext) getContext()).getBaseContext()).runOnUiThread(new Runnable() {
+                        reactContext.runOnUiQueueThread(new Runnable() {
                             @Override
                             public void run() {
                                 imageView.setImageBitmap(bmp);
                             }
                         });
                     }
-
                 }
             };
             executor.execute(currentLoader);
