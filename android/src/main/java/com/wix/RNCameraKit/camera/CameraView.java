@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 
 import com.facebook.react.uimanager.ThemedReactContext;
+import com.wix.RNCameraKit.Utils;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
@@ -46,7 +47,8 @@ public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         int actualPreviewWidth = getResources().getDisplayMetrics().widthPixels;
         int actualPreviewHeight = getResources().getDisplayMetrics().heightPixels;
-        surface.layout(0, 0, actualPreviewWidth, actualPreviewHeight);
+        int height = Utils.convertDeviceHeightToSupportedAspectRatio(actualPreviewWidth, actualPreviewHeight);
+        surface.layout(0, 0, actualPreviewWidth, height);
     }
 
     @Override
