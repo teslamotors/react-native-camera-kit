@@ -27,6 +27,7 @@ public class Utils {
     private final static String CONTENT_PREFIX = "content://";
     public final static String FILE_PREFIX = "file://";
     private static final int MAX_SAMPLE_SIZE = 8;
+    private static final float MAX_SCREEN_RATIO = 16 / 9f;
 
     @Nullable
     public static String getStringSafe(ReadableMap map, String key) {
@@ -206,5 +207,13 @@ public class Utils {
         fos.close();
 
         return newFile.getAbsolutePath();
+    }
+
+    /**
+     * Since Camera API 1 doesn't support the new 18:9 and 18.5:9 screen aspect ratio, we convert to the
+     * max supported aspect ratio - 16:9
+     */
+    public static int convertDeviceHeightToSupportedAspectRatio(float actualWidth, float actualHeight) {
+        return (int) (actualHeight / actualWidth > MAX_SCREEN_RATIO ? actualWidth * MAX_SCREEN_RATIO : actualHeight);
     }
 }

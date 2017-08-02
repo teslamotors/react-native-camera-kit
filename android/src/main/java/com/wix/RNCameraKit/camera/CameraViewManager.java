@@ -5,12 +5,14 @@ import android.content.Context;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.hardware.Camera;
+import android.util.Log;
 import android.view.Display;
 import android.view.Surface;
 import android.view.WindowManager;
 
 import com.facebook.react.uimanager.SimpleViewManager;
 import com.facebook.react.uimanager.ThemedReactContext;
+import com.wix.RNCameraKit.Utils;
 
 import java.io.IOException;
 import java.util.List;
@@ -217,6 +219,7 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
             Display display = wm.getDefaultDisplay();
             Point size = new Point();
             display.getSize(size);
+            size.y = Utils.convertDeviceHeightToSupportedAspectRatio(size.x, size.y);
             if (camera == null) return;
             List<Camera.Size> supportedPreviewSizes = camera.getParameters().getSupportedPreviewSizes();
             List<Camera.Size> supportedPictureSizes = camera.getParameters().getSupportedPictureSizes();
