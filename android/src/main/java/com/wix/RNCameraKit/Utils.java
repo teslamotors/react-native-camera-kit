@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.support.annotation.NonNull;
-import android.util.Base64;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReadableArray;
@@ -25,18 +24,9 @@ import javax.annotation.Nullable;
 
 public class Utils {
 
-    public final static String CONTENT_PREFIX = "content://";
+    private final static String CONTENT_PREFIX = "content://";
     public final static String FILE_PREFIX = "file://";
     private static final int MAX_SAMPLE_SIZE = 8;
-
-
-
-    public static String getBase64FromBitmap(Bitmap bitmap) {
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
-        byte[] byteArray = byteArrayOutputStream .toByteArray();
-        return Base64.encodeToString(byteArray, Base64.DEFAULT);
-    }
 
     @Nullable
     public static String getStringSafe(ReadableMap map, String key) {
@@ -71,7 +61,7 @@ public class Utils {
 
     @NonNull
     public static WritableMap resizeImage(Context context, ReadableMap image, String imageUrlString, int maxResolution, int compressionQuality) throws IOException {
-        Bitmap sourceImage = null;
+        Bitmap sourceImage;
         sourceImage = Utils.loadBitmapFromFile(context, imageUrlString, maxResolution, maxResolution);
 
         if (sourceImage == null) {
@@ -103,7 +93,7 @@ public class Utils {
     /**
      * Resize the specified bitmap, keeping its aspect ratio.
      */
-    public static Bitmap resizeImage(Bitmap image, int maxWidth, int maxHeight) {
+    private static Bitmap resizeImage(Bitmap image, int maxWidth, int maxHeight) {
         Bitmap newImage = null;
         if (image == null) {
             return null; // Can't load the image from the given path.
@@ -151,9 +141,7 @@ public class Utils {
         return inSampleSize;
     }
 
-
-
-    public static Bitmap loadBitmap(Context context, String imagePath, BitmapFactory.Options options) throws IOException {
+    private static Bitmap loadBitmap(Context context, String imagePath, BitmapFactory.Options options) throws IOException {
         Bitmap sourceImage = null;
         if (!imagePath.startsWith(CONTENT_PREFIX)) {
             try {
@@ -176,8 +164,8 @@ public class Utils {
     /**
      * Loads the bitmap resource from the file specified in imagePath.
      */
-    public static Bitmap loadBitmapFromFile(Context context, String imagePath, int newWidth,
-                                            int newHeight) throws IOException  {
+    private static Bitmap loadBitmapFromFile(Context context, String imagePath, int newWidth,
+                                             int newHeight) throws IOException  {
         // Decode the image bounds to find the size of the source image.
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
@@ -193,8 +181,8 @@ public class Utils {
     /**
      * Save the given bitmap in a directory. Extension is automatically generated using the bitmap format.
      */
-    public static String saveImage(Bitmap bitmap, File saveDirectory, String fileName,
-                                   Bitmap.CompressFormat compressFormat, int quality)
+    private static String saveImage(Bitmap bitmap, File saveDirectory, String fileName,
+                                    Bitmap.CompressFormat compressFormat, int quality)
             throws IOException {
         if (bitmap == null) {
             throw new IOException("The bitmap couldn't be resized");
