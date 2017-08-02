@@ -11,14 +11,12 @@ import com.wix.RNCameraKit.RNCameraKitPackage;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Created by rang on 29/11/2016.
- */
 public class MainApplication extends Application implements ReactApplication {
 
     private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
+
         @Override
-        protected boolean getUseDeveloperSupport() {
+        public boolean getUseDeveloperSupport() {
             return BuildConfig.DEBUG;
         }
 
