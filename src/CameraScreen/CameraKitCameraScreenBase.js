@@ -18,6 +18,7 @@ const GalleryManager = IsIOS ? NativeModules.CKGalleryManager : NativeModules.Na
 const FLASH_MODE_AUTO = 'auto';
 const FLASH_MODE_ON = 'on';
 const FLASH_MODE_OFF = 'off';
+const OVERLAY_DEFAULT_COLOR = '#ffffff77';
 
 export default class CameraScreenBase extends Component {
 
@@ -76,7 +77,7 @@ export default class CameraScreenBase extends Component {
   }
 
   getCameraOptions() {
-    const cameraOptions = {
+    const cameraOptions = this.props.cameraOptions || {
       flashMode: 'auto',
       focusMode: 'on',
       zoomMode: 'on'
