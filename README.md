@@ -79,11 +79,11 @@ And in the package list in the same file (e.g. `getPackages`) add:
 
 Attribute         | Values                 | Description
 ----------------- | ---------------------- | -----------
-flashMode         |`'on'`/`'off'`/`'auto'` | camera flash mode (default is `auto`)
-focusMode         | `'on'`/`'off'`         | camera focus mode (default is `on`)
-zoomMode          | `'on'`/`'off'`         | camera zoom mode
-ratioOverlay      | `['int':'int', ...]`   | overlay on top of the camera view (crop the image to the selected size) Example: `['16:9', '1:1', '3:4']`
-ratioOverlayColor |  Color                 | any color with alpha (default is ```'#ffffff77'```)
+`flashMode`         |`'on'`/`'off'`/`'auto'` | camera flash mode (default is `auto`)
+`focusMode`         | `'on'`/`'off'`         | camera focus mode (default is `on`)
+`zoomMode`          | `'on'`/`'off'`         | camera zoom mode
+`ratioOverlay`      | `['int':'int', ...]`   | overlay on top of the camera view (crop the image to the selected size) Example: `['16:9', '1:1', '3:4']`
+`ratioOverlayColor` |  Color                 | any color with alpha (default is ```'#ffffff77'```)
 
 
 ### CameraKitCamera API
@@ -161,37 +161,37 @@ Native Gallery View (based on `UICollectionView`)
 
 Attribute | Values | Description
 -------- | ----- | ------------
-minimumInteritemSpacing | Float             | Minimum inner Item spacing
-minimumLineSpacing      | Float             | Minimum line spacing
-imageStrokeColor        | Color             | Image stroke color
-albumName               | String            | Album name to show
-columnCount             | Integer           | How many clumns in one row
-onTapImage              | Function          | Callback when image tapped
-selectedImages          | Array             | Selected images (will show the selected badge)
-selectedImageIcon       | `require(_PATH_)` | - _DEPRECATED_ use Selection - Selected image badge image
-unSelectedImageIcon     | `require(_PATH_)` | - _DEPRECATED_ use Selection - Unselected image badge image
-selection               | Object            |   See Selection section
-getUrlOnTapImage        | Boolean           | iOS only - On image tap return the image internal  (tmp folder) uri (intead of `Photos.framework` asset id)
-customButtonStyle       | Object            | See Custom Button section
-onCustomButtonPress     | Function          | Callback when custom button tapped
-contentInset (iOS)      | Object            | The amount by which the gellery view content is inset from its edges (similar to `ScrollView` contentInset)
+`minimumInteritemSpacing` | Float             | Minimum inner Item spacing
+`minimumLineSpacing`      | Float             | Minimum line spacing
+`imageStrokeColor`        | Color             | Image stroke color
+`albumName`               | String            | Album name to show
+`columnCount`             | Integer           | How many clumns in one row
+`onTapImage`              | Function          | Callback when image tapped
+`selectedImages`          | Array             | Selected images (will show the selected badge)
+`selectedImageIcon`       | `require(_PATH_)` | - _DEPRECATED_ use Selection - Selected image badge image
+`unSelectedImageIcon`     | `require(_PATH_)` | - _DEPRECATED_ use Selection - Unselected image badge image
+`selection`               | Object            |   See Selection section
+`getUrlOnTapImage`        | Boolean           | iOS only - On image tap return the image internal  (tmp folder) uri (intead of `Photos.framework` asset id)
+`customButtonStyle`       | Object            | See Custom Button section
+`onCustomButtonPress`     | Function          | Callback when custom button tapped
+`contentInset` (iOS)      | Object            | The amount by which the gellery view content is inset from its edges (similar to `ScrollView` contentInset)
 
 #### Custom Button
 
 Attribute | Values | Description
 -------- | ----- | ------------
-image | `require(_PATH_)` | Custom button image
-backgroundColor | Color | Custom button background color
+`image` | `require(_PATH_)` | Custom button image
+`backgroundColor` | Color | Custom button background color
 
 #### Selection
 
 Attribute | Values | Description
 -------- | ----- | ------------
-selectedImage |`require(_PATH_)`|Selected image badge image
-unselectedImage |`require(_PATH_)`|Unselected image badge image
-imagePosition |`bottom/top-right/left` / `center`|  Selected/Unselected badge image position (Default:`top-right`)
-overlayColor |Color| Image selected overlay color
-imageSizeAndroid |`large`/`medium`| Android Only - Selected badge image size
+`selectedImage` |`require(_PATH_)`|Selected image badge image
+`unselectedImage` |`require(_PATH_)`|Unselected image badge image
+`imagePosition` |`bottom/top-right/left` / `center`|  Selected/Unselected badge image position (Default:`top-right`)
+`overlayColor` |Color| Image selected overlay color
+`imageSizeAndroid` |`large`/`medium`| Android Only - Selected badge image size
 
 
 ### QR Code 
