@@ -192,3 +192,8 @@ unselectedImage |`require(_PATH_)`|Unselected image badge image
 imagePosition |`bottom/top-right/left` / `center`|  Selected/Unselected badge image position (Default:`top-right`)
 overlayColor |Color| Image selected overlay color
 imageSizeAndroid |`large`/`medium`| Android Only - Selected badge image size
+
+
+#### QR Code 
+
+Want/Need QR Code support embed in this package, please vote [HERE](https://github.com/wix/react-native-camera-kit/issues/60) 
