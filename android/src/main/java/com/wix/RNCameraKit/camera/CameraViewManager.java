@@ -28,6 +28,7 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     private static ThemedReactContext reactContext;
     private static OrientationEventListener orientationListener;
     private static int currentRotation = -1;
+    private static boolean cameraReleased;
 
     public static Camera getCamera() {
         return camera;
@@ -96,9 +97,11 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     private static void initCamera() {
         if (camera != null) {
             camera.release();
+            cameraReleased = true;
         }
         try {
             camera = Camera.open(currentCamera);
+            cameraReleased = false;
             setCameraRotation(INITIAL_ROTATION);
             updateCameraSize();
         } catch (RuntimeException e) {
@@ -159,7 +162,7 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     }
 
     private static void setCameraRotation(int rotation) {
-        if (camera == null) return;
+        if (camera == null || cameraReleased) return;
         int supportedRotation = getSupportedRotation(rotation);
         if (supportedRotation == currentRotation) return;
         currentRotation = supportedRotation;
