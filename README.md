@@ -114,7 +114,7 @@ otherwise, returns `false`
 
 #### capture
 
-Capture image
+Capture image (`shouldSaveToCameraRoll: boolean`)
 
 ```js
 const image = await this.camera.capture(true);
