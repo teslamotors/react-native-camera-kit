@@ -14,7 +14,9 @@
   "bugs": {
     "url": "https://github.com/wix/react-native-camera-kit/issues"
   },
-  "scripts": {},
+  "scripts": {
+    "xcode": "open example/ios/example.xcodeproj"
+  },
   "dependencies": {
     "lodash": "^4.14.2",
     "prop-types": "^15.5.10"

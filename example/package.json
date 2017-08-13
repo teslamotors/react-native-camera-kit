@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
-    "quickinstall": "node scripts/quickinstall"
+    "quickinstall": "node scripts/quickinstall",
+    "xcode": "open ios/example.xcodeproj"
   },
   "dependencies": {
     "lodash": "^4.13.1",
