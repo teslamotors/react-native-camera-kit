@@ -1,12 +1,13 @@
 package com.wix.RNCameraKit.camera;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.hardware.Camera;
+import android.hardware.SensorManager;
+import android.support.annotation.IntRange;
 import android.view.Display;
-import android.view.Surface;
+import android.view.OrientationEventListener;
 import android.view.WindowManager;
 
 import com.facebook.react.uimanager.SimpleViewManager;
@@ -16,7 +17,11 @@ import com.wix.RNCameraKit.Utils;
 import java.io.IOException;
 import java.util.List;
 import java.util.Stack;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import static com.wix.RNCameraKit.camera.Orientation.getSupportedRotation;
+
+@SuppressWarnings("MagicNumber deprecation") // We're still using Camera API 1, everything is deprecated
 public class CameraViewManager extends SimpleViewManager<CameraView> {
 
     private static Camera camera = null;
@@ -24,13 +29,12 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     private static String flashMode = Camera.Parameters.FLASH_MODE_AUTO;
     private static Stack<CameraView> cameraViews = new Stack<>();
     private static ThemedReactContext reactContext;
+    private static OrientationEventListener orientationListener;
+    private static int currentRotation = 0;
+    private static AtomicBoolean cameraReleased = new AtomicBoolean(false);
 
     public static Camera getCamera() {
         return camera;
-    }
-
-    public static String getFlashMode() {
-        return flashMode;
     }
 
     @Override
@@ -40,17 +44,30 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
 
     @Override
     protected CameraView createViewInstance(ThemedReactContext reactContext) {
-        this.reactContext = reactContext;
+        CameraViewManager.reactContext = reactContext;
         return new CameraView(reactContext);
     }
 
-    public static void setCameraView(CameraView cameraView) {
+    static void setCameraView(CameraView cameraView) {
         if(!cameraViews.isEmpty() && cameraViews.peek() == cameraView) return;
         CameraViewManager.cameraViews.push(cameraView);
         connectHolder();
+        createOrientationListener();
     }
 
-    public static boolean setFlashMode(String mode) {
+    private static void createOrientationListener() {
+        if (orientationListener != null) return;
+        orientationListener = new OrientationEventListener(reactContext, SensorManager.SENSOR_DELAY_NORMAL) {
+             @Override
+             public void onOrientationChanged(@IntRange(from = -1, to = 359) int angle) {
+                 if (angle == OrientationEventListener.ORIENTATION_UNKNOWN) return;
+                 setCameraRotation(359 - angle, false);
+             }
+         };
+         orientationListener.enable();
+    }
+
+    static boolean setFlashMode(String mode) {
         if (camera == null) {
             return false;
         }
@@ -67,7 +84,7 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
         }
     }
 
-    public static boolean changeCamera() {
+    static boolean changeCamera() {
         if (Camera.getNumberOfCameras() == 1) {
             return false;
         }
@@ -79,17 +96,23 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
         return true;
     }
 
-    public static void initCamera() {
+    private static void initCamera() {
         if (camera != null) {
-            camera.release();
+            releaseCamera();
         }
         try {
             camera = Camera.open(currentCamera);
-            setCameraDisplayOrientation(((Activity) reactContext.getBaseContext()));
             updateCameraSize();
+            cameraReleased.set(false);
+            setCameraRotation(currentRotation, true);
         } catch (RuntimeException e) {
             e.printStackTrace();
         }
+    }
+
+    private static void releaseCamera() {
+        cameraReleased.set(true);
+        camera.release();
     }
 
     private static void connectHolder() {
@@ -113,9 +136,7 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
                             camera.stopPreview();
                             camera.setPreviewDisplay(cameraViews.peek().getHolder());
                             camera.startPreview();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        } catch (RuntimeException e) {
+                        } catch (IOException | RuntimeException e) {
                             e.printStackTrace();
                         }
                     }
@@ -124,25 +145,39 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
         }).start();
     }
 
-    public static void removeCameraView() {
+    static void removeCameraView() {
         if(!cameraViews.isEmpty()) {
             cameraViews.pop();
         }
         if(!cameraViews.isEmpty()) {
             connectHolder();
         } else if(camera != null){
-            camera.release();
+            releaseCamera();
             camera = null;
+        }
+        if (cameraViews.isEmpty()) {
+            clearOrientationListener();
         }
     }
 
-    public static void setCameraDisplayOrientation(Activity activity) {
-        int result = getRotation(activity);
+    private static void clearOrientationListener() {
+        if (orientationListener != null) {
+            orientationListener.disable();
+            orientationListener = null;
+        }
+    }
+
+    private static void setCameraRotation(int rotation, boolean force) {
+        if (camera == null) return;
+        int supportedRotation = getSupportedRotation(rotation);
+        if (supportedRotation == currentRotation && !force) return;
+        currentRotation = supportedRotation;
+
+        if (cameraReleased.get()) return;
         Camera.Parameters parameters = camera.getParameters();
-        parameters.setRotation(result);
-        parameters.set("orientation", "portrait");
+        parameters.setRotation(supportedRotation);
         parameters.setPictureFormat(PixelFormat.JPEG);
-        camera.setDisplayOrientation(result);
+        camera.setDisplayOrientation(Orientation.getDeviceOrientation(reactContext.getCurrentActivity()));
         camera.setParameters(parameters);
     }
 
@@ -152,58 +187,26 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
         return info;
     }
 
-    public static int getRotation(Activity activity) {
-        Camera.CameraInfo info = getCameraInfo();
-
-        int rotation = activity.getWindowManager().getDefaultDisplay()
-                .getRotation();
-        int degrees = 0;
-        switch (rotation) {
-            case Surface.ROTATION_0:
-                degrees = 0;
-                break;
-            case Surface.ROTATION_90:
-                degrees = 90;
-                break;
-            case Surface.ROTATION_180:
-                degrees = 180;
-                break;
-            case Surface.ROTATION_270:
-                degrees = 270;
-                break;
-        }
-
-        int result;
-        if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-            result = (info.orientation + degrees) % 360;
-            result = (360 - result) % 360;  // compensate the mirror
-        } else {  // back-facing
-            result = (info.orientation - degrees + 360) % 360;
-        }
-        return result;
-    }
-
     private static Camera.Size getOptimalPreviewSize(List<Camera.Size> sizes, int w, int h) {
         final double ASPECT_TOLERANCE = 0.1;
         double targetRatio=(double)h / w;
         if (sizes == null) return null;
         Camera.Size optimalSize = null;
         double minDiff = Double.MAX_VALUE;
-        int targetHeight = h;
         for (Camera.Size size : sizes) {
             double ratio = (double) size.width / size.height;
             if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE) continue;
-            if (Math.abs(size.height - targetHeight) < minDiff) {
+            if (Math.abs(size.height - h) < minDiff) {
                 optimalSize = size;
-                minDiff = Math.abs(size.height - targetHeight);
+                minDiff = Math.abs(size.height - h);
             }
         }
         if (optimalSize == null) {
             minDiff = Double.MAX_VALUE;
             for (Camera.Size size : sizes) {
-                if (Math.abs(size.height - targetHeight) < minDiff) {
+                if (Math.abs(size.height - h) < minDiff) {
                     optimalSize = size;
-                    minDiff = Math.abs(size.height - targetHeight);
+                    minDiff = Math.abs(size.height - h);
                 }
             }
         }
@@ -227,9 +230,9 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
             Camera.Parameters parameters = camera.getParameters();
             parameters.setPreviewSize(optimalSize.width, optimalSize.height);
             parameters.setPictureSize(optimalPictureSize.width, optimalPictureSize.height);
-            parameters.setFlashMode(CameraViewManager.getFlashMode());
+            parameters.setFlashMode(flashMode);
             camera.setParameters(parameters);
-        } catch (RuntimeException e) {}
+        } catch (RuntimeException ignored) {}
     }
 
     public static void reconnect() {
