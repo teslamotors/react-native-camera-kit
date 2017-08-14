@@ -151,7 +151,7 @@ Native Gallery View (based on `UICollectionView`)
   albumName={<ALBUM_NAME>}
   columnCount={3}
   onTapImage={event => {
-    // result.nativeEvent.selected - ALL selected images Photos Framework ids
+    // event.nativeEvent.selected - ALL selected images Photos Framework ids
   }}
   selectedImages={<MAINTAIN_SELECETED_IMAGES>}
   selectedImageIcon={require('<IMAGE_FILE_PATH>'))}
