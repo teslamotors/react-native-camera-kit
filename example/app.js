@@ -15,8 +15,8 @@ import {
   CameraKitGallery
 } from 'react-native-camera-kit';
 
-import CameraScreen from  './CameraScreen';
-import AlbumsScreen from  './AlbumsScreen';
+import CameraScreen from './src/CameraScreen';
+import AlbumsScreen from  './src/AlbumsScreen';
 
 class example extends Component {
   
@@ -49,13 +49,13 @@ class example extends Component {
         
         <TouchableOpacity onPress={() => this.onCheckCameraAuthoPressed()}>
           <Text style={styles.buttonText}>
-            Check Camera Autotization Status
+            Camera Autotization Status
           </Text>
         </TouchableOpacity>
         
         <TouchableOpacity onPress={() => this.onCheckGalleryAuthoPressed()}>
           <Text style={styles.buttonText}>
-            Check Photos Autotization Status
+            Photos Autotization Status
           </Text>
         </TouchableOpacity>
       
@@ -67,20 +67,20 @@ class example extends Component {
   async onCheckCameraAuthoPressed() {
     const success = await CameraKitCamera.checkDeviceCameraAuthorizationStatus();
     if (success) {
-      AlertIOS.alert('You have permission!')
+      AlertIOS.alert('You have permission 🤗')
     }
     else {
-      AlertIOS.alert('No permission :(')
+      AlertIOS.alert('No permission 😳')
     }
   }
   
   async onCheckGalleryAuthoPressed() {
     const success = await CameraKitGallery.checkDevicePhotosAuthorizationStatus();
     if (success) {
-      AlertIOS.alert('You have permission!')
+      AlertIOS.alert('You have permission 🤗')
     }
     else {
-      AlertIOS.alert('No permission :(')
+      AlertIOS.alert('No permission 😳')
     }
   }
 }

@@ -91,19 +91,19 @@ export default class AlbumsScreen extends Component {
             this.imageTapped(result.nativeEvent.selected);
           }}
           selection={{
-            selectedImage: require('./images/selected.png'),
+            selectedImage: require('../images/selected.png'),
             imageSizeAndroid: 'large',
             overlayColor: '#ecf0f1aa'
           }}
           fileTypeSupport={{
             unsupportedOverlayColor: "#00000055",
-            unsupportedImage: require('./images/unsupportedImage.png'),
+            unsupportedImage: require('../images/unsupportedImage.png'),
             unsupportedText: 'Unsupported',
             unsupportedTextColor: '#ffffff'
           }}
           imageStrokeColor={'#edeff0'}
           customButtonStyle={{
-            image: require('./images/openCamera.png'),
+            image: require('../images/openCamera.png'),
             backgroundColor: '#f2f4f5'
           }}
           onCustomButtonPress={(result) => {
