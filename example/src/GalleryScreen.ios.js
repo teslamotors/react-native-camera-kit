@@ -57,9 +57,6 @@ export default class GalleryScreen extends Component {
     return (
       <View style={{flex: 1}}>
         <CameraKitGalleryView
-          ref={(gallery) => {
-            this.gallery = gallery;
-          }}
           style={{flex:1, margin: 0, marginTop: 50}}
           albumName={this.state.album}
           minimumInteritemSpacing={10}
@@ -68,6 +65,8 @@ export default class GalleryScreen extends Component {
           onTapImage={event => {this.onTapImage(event)}}
           remoteDownloadIndicatorType={'spinner'} //spinner / progress-bar
           remoteDownloadIndicatorColor={'red'}
+          onRemoteDownloadChanged={(event) => console.log(event.nativeEvent.isRemoteDownloading)}
+
 
         />
         {this.state.presentedImage && this.renderPresentedImage()}

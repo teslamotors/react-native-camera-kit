@@ -144,7 +144,6 @@ export default class AlbumsScreen extends Component {
   }
   
   onCustomButtonPressed() {
-    console.log('RANG', 'custom button pressed');
     this.setState({shouldRenderCameraScreen: true});
   }
   
