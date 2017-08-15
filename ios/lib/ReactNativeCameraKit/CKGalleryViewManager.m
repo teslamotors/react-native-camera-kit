@@ -7,6 +7,7 @@
 //
 
 @import Photos;
+
 #import "CKGalleryViewManager.h"
 #import "CKGalleryCollectionViewCell.h"
 #import "CKGalleryCustomCollectionViewCell.h"
@@ -39,6 +40,7 @@ typedef void (^CompletionBlock)(BOOL success);
 @property (nonatomic, strong) NSNumber *autoSyncSelection;
 @property (nonatomic, strong) NSString *imageQualityOnTap;
 @property (nonatomic, copy) RCTDirectEventBlock onTapImage;
+@property (nonatomic, copy) RCTDirectEventBlock onRemoteDownloadChanged;
 
 
 @property (nonatomic, strong) UICollectionView *collectionView;
@@ -216,7 +218,7 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
     [CKGalleryCollectionViewCell setRemoteDownloadIndicatorColor:remoteDownloadIndicatorColor];
 }
 
--(void)setRemoteDownloadIndicatorType:(UIColor *)remoteDownloadIndicatorType {
+-(void)setRemoteDownloadIndicatorType:(NSString *)remoteDownloadIndicatorType {
     [CKGalleryCollectionViewCell setRemoteDownloadIndicatorType:remoteDownloadIndicatorType];
 }
 
@@ -360,6 +362,11 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
 }
 
 -(void)remoteDownloadingUpdate:(CKGalleryCollectionViewCell *)cell progress:(CGFloat)progress isDownloading:(BOOL)isDownloading {
+    if (cell.isDownloading != isDownloading) {
+        if (self.onRemoteDownloadChanged) {
+            self.onRemoteDownloadChanged(@{@"isRemoteDownloading": [NSNumber numberWithBool:isDownloading]});
+        }
+    }
     cell.isDownloading = isDownloading;
     cell.downloadingProgress = progress;
 }
@@ -620,6 +627,8 @@ RCT_EXPORT_VIEW_PROPERTY(imageQualityOnTap, NSString);
 RCT_EXPORT_VIEW_PROPERTY(alwaysBounce, BOOL);
 RCT_EXPORT_VIEW_PROPERTY(remoteDownloadIndicatorColor, UIColor);
 RCT_EXPORT_VIEW_PROPERTY(remoteDownloadIndicatorType, NSString);
+RCT_EXPORT_VIEW_PROPERTY(onRemoteDownloadChanged, RCTDirectEventBlock);
+
 
 
 RCT_EXPORT_METHOD(getSelectedImages:(RCTPromiseResolveBlock)resolve
