@@ -66,6 +66,9 @@ export default class GalleryScreen extends Component {
           minimumLineSpacing={10}
           columnCount={3}
           onTapImage={event => {this.onTapImage(event)}}
+          remoteDownloadIndicatorType={'spinner'} //spinner / progress-bar
+          remoteDownloadIndicatorColor={'red'}
+
         />
         {this.state.presentedImage && this.renderPresentedImage()}
       </View>
