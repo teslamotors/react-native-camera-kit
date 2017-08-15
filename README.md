@@ -194,6 +194,13 @@ Attribute | Values | Description
 `imageSizeAndroid` |`large`/`medium`| Android Only - Selected badge image size
 
 
-### QR Code 
+## QR Code 
 
 Want/Need QR Code support embed in this package, please vote [HERE](https://github.com/wix/react-native-camera-kit/issues/60) 
+
+
+## License
+
+The MIT License.
+
+See [LICENSE](LICENSE)
