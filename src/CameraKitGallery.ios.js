@@ -9,8 +9,9 @@ async function getAlbumsWithThumbnails() {
     return albums;
 }
 
-async function getImageUriForId(imageId) {
-  const images = await CKGallery.getImagesForIds([imageId]);
+async function getImageUriForId(imageId, imageQuality) {
+  const {images} = await CKGallery.getImagesForIds([imageId], imageQuality);
+  console.log('RANG', 'getImageUriForId', images);
   if (!images) {
     return;
   }
