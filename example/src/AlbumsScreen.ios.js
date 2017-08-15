@@ -1,28 +1,22 @@
 import React, {Component} from 'react';
 import {
-  AppRegistry,
   StyleSheet,
   Text,
   View,
   ListView,
   TouchableOpacity,
   Image,
-  AlertIOS,
-  Dimensions,
   Switch
 } from 'react-native';
 
 import {
   CameraKitGallery,
-  CameraKitCamera,
   CameraKitGalleryView
 } from 'react-native-camera-kit';
 import _ from 'lodash';
 
-import GalleryScreen from './GalleryScreen';
 import CameraScreen from './CameraScreen';
 
-const {height, width} = Dimensions.get('window');
 
 export default class AlbumsScreen extends Component {
   

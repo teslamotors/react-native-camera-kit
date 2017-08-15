@@ -1,15 +1,4 @@
 import React, {Component} from 'react';
-import {
-    AppRegistry,
-    Text,
-    View,
-    ListView,
-    TouchableOpacity,
-    Image,
-    AlertIOS,
-    CameraRoll,
-    Dimensions
-} from 'react-native';
 
 import {
     CameraKitGalleryView
@@ -17,9 +6,7 @@ import {
 
 import CameraScreen from './CameraScreen';
 
-const resolveAssetSource = require('react-native/Libraries/Image/resolveAssetSource');
-
-export default class GalleryScreenNative extends Component {
+export default class GalleryScreen extends Component {
 
   constructor(props) {
     super(props);
