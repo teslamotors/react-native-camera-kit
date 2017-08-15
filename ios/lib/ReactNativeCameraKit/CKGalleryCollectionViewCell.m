@@ -42,6 +42,9 @@ static UIColor *imageStrokeColor = nil;
 static NSDictionary *selection = nil;
 static NSString *imagePosition = nil;
 static UIColor *selectionOverlayColor = nil;
+static UIColor *remoteDownloadIndicatorColor = nil;
+static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SPINNER;
+
 
 
 @interface CKGalleryCollectionViewCell ()
@@ -52,6 +55,8 @@ static UIColor *selectionOverlayColor = nil;
 @property (nonatomic, strong) UIView *imageOveray;
 @property (nonatomic, strong) UIView *unsupportedView;
 @property (nonatomic, strong) SelectionGesture *gesture;
+@property (nonatomic, strong) UIActivityIndicatorView *spinner;
+@property (nonatomic, strong) UIProgressView *progressView;
 
 @end
 
@@ -89,6 +94,41 @@ static UIColor *selectionOverlayColor = nil;
     selection = nil;
     imagePosition = nil;
     selectionOverlayColor = nil;
+    remoteDownloadIndicatorColor = nil;
+}
+
++(void)setRemoteDownloadIndicatorColor:(UIColor*)color {
+    if (color) remoteDownloadIndicatorColor = color;
+}
+
++(void)setRemoteDownloadIndicatorType:(NSString*)type {
+    if (type) remoteDownloadIndicatorType = type;
+}
+
+-(UIActivityIndicatorView*)spinner {
+    if (!_spinner) {
+        _spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+        _spinner.center = CGPointMake(CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds));
+        [_spinner startAnimating];
+        if (remoteDownloadIndicatorColor) {
+            [_spinner setColor:remoteDownloadIndicatorColor];
+        }
+        
+    }
+    return _spinner;
+}
+
+-(UIProgressView*)progressView {
+    if (!_progressView) {
+        _progressView = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleDefault];
+        _progressView.frame = CGRectMake(0, 0, self.bounds.size.width*0.8, self.bounds.size.height*0.15);
+        _progressView.center = CGPointMake(CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds)*1.8);
+        _progressView.progress = 0;
+        if (remoteDownloadIndicatorColor) {
+            _progressView.tintColor = remoteDownloadIndicatorColor;
+        }
+    }
+    return _progressView;
 }
 
 
@@ -193,11 +233,18 @@ static UIColor *selectionOverlayColor = nil;
     [super prepareForReuse];
     self.imageView.image = nil;
     self.isSelected = NO;
+    _isDownloading = NO;
     self.isSupported = YES;
     self.gesture.enabled = YES;
+    
     [self.unsupportedView removeFromSuperview];
     self.unsupportedView = nil;
     
+    [_spinner removeFromSuperview];
+    _spinner = nil;
+    
+    [_progressView removeFromSuperview];
+    _progressView = nil;
 }
 
 
@@ -255,8 +302,6 @@ static UIColor *selectionOverlayColor = nil;
                 [self.unsupportedView addSubview:unsupportedLabel];
             }
             
-            
-            
             [self addSubview:self.unsupportedView];
             [self.badgeImageView removeFromSuperview];
             self.gesture.enabled = NO;
@@ -312,9 +357,45 @@ static UIColor *selectionOverlayColor = nil;
     }
 }
 
+-(void)setIsDownloading:(BOOL)isDownloading {
+    _isDownloading = isDownloading;
+    [self updateRemoteDownload];
+}
 
--(void)handleGesture:(UIGestureRecognizer*)gesture
-{
+-(void)setDownloadingProgress:(CGFloat)downloadingProgress {
+    _downloadingProgress = downloadingProgress;
+    self.progressView.progress = downloadingProgress;
+    
+    [self updateRemoteDownload];
+}
+
+-(void)updateRemoteDownload {
+    if (self.isDownloading) {
+        if ([remoteDownloadIndicatorType isEqualToString:REMOTE_DOWNLOAD_INDICATOR_TYPE_SPINNER]) {
+            [self addSubview:self.spinner];
+        }
+        else if ([remoteDownloadIndicatorType isEqualToString:REMOTE_DOWNLOAD_INDICATOR_TYPE_PROGRESS_BAR]) {
+            if (![self.progressView isDescendantOfView:self]) {
+                [self addSubview:self.progressView];
+            }
+        }
+    }
+    
+    else {
+        [self removeRemoteDownloadIndicator];
+    }
+}
+
+-(void)removeRemoteDownloadIndicator {
+    [_spinner removeFromSuperview];
+    _spinner = nil;
+    
+    [_progressView removeFromSuperview];
+    _progressView = nil;
+}
+
+
+-(void)handleGesture:(UIGestureRecognizer*)gesture {
     if (gesture.state == UIGestureRecognizerStateBegan)
     {
         [UIView animateWithDuration:0.1 animations:^{

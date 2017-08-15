@@ -19,13 +19,13 @@
 #define SCREEN_WIDTH ([[UIScreen mainScreen] bounds].size.width)
 #define SCREEN_HEIGHT ([[UIScreen mainScreen] bounds].size.height)
 
-#define DEFAULT_MINIMUM_INTERITEM_SPACING       10.0
-#define DEFAULT_MINIMUM_LINE_SPACING            10.0
-#define IMAGE_SIZE_MULTIPLIER                   2
+#define DEFAULT_MINIMUM_INTERITEM_SPACING               10.0
+#define DEFAULT_MINIMUM_LINE_SPACING                    10.0
+#define IMAGE_SIZE_MULTIPLIER                           2
 
 
 
-
+typedef void (^CompletionBlock)(BOOL success);
 
 
 @interface CKGalleryView : UIView <UICollectionViewDelegateFlowLayout, UICollectionViewDataSource>
@@ -58,6 +58,8 @@
 @property (nonatomic, strong) NSDictionary *selection;
 @property (nonatomic)         UIEdgeInsets contentInset;
 @property (nonatomic)         BOOL alwaysBounce;
+@property (nonatomic, strong) UIColor *remoteDownloadIndicatorColor;
+@property (nonatomic, strong) NSString *remoteDownloadIndicatorType;
 
 //custom button props
 @property (nonatomic, strong) NSDictionary *customButtonStyle;
@@ -210,6 +212,14 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
     _contentInset = contentInset;
 }
 
+-(void)setRemoteDownloadIndicatorColor:(UIColor *)remoteDownloadIndicatorColor {
+    [CKGalleryCollectionViewCell setRemoteDownloadIndicatorColor:remoteDownloadIndicatorColor];
+}
+
+-(void)setRemoteDownloadIndicatorType:(UIColor *)remoteDownloadIndicatorType {
+    [CKGalleryCollectionViewCell setRemoteDownloadIndicatorType:remoteDownloadIndicatorType];
+}
+
 -(void)setAlwaysBounce:(BOOL)alwaysBounce {
     if(self.collectionView) {
         self.collectionView.alwaysBounceVertical = alwaysBounce;
@@ -349,8 +359,83 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
     return cell;
 }
 
+-(void)remoteDownloadingUpdate:(CKGalleryCollectionViewCell *)cell progress:(CGFloat)progress isDownloading:(BOOL)isDownloading {
+    cell.isDownloading = isDownloading;
+    cell.downloadingProgress = progress;
+}
+
+
 -(NSString*)extractFileTypeForAsset:(PHAsset*)asset {
     return [asset valueForKey:@"uniformTypeIdentifier"];
+}
+
+-(void)downloadImageFromICloud:(PHAsset *)asset cell:(CKGalleryCollectionViewCell *)cell completion:(CompletionBlock)completion {
+    
+    PHImageManager *manager = [PHImageManager defaultManager];
+    PHImageRequestOptions *options = [[PHImageRequestOptions alloc] init];
+    options.networkAccessAllowed = YES;
+    options.synchronous = NO;
+    [options setProgressHandler:^(double progress, NSError *error, BOOL *stop, NSDictionary *info) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self remoteDownloadingUpdate:cell progress:progress isDownloading:YES];
+        });
+    }];
+    
+    [manager
+     requestImageDataForAsset:asset
+     options:options
+     resultHandler:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
+         
+         if (imageData) {
+             dispatch_async(dispatch_get_main_queue(), ^{
+                 [self remoteDownloadingUpdate:cell progress:1 isDownloading:NO];
+                 
+                 if (completion) {
+                     completion(YES);
+                 }
+             });
+         }
+         else {
+             dispatch_async(dispatch_get_main_queue(), ^{
+                 [self remoteDownloadingUpdate:cell progress:0 isDownloading:NO];
+                 if (completion) {
+                     completion(NO);
+                 }
+             });
+         }
+         
+     }];
+    
+}
+
+-(void)downloadImageFromICloudIfNeeded:(PHAsset *)asset cell:(CKGalleryCollectionViewCell *)cell completion:(CompletionBlock)completion {
+    
+    
+    PHImageManager *manager = [PHImageManager defaultManager];
+    PHImageRequestOptions *options = [[PHImageRequestOptions alloc] init];
+    options.networkAccessAllowed = NO;
+    options.synchronous = YES;
+    
+    [manager
+     requestImageDataForAsset:asset
+     options:options
+     resultHandler:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
+         
+         if ([[info valueForKey:PHImageResultIsInCloudKey] boolValue]) {
+             dispatch_async(dispatch_get_main_queue(), ^{
+                 [self remoteDownloadingUpdate:cell progress:0 isDownloading:YES];
+                 [self downloadImageFromICloud:asset cell:cell completion:completion];
+             });
+         }
+         else {
+             dispatch_async(dispatch_get_main_queue(), ^{
+//                 [self remoteDownloadingUpdate:cell progress:-1 isDownloading:NO];
+                 if (completion) {
+                     completion(YES);
+                 }
+             });
+         }
+     }];
 }
 
 
@@ -370,21 +455,32 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
     }
     
     id selectedCell =[collectionView cellForItemAtIndexPath:indexPath];
-    NSMutableDictionary *assetDictionary = (NSMutableDictionary*)self.galleryData.data[galleryDataIndex];
-    PHAsset *asset = assetDictionary[@"asset"];
-    NSNumber *isSelectedNumber = assetDictionary[@"isSelected"];
-    assetDictionary[@"isSelected"] = [NSNumber numberWithBool:!(isSelectedNumber.boolValue)];
     
     if ([selectedCell isKindOfClass:[CKGalleryCollectionViewCell class]]) {
         CKGalleryCollectionViewCell *ckCell = (CKGalleryCollectionViewCell*)selectedCell;
         
-        if (!ckCell.isSupported) {
-            return;
-        }
+        NSMutableDictionary *assetDictionary = (NSMutableDictionary*)self.galleryData.data[galleryDataIndex];
+        PHAsset *asset = assetDictionary[@"asset"];
+        NSNumber *isSelectedNumber = assetDictionary[@"isSelected"];
+        assetDictionary[@"isSelected"] = [NSNumber numberWithBool:!(isSelectedNumber.boolValue)];
         
-        ckCell.isSelected = !ckCell.isSelected;
+        [self downloadImageFromICloudIfNeeded:asset cell:ckCell completion:^(BOOL success) {
+            
+            if (success) {
+                if (!ckCell.isSupported) {
+                    return;
+                }
+                
+                ckCell.isSelected = !ckCell.isSelected;
+                
+                [self onSelectChanged:asset];
+            }
+        }];
         
-        [self onSelectChanged:asset];
+        
+        
+        
+        
     }
 }
 
@@ -522,6 +618,9 @@ RCT_EXPORT_VIEW_PROPERTY(selection, NSDictionary);
 RCT_EXPORT_VIEW_PROPERTY(contentInset, UIEdgeInsets);
 RCT_EXPORT_VIEW_PROPERTY(imageQualityOnTap, NSString);
 RCT_EXPORT_VIEW_PROPERTY(alwaysBounce, BOOL);
+RCT_EXPORT_VIEW_PROPERTY(remoteDownloadIndicatorColor, UIColor);
+RCT_EXPORT_VIEW_PROPERTY(remoteDownloadIndicatorType, NSString);
+
 
 RCT_EXPORT_METHOD(getSelectedImages:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
