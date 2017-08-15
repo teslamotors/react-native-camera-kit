@@ -175,8 +175,9 @@ Attribute | Values | Description
 `customButtonStyle`              | Object            | See Custom Button section
 `onCustomButtonPress`            | Function          | Callback when custom button tapped
 `contentInset` (iOS)             | Object            | The amount by which the gellery view content is inset from its edges (similar to `ScrollView` contentInset)
-`remoteDownloadIndicatorType`    | String (`spinner` / `progress-bar`) | If remote download (iCloud) is needed, which type of indicator to show
-`remoteDownloadIndicatorColor`    | Color  | Color of the remote download indicator to show  
+`remoteDownloadIndicatorType`    | String (`spinner` / `progress-bar`) | iOS only - If remote download (iCloud) is needed, which type of indicator to show
+`remoteDownloadIndicatorColor`   | Color             | iOS only - Color of the remote download indicator to show  
+`onRemoteDownloadChanged`        | Function          | iOS only - Callback when the device curentlly download remote image stored in the iCloud.
 
 #### Custom Button
 
