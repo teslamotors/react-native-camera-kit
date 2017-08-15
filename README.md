@@ -138,7 +138,7 @@ const success = await this.camera.changeCamera();
 
 ### CameraKitGalleryView
 
-Native Gallery View (based on `UICollectionView`)
+Native Gallery View (based on `UICollectionView`(iOS) and ` RecyclerView` (Android))
 
 ![](img/camerakitgalleryview.png)
 
@@ -151,7 +151,7 @@ Native Gallery View (based on `UICollectionView`)
   albumName={<ALBUM_NAME>}
   columnCount={3}
   onTapImage={event => {
-    // event.nativeEvent.selected - ALL selected images Photos Framework ids
+    // event.nativeEvent.selected - ALL selected images ids
   }}
   selectedImages={<MAINTAIN_SELECETED_IMAGES>}
   selectedImageIcon={require('<IMAGE_FILE_PATH>'))}
