@@ -54,9 +54,9 @@ And in the package list in the same file (e.g. `getPackages`) add:
 + new RNCameraKitPackage()
 ```
 
-## How to use
+## APIs
 
-### CameraKitCamera inside the `render` function
+### CameraKitCamera - Camera component 
 
 ```js
 <CameraKitCamera
@@ -112,7 +112,7 @@ const isUserAuthorizedCamera = await CameraKitCamera.requestDeviceCameraAuthoriz
 
 otherwise, returns `false`
 
-#### capture
+#### capture - must have the wanted camera capture reference
 
 Capture image (`shouldSaveToCameraRoll: boolean`)
 
@@ -120,7 +120,7 @@ Capture image (`shouldSaveToCameraRoll: boolean`)
 const image = await this.camera.capture(true);
 ```
 
-#### setFlashMode
+#### setFlashMode - must have the wanted camera capture reference
 
 Set flash mode (`auto`/`on`/`off`)
 
@@ -128,7 +128,7 @@ Set flash mode (`auto`/`on`/`off`)
 const success = await this.camera.setFlashMode(newFlashData.mode);
 ```
 
-#### changeCamera
+#### changeCamera - must have the wanted camera capture reference
 
 Change to fornt/rear camera
 
@@ -136,7 +136,7 @@ Change to fornt/rear camera
 const success = await this.camera.changeCamera();
 ```
 
-### CameraKitGalleryView
+### CameraKitGalleryView - Gallery grid component
 
 Native Gallery View (based on `UICollectionView`(iOS) and ` RecyclerView` (Android))
 
@@ -170,9 +170,9 @@ Attribute | Values | Description
 `selectedImages`                 | Array             | Selected images (will show the selected badge)
 `selectedImageIcon`              | `require(_PATH_)` | - _DEPRECATED_ use Selection - Selected image badge image
 `unSelectedImageIcon`            | `require(_PATH_)` | - _DEPRECATED_ use Selection - Unselected image badge image
-`selection`                      | Object            |   See Selection section
+`selection`                      | Object            | See [Selection section](#selection)
 `getUrlOnTapImage`               | Boolean           | iOS only - On image tap return the image internal  (tmp folder) uri (intead of `Photos.framework` asset id)
-`customButtonStyle`              | Object            | See Custom Button section
+`customButtonStyle`              | Object            | See [Custom Button](#custom-button) section
 `onCustomButtonPress`            | Function          | Callback when custom button tapped
 `contentInset` (iOS)             | Object            | The amount by which the gellery view content is inset from its edges (similar to `ScrollView` contentInset)
 `remoteDownloadIndicatorType`    | String (`spinner` / `progress-bar`) | iOS only - If remote download (iCloud) is needed, which type of indicator to show
