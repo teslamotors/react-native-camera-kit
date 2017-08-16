@@ -221,6 +221,9 @@ RCT_EXPORT_METHOD(resizeImage:(NSDictionary*)image
     if (imageUrlString) {
         
         NSURL *url = [NSURL URLWithString:imageUrlString];
+        if (!url) {
+            resolve(nil);
+        }
         NSData *data = [NSData dataWithContentsOfURL:url];
         
         UIImage *originalImage = [UIImage imageWithData:data];
