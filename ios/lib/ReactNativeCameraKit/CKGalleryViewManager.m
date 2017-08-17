@@ -62,6 +62,9 @@ typedef void (^CompletionBlock)(BOOL success);
 @property (nonatomic)         BOOL alwaysBounce;
 @property (nonatomic, strong) UIColor *remoteDownloadIndicatorColor;
 @property (nonatomic, strong) NSString *remoteDownloadIndicatorType;
+@property (nonatomic, strong) NSNumber *iCloudDownloadSimulateTime;
+@property (nonatomic, strong) NSTimer *iCloudDownloadSimulateTimer;
+@property (nonatomic) CFAbsoluteTime timePassed;
 
 //custom button props
 @property (nonatomic, strong) NSDictionary *customButtonStyle;
@@ -415,7 +418,46 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
     
 }
 
+
+-(void)simulateICloudDownload:(NSTimer *)timer {
+    CKGalleryCollectionViewCell *cell = (CKGalleryCollectionViewCell *)timer.userInfo[@"cell"];
+    CFAbsoluteTime currentTimePassed = CFAbsoluteTimeGetCurrent() - self.timePassed;
+    
+    if (currentTimePassed <= [self.iCloudDownloadSimulateTime doubleValue]) {
+        
+        [self remoteDownloadingUpdate:cell
+                             progress:currentTimePassed/[self.iCloudDownloadSimulateTime doubleValue]
+                        isDownloading:YES];
+        
+    }
+    else {
+        CompletionBlock completion = (CompletionBlock)timer.userInfo[@"completion"];
+        
+        [self.iCloudDownloadSimulateTimer invalidate];
+        self.iCloudDownloadSimulateTimer = nil;
+        [self remoteDownloadingUpdate:cell
+                             progress:1
+                        isDownloading:NO];
+        
+        if (completion) {
+            completion(YES);
+        }
+    }
+}
+
 -(void)downloadImageFromICloudIfNeeded:(PHAsset *)asset cell:(CKGalleryCollectionViewCell *)cell completion:(CompletionBlock)completion {
+    
+    if (self.iCloudDownloadSimulateTime && !cell.isSelected) {
+        self.timePassed = CFAbsoluteTimeGetCurrent();
+        
+        self.iCloudDownloadSimulateTimer = [NSTimer scheduledTimerWithTimeInterval:[self.iCloudDownloadSimulateTime doubleValue]/100
+                                                                            target:self
+                                                                          selector:@selector(simulateICloudDownload:)
+                                                                          userInfo:@{@"cell": cell, @"completion": completion}
+                                                                           repeats:YES];
+        
+        return;
+    }
     
     
     PHImageManager *manager = [PHImageManager defaultManager];
@@ -436,7 +478,6 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
          }
          else {
              dispatch_async(dispatch_get_main_queue(), ^{
-//                 [self remoteDownloadingUpdate:cell progress:-1 isDownloading:NO];
                  if (completion) {
                      completion(YES);
                  }
@@ -480,14 +521,9 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
                 
                 ckCell.isSelected = !ckCell.isSelected;
                 
-                [self onSelectChanged:asset];
+                [self onSelectChanged:asset isSelected:ckCell.isSelected];
             }
         }];
-        
-        
-        
-        
-        
     }
 }
 
@@ -544,20 +580,22 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
 #pragma mark - misc
 
 
--(void)onSelectChanged:(PHAsset*)asset {
+-(void)onSelectChanged:(PHAsset*)asset isSelected:(BOOL)isSelected{
     if (self.onTapImage) {
         
         NSMutableDictionary *imageTapInfo = [@{@"width": [NSNumber numberWithUnsignedInteger:asset.pixelWidth],
                                                @"height": [NSNumber numberWithUnsignedInteger:asset.pixelHeight]} mutableCopy];
         
         BOOL shouldReturnUrl = self.getUrlOnTapImage ? [self.getUrlOnTapImage boolValue] : NO;
+        NSNumber *isSelectedNumber = [NSNumber numberWithBool:isSelected];
         if (shouldReturnUrl) {
             PHImageRequestOptions *imageRequestOptions = [[PHImageRequestOptions alloc] init];
             imageRequestOptions.synchronous = YES;
             NSDictionary *info = [CKGalleryViewManager infoForAsset:asset imageRequestOptions:imageRequestOptions imageQuality:self.imageQualityOnTap];
             NSString *uriString = info[@"uri"];
+            
             if (uriString) {
-                [imageTapInfo addEntriesFromDictionary:@{@"selected": uriString, @"selectedId": asset.localIdentifier}];
+                [imageTapInfo addEntriesFromDictionary:@{@"selected": uriString, @"selectedId": asset.localIdentifier, @"isSelected": isSelectedNumber}];
                 self.onTapImage(imageTapInfo);
             }
             else {
@@ -566,7 +604,7 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
             
         }
         else {
-            [imageTapInfo addEntriesFromDictionary:@{@"selected":asset.localIdentifier}];
+            [imageTapInfo addEntriesFromDictionary:@{@"selected":asset.localIdentifier, @"isSelected": isSelectedNumber}];
             self.onTapImage(imageTapInfo);
         }
     }
@@ -628,6 +666,8 @@ RCT_EXPORT_VIEW_PROPERTY(alwaysBounce, BOOL);
 RCT_EXPORT_VIEW_PROPERTY(remoteDownloadIndicatorColor, UIColor);
 RCT_EXPORT_VIEW_PROPERTY(remoteDownloadIndicatorType, NSString);
 RCT_EXPORT_VIEW_PROPERTY(onRemoteDownloadChanged, RCTDirectEventBlock);
+RCT_EXPORT_VIEW_PROPERTY(iCloudDownloadSimulateTime, NSNumber);
+
 
 
 
