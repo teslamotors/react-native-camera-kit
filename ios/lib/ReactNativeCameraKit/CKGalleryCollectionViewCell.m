@@ -17,6 +17,9 @@
 #import "CKGalleryCollectionViewCell.h"
 #import "SelectionGesture.h"
 #import "GalleryData.h"
+#import "M13ProgressViewPie.h"
+
+
 
 #define BADGE_MARGIN            5
 #define BADGE_COLOR             0x00ADF5
@@ -45,8 +48,6 @@ static UIColor *selectionOverlayColor = nil;
 static UIColor *remoteDownloadIndicatorColor = nil;
 static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SPINNER;
 
-
-
 @interface CKGalleryCollectionViewCell ()
 
 @property (strong, nonatomic) UIImageView *imageView;
@@ -56,7 +57,9 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
 @property (nonatomic, strong) UIView *unsupportedView;
 @property (nonatomic, strong) SelectionGesture *gesture;
 @property (nonatomic, strong) UIActivityIndicatorView *spinner;
-@property (nonatomic, strong) UIProgressView *progressView;
+@property (nonatomic, strong) UIProgressView *progressBarView;
+@property (nonatomic, strong) M13ProgressViewPie *progressPieView;
+
 
 @end
 
@@ -119,16 +122,36 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
 }
 
 -(UIProgressView*)progressView {
-    if (!_progressView) {
-        _progressView = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleDefault];
-        _progressView.frame = CGRectMake(0, 0, self.bounds.size.width*0.8, self.bounds.size.height*0.15);
-        _progressView.center = CGPointMake(CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds)*1.8);
-        _progressView.progress = 0;
+    if (!_progressBarView) {
+        _progressBarView = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleDefault];
+        _progressBarView.frame = CGRectMake(0, 0, self.bounds.size.width*0.8, self.bounds.size.height*0.15);
+        _progressBarView.center = CGPointMake(CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds)*1.8);
+        _progressBarView.progress = 0;
         if (remoteDownloadIndicatorColor) {
-            _progressView.tintColor = remoteDownloadIndicatorColor;
+            _progressBarView.tintColor = remoteDownloadIndicatorColor;
         }
     }
-    return _progressView;
+    return _progressBarView;
+}
+
+-(M13ProgressViewPie *)progressPieView {
+    
+    if (!_progressPieView) {
+        CGRect frame = CGRectMake(0, 0, self.bounds.size.width/3, self.bounds.size.height/3);
+        _progressPieView = [[M13ProgressViewPie alloc] initWithFrame:frame];
+        _progressPieView.center = CGPointMake(CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds));
+        _progressPieView.secondaryColor = [UIColor whiteColor];
+        _progressPieView.primaryColor = [UIColor whiteColor];
+        _progressPieView.animationDuration = 0.1;
+        [_progressPieView setProgress:0 animated:NO];
+        
+        if (remoteDownloadIndicatorColor) {
+            _progressPieView.secondaryColor = remoteDownloadIndicatorColor;
+            _progressPieView.primaryColor = remoteDownloadIndicatorColor;
+            
+        }
+    }
+    return _progressPieView;
 }
 
 
@@ -243,8 +266,11 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
     [_spinner removeFromSuperview];
     _spinner = nil;
     
-    [_progressView removeFromSuperview];
-    _progressView = nil;
+    [_progressBarView removeFromSuperview];
+    _progressBarView = nil;
+    
+    [_progressPieView removeFromSuperview];
+    _progressPieView = nil;
 }
 
 
@@ -364,7 +390,15 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
 
 -(void)setDownloadingProgress:(CGFloat)downloadingProgress {
     _downloadingProgress = downloadingProgress;
-    self.progressView.progress = downloadingProgress;
+    
+    if ([remoteDownloadIndicatorType isEqualToString:REMOTE_DOWNLOAD_INDICATOR_TYPE_PROGRESS_BAR]) {
+        self.progressView.progress = downloadingProgress;
+    }
+    else if ([remoteDownloadIndicatorType isEqualToString:REMOTE_DOWNLOAD_INDICATOR_TYPE_PROGRESS_PIE]) {
+        [self.progressPieView setProgress:downloadingProgress animated:YES];
+        
+    }
+    
     
     [self updateRemoteDownload];
 }
@@ -379,10 +413,21 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
                 [self addSubview:self.progressView];
             }
         }
+        else if ([remoteDownloadIndicatorType isEqualToString:REMOTE_DOWNLOAD_INDICATOR_TYPE_PROGRESS_PIE]) {
+            if (![self.progressPieView isDescendantOfView:self]) {
+                [self addSubview:self.progressPieView];
+            }
+        }
     }
     
     else {
-        [self removeRemoteDownloadIndicator];
+        [UIView animateWithDuration:0.5 delay:1 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
+            self.progressPieView.alpha = 0;
+        } completion:^(BOOL finished) {
+            if (finished) {
+                [self removeRemoteDownloadIndicator];
+            }
+        }];
     }
 }
 
@@ -390,8 +435,11 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
     [_spinner removeFromSuperview];
     _spinner = nil;
     
-    [_progressView removeFromSuperview];
-    _progressView = nil;
+    [_progressBarView removeFromSuperview];
+    _progressBarView = nil;
+    
+    [_progressPieView removeFromSuperview];
+    _progressPieView = nil;
 }
 
 

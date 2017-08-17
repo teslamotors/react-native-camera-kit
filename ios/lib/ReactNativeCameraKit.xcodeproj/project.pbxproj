@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		261F3F9D1F4471F00013E7C3 /* M13ProgressViewPie.m in Sources */ = {isa = PBXBuildFile; fileRef = 261F3F9C1F4471F00013E7C3 /* M13ProgressViewPie.m */; };
+		261F3FA01F4471FB0013E7C3 /* M13ProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = 261F3F9F1F4471FB0013E7C3 /* M13ProgressView.m */; };
 		262564901E6572B300A7B90D /* CKGalleryCustomCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2625648F1E6572B300A7B90D /* CKGalleryCustomCollectionViewCell.m */; };
 		262E421D1D182C1200C82B27 /* CKGalleryViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 262E421C1D182C1200C82B27 /* CKGalleryViewManager.m */; };
 		262E42201D183A6B00C82B27 /* CKGalleryCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 262E421F1D183A6B00C82B27 /* CKGalleryCollectionViewCell.m */; };
@@ -33,6 +35,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		261F3F9B1F4471F00013E7C3 /* M13ProgressViewPie.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = M13ProgressViewPie.h; sourceTree = "<group>"; };
+		261F3F9C1F4471F00013E7C3 /* M13ProgressViewPie.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = M13ProgressViewPie.m; sourceTree = "<group>"; };
+		261F3F9E1F4471FB0013E7C3 /* M13ProgressView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = M13ProgressView.h; sourceTree = "<group>"; };
+		261F3F9F1F4471FB0013E7C3 /* M13ProgressView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = M13ProgressView.m; sourceTree = "<group>"; };
 		2625648E1E6572B300A7B90D /* CKGalleryCustomCollectionViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CKGalleryCustomCollectionViewCell.h; sourceTree = "<group>"; };
 		2625648F1E6572B300A7B90D /* CKGalleryCustomCollectionViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CKGalleryCustomCollectionViewCell.m; sourceTree = "<group>"; };
 		262E421B1D182C1200C82B27 /* CKGalleryViewManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CKGalleryViewManager.h; sourceTree = "<group>"; };
@@ -69,6 +75,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		261F3F911F443BA50013E7C3 /* CircleProgressView */ = {
+			isa = PBXGroup;
+			children = (
+				261F3F9E1F4471FB0013E7C3 /* M13ProgressView.h */,
+				261F3F9F1F4471FB0013E7C3 /* M13ProgressView.m */,
+				261F3F9B1F4471F00013E7C3 /* M13ProgressViewPie.h */,
+				261F3F9C1F4471F00013E7C3 /* M13ProgressViewPie.m */,
+			);
+			name = CircleProgressView;
+			sourceTree = "<group>";
+		};
 		264693451CFB2A6B00F3A740 = {
 			isa = PBXGroup;
 			children = (
@@ -88,6 +105,7 @@
 		264693501CFB2A6B00F3A740 /* ReactNativeCameraKit */ = {
 			isa = PBXGroup;
 			children = (
+				261F3F911F443BA50013E7C3 /* CircleProgressView */,
 				26550AE41CFC2437007FF2DF /* CKGalleryManager.h */,
 				26550AE51CFC2437007FF2DF /* CKGalleryManager.m */,
 				A7686BFC1EC9CFEC00959216 /* CKCompressedImage.h */,
@@ -176,9 +194,11 @@
 				262564901E6572B300A7B90D /* CKGalleryCustomCollectionViewCell.m in Sources */,
 				269292861D3B81C800E07DDF /* CKOverlayObject.m in Sources */,
 				26550AE61CFC2437007FF2DF /* CKGalleryManager.m in Sources */,
+				261F3F9D1F4471F00013E7C3 /* M13ProgressViewPie.m in Sources */,
 				2685AA241CFD89A300E4A446 /* CKCamera.m in Sources */,
 				269292831D3B7D6000E07DDF /* CKCameraOverlayView.m in Sources */,
 				26F556721D2501C9007B1C11 /* GalleryData.m in Sources */,
+				261F3FA01F4471FB0013E7C3 /* M13ProgressView.m in Sources */,
 				268A64B71D2BFE5A0034460B /* SelectionGesture.m in Sources */,
 				262E421D1D182C1200C82B27 /* CKGalleryViewManager.m in Sources */,
 			);

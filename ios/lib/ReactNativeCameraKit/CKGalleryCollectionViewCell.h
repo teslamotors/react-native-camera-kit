@@ -16,6 +16,8 @@
 
 #define REMOTE_DOWNLOAD_INDICATOR_TYPE_SPINNER          @"spinner"
 #define REMOTE_DOWNLOAD_INDICATOR_TYPE_PROGRESS_BAR     @"progress-bar"
+#define REMOTE_DOWNLOAD_INDICATOR_TYPE_PROGRESS_PIE     @"progress-pie"
+
 
 @interface CKGalleryCollectionViewCell : UICollectionViewCell
 
