@@ -202,6 +202,10 @@ Attribute | Values | Description
 Want/Need QR Code support embed in this package, please vote [HERE](https://github.com/wix/react-native-camera-kit/issues/60) 
 
 
+## Credits
+
+* [M13ProgressSuite](https://github.com/Marxon13/M13ProgressSuite) component by Marxon13 - A suite containing many tools to display progress information on iOS.
+
 ## License
 
 The MIT License.
