@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import React, {Component} from 'react';
 import {
   StyleSheet,
@@ -21,15 +22,20 @@ export default class GalleryScreen extends Component {
     super(props);
     this.state = {
       album: this.props.albumName,
-      presentedImage: undefined
+      presentedImage: undefined,
+      selectedImages: [],
+      showPresentedImage: false
     }
   }
 
   async onTapImage(event) {
+    const isSelected = event.nativeEvent.isSelected;
     const image = await CameraKitGallery.getImageForTapEvent(event.nativeEvent);
 
-    if (image) {
-      this.setState({presentedImage: image});
+    if (!isSelected || _.get(image, 'selectedImageId') === _.get(this.state, 'presentedImage.selectedImageId')) {
+      this.setState({presentedImage: undefined, showPresentedImage: false});
+    } else if (image) {
+      this.setState({presentedImage: image, showPresentedImage: true});
     }
   }
 
@@ -45,7 +51,7 @@ export default class GalleryScreen extends Component {
 
           <Button
             title={'Back'}
-            onPress={() => this.setState({presentedImage: undefined})}
+            onPress={() => this.setState({showPresentedImage: false})}
           />
         </View>
       </View>
@@ -62,14 +68,16 @@ export default class GalleryScreen extends Component {
           minimumInteritemSpacing={10}
           minimumLineSpacing={10}
           columnCount={3}
-          onTapImage={event => {this.onTapImage(event)}}
+          selection={{
+            selectedImage: require('../images/hugging.png'),
+            imagePosition: 'top-right',
+          }}
+          onTapImage={event => this.onTapImage(event)}
           remoteDownloadIndicatorType={'progress-pie'} //spinner / progress-bar / progress-pie
           remoteDownloadIndicatorColor={'white'}
-          onRemoteDownloadChanged={(event) => console.log('RANG', 'onRemoteDownloadChanged', event.nativeEvent.isRemoteDownloading)}
-
-
+          iCloudDownloadSimulateTime={1}
         />
-        {this.state.presentedImage && this.renderPresentedImage()}
+        {this.state.showPresentedImage && this.renderPresentedImage()}
       </View>
     )
   }
