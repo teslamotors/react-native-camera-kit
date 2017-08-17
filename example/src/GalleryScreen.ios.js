@@ -63,9 +63,9 @@ export default class GalleryScreen extends Component {
           minimumLineSpacing={10}
           columnCount={3}
           onTapImage={event => {this.onTapImage(event)}}
-          remoteDownloadIndicatorType={'spinner'} //spinner / progress-bar
-          remoteDownloadIndicatorColor={'red'}
-          onRemoteDownloadChanged={(event) => console.log(event.nativeEvent.isRemoteDownloading)}
+          remoteDownloadIndicatorType={'progress-pie'} //spinner / progress-bar / progress-pie
+          remoteDownloadIndicatorColor={'white'}
+          onRemoteDownloadChanged={(event) => console.log('RANG', 'onRemoteDownloadChanged', event.nativeEvent.isRemoteDownloading)}
 
 
         />
