@@ -219,20 +219,27 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
 -(CGRect)frameforImagePosition:(NSString*)position image:(UIImage*)image {
     CGRect badgeRect;
     
+    
+    CGSize badgeImageSize = image.size;
+    CGFloat aspectRatio = badgeImageSize.width/badgeImageSize.height;
+    badgeImageSize.width = MIN(badgeImageSize.width, self.bounds.size.width/4);
+    badgeImageSize.height = badgeImageSize.width/aspectRatio;
+    
+    
     if ([position isEqualToString:@"top-right"]) {
-        badgeRect= CGRectMake(self.imageView.bounds.size.width - (image.size.width + BADGE_MARGIN), BADGE_MARGIN, image.size.width, image.size.height);
+        badgeRect= CGRectMake(self.imageView.bounds.size.width - (badgeImageSize.width + BADGE_MARGIN), BADGE_MARGIN, badgeImageSize.width, badgeImageSize.height);
     }
     else if ([position isEqualToString:@"top-left"]) {
-        badgeRect= CGRectMake(BADGE_MARGIN, BADGE_MARGIN, image.size.width, image.size.height);
+        badgeRect= CGRectMake(BADGE_MARGIN, BADGE_MARGIN, badgeImageSize.width, badgeImageSize.height);
     }
     else if ([position isEqualToString:@"bottom-right"]) {
-        badgeRect= CGRectMake(self.imageView.bounds.size.width - (image.size.width + BADGE_MARGIN), self.imageView.bounds.size.height - (image.size.height + BADGE_MARGIN), image.size.width, image.size.height);
+        badgeRect= CGRectMake(self.imageView.bounds.size.width - (badgeImageSize.width + BADGE_MARGIN), self.imageView.bounds.size.height - (badgeImageSize.height + BADGE_MARGIN), badgeImageSize.width, badgeImageSize.height);
     }
     else if ([position isEqualToString:@"bottom-left"]) {
-        badgeRect= CGRectMake(BADGE_MARGIN, self.imageView.bounds.size.height - (image.size.height + BADGE_MARGIN), image.size.width, image.size.height);
+        badgeRect= CGRectMake(BADGE_MARGIN, self.imageView.bounds.size.height - (badgeImageSize.height + BADGE_MARGIN), badgeImageSize.width, badgeImageSize.height);
     }
     else if ([position isEqualToString:@"center"]) {
-        badgeRect = CGRectMake((self.imageView.bounds.size.width - image.size.width) * 0.5, (self.imageView.bounds.size.height - image.size.height) * 0.5, image.size.width, image.size.height);
+        badgeRect = CGRectMake((self.imageView.bounds.size.width - badgeImageSize.width) * 0.5, (self.imageView.bounds.size.height - badgeImageSize.height) * 0.5, badgeImageSize.width, badgeImageSize.height);
     }
     else {
         badgeRect = CGRectZero;
