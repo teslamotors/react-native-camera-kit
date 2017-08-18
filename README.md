@@ -198,8 +198,9 @@ Attribute | Values | Description
 
 #### Images stored in iCloud 
 On iOS images can be stored in iCould if the device is **low on space** which means full-resolution photos automatically replaced with optimized version and full resolution versions are stored in iCloud.
-In this case, we need to download the image from iCloud and *Photos Framework* by Apple does a great job, so as we can guess, download takes some time and we deal with UI, so we need to show some loading/progress indicator. 
-In oreder to do so, we provide 3 types of loading/progress inidcators:
+
+In this case, we need to download the image from iCloud and *Photos Framework* by Apple does a great job. Downloading take time and we deal with UI, so we need to show loading/progress indicator. 
+In order to do so, we provide 3 types of loading/progress inidcators:
 
 Sets `remoteDownloadIndicatorType` prop (and `remoteDownloadIndicatorColor` in order to sets the Color) on CameraKitGalleryView:
 
