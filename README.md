@@ -210,7 +210,7 @@ Attribute | Values
  `'progress-bar'`| ![](img/progressBar.png)
  `'progress-pie'`| ![](img/pie.png)
  
- >In order to simpulate this loading behaviour, since reach low on storage situation is hard, simply add this prop `iCloudDownloadSimulateTime={TIME_IN_SECONDS}`, just **DO NOT FORGET TO REMOVE IT**.
+ >In order to simulate this loading behaviour, since reach low on storage situation is hard, add this prop `iCloudDownloadSimulateTime={TIME_IN_SECONDS}`, just **DO NOT FORGET TO REMOVE IT**.
 
 ## QR Code 
 
