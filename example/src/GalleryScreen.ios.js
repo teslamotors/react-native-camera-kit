@@ -75,7 +75,6 @@ export default class GalleryScreen extends Component {
           onTapImage={event => this.onTapImage(event)}
           remoteDownloadIndicatorType={'progress-pie'} //spinner / progress-bar / progress-pie
           remoteDownloadIndicatorColor={'white'}
-          iCloudDownloadSimulateTime={1}
         />
         {this.state.showPresentedImage && this.renderPresentedImage()}
       </View>
