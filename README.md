@@ -175,7 +175,7 @@ Attribute | Values | Description
 `customButtonStyle`              | Object            | See [Custom Button](#custom-button) section
 `onCustomButtonPress`            | Function          | Callback when custom button tapped
 `contentInset` (iOS)             | Object            | The amount by which the gellery view content is inset from its edges (similar to `ScrollView` contentInset)
-`remoteDownloadIndicatorType`    | String (`'spinner'` / `'progress-bar'` / `'progress-pie'`) | iOS only - If remote download (iCloud) is needed, which type of indicator to show
+`remoteDownloadIndicatorType`    | String (`'spinner'` / `'progress-bar'` / `'progress-pie'`) | iOS only - see [Images stored in iCloud](#images-stored-in-iCloud)
 `remoteDownloadIndicatorColor`   | Color             | iOS only - Color of the remote download indicator to show  
 `onRemoteDownloadChanged`        | Function          | iOS only - Callback when the device curentlly download remote image stored in the iCloud.
 
@@ -196,6 +196,20 @@ Attribute | Values | Description
 `overlayColor` |Color| Image selected overlay color
 `imageSizeAndroid` |`large`/`medium`| Android Only - Selected badge image size
 
+#### Images stored in iCloud 
+On iOS images can be stored in iCould if the device is **low on space** which means full-resolution photos automatically replaced with optimized version and full resolution versions are stored in iCloud.
+In this case, we need to download the image from iCloud and *Photos Framework* by Apple does a great job, so as we can guess, download takes some time and we deal with UI, so we need to show some loading/progress indicator. 
+In oreder to do so, we provide 3 types of loading/progress inidcators:
+
+Sets `remoteDownloadIndicatorType` prop (and `remoteDownloadIndicatorColor` in order to sets the Color) on CameraKitGalleryView:
+
+Attribute | Values
+-------- | :-----:
+ `'spinner'`     | ![](img/spinner.png)
+ `'progress-bar'`| ![](img/progressBar.png)
+ `'progress-pie'`| ![](img/pie.png)
+ 
+ >In order to simpulate this loading behaviour, since reach low on storage situation is hard, simply add this prop `iCloudDownloadSimulateTime={TIME_IN_SECONDS}`, just **DO NOT FORGET TO REMOVE IT**.
 
 ## QR Code 
 
