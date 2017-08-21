@@ -350,6 +350,20 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
     }
 }
 
+-(void)setSelectedOverLay:(BOOL)shouldShowOverlayColor forceOverlay:(BOOL)force{
+    if (force) {
+        self.imageOveray.backgroundColor = [[UIColor whiteColor] colorWithAlphaComponent:0.5];
+        return;
+    }
+    
+    if (shouldShowOverlayColor) {
+        self.imageOveray.backgroundColor = selectionOverlayColor ? selectionOverlayColor : [[UIColor whiteColor] colorWithAlphaComponent:0.5];
+    }
+    else {
+        self.imageOveray.backgroundColor = [UIColor clearColor];
+    }
+}
+
 
 -(void)setIsSelected:(BOOL)isSelected {
     
@@ -357,9 +371,9 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
     
     if (self.disableSelectionIcons) return;
     
+    [self setSelectedOverLay:isSelected forceOverlay:NO];
+    
     if (_isSelected) {
-        self.imageOveray.backgroundColor = selectionOverlayColor ? selectionOverlayColor : [[UIColor whiteColor] colorWithAlphaComponent:0.5];
-        
         if (selectedImageIcon) {
             double frameDuration = 1.0/2.0; // 4 = number of keyframes
             self.badgeImageView.image = selectedImageIcon;
@@ -379,7 +393,6 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
         }
     }
     else {
-        self.imageOveray.backgroundColor = [UIColor clearColor];
         if (unSelectedImageIcon) {
             self.badgeImageView.image = unSelectedImageIcon;
             [self updateBadgeImageViewFrame];
@@ -392,6 +405,7 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
 
 -(void)setIsDownloading:(BOOL)isDownloading {
     _isDownloading = isDownloading;
+    [self setSelectedOverLay:isDownloading forceOverlay:isDownloading];
     [self updateRemoteDownload];
 }
 
@@ -403,9 +417,7 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
     }
     else if ([remoteDownloadIndicatorType isEqualToString:REMOTE_DOWNLOAD_INDICATOR_TYPE_PROGRESS_PIE]) {
         [self.progressPieView setProgress:downloadingProgress animated:YES];
-        
     }
-    
     
     [self updateRemoteDownload];
 }
