@@ -45,7 +45,8 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
             MediaStore.Images.Media._ID,
             MediaStore.Images.Media.MIME_TYPE,
             MediaStore.Images.Media.WIDTH,
-            MediaStore.Images.Media.HEIGHT
+            MediaStore.Images.Media.HEIGHT,
+            MediaStore.Images.Media.ORIENTATION
     };
 
     private class Image {
@@ -54,13 +55,15 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
         String mimeType;
         Integer width;
         Integer height;
+        Integer orientation;
 
-        public Image(String uri, Integer id, String mimeType, Integer width, Integer height) {
+        public Image(String uri, Integer id, String mimeType, Integer width, Integer height,Integer orientation) {
             this.uri = uri;
             this.id = id;
             this.mimeType = mimeType;
             this.width = width;
             this.height = height;
+            this.orientation = orientation;
         }
     }
 
@@ -91,7 +94,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
             final SelectableImage selectableImageView = (SelectableImage) this.itemView;
             selectableImageView.setUnsupportedUIParams(overlayColor, unsupportedFinalImage, unsupportedText, unsupportedTextColor);
             selectableImageView.setDrawables(selectedDrawable, unselectedDrawable, selectionOverlayColor);
-            selectableImageView.bind(executor, selected, forceBind, image.id, isSupported);
+            selectableImageView.bind(executor, selected, forceBind, image.id, isSupported,image.orientation);
             selectableImageView.setOnClickListener(this);
         }
 
@@ -299,13 +302,15 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
             int mimeIndex = cursor.getColumnIndex(MediaStore.Images.Media.MIME_TYPE);
             int widthIndex = cursor.getColumnIndex(MediaStore.Images.Media.WIDTH);
             int heightIndex = cursor.getColumnIndex(MediaStore.Images.Media.HEIGHT);
+            int orientationIndex = cursor.getColumnIndex(MediaStore.Images.Media.ORIENTATION);
             do {
-                images.add(new Image(cursor.getString(dataIndex), cursor.getInt(idIndex), cursor.getString(mimeIndex), cursor.getInt(widthIndex), cursor.getInt(heightIndex)));
+                images.add(new Image(cursor.getString(dataIndex), cursor.getInt(idIndex), cursor.getString(mimeIndex),
+                        cursor.getInt(widthIndex), cursor.getInt(heightIndex), cursor.getInt(orientationIndex)));
             } while (cursor.moveToNext());
         }
 
         if (shouldShowCustomButton()) {
-            images.add(new Image(null, -1, "", 0, 0));
+            images.add(new Image(null, -1, "", 0, 0,0));
         }
         Collections.reverse(images);
         cursor.close();

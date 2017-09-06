@@ -3,6 +3,7 @@ package com.wix.RNCameraKit.gallery;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
 import android.provider.MediaStore;
 import android.util.TypedValue;
@@ -107,7 +108,7 @@ public class SelectableImage extends FrameLayout {
         imageView.setScaleType(scaleType);
     }
 
-    public void bind(ThreadPoolExecutor executor, boolean selected, boolean forceBind, final Integer id, boolean supported) {
+    public void bind(ThreadPoolExecutor executor, boolean selected, boolean forceBind, final Integer id, boolean supported,final Integer orientation) {
         this.selected = selected;
         selectedView.setImageDrawable(selected ? selectedDrawable : unselectedDrawable);
         if (this.id != id || forceBind) {
@@ -119,6 +120,15 @@ public class SelectableImage extends FrameLayout {
             }
 
             currentLoader = new Runnable() {
+
+                public Bitmap orient(final Bitmap bmp,final Integer orientation){
+                    if (orientation != 0) {
+                        Matrix matrix = new Matrix();
+                        matrix.postRotate(orientation);
+                        return Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), bmp.getHeight(), matrix, true);
+                    }
+                    return bmp;
+                }
                 @Override
                 public void run() {
                     BitmapFactory.Options options = new BitmapFactory.Options();
@@ -127,11 +137,11 @@ public class SelectableImage extends FrameLayout {
                     }
                     options.inSampleSize = inSampleSize;
 
-                    final Bitmap bmp = MediaStore.Images.Thumbnails.getThumbnail(
+                    final Bitmap bmp = orient(MediaStore.Images.Thumbnails.getThumbnail(
                             getContext().getContentResolver(),
                             id,
                             MediaStore.Images.Thumbnails.MINI_KIND,
-                            options);
+                            options), orientation);
 
                     if (SelectableImage.this.id == id) {
                         reactContext.runOnUiQueueThread(new Runnable() {
