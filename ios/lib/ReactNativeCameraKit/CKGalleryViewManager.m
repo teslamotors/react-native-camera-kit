@@ -12,7 +12,7 @@
 #import "CKGalleryCollectionViewCell.h"
 #import "CKGalleryCustomCollectionViewCell.h"
 #import "GalleryData.h"
-#import "UIView+React.h"
+//#import "UIView+React.h"
 #import "CKGalleryManager.h"
 #import <MobileCoreServices/MobileCoreServices.h>
 #import "CKCamera.h"
