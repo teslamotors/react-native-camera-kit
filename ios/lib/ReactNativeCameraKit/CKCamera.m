@@ -922,12 +922,10 @@ didOutputMetadataObjects:(NSArray<__kindof AVMetadataObject *> *)metadataObjects
         if ([metadataObject isKindOfClass:[AVMetadataMachineReadableCodeObject class]]) {
             NSLog(@"GOT IT");
             AVMetadataMachineReadableCodeObject *code = (AVMetadataMachineReadableCodeObject*)[self.previewLayer transformedMetadataObjectForMetadataObject:metadataObject];
-            NSLog(@"code: %@", code.stringValue);
-            
             
             if (self.onReadQRCode && code.stringValue && ![code.stringValue isEqualToString:self.qrcodeStringValue]) {
                 self.qrcodeStringValue = code.stringValue;
-                self.onReadQRCode(@{@"qrcodeStringValue:": code.stringValue});
+                self.onReadQRCode(@{@"qrcodeStringValue": code.stringValue});
             }
         }
     }
