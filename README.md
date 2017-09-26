@@ -72,6 +72,8 @@ And in the package list in the same file (e.g. `getPackages`) add:
     ratioOverlay:'1:1',            // optional, ratio overlay on the camera and crop the image seamlessly
     ratioOverlayColor: '#00000077' // optional
   }}
+  onReadQRCode={(event) => console.log(event.nativeEvent.qrcodeStringValue)} // optional
+  
 />
 ```
 
@@ -84,8 +86,6 @@ Attribute         | Values                 | Description
 `zoomMode`          | `'on'`/`'off'`         | camera zoom mode
 `ratioOverlay`      | `['int':'int', ...]`   | overlay on top of the camera view (crop the image to the selected size) Example: `['16:9', '1:1', '3:4']`
 `ratioOverlayColor` |  Color                 | any color with alpha (default is ```'#ffffff77'```)
-`onReadQRCode`      | `function`             | will be called when the camera detect QR code (example: `onReadQRCode={(event) => console.log(event.nativeEvent.qrcodeStringValue)}`)
-
 
 ### CameraKitCamera API
 
