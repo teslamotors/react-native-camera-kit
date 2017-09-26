@@ -26,6 +26,8 @@ RCT_EXPORT_MODULE()
 }
 
 RCT_EXPORT_VIEW_PROPERTY(cameraOptions, NSDictionary)
+RCT_EXPORT_VIEW_PROPERTY(onReadQRCode, RCTDirectEventBlock)
+
 
 
 RCT_EXPORT_METHOD(checkDeviceCameraAuthorizationStatus:(RCTPromiseResolveBlock)resolve

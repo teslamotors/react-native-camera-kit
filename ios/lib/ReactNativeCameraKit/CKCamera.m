@@ -66,9 +66,10 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 #define CAMERA_OPTION_ZOOM_MODE                     @"zoomMode"
 #define CAMERA_OPTION_CAMERA_RATIO_OVERLAY          @"ratioOverlay"
 #define CAMERA_OPTION_CAMERA_RATIO_OVERLAY_COLOR    @"ratioOverlayColor"
+#define CAMERA_OPTION_ON_READ_QR_CODE               @"onReadQRCode"
 #define TIMER_FOCUS_TIME_SECONDS            5
 
-@interface CKCamera () <AVCaptureFileOutputRecordingDelegate>
+@interface CKCamera () <AVCaptureFileOutputRecordingDelegate, AVCaptureMetadataOutputObjectsDelegate>
 
 
 @property (nonatomic, strong) AVCaptureVideoPreviewLayer *previewLayer;
@@ -83,6 +84,9 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 @property (nonatomic, readwrite) AVCaptureDeviceInput *videoDeviceInput;
 @property (nonatomic) AVCaptureMovieFileOutput *movieFileOutput;
 @property (nonatomic) AVCaptureStillImageOutput *stillImageOutput;
+@property (nonatomic, strong) AVCaptureMetadataOutput *metadataOutput;
+@property (nonatomic, strong) NSString *qrcodeStringValue;
+
 
 // utilities
 @property (nonatomic) CKSetupResult setupResult;
@@ -95,6 +99,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 @property (nonatomic) CKCameraZoomMode zoomMode;
 @property (nonatomic, strong) NSString* ratioOverlayString;
 @property (nonatomic, strong) UIColor *ratioOverlayColor;
+@property (nonatomic, strong) RCTDirectEventBlock onReadQRCode;
 
 @property (nonatomic) BOOL isAddedOberver;
 
@@ -153,7 +158,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         self.sessionQueue = dispatch_queue_create( "session queue", DISPATCH_QUEUE_SERIAL );
         
         [self handleCameraPermission];
-
+        
 #if !(TARGET_IPHONE_SIMULATOR)
         [self setupCaptionSession];
         self.previewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:self.session];
@@ -223,6 +228,12 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         self.ratioOverlayString = [RCTConvert NSString:ratioOverlay];
         [self setRatio:self.ratioOverlayString];
     }
+    //
+    //    // CAMERA_OPTION_CAMERA_RATIO_OVERLAY
+    //    id onReadQRCode = self.cameraOptions[CAMERA_OPTION_ON_READ_QR_CODE];
+    //    if (onReadQRCode) {
+    //        self.onReadQRCode = onReadQRCode;
+    //    }
 }
 
 
@@ -243,10 +254,6 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         AVCaptureDevice *videoDevice = [CKCamera deviceWithMediaType:AVMediaTypeVideo preferringPosition:AVCaptureDevicePositionBack];
         AVCaptureDeviceInput *videoDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:&error];
         
-        if ( ! videoDeviceInput ) {
-            //NSLog( @"Could not create video device input: %@", error );
-        }
-        
         [self.session beginConfiguration];
         
         if ( [self.session canAddInput:videoDeviceInput] ) {
@@ -255,7 +262,6 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
             [CKCamera setFlashMode:self.flashMode forDevice:self.videoDeviceInput.device];
         }
         else {
-            //NSLog( @"Could not add video device input to the session" );
             self.setupResult = CKSetupResultSessionConfigurationFailed;
         }
         
@@ -269,7 +275,6 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
             self.movieFileOutput = movieFileOutput;
         }
         else {
-            //NSLog( @"Could not add movie file output to the session" );
             self.setupResult = CKSetupResultSessionConfigurationFailed;
         }
         
@@ -280,9 +285,15 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
             self.stillImageOutput = stillImageOutput;
         }
         else {
-            //NSLog( @"Could not add still image output to the session" );
             self.setupResult = CKSetupResultSessionConfigurationFailed;
         }
+        if (self.onReadQRCode) {//TODO check if qrcode mode is on
+            self.metadataOutput = [[AVCaptureMetadataOutput alloc] init];
+            [self.session addOutput:self.metadataOutput];
+            [self.metadataOutput setMetadataObjectsDelegate:self queue:dispatch_get_main_queue()];
+            [self.metadataOutput setMetadataObjectTypes:@[AVMetadataObjectTypeEAN13Code, AVMetadataObjectTypeQRCode]];
+        }
+        
         
         [self.session commitConfiguration];
     } );
@@ -514,7 +525,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
                         
                         if (shouldSaveToCameraRoll) {
                             NSData *compressedImageData = UIImageJPEGRepresentation(capturedImage, 1.0f);
-
+                            
                             [CKGalleryManager saveImageToCameraRoll:compressedImageData temporaryFileURL:temporaryFileURL block:^(BOOL success) {
                                 if (success) {
                                     NSString *localIdentifier = [CKGalleryManager getImageLocalIdentifierForFetchOptions:self.fetchOptions];
@@ -897,6 +908,25 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
     }
     else {
         [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+    }
+}
+
+#pragma mark - AVCaptureMetadataOutputObjectsDelegate
+
+- (void)captureOutput:(AVCaptureOutput *)output
+didOutputMetadataObjects:(NSArray<__kindof AVMetadataObject *> *)metadataObjects
+       fromConnection:(AVCaptureConnection *)connection {
+    
+    for(AVMetadataObject *metadataObject in metadataObjects)
+    {
+        if ([metadataObject isKindOfClass:[AVMetadataMachineReadableCodeObject class]]) {
+            AVMetadataMachineReadableCodeObject *code = (AVMetadataMachineReadableCodeObject*)[self.previewLayer transformedMetadataObjectForMetadataObject:metadataObject];
+            
+            if (self.onReadQRCode && code.stringValue && ![code.stringValue isEqualToString:self.qrcodeStringValue]) {
+                self.qrcodeStringValue = code.stringValue;
+                self.onReadQRCode(@{@"qrcodeStringValue": code.stringValue});
+            }
+        }
     }
 }
 
