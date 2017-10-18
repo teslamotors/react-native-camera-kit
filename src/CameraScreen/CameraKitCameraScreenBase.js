@@ -7,7 +7,8 @@ import {
   TouchableOpacity,
   Image,
   NativeModules,
-  Platform
+  Platform,
+  ImageBackground
 } from 'react-native';
 import _ from 'lodash';
 import CameraKitCamera from './../CameraKitCamera';
@@ -161,15 +162,14 @@ export default class CameraScreenBase extends Component {
         <TouchableOpacity
           onPress={() => this.onCaptureImagePressed()}
         >
-          <Image
+          <ImageBackground
             style={styles.captureButton}
             source={this.props.captureButtonImage}
-            resizeMode={'contain'}
           >
             <Text style={styles.captureNumber}>
               {this.numberOfImagesTaken()}
             </Text>
-          </Image>
+          </ImageBackground>
         </TouchableOpacity>
       </View >
   }
@@ -318,10 +318,11 @@ const styles = StyleSheet.create(_.merge(styleObject, {
     alignItems: 'center',
   },
   captureButton: {
-    flex: 1,
     alignSelf: 'center',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    width: 66,
+    height: 66
   },
   captureNumber: {
     justifyContent: 'center',
