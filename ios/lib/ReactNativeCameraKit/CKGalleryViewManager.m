@@ -639,7 +639,9 @@ RCT_EXPORT_MODULE()
 
 - (UIView *)view
 {
-    self.galleryView = [[CKGalleryView alloc] init];
+    if (self.galleryView == nil) {
+        self.galleryView = [[CKGalleryView alloc] init];
+    }
     return self.galleryView;
 }
 
