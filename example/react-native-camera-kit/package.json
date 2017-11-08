@@ -1,0 +1,65 @@
+{
+  "_from": "react-native-camera-kit",
+  "_id": "react-native-camera-kit@5.3.11",
+  "_inBundle": false,
+  "_integrity": "sha512-xPjCCYrMBm2uGYl8L4umNBiaL02XTa1HEre7lBHccvLmPFeRHBvBp+Inr1ypDYAzuyoVN3ko5VtDYUYvjKTRvA==",
+  "_location": "/react-native-camera-kit",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "react-native-camera-kit",
+    "name": "react-native-camera-kit",
+    "escapedName": "react-native-camera-kit",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/react-native-camera-kit/-/react-native-camera-kit-5.3.11.tgz",
+  "_shasum": "d170e457c11dbe570ef64f0ac48024854ce5068f",
+  "_spec": "react-native-camera-kit",
+  "_where": "/Users/Nakul.Kundaliya/Documents/DemoProjects/Github/react-native-camera-kit/example",
+  "author": {
+    "name": "Ran Greenberg",
+    "email": "rang@wix.com"
+  },
+  "bugs": {
+    "url": "https://github.com/wix/react-native-camera-kit/issues"
+  },
+  "bundleDependencies": false,
+  "dependencies": {
+    "lodash": "^4.14.2",
+    "prop-types": "^15.5.10"
+  },
+  "deprecated": false,
+  "description": "Advanced native camera control with pre-defined aspect ratio, crop, etc",
+  "devDependencies": {
+    "react": "15.4.1",
+    "react-native": "^0.38",
+    "seamless-immutable": "^6.1.0",
+    "shell-utils": "*"
+  },
+  "homepage": "https://github.com/wix/react-native-camera-kit",
+  "license": "MIT",
+  "name": "react-native-camera-kit",
+  "nativePackage": true,
+  "peerDependencies": {
+    "react": ">=0.14.5",
+    "react-native": ">=0.25.1"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wix/react-native-camera-kit.git"
+  },
+  "scripts": {
+    "xcode": "open example/ios/camera-kit.xcodeproj"
+  },
+  "version": "5.3.11"
+}

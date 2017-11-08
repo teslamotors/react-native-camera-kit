@@ -21,7 +21,7 @@ export default class GalleryScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      album: this.props.albumName,
+      album: 'Camera Roll',
       presentedImage: undefined,
       selectedImages: [],
       showPresentedImage: false
