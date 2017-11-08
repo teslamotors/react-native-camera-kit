@@ -13,19 +13,20 @@ import {
   CameraKitGallery,
   CameraKitGalleryView
 } from 'react-native-camera-kit';
-import _ from 'lodash';
 
+import ModalDropdown from 'react-native-modal-dropdown';
+import _ from 'lodash';
 import CameraScreen from './CameraScreen';
 
-
 export default class AlbumsScreen extends Component {
-  
+
   constructor(props) {
-    
+
     super(props);
     const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
     this.state = {
       album: {albumName: 'All Photos'},
+      albumName:'Camera Roll',
       albums: [],
       dropdownVisible: false,
       images: [],
@@ -35,52 +36,66 @@ export default class AlbumsScreen extends Component {
       getUrlOnTapImage: false
     }
   }
-  
+
   componentDidMount() {
     this.reloadAlbums();
   }
-  
+
   async reloadAlbums() {
     const newAlbums = await CameraKitGallery.getAlbumsWithThumbnails();
-    
+
     let albums = [];
-    
+
     for (let name in newAlbums.albums) {
       albums.push(_.get(newAlbums, ['albums', name]));
     }
     this.setState({albums})
   }
-  
+
   imageTapped(selected) {
     if (this.state.images.indexOf(selected) < 0) {
       this.setState({images: _.concat(this.state.images, selected), tappedImage: selected});
     }
     else {
       this.setState({images: _.without(this.state.images, selected)})
-      
+
     }
-    
+
   }
-  
+
   render() {
-    
+
     if (this.state.shouldRenderCameraScreen) {
       return (
         <CameraScreen/>
       );
     }
-    
+
     return (
+
       <View style={styles.container}>
+        <ModalDropdown
+          options={['Camera Roll', 'Favorites', 'Screenshots', 'Recently Deleted']}
+          defaultValue='Camera Roll'
+          style={ styles.dropdown_1}
+          dropdownStyle= { styles.dropdownStyle }
+          textStyle = { styles.textStyle }
+          dropdownTextStyle = { styles.dropdownTextStyle }
+          onSelect={(idx, value) =>{
+              this.setState({ albumName : value});
+              this.reloadAlbums();
+            }
+          }
+        />
         <CameraKitGalleryView
           ref={(gallery) => {
             this.gallery = gallery;
           }}
           style={{flex: 1, backgroundColor:'green'}}
-          minimumInteritemSpacing={10}
-          minimumLineSpacing={10}
+          minimumInteritemSpacing={1}
+          minimumLineSpacing={1}
           columnCount={3}
-          albumName={'all photos'}
+          albumName={this.state.albumName}
           onTapImage={(result) => {
             this.imageTapped(result.nativeEvent.selected);
           }}
@@ -105,7 +120,7 @@ export default class AlbumsScreen extends Component {
           }}
           getUrlOnTapImage={this.state.getUrlOnTapImage}
         />
-        
+
         <View style={{
           alignItems: 'center',
           justifyContent: 'space-between',}}>
@@ -120,38 +135,38 @@ export default class AlbumsScreen extends Component {
               getUrlOnTapImage
             </Text>
           </View>
-          
+
           {this.state.getUrlOnTapImage && <Image
             style={{width: 100, height: 100}}
             source={{uri: this.state.tappedImage}}
           />}
-          
-          
+
+
           <TouchableOpacity  onPress={() => this.getImagesForIds()}>
             <Text style={styles.buttonText}>
               Get Selected Images
             </Text>
           </TouchableOpacity>
         </View>
-      
+
       </View>
     );
   }
-  
+
   renderCameraScreen() {
-    
+
     return <CameraScreen/>
   }
-  
+
   onCustomButtonPressed() {
     this.setState({shouldRenderCameraScreen: true});
   }
-  
+
   renderImagesDetails() {
     if (!this.state.imagesDetails) {
       return null;
     }
-    
+
     return (
       <View>
         <Text>
@@ -160,19 +175,19 @@ export default class AlbumsScreen extends Component {
       </View>
     )
   }
-  
+
   async getImagesForIds() {
     const imagesDict = await CameraKitGallery.getImagesForIds(this.state.images);
     this.setState({imagesDetails: imagesDict});
   }
-  
+
   async onGetAlbumsPressed() {
     let albums = await CameraKitGallery.getAlbumsWithThumbnails();
     albums = albums.albums;
-    
+
     this.setState({albumsDS: this.state.albumsDS.cloneWithRows(albums), albums: {albums}, shouldShowListView: true});
   }
-  
+
 }
 
 const styles = StyleSheet.create({
@@ -186,7 +201,27 @@ const styles = StyleSheet.create({
     color: 'blue',
     marginBottom: 20,
     fontSize: 20
+  },
+  dropdown_1: {
+    height:40,
+    backgroundColor:'white',
+    borderBottomWidth:1,
+    justifyContent:'center',
+    borderColor:'#ccc',
+    width:null,
+    alignItems:'center'
+  },
+  dropdownStyle:{
+    backgroundColor:'white',
+    borderBottomWidth:1,
+    justifyContent:'center',
+    borderColor:'#ccc',
+
+  },
+  textStyle:{
+    fontSize:16
+  },
+  dropdownTextStyle:{
+    fontSize:16
   }
 });
-
-
