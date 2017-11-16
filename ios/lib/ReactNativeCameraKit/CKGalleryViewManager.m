@@ -694,8 +694,10 @@ RCT_EXPORT_METHOD(getSelectedImages:(RCTPromiseResolveBlock)resolve
             }
             
             NSMutableDictionary *assetInfoDict = [[NSMutableDictionary alloc] init];
-            
+            imageData = [CKGalleryViewManager handleNonJPEGOrPNGFormatsData:imageData dataUTI:dataUTI];
             NSString *fileName = ((NSURL*)info[@"PHImageFileURLKey"]).lastPathComponent;
+            
+            fileName = [CKGalleryViewManager handleNonJPEGOrPNGFormatsFileName:fileName dataUTI:dataUTI];
             if (fileName) {
                 assetInfoDict[@"name"] = fileName;
             }
@@ -765,7 +767,12 @@ RCT_EXPORT_METHOD(modifyGalleryViewContentOffset:(NSDictionary*)params) {
     
     [[PHCachingImageManager defaultManager] requestImageDataForAsset:asset options:imageRequestOptions resultHandler:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
         
+        NSString *fileName = ((NSURL*)info[@"PHImageFileURLKey"]).lastPathComponent;
+        fileName = [CKGalleryViewManager handleNonJPEGOrPNGFormatsFileName:fileName dataUTI:dataUTI];
+        imageData = [CKGalleryViewManager handleNonJPEGOrPNGFormatsData:imageData dataUTI:dataUTI];
+        
         NSData *compressedImageData = imageData;
+        
         UIImage *compressedImage = [UIImage imageWithData:imageData];
         
         NSURL *fileURLKey = info[@"PHImageFileURLKey"];
@@ -777,7 +784,6 @@ RCT_EXPORT_METHOD(modifyGalleryViewContentOffset:(NSDictionary*)params) {
             assetInfoDict[@"width"] = [NSNumber numberWithFloat:compressedImage.size.width];
             assetInfoDict[@"height"] = [NSNumber numberWithFloat:compressedImage.size.height];
             
-            NSString *fileName = ((NSURL*)info[@"PHImageFileURLKey"]).lastPathComponent;
             if (fileName) {
                 assetInfoDict[@"name"] = fileName;
             } else {
@@ -809,6 +815,33 @@ RCT_EXPORT_METHOD(modifyGalleryViewContentOffset:(NSDictionary*)params) {
     }
     
     return assetInfoDict;
+}
+
+
++(NSData*)handleNonJPEGOrPNGFormatsData:(NSData*)imageData dataUTI:(NSString*)dataUTI {
+    NSData *ans = imageData;
+    if([dataUTI isEqualToString:(__bridge NSString*)kUTTypeJPEG] == NO && [dataUTI isEqualToString:(__bridge NSString*)kUTTypePNG] == NO)
+    {
+        CIImage* image = [CIImage imageWithData:imageData];
+        CIContext* context = [CIContext contextWithOptions:nil];
+        
+        if ([context respondsToSelector:@selector(JPEGRepresentationOfImage:colorSpace:options:)]) {
+            ans = [context JPEGRepresentationOfImage:image
+                                          colorSpace:CGColorSpaceCreateWithName(kCGColorSpaceSRGB)
+                                             options:@{(NSString*)kCGImageDestinationLossyCompressionQuality: @1.0}];
+        }
+    }
+    return ans;
+}
+
++(NSString*)handleNonJPEGOrPNGFormatsFileName:(NSString*)fileName dataUTI:(NSString*)dataUTI {
+    NSString *ans = fileName;
+    if([dataUTI isEqualToString:(__bridge NSString*)kUTTypeJPEG] == NO && [dataUTI isEqualToString:(__bridge NSString*)kUTTypePNG] == NO)
+    {
+        ans = [[fileName lastPathComponent] stringByDeletingPathExtension];
+        ans = [fileName stringByAppendingPathExtension:@"JPG"];
+    }
+    return ans;
 }
 
 
