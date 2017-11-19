@@ -330,6 +330,10 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
         
     }
     
+    if ([self.galleryData.data count] < cellIndex) {
+        return nil;
+    }
+    
     NSDictionary *assetDictionary = (NSDictionary*)self.galleryData.data[cellIndex];
     PHAsset *asset = assetDictionary[@"asset"];
     
