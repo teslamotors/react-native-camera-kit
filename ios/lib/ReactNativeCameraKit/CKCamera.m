@@ -523,6 +523,12 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
                         }
                         imageInfoDict[@"size"] = [NSNumber numberWithInteger:imageData.length];
                         
+                        if (capturedImage && [capturedImage isKindOfClass:[UIImage class]]) {
+                            imageInfoDict[@"width"] = [NSNumber numberWithDouble:capturedImage.size.width];
+                            imageInfoDict[@"height"] = [NSNumber numberWithDouble:capturedImage.size.height];
+                        }
+                        
+                        
                         if (shouldSaveToCameraRoll) {
                             NSData *compressedImageData = UIImageJPEGRepresentation(capturedImage, 1.0f);
                             
