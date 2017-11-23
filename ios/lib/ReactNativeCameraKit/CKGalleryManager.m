@@ -248,6 +248,11 @@ RCT_EXPORT_METHOD(resizeImage:(NSDictionary*)image
             resolve:(RCTPromiseResolveBlock)resolve
              reject:(__unused RCTPromiseRejectBlock)reject {
     
+    if (!imagesIdArray || ![imagesIdArray isKindOfClass:[NSArray class]] || imagesIdArray.count <= 0 ) {
+        resolve(@{@"images": @[]});
+        return;
+    }
+    
     NSMutableArray *assetsArray = [[NSMutableArray alloc] initWithArray:imagesIdArray];
     
     PHImageRequestOptions *imageRequestOptions = [[PHImageRequestOptions alloc] init];
