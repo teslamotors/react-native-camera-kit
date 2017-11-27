@@ -8,6 +8,7 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.wix.RNCameraKit.camera.commands.Capture;
+import com.wix.RNCameraKit.camera.params.FlashModeParser;
 import com.wix.RNCameraKit.camera.permission.CameraPermission;
 
 
@@ -68,9 +69,9 @@ public class CameraModule extends ReactContextBaseJavaModule {
         cameraPermission.requestAccess(getCurrentActivity(), promise);
     }
 
+    @SuppressWarnings("deprecation")
     @ReactMethod
     public void hasFrontCamera(Promise promise) {
-
         int numCameras = Camera.getNumberOfCameras();
         for (int i = 0; i < numCameras; i++) {
             Camera.CameraInfo info = new Camera.CameraInfo();
@@ -80,29 +81,28 @@ public class CameraModule extends ReactContextBaseJavaModule {
                 return;
             }
         }
-        promise.resolve(false);
-    }
-
-    @ReactMethod
-    public void hasFlashForCurrentCamera(Promise promise) {
-        Camera camera = CameraViewManager.getCamera();
-        promise.resolve(camera.getParameters().getSupportedFlashModes() != null);
     }
 
     @ReactMethod
     public void changeCamera(Promise promise) {
-        promise.resolve(CameraViewManager.changeCamera());
+        CameraViewManager.instance().changeCamera();
+        promise.resolve(true);
     }
 
     @ReactMethod
     public void setFlashMode(String mode, Promise promise) {
-        promise.resolve(CameraViewManager.setFlashMode(mode));
+        CameraViewManager.instance().setFlashMode(new FlashModeParser().parse(mode));
+        promise.resolve(true);
+    }
+
+    @ReactMethod
+    public void hasFlashForCurrentCamera(Promise promise) {
+        promise.resolve(CameraViewManager.instance().isFlashEnabled());
     }
 
     @ReactMethod
     public void getFlashMode(Promise promise) {
-        Camera camera = CameraViewManager.getCamera();
-        promise.resolve(camera.getParameters().getFlashMode());
+        promise.resolve(CameraViewManager.instance());
     }
 
     @ReactMethod

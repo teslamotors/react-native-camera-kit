@@ -60,7 +60,7 @@ public class RNCameraKitPackage implements ReactPackage {
     public List<ViewManager> createViewManagers(ReactApplicationContext reactContext) {
         List<ViewManager> viewManagers = new ArrayList<>();
         viewManagers.add(new GalleryViewManager());
-        viewManagers.add(new CameraViewManager());
+        viewManagers.add(CameraViewManager.instance());
         return viewManagers;
     }
 

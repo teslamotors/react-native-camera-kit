@@ -1,12 +1,12 @@
 package com.wix.RNCameraKit.camera.commands;
 
 import android.content.Context;
-import android.hardware.Camera;
 
 import com.facebook.react.bridge.Promise;
-
-import com.wix.RNCameraKit.camera.CameraViewManager;
 import com.wix.RNCameraKit.SaveImageTask;
+import com.wix.RNCameraKit.camera.CameraViewManager;
+import com.wonderkiln.camerakit.CameraKitEventCallback;
+import com.wonderkiln.camerakit.CameraKitImage;
 
 public class Capture implements Command {
 
@@ -28,11 +28,10 @@ public class Capture implements Command {
     }
 
     private void tryTakePicture(final Promise promise) throws Exception {
-        CameraViewManager.getCamera().takePicture(null, null, new Camera.PictureCallback() {
+        CameraViewManager.instance().captureImage(new CameraKitEventCallback<CameraKitImage>() {
             @Override
-            public void onPictureTaken(byte[] data, Camera camera) {
-                camera.stopPreview();
-                new SaveImageTask(context, promise, saveToCameraRoll).execute(data);
+            public void callback(CameraKitImage cameraKitImage) {
+                new SaveImageTask(context, promise, saveToCameraRoll).execute(cameraKitImage.getBitmap());
             }
         });
     }
