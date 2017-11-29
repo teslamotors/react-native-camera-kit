@@ -128,16 +128,16 @@ export default class CameraScreenBase extends Component {
   renderCamera() {
     return (
       <View style={styles.cameraContainer}>
+        <CameraKitCamera
+          ref={(cam) => this.camera = cam}
+          style={{flex: 1, justifyContent: 'flex-end'}}
+          cameraOptions={this.state.cameraOptions}
+        />
         {
-          this.isCaptureRetakeMode() ?
+          this.isCaptureRetakeMode() &&
           <Image
-            style={{flex: 1, justifyContent: 'flex-end'}}
+            style={{position: 'absolute', top: 0, left: 0, bottom: 0, right: 0}}
             source={{uri: this.state.imageCaptured.uri}}
-          /> :
-          <CameraKitCamera
-            ref={(cam) => this.camera = cam}
-            style={{flex: 1, justifyContent: 'flex-end'}}
-            cameraOptions={this.state.cameraOptions}
           />
         }
       </View>
