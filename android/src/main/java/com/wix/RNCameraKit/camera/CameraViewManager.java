@@ -44,9 +44,14 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
 
     @Override
     public void onDropViewInstance(CameraView view) {
-        cameras.pop().stop();
+        stopAndPopCamera();
         startCurrentCamera();
         super.onDropViewInstance(view);
+    }
+
+    private void stopAndPopCamera() {
+        if (cameras.isEmpty()) return;
+        cameras.pop().stop();
     }
 
     private CameraView currentCamera() {
@@ -54,7 +59,7 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     }
 
     private void startCurrentCamera() {
-        if (!cameras.isEmpty()) {
+        if (!cameras.isEmpty() && !currentCamera().isStarted()) {
             try {
                 cameras.peek().start();
             } catch (Exception e) {
