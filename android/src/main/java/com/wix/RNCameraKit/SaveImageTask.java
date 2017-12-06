@@ -11,6 +11,7 @@ import android.os.AsyncTask;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.util.Patterns;
 
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
@@ -28,6 +29,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URL;
 
 import static com.facebook.react.common.ReactConstants.TAG;
 
@@ -52,22 +54,43 @@ public class SaveImageTask extends AsyncTask<byte[], Void, Void> {
         }
     }
 
+    private Bitmap getImageBitmapFromRemoteImageFile() {
+        Bitmap image;
+        try {
+            URL url = new URL(bitmapUrl);
+            image = BitmapFactory.decodeStream(url.openStream());
+        } catch (IOException e) {
+            image = null;
+        }
+        return image;
+    }
+
+    private Bitmap getImageBitmapFromLocalImageFile() {
+        Bitmap image;
+        FileInputStream fis;
+        File imageFile = new File(bitmapUrl);
+        try {
+            fis = new FileInputStream(imageFile);
+            image = BitmapFactory.decodeStream(fis);
+            fis.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            image = null;
+        }
+
+        if (imageFile.exists()) {
+            imageFile.delete();
+        }
+        return image;
+    }
+
     private Bitmap getImageBitmap(byte[]... data) {
         Bitmap image;
         if (bitmapUrl != null) {
-            FileInputStream fis;
-            File imageFile = new File(bitmapUrl);
-            try {
-                fis = new FileInputStream(imageFile);
-                image = BitmapFactory.decodeStream(fis);
-                fis.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-                image = null;
-            }
-
-            if (imageFile.exists()) {
-                imageFile.delete();
+            if (Patterns.WEB_URL.matcher(bitmapUrl.toLowerCase()).matches()) {
+                image = getImageBitmapFromRemoteImageFile();
+            } else {
+                image = getImageBitmapFromLocalImageFile();
             }
         }
         else {
