@@ -25,6 +25,7 @@
     if (imageProp) {
         UIImage *image = [RCTConvert UIImage:imageProp];
         UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
+        imageView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         imageView.frame = self.bounds;
         imageView.contentMode = UIViewContentModeCenter;
         [self addSubview:imageView];

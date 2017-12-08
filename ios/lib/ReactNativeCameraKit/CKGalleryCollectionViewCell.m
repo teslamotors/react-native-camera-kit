@@ -169,6 +169,7 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
     }
     
     self.imageView = [[UIImageView alloc] initWithFrame:imageViewFrame];
+    self.imageView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     self.imageView.center = CGPointMake(CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds));
     self.imageView.backgroundColor = [UIColor clearColor];
     self.imageView.contentMode = UIViewContentModeScaleAspectFill;

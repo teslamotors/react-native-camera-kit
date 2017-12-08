@@ -60,6 +60,8 @@ typedef void (^CompletionBlock)(BOOL success);
 @property (nonatomic, strong) NSDictionary *selection;
 @property (nonatomic)         UIEdgeInsets contentInset;
 @property (nonatomic)         BOOL alwaysBounce;
+@property (nonatomic)         BOOL isHorizontal;
+@property (nonatomic)         BOOL cellSizeInvalidated;
 @property (nonatomic, strong) UIColor *remoteDownloadIndicatorColor;
 @property (nonatomic, strong) NSString *remoteDownloadIndicatorType;
 @property (nonatomic, strong) NSNumber *iCloudDownloadSimulateTime;
@@ -94,6 +96,9 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
         self.imageRequestOptions.synchronous = YES;
         
         self.contentInset = UIEdgeInsetsZero;
+        
+        self.isHorizontal = NO;
+        self.cellSizeInvalidated = NO;
     }
     
     return self;
@@ -101,8 +106,14 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
 
 
 -(CGSize)cellSize {
-    if (CGSizeEqualToSize(_cellSize, CGSizeZero)) {
-        CGFloat minSize = (MAX(self.bounds.size.width - ((self.columnCount.floatValue-1.0f)*self.minimumInteritemSpacing.floatValue),0))/self.columnCount.floatValue;
+    if (CGSizeEqualToSize(_cellSize, CGSizeZero) || self.cellSizeInvalidated) {
+        CGFloat minSize;
+        CGFloat spacing = (self.columnCount.floatValue - 1.0f) * self.minimumInteritemSpacing.floatValue;
+        if (self.isHorizontal) {
+            minSize = MIN(self.bounds.size.width, (self.bounds.size.height - spacing) / self.columnCount.floatValue);
+        } else {
+            minSize = (MAX(self.bounds.size.width - spacing, 0)) / self.columnCount.floatValue;
+        }
         _cellSize = CGSizeMake(minSize, minSize);
     }
     return _cellSize;
@@ -133,14 +144,10 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
     if (CGRectIsEmpty(frame)) return;
     
     if (!self.collectionView) {
-        UICollectionViewFlowLayout* flowLayout = [[UICollectionViewFlowLayout alloc] init];
-        flowLayout.itemSize = self.cellSize;
-        [flowLayout setScrollDirection:UICollectionViewScrollDirectionVertical];
-        
-        self.collectionView = [[UICollectionView alloc] initWithFrame:self.bounds collectionViewLayout:flowLayout];
+        self.collectionView = [[UICollectionView alloc] initWithFrame:self.bounds collectionViewLayout:[self getCollectionViewFlowLayout:self.isHorizontal]];
         self.collectionView.contentInset = self.contentInset;
         self.collectionView.scrollIndicatorInsets = self.contentInset;
-        self.collectionView.alwaysBounceVertical = self.alwaysBounce;
+        [self handleSetAlwaysBounce:self.alwaysBounce isHorizontal:self.isHorizontal];
         self.collectionView.delegate = self;
         self.collectionView.dataSource = self;
         
@@ -157,6 +164,12 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
 
 #pragma mark - Collection view layout things
 
+-(UICollectionViewFlowLayout*)getCollectionViewFlowLayout:(BOOL)isHorizontal {
+    UICollectionViewFlowLayout* flowLayout = [[UICollectionViewFlowLayout alloc] init];
+    flowLayout.itemSize = self.cellSize;
+    [flowLayout setScrollDirection:isHorizontal ? UICollectionViewScrollDirectionHorizontal : UICollectionViewScrollDirectionVertical];
+    return flowLayout;
+}
 
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
     
@@ -225,11 +238,43 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
     [CKGalleryCollectionViewCell setRemoteDownloadIndicatorType:remoteDownloadIndicatorType];
 }
 
+-(void)handleSetAlwaysBounce:(BOOL)alwaysBounce isHorizontal:(BOOL)isHorizontal {
+    if (isHorizontal) {
+        self.collectionView.alwaysBounceHorizontal = alwaysBounce;
+        self.collectionView.alwaysBounceVertical = NO;
+    } else {
+        self.collectionView.alwaysBounceVertical = alwaysBounce;
+        self.collectionView.alwaysBounceHorizontal = NO;
+    }
+}
+
 -(void)setAlwaysBounce:(BOOL)alwaysBounce {
     if(self.collectionView) {
-        self.collectionView.alwaysBounceVertical = alwaysBounce;
+        [self handleSetAlwaysBounce:alwaysBounce isHorizontal:self.isHorizontal];
     }
     _alwaysBounce = alwaysBounce;
+}
+
+-(void)setIsHorizontal:(BOOL)isHorizontal {
+    _isHorizontal = isHorizontal;
+    if (self.collectionView) {
+        if ([self.collectionView.collectionViewLayout isKindOfClass:[UICollectionViewFlowLayout class]]) {
+            UICollectionViewFlowLayout *flowLayout = (UICollectionViewFlowLayout*)self.collectionView.collectionViewLayout;
+            BOOL needsLayoutSwitch = (isHorizontal && flowLayout.scrollDirection == UICollectionViewScrollDirectionVertical) ||
+            (!isHorizontal && flowLayout.scrollDirection == UICollectionViewScrollDirectionHorizontal);
+            if (needsLayoutSwitch) {
+                self.cellSizeInvalidated = YES;
+                [self handleSetAlwaysBounce:self.alwaysBounce isHorizontal:isHorizontal];
+                [self.collectionView reloadData];
+                [self.collectionView performBatchUpdates:^{
+                    [self.collectionView.collectionViewLayout invalidateLayout];
+                    [self.collectionView setCollectionViewLayout:[self getCollectionViewFlowLayout:isHorizontal] animated:YES];
+                } completion:^(BOOL finished) {
+                    self.cellSizeInvalidated = NO;
+                }];
+            }
+        }
+    }
 }
 
 -(void)setFileTypeSupport:(NSDictionary *)supported {
@@ -667,6 +712,7 @@ RCT_EXPORT_VIEW_PROPERTY(selection, NSDictionary);
 RCT_EXPORT_VIEW_PROPERTY(contentInset, UIEdgeInsets);
 RCT_EXPORT_VIEW_PROPERTY(imageQualityOnTap, NSString);
 RCT_EXPORT_VIEW_PROPERTY(alwaysBounce, BOOL);
+RCT_EXPORT_VIEW_PROPERTY(isHorizontal, BOOL);
 RCT_EXPORT_VIEW_PROPERTY(remoteDownloadIndicatorColor, UIColor);
 RCT_EXPORT_VIEW_PROPERTY(remoteDownloadIndicatorType, NSString);
 RCT_EXPORT_VIEW_PROPERTY(onRemoteDownloadChanged, RCTDirectEventBlock);
