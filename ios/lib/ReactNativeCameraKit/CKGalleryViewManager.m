@@ -76,6 +76,7 @@ typedef void (^CompletionBlock)(BOOL success);
 @property (nonatomic, strong) NSDictionary *fileTypeSupport;
 @property (nonatomic, strong) NSArray *supportedFileTypesArray;
 
+@property (nonatomic, strong) RCTBridge *bridge;
 
 @end
 
@@ -369,6 +370,7 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
         
         if (indexPath.row == 0) {
             CKGalleryCustomCollectionViewCell *customCell = [collectionView dequeueReusableCellWithReuseIdentifier:CustomCellReuseIdentifier forIndexPath:indexPath];
+            customCell.bridge = self.bridge;
             [customCell applyStyle:self.customButtonStyle];
             return customCell;
         }
@@ -689,6 +691,7 @@ RCT_EXPORT_MODULE()
 - (UIView *)view
 {
     self.galleryView = [[CKGalleryView alloc] init];
+    self.galleryView.bridge = self.bridge;
     return self.galleryView;
 }
 
