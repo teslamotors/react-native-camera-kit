@@ -483,7 +483,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 
 
-- (void)snapStillImage:(BOOL)shouldSaveToCameraRoll success:(CaptureBlock)block {
+- (void)snapStillImage:(BOOL)shouldSaveToCameraRoll stopPreview:(BOOL)stopPreview success:(CaptureBlock)block {
     dispatch_async( self.sessionQueue, ^{
         AVCaptureConnection *connection = [self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
         
@@ -494,6 +494,10 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         // Capture a still image.
         [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:connection completionHandler:^( CMSampleBufferRef imageDataSampleBuffer, NSError *error ) {
             if ( imageDataSampleBuffer ) {
+                if (stopPreview) {
+                    [self.session stopRunning];
+                }
+
                 // The sample buffer is not retained. Create image data before saving the still image to the photo library asynchronously.
                 NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
                 UIImage *capturedImage = [UIImage imageWithData:imageData];
@@ -510,35 +514,33 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
                 CGImageRef imageRef = CGImageCreateWithImageInRect(capturedImage.CGImage, rectToCrop);
                 capturedImage = [UIImage imageWithCGImage:imageRef scale:capturedImage.scale orientation:UIImageOrientationUp];
                 imageData = UIImageJPEGRepresentation(capturedImage, 0.85f);
-                
-                [PHPhotoLibrary requestAuthorization:^( PHAuthorizationStatus status ) {
-                    if ( status == PHAuthorizationStatusAuthorized ) {
-                        
-                        NSMutableDictionary *imageInfoDict = [[NSMutableDictionary alloc] init];
-                        
-                        NSURL *temporaryFileURL = [CKCamera saveToTmpFolder:imageData];
-                        if (temporaryFileURL) {
-                            imageInfoDict[@"uri"] = temporaryFileURL.description;
-                            imageInfoDict[@"name"] = temporaryFileURL.lastPathComponent;
-                        }
-                        imageInfoDict[@"size"] = [NSNumber numberWithInteger:imageData.length];
-                        
-                        if (capturedImage && [capturedImage isKindOfClass:[UIImage class]]) {
-                            imageInfoDict[@"width"] = [NSNumber numberWithDouble:capturedImage.size.width];
-                            imageInfoDict[@"height"] = [NSNumber numberWithDouble:capturedImage.size.height];
-                        }
-                        
-                        
-                        if (shouldSaveToCameraRoll) {
+
+                NSMutableDictionary *imageInfoDict = [[NSMutableDictionary alloc] init];
+
+                NSURL *temporaryFileURL = [CKCamera saveToTmpFolder:imageData];
+                if (temporaryFileURL) {
+                    imageInfoDict[@"uri"] = temporaryFileURL.description;
+                    imageInfoDict[@"name"] = temporaryFileURL.lastPathComponent;
+                }
+                imageInfoDict[@"size"] = [NSNumber numberWithInteger:imageData.length];
+
+                if (capturedImage && [capturedImage isKindOfClass:[UIImage class]]) {
+                    imageInfoDict[@"width"] = [NSNumber numberWithDouble:capturedImage.size.width];
+                    imageInfoDict[@"height"] = [NSNumber numberWithDouble:capturedImage.size.height];
+                }
+
+                if (shouldSaveToCameraRoll) {
+                    [PHPhotoLibrary requestAuthorization:^( PHAuthorizationStatus status ) {
+                        if ( status == PHAuthorizationStatusAuthorized ) {
                             NSData *compressedImageData = UIImageJPEGRepresentation(capturedImage, 1.0f);
-                            
+
                             [CKGalleryManager saveImageToCameraRoll:compressedImageData temporaryFileURL:temporaryFileURL block:^(BOOL success) {
                                 if (success) {
                                     NSString *localIdentifier = [CKGalleryManager getImageLocalIdentifierForFetchOptions:self.fetchOptions];
                                     if (localIdentifier) {
                                         imageInfoDict[@"id"] = localIdentifier;
                                     }
-                                    
+
                                     if (block) {
                                         block(imageInfoDict);
                                     }
@@ -547,11 +549,11 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
                                     //NSLog( @"Could not save to camera roll");
                                 }
                             }];
-                        } else if (block) {
-                            block(imageInfoDict);
                         }
-                    }
-                }];
+                    }];
+                } else if (block) {
+                    block(imageInfoDict);
+                }
                 
                 CGImageRelease(imageRef);
             }

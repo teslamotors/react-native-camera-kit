@@ -113,7 +113,6 @@ public class SaveImageTask extends AsyncTask<byte[], Void, Void> {
             promise.reject("CameraKit", "failed to save image to MediaStore");
         else {
             promise.resolve(imageInfo);
-            CameraViewManager.reconnect();
         }
         return null;
     }

@@ -61,7 +61,7 @@ typedef NS_ENUM(NSInteger, CKCameraZoomMode) {
 
 
 // api
-- (void)snapStillImage:(BOOL)shouldSaveToCameraRoll success:(CaptureBlock)block;
+- (void)snapStillImage:(BOOL)shouldSaveToCameraRoll stopPreview:(BOOL)stopPreview success:(CaptureBlock)block;
 - (void)changeCamera:(CallbackBlock)block;
 - (void)setFlashMode:(AVCaptureFlashMode)flashMode callback:(CallbackBlock)block;
 - (void)setRatio:(NSString*)ratioString;
