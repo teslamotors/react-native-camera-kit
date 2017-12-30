@@ -56,6 +56,7 @@ typedef void (^CompletionBlock)(BOOL success);
 @property (nonatomic, strong) UIImage *selectedImageIcon;
 @property (nonatomic, strong) UIImage *unSelectedImageIcon;
 @property (nonatomic, strong) UIColor *imageStrokeColor;
+@property (nonatomic, strong) NSNumber *imageStrokeWidth;
 @property (nonatomic, strong) NSNumber *disableSelectionIcons;
 @property (nonatomic, strong) NSDictionary *selection;
 @property (nonatomic)         UIEdgeInsets contentInset;
@@ -218,6 +219,10 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
 
 -(void)setImageStrokeColor:(UIColor *)imageStrokeColor {
     [CKGalleryCollectionViewCell setImageStrokeColor:imageStrokeColor];
+}
+
+-(void)setImageStrokeWidth:(NSNumber *)imageStrokeWidth {
+    [CKGalleryCollectionViewCell setImageStrokeWidth:imageStrokeWidth];
 }
 
 -(void)setSelection:(NSDictionary *)selection {
@@ -706,6 +711,7 @@ RCT_EXPORT_VIEW_PROPERTY(unSelectedImageIcon, UIImage);
 RCT_EXPORT_VIEW_PROPERTY(selectedImages, NSArray);
 RCT_EXPORT_VIEW_PROPERTY(fileTypeSupport, NSDictionary);
 RCT_EXPORT_VIEW_PROPERTY(imageStrokeColor, UIColor);
+RCT_EXPORT_VIEW_PROPERTY(imageStrokeWidth, NSNumber);
 RCT_EXPORT_VIEW_PROPERTY(disableSelectionIcons, NSNumber);
 RCT_EXPORT_VIEW_PROPERTY(customButtonStyle, NSDictionary);
 RCT_EXPORT_VIEW_PROPERTY(onCustomButtonPress, RCTDirectEventBlock);

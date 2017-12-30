@@ -21,9 +21,9 @@
 
 
 
-#define BADGE_MARGIN            5
-#define BADGE_COLOR             0x00ADF5
-#define IMAGE_OVERLAY_ALPHA     0.5
+#define BADGE_MARGIN                    5
+#define BADGE_COLOR                     0x00ADF5
+#define IMAGE_OVERLAY_ALPHA             0.5
 
 #define SELECTION_SELECTED_IMAGE        @"selectedImage"
 #define SELECTION_UNSELECTED_IMAGE      @"unselectedImage"
@@ -42,6 +42,7 @@ static UIImage *selectedImageIcon = nil;
 static UIImage *unSelectedImageIcon = nil;
 static NSDictionary *supported = nil;
 static UIColor *imageStrokeColor = nil;
+static NSNumber *imageStrokeWidth = nil;
 static NSDictionary *selection = nil;
 static NSString *imagePosition = nil;
 static UIColor *selectionOverlayColor = nil;
@@ -84,6 +85,11 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
     if (strokeColor) imageStrokeColor = strokeColor;
 }
 
++(void)setImageStrokeWidth:(NSNumber*)width {
+    if (width) imageStrokeWidth = width;
+}
+
+
 +(void)setSelection:(NSDictionary*)selectionDict {
     if (selectionDict) selection = selectionDict;
 }
@@ -94,6 +100,7 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
     unSelectedImageIcon = nil;
     supported = nil;
     imageStrokeColor = nil;
+    imageStrokeWidth = nil;
     selection = nil;
     imagePosition = nil;
     selectionOverlayColor = nil;
@@ -163,8 +170,8 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
     CGRect imageViewFrame = self.bounds;
     
     if(imageStrokeColor) {
-        imageViewFrame.size.height -= 2;
-        imageViewFrame.size.width -= 2;
+        imageViewFrame.size.height -= imageStrokeWidth.floatValue;
+        imageViewFrame.size.width -= imageStrokeWidth.floatValue;
         self.backgroundColor = imageStrokeColor;
     }
     
