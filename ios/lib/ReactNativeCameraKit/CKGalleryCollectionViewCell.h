@@ -25,6 +25,7 @@
 +(void)setUnSlectedImageIcon:(UIImage*)image;
 +(void)setSupported:(NSDictionary*)newSupported;
 +(void)setImageStrokeColor:(UIColor*)strokeColor;
++(void)setImageStrokeColorWidth:(NSNumber*)width;
 +(void)setSelection:(NSDictionary*)selectionDict;
 +(void)setRemoteDownloadIndicatorColor:(UIColor*)color;
 +(void)setRemoteDownloadIndicatorType:(NSString*)type;
