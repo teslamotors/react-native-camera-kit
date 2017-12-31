@@ -42,7 +42,7 @@ static UIImage *selectedImageIcon = nil;
 static UIImage *unSelectedImageIcon = nil;
 static NSDictionary *supported = nil;
 static UIColor *imageStrokeColor = nil;
-static NSNumber *imageStrokeWidth = nil;
+static NSNumber *imageStrokeColorWidth = nil;
 static NSDictionary *selection = nil;
 static NSString *imagePosition = nil;
 static UIColor *selectionOverlayColor = nil;
@@ -85,8 +85,8 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
     if (strokeColor) imageStrokeColor = strokeColor;
 }
 
-+(void)setImageStrokeWidth:(NSNumber*)width {
-    if (width) imageStrokeWidth = width;
++(void)setImageStrokeColorWidth:(NSNumber*)width {
+    if (width) imageStrokeColorWidth = width;
 }
 
 
@@ -100,7 +100,7 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
     unSelectedImageIcon = nil;
     supported = nil;
     imageStrokeColor = nil;
-    imageStrokeWidth = nil;
+    imageStrokeColorWidth = nil;
     selection = nil;
     imagePosition = nil;
     selectionOverlayColor = nil;
@@ -170,8 +170,10 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
     CGRect imageViewFrame = self.bounds;
     
     if(imageStrokeColor) {
-        imageViewFrame.size.height -= imageStrokeWidth.floatValue;
-        imageViewFrame.size.width -= imageStrokeWidth.floatValue;
+        if (imageStrokeColorWidth && imageStrokeColorWidth.floatValue > 0) {
+            imageViewFrame.size.height -= imageStrokeColorWidth.floatValue;
+            imageViewFrame.size.width -= imageStrokeColorWidth.floatValue;
+        }
         self.backgroundColor = imageStrokeColor;
     }
     

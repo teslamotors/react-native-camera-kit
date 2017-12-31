@@ -166,7 +166,7 @@ Attribute | Values | Description
 `minimumInteritemSpacing`        | Float             | Minimum inner Item spacing
 `minimumLineSpacing`             | Float             | Minimum line spacing
 `imageStrokeColor`               | Color             | Image stroke color
-`imageStrokeWidth`               | Number            | Image stroke width
+`imageStrokeColorWidth`          | Number > 0        | Image stroke color width 
 `albumName`                      | String            | Album name to show
 `columnCount`                    | Integer           | How many clumns in one row
 `onTapImage`                     | Function          | Callback when image tapped
