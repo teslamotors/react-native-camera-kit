@@ -37,14 +37,14 @@ export default class CameraScreenBase extends Component {
       mode: FLASH_MODE_AUTO,
       image: _.get(this.props, 'flashImages.auto')
     },
-    {
-      mode: FLASH_MODE_ON,
-      image: _.get(this.props, 'flashImages.on')
-    },
-    {
-      mode: FLASH_MODE_OFF,
-      image: _.get(this.props, 'flashImages.off')
-    }
+      {
+        mode: FLASH_MODE_ON,
+        image: _.get(this.props, 'flashImages.on')
+      },
+      {
+        mode: FLASH_MODE_OFF,
+        image: _.get(this.props, 'flashImages.off')
+      }
     ];
     this.state = {
       captureImages: [],
@@ -130,16 +130,16 @@ export default class CameraScreenBase extends Component {
       <View style={styles.cameraContainer}>
         {
           this.isCaptureRetakeMode() ?
-          <Image
-            style={{flex: 1, justifyContent: 'flex-end'}}
-            source={{uri: this.state.imageCaptured.uri}}
-          /> :
-          <CameraKitCamera
-            ref={(cam) => this.camera = cam}
-            style={{flex: 1, justifyContent: 'flex-end'}}
-            cameraOptions={this.state.cameraOptions}
-            onReadCode={this.props.onReadCode}
-          />
+            <Image
+              style={{flex: 1, justifyContent: 'flex-end'}}
+              source={{uri: this.state.imageCaptured.uri}}
+            /> :
+            <CameraKitCamera
+              ref={(cam) => this.camera = cam}
+              style={{flex: 1, justifyContent: 'flex-end'}}
+              cameraOptions={this.state.cameraOptions}
+              onReadCode={this.props.onReadCode}
+            />
         }
       </View>
     );
@@ -163,14 +163,15 @@ export default class CameraScreenBase extends Component {
           onPress={() => this.onCaptureImagePressed()}
         >
           <Image
-            style={styles.captureButton}
             source={this.props.captureButtonImage}
             resizeMode={'contain'}
-          >
-            <Text style={styles.captureNumber}>
+          />
+          <View style={styles.textNumberContainer}>
+            <Text>
               {this.numberOfImagesTaken()}
             </Text>
-          </Image>
+          </View>
+
         </TouchableOpacity>
       </View >
   }
@@ -318,16 +319,14 @@ const styles = StyleSheet.create(_.merge(styleObject, {
     justifyContent: 'center',
     alignItems: 'center',
   },
-  captureButton: {
-    flex: 1,
-    alignSelf: 'center',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  captureNumber: {
+  textNumberContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0,
     justifyContent: 'center',
-    color: 'black',
-    backgroundColor: 'transparent'
+    alignItems: 'center'
   },
   bottomButton: {
     flex: 1,
