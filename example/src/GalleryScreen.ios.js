@@ -35,8 +35,11 @@ export default class GalleryScreen extends Component {
     if (!isSelected || _.get(image, 'selectedImageId') === _.get(this.state, 'presentedImage.selectedImageId')) {
       this.setState({presentedImage: undefined, showPresentedImage: false});
     } else if (image) {
+      console.log("===on Tap ", event.nativeEvent);
+      console.log("presentedImage ", image);
       this.setState({presentedImage: image, showPresentedImage: true});
     }
+
   }
 
   renderPresentedImage() {

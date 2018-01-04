@@ -15,7 +15,7 @@ const resolveAssetSource = require('react-native/Libraries/Image/resolveAssetSou
 
 export default class CameraKitGalleryView extends Component {
   componentWillReceiveProps(nextProps) {
-    console.log("nextProps",nextProps )
+    
   }
   render() {
     const transformedProps = _.cloneDeep(this.props);
