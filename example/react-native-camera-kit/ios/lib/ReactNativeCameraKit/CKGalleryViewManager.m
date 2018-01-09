@@ -777,7 +777,7 @@ RCT_EXPORT_METHOD(modifyGalleryViewContentOffset:(NSDictionary*)params) {
                      assetInfoDict[@"uri"] = url.absoluteString ;
                      float imageSize = 2;
                      assetInfoDict[@"size"] = [NSNumber numberWithFloat:imageSize];
-                     assetInfoDict[@"name"] = @"test";
+                     assetInfoDict[@"name"] = url.lastPathComponent;
                      assetInfoDict[@"width"] = [NSNumber numberWithFloat:3];
                      assetInfoDict[@"height"] = [NSNumber numberWithFloat:3];
                      assetInfoDict[@"mediaType"] = @"video";
