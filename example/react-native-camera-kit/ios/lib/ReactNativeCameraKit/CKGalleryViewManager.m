@@ -774,12 +774,13 @@ RCT_EXPORT_METHOD(modifyGalleryViewContentOffset:(NSDictionary*)params) {
                      NSURL *url = [(AVURLAsset*)asset URL];
                      NSLog(@"%@", url);
                      assetInfoDict = [[NSMutableDictionary alloc] init];
-                     assetInfoDict[@"uri"] = url ;
+                     assetInfoDict[@"uri"] = url.absoluteString ;
                      float imageSize = 2;
                      assetInfoDict[@"size"] = [NSNumber numberWithFloat:imageSize];
-                     assetInfoDict[@"name"] = @"Tejas";
+                     assetInfoDict[@"name"] = @"test";
                      assetInfoDict[@"width"] = [NSNumber numberWithFloat:3];
                      assetInfoDict[@"height"] = [NSNumber numberWithFloat:3];
+                     assetInfoDict[@"mediaType"] = @"video";
                      handler(assetInfoDict);
                      // do what you want with it
                  }
@@ -800,7 +801,8 @@ RCT_EXPORT_METHOD(modifyGalleryViewContentOffset:(NSDictionary*)params) {
             
                 assetInfoDict[@"width"] = [NSNumber numberWithFloat:compressedImage.size.width];
                 assetInfoDict[@"height"] = [NSNumber numberWithFloat:compressedImage.size.height];
-                
+                assetInfoDict[@"mediaType"] = @"image";
+
                 NSString *fileName = ((NSURL*)info[@"PHImageFileURLKey"]).lastPathComponent;
                 if (fileName) {
                     assetInfoDict[@"name"] = fileName;
