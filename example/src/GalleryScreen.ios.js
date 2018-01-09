@@ -85,7 +85,6 @@ export default class GalleryScreen extends Component {
       <View style={{ flex: 1 }}>
         <CameraKitGalleryView
           style={{ flex: 1, margin: 0, marginTop: 50 }}
-          albumName={this.state.album}
           minimumInteritemSpacing={10}
           minimumLineSpacing={10}
           columnCount={3}

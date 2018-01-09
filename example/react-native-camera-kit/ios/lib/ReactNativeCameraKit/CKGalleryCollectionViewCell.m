@@ -51,6 +51,7 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
 @interface CKGalleryCollectionViewCell ()
 
 @property (strong, nonatomic) UIImageView *imageView;
+@property (strong, nonatomic) UIImageView *videoIcon;
 @property (strong, nonatomic) UIButton *button;
 @property (strong, nonatomic) UIImageView *badgeImageView;
 @property (nonatomic, strong) UIView *imageOveray;
@@ -69,6 +70,7 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
 
 +(void)setSelectedImageIcon:(UIImage*)image {
     if (image) selectedImageIcon = image;
+
 }
 
 
@@ -173,8 +175,18 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
     self.imageView.backgroundColor = [UIColor clearColor];
     self.imageView.contentMode = UIViewContentModeScaleAspectFill;
     self.imageView.clipsToBounds = YES;
+    //
+    
+    self.videoIcon = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 30, 30)];
+    self.videoIcon.center = CGPointMake(CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds));
+    self.videoIcon.backgroundColor = [UIColor clearColor];
+    self.videoIcon.contentMode = UIViewContentModeScaleAspectFill;
+    self.videoIcon.clipsToBounds = YES;
+    self.videoIcon.image = [UIImage imageNamed:@"icon"];
+    //
     
     [self addSubview:self.imageView];
+    [self addSubview:self.videoIcon];
     
     self.imageOveray = [[UIView alloc] initWithFrame:self.imageView.bounds];
     self.imageOveray.opaque = NO;
