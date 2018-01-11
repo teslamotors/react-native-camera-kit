@@ -1,6 +1,8 @@
 package com.wix.RNCameraKit;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -8,6 +10,7 @@ import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -29,7 +32,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URL;
+import java.util.Locale;
 
 import static com.facebook.react.common.ReactConstants.TAG;
 
@@ -108,7 +113,7 @@ public class SaveImageTask extends AsyncTask<byte[], Void, Void> {
             return null;
         }
 
-        WritableMap imageInfo = saveToCameraRoll ? saveToMediaStore(image) : saveTempImageFile(image);
+        WritableMap imageInfo = saveToCameraRoll ? saveToGalleryWithFullQuality(image) : saveTempImageFile(image);
         if (imageInfo == null)
             promise.reject("CameraKit", "failed to save image to MediaStore");
         else {
@@ -145,6 +150,35 @@ public class SaveImageTask extends AsyncTask<byte[], Void, Void> {
             cursor.close();
 
             return createImageInfo(filePath, filePath, fileName, fileSize, image.getWidth(), image.getHeight());
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private WritableMap saveToGalleryWithFullQuality(Bitmap image) {
+        try {
+            String fileName = System.currentTimeMillis() + ".jpg";
+            final String appDirectoryName = "CameraKit";
+            final File imageRoot = new File(Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_PICTURES), appDirectoryName);
+            imageRoot.mkdirs();
+            final File file = new File(imageRoot, fileName);
+            OutputStream fOut = new FileOutputStream(file);
+            image.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
+            fOut.flush();
+            fOut.close();
+            final String filePath = file.getAbsolutePath();
+
+            ContentValues values = new ContentValues();
+            values.put(MediaStore.Images.Media.TITLE, appDirectoryName);
+            values.put(MediaStore.Images.Media.DESCRIPTION, fileName);
+            values.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis());
+            values.put(MediaStore.Images.ImageColumns.BUCKET_ID, file.toString().toLowerCase(Locale.US).hashCode());
+            values.put(MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME, file.getName().toLowerCase(Locale.US));
+            values.put("_data", filePath);
+            context.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+            context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)));
+            return createImageInfo(filePath, filePath, fileName, file.length(), image.getWidth(), image.getHeight());
         } catch (Exception e) {
             return null;
         }
