@@ -29,7 +29,7 @@
 typedef void (^CompletionBlock)(BOOL success);
 
 
-@interface CKGalleryView : UIView <UICollectionViewDelegateFlowLayout, UICollectionViewDataSource>
+@interface CKGalleryView : UIView <UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, CKGalleryCollectionViewCellDelegate>
 
 //props
 @property (nonatomic, strong) NSString *albumName;
@@ -79,6 +79,9 @@ typedef void (^CompletionBlock)(BOOL success);
 
 @property (nonatomic, strong) RCTBridge *bridge;
 
+@property (nonatomic)         BOOL collectionViewIsScrolling;
+@property (nonatomic, weak)   CKGalleryCollectionViewCell *lastPressedCell;
+
 @end
 
 static NSString * const CellReuseIdentifier = @"Cell";
@@ -101,6 +104,7 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
         
         self.isHorizontal = NO;
         self.cellSizeInvalidated = NO;
+        self.collectionViewIsScrolling = NO;
     }
     
     return self;
@@ -398,6 +402,7 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
     NSString *MIMETypeString = (__bridge_transfer NSString *)MIMEType;
     
     __block CKGalleryCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:CellReuseIdentifier forIndexPath:indexPath];
+    cell.delegate = self;
     cell.disableSelectionIcons = self.disableSelectionIcons ? self.disableSelectionIcons.boolValue : false;
     
     if (self.supportedFileTypesArray) {
@@ -677,6 +682,37 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
     
 }
 
+#pragma mark - UIScrollViewDelegate methods
+
+-(void)clearCollectionViewIsScrolling {
+    self.collectionViewIsScrolling = NO;
+    self.lastPressedCell = nil;
+}
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    self.collectionViewIsScrolling = YES;
+    
+    if (self.lastPressedCell != nil) {
+        [self.lastPressedCell setPressed:NO];
+    }
+}
+
+-(void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
+    if (!decelerate) {
+        [self clearCollectionViewIsScrolling];
+    }
+}
+
+-(void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
+    [self clearCollectionViewIsScrolling];
+}
+
+#pragma mark - CKGalleryCollectionViewCellDelegate methods
+
+-(BOOL)shouldShowPressIndicator:(CKGalleryCollectionViewCell*)cell {
+    self.lastPressedCell = cell;
+    return !self.collectionViewIsScrolling;
+}
 
 @end
 
