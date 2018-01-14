@@ -18,8 +18,15 @@
 #define REMOTE_DOWNLOAD_INDICATOR_TYPE_PROGRESS_BAR     @"progress-bar"
 #define REMOTE_DOWNLOAD_INDICATOR_TYPE_PROGRESS_PIE     @"progress-pie"
 
+@class CKGalleryCollectionViewCell;
+
+@protocol CKGalleryCollectionViewCellDelegate <NSObject>
+- (BOOL)shouldShowPressIndicator:(CKGalleryCollectionViewCell*)cell;
+@end
 
 @interface CKGalleryCollectionViewCell : UICollectionViewCell
+
+-(void)setPressed:(BOOL)pressed;
 
 +(void)setSelectedImageIcon:(UIImage*)image;
 +(void)setUnSlectedImageIcon:(UIImage*)image;
@@ -30,8 +37,9 @@
 +(void)setRemoteDownloadIndicatorColor:(UIColor*)color;
 +(void)setRemoteDownloadIndicatorType:(NSString*)type;
 
-
 +(void)cleanStaticsVariables;
+
+@property (nonatomic, weak) id<CKGalleryCollectionViewCellDelegate> delegate;
 
 @property (nonatomic, strong) UIImage *thumbnailImage;
 @property (nonatomic, copy) NSString *representedAssetIdentifier;

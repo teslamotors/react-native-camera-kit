@@ -49,7 +49,7 @@ static UIColor *selectionOverlayColor = nil;
 static UIColor *remoteDownloadIndicatorColor = nil;
 static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SPINNER;
 
-@interface CKGalleryCollectionViewCell ()
+@interface CKGalleryCollectionViewCell () <UIGestureRecognizerDelegate>
 
 @property (strong, nonatomic) UIImageView *imageView;
 @property (strong, nonatomic) UIButton *button;
@@ -471,25 +471,20 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
     _progressPieView = nil;
 }
 
+-(void)setPressed:(BOOL)pressed {
+    [UIView animateWithDuration:0.1 animations:^{
+        self.transform = pressed ? CGAffineTransformMakeScale(0.9, 0.9) : CGAffineTransformIdentity;
+    }];
+}
 
 -(void)handleGesture:(UIGestureRecognizer*)gesture {
-    if (gesture.state == UIGestureRecognizerStateBegan)
+    if (gesture.state == UIGestureRecognizerStateBegan && [self.delegate shouldShowPressIndicator:self])
     {
-        [UIView animateWithDuration:0.1 animations:^{
-            self.transform = CGAffineTransformMakeScale(0.9, 0.9);
-            
-        } completion:^(BOOL finished) {
-            
-        }];
+        [self setPressed:YES];
     }
     else if (gesture.state == UIGestureRecognizerStateEnded || gesture.state == UIGestureRecognizerStateCancelled)
     {
-        [UIView animateWithDuration:0.1 animations:^{
-            self.transform = CGAffineTransformIdentity;
-            
-        } completion:^(BOOL finished) {
-            
-        }];
+        [self setPressed:NO];
     }
 }
 
