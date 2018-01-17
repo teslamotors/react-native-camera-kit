@@ -169,7 +169,8 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
 
     private static void setCameraRotation(int rotation, boolean force) {
         if (camera == null) return;
-        int supportedRotation = getSupportedRotation(rotation);
+        // force Activity's orientation
+        int supportedRotation = Orientation.getDeviceOrientation(reactContext.getCurrentActivity());
         if (supportedRotation == currentRotation && !force) return;
         currentRotation = supportedRotation;
 

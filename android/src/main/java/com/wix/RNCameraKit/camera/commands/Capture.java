@@ -1,7 +1,6 @@
 package com.wix.RNCameraKit.camera.commands;
 
 import android.content.Context;
-import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 
 import com.facebook.react.bridge.Promise;
@@ -34,17 +33,12 @@ public class Capture implements Command {
             public void onShutter() {
                 try {
                     camera.setPreviewCallback(null);
-                    camera.setPreviewTexture(new SurfaceTexture(0));
+                    camera.setPreviewTexture(null);
                 } catch (Exception e) {
                     // ignore
                 }
             }
         };
-
-        // Force portrait rotation
-        Camera.Parameters params = camera.getParameters();
-        params.setRotation(270);
-        camera.setParameters(params);
 
         camera.takePicture(shutterCallback, null, new Camera.PictureCallback() {
             @Override
