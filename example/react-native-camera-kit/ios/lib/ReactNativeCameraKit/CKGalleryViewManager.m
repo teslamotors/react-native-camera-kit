@@ -351,7 +351,11 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
     }
     
     cell.representedAssetIdentifier = asset.localIdentifier;
-    
+    if ([MIMETypeString containsString:@"image"]){
+        [cell.videoIcon setHidden:true];
+    }else{
+        [cell.videoIcon setHidden:false];
+    }
     [self.imageManager requestImageForAsset:asset
                                  targetSize:CGSizeMake(self.cellSize.width*IMAGE_SIZE_MULTIPLIER, self.cellSize.height*IMAGE_SIZE_MULTIPLIER)
                                 contentMode:PHImageContentModeDefault
@@ -365,6 +369,7 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
     
     return cell;
 }
+
 
 -(void)remoteDownloadingUpdate:(CKGalleryCollectionViewCell *)cell progress:(CGFloat)progress isDownloading:(BOOL)isDownloading {
     if (cell.isDownloading != isDownloading) {

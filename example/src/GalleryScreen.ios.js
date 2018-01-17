@@ -85,6 +85,7 @@ export default class GalleryScreen extends Component {
       <View style={{ flex: 1 }}>
         <CameraKitGalleryView
           style={{ flex: 1, margin: 0, marginTop: 50 }}
+          albumName={this.state.album}
           minimumInteritemSpacing={10}
           minimumLineSpacing={10}
           columnCount={3}
@@ -93,8 +94,10 @@ export default class GalleryScreen extends Component {
             imagePosition: "top-right"
           }}
           onTapImage={event => this.onTapImage(event)}
-          remoteDownloadIndicatorType={"progress-pie"} //spinner / progress-bar / progress-pie
-          remoteDownloadIndicatorColor={"white"}
+          remoteDownloadIndicatorType={"progress-pie"}
+          remoteDownloadIndicatorColor={
+            "white" //spinner / progress-bar / progress-pie
+          }
         />
         {this.state.showPresentedImage && this.renderPresentedImage()}
       </View>

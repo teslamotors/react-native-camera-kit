@@ -51,7 +51,7 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
 @interface CKGalleryCollectionViewCell ()
 
 @property (strong, nonatomic) UIImageView *imageView;
-@property (strong, nonatomic) UIImageView *videoIcon;
+
 @property (strong, nonatomic) UIButton *button;
 @property (strong, nonatomic) UIImageView *badgeImageView;
 @property (nonatomic, strong) UIView *imageOveray;
@@ -72,7 +72,6 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
     if (image) selectedImageIcon = image;
 
 }
-
 
 +(void)setUnSlectedImageIcon:(UIImage*)image {
     if (image) unSelectedImageIcon = image;
