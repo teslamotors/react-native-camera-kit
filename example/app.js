@@ -1,24 +1,28 @@
+/**
+ * Sample React Native App
+ * https://github.com/facebook/react-native
+ * @flow
+ */
 import React, {Component} from 'react';
 import {
-  AppRegistry,
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  AlertIOS
+ AppRegistry,
+ StyleSheet,
+ Text,
+ View,
+ TouchableOpacity,
+ AlertIOS
 } from 'react-native';
 
 import {
-  CameraKitCamera,
-  CameraKitGallery
+ CameraKitCamera,
+ CameraKitGallery
 } from 'react-native-camera-kit';
 
 import CameraScreen from './src/CameraScreen';
 import AlbumsScreen from  './src/AlbumsScreen';
 import GalleryScreen from  './src/GalleryScreen';
 
-class example extends Component {
-
+export default class App extends Component<{}> {
   constructor(props) {
     super(props);
     this.state = {
@@ -124,5 +128,3 @@ const styles = StyleSheet.create({
     fontSize: 20
   }
 });
-
-AppRegistry.registerComponent('example', () => example);

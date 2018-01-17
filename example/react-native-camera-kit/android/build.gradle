@@ -1,0 +1,25 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "25.0.1"
+
+    defaultConfig {
+        minSdkVersion 16
+        targetSdkVersion 25
+        versionCode 1
+        versionName "1.0"
+        ndk {
+            abiFilters "armeabi-v7a", "x86"
+        }
+    }
+    lintOptions {
+       warning 'InvalidPackage'
+    }
+}
+
+dependencies {
+    compile 'com.facebook.react:react-native:+'
+    compile 'com.android.support:recyclerview-v7:25.0.1'
+    compile group: 'com.drewnoakes', name: 'metadata-extractor', version: '2.9.1'
+}

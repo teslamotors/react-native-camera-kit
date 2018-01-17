@@ -1,0 +1,342 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		261F3F9D1F4471F00013E7C3 /* M13ProgressViewPie.m in Sources */ = {isa = PBXBuildFile; fileRef = 261F3F9C1F4471F00013E7C3 /* M13ProgressViewPie.m */; };
+		261F3FA01F4471FB0013E7C3 /* M13ProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = 261F3F9F1F4471FB0013E7C3 /* M13ProgressView.m */; };
+		262564901E6572B300A7B90D /* CKGalleryCustomCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2625648F1E6572B300A7B90D /* CKGalleryCustomCollectionViewCell.m */; };
+		262E421D1D182C1200C82B27 /* CKGalleryViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 262E421C1D182C1200C82B27 /* CKGalleryViewManager.m */; };
+		262E42201D183A6B00C82B27 /* CKGalleryCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 262E421F1D183A6B00C82B27 /* CKGalleryCollectionViewCell.m */; };
+		26550AE61CFC2437007FF2DF /* CKGalleryManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 26550AE51CFC2437007FF2DF /* CKGalleryManager.m */; };
+		26550AF61CFC7086007FF2DF /* CKCameraManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 26550AF51CFC7086007FF2DF /* CKCameraManager.m */; };
+		2685AA241CFD89A300E4A446 /* CKCamera.m in Sources */ = {isa = PBXBuildFile; fileRef = 2685AA231CFD89A300E4A446 /* CKCamera.m */; };
+		268A64B71D2BFE5A0034460B /* SelectionGesture.m in Sources */ = {isa = PBXBuildFile; fileRef = 268A64B61D2BFE5A0034460B /* SelectionGesture.m */; };
+		269292831D3B7D6000E07DDF /* CKCameraOverlayView.m in Sources */ = {isa = PBXBuildFile; fileRef = 269292821D3B7D6000E07DDF /* CKCameraOverlayView.m */; };
+		269292861D3B81C800E07DDF /* CKOverlayObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 269292851D3B81C800E07DDF /* CKOverlayObject.m */; };
+		26F556721D2501C9007B1C11 /* GalleryData.m in Sources */ = {isa = PBXBuildFile; fileRef = 26F556711D2501C9007B1C11 /* GalleryData.m */; };
+		A7686BFE1EC9CFEC00959216 /* CKCompressedImage.m in Sources */ = {isa = PBXBuildFile; fileRef = A7686BFD1EC9CFEC00959216 /* CKCompressedImage.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		2646934C1CFB2A6B00F3A740 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		261F3F9B1F4471F00013E7C3 /* M13ProgressViewPie.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = M13ProgressViewPie.h; sourceTree = "<group>"; };
+		261F3F9C1F4471F00013E7C3 /* M13ProgressViewPie.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = M13ProgressViewPie.m; sourceTree = "<group>"; };
+		261F3F9E1F4471FB0013E7C3 /* M13ProgressView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = M13ProgressView.h; sourceTree = "<group>"; };
+		261F3F9F1F4471FB0013E7C3 /* M13ProgressView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = M13ProgressView.m; sourceTree = "<group>"; };
+		2625648E1E6572B300A7B90D /* CKGalleryCustomCollectionViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CKGalleryCustomCollectionViewCell.h; sourceTree = "<group>"; };
+		2625648F1E6572B300A7B90D /* CKGalleryCustomCollectionViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CKGalleryCustomCollectionViewCell.m; sourceTree = "<group>"; };
+		262E421B1D182C1200C82B27 /* CKGalleryViewManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CKGalleryViewManager.h; sourceTree = "<group>"; };
+		262E421C1D182C1200C82B27 /* CKGalleryViewManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CKGalleryViewManager.m; sourceTree = "<group>"; };
+		262E421E1D183A6B00C82B27 /* CKGalleryCollectionViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CKGalleryCollectionViewCell.h; sourceTree = "<group>"; };
+		262E421F1D183A6B00C82B27 /* CKGalleryCollectionViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CKGalleryCollectionViewCell.m; sourceTree = "<group>"; };
+		2646934E1CFB2A6B00F3A740 /* libReactNativeCameraKit.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libReactNativeCameraKit.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		26550AE41CFC2437007FF2DF /* CKGalleryManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CKGalleryManager.h; sourceTree = "<group>"; };
+		26550AE51CFC2437007FF2DF /* CKGalleryManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CKGalleryManager.m; sourceTree = "<group>"; };
+		26550AF41CFC7086007FF2DF /* CKCameraManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CKCameraManager.h; sourceTree = "<group>"; };
+		26550AF51CFC7086007FF2DF /* CKCameraManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CKCameraManager.m; sourceTree = "<group>"; };
+		2685AA221CFD89A300E4A446 /* CKCamera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CKCamera.h; sourceTree = "<group>"; };
+		2685AA231CFD89A300E4A446 /* CKCamera.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CKCamera.m; sourceTree = "<group>"; };
+		268A64B51D2BFE5A0034460B /* SelectionGesture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectionGesture.h; sourceTree = "<group>"; };
+		268A64B61D2BFE5A0034460B /* SelectionGesture.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SelectionGesture.m; sourceTree = "<group>"; };
+		269292811D3B7D6000E07DDF /* CKCameraOverlayView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CKCameraOverlayView.h; sourceTree = "<group>"; };
+		269292821D3B7D6000E07DDF /* CKCameraOverlayView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CKCameraOverlayView.m; sourceTree = "<group>"; };
+		269292841D3B81C800E07DDF /* CKOverlayObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CKOverlayObject.h; sourceTree = "<group>"; };
+		269292851D3B81C800E07DDF /* CKOverlayObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CKOverlayObject.m; sourceTree = "<group>"; };
+		26F556701D2501C9007B1C11 /* GalleryData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GalleryData.h; sourceTree = "<group>"; };
+		26F556711D2501C9007B1C11 /* GalleryData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GalleryData.m; sourceTree = "<group>"; };
+		A7686BFC1EC9CFEC00959216 /* CKCompressedImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CKCompressedImage.h; sourceTree = "<group>"; };
+		A7686BFD1EC9CFEC00959216 /* CKCompressedImage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CKCompressedImage.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		2646934B1CFB2A6B00F3A740 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		261F3F911F443BA50013E7C3 /* CircleProgressView */ = {
+			isa = PBXGroup;
+			children = (
+				261F3F9E1F4471FB0013E7C3 /* M13ProgressView.h */,
+				261F3F9F1F4471FB0013E7C3 /* M13ProgressView.m */,
+				261F3F9B1F4471F00013E7C3 /* M13ProgressViewPie.h */,
+				261F3F9C1F4471F00013E7C3 /* M13ProgressViewPie.m */,
+			);
+			name = CircleProgressView;
+			sourceTree = "<group>";
+		};
+		264693451CFB2A6B00F3A740 = {
+			isa = PBXGroup;
+			children = (
+				264693501CFB2A6B00F3A740 /* ReactNativeCameraKit */,
+				2646934F1CFB2A6B00F3A740 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		2646934F1CFB2A6B00F3A740 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2646934E1CFB2A6B00F3A740 /* libReactNativeCameraKit.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		264693501CFB2A6B00F3A740 /* ReactNativeCameraKit */ = {
+			isa = PBXGroup;
+			children = (
+				261F3F911F443BA50013E7C3 /* CircleProgressView */,
+				26550AE41CFC2437007FF2DF /* CKGalleryManager.h */,
+				26550AE51CFC2437007FF2DF /* CKGalleryManager.m */,
+				A7686BFC1EC9CFEC00959216 /* CKCompressedImage.h */,
+				A7686BFD1EC9CFEC00959216 /* CKCompressedImage.m */,
+				26550AF41CFC7086007FF2DF /* CKCameraManager.h */,
+				26550AF51CFC7086007FF2DF /* CKCameraManager.m */,
+				2685AA221CFD89A300E4A446 /* CKCamera.h */,
+				2685AA231CFD89A300E4A446 /* CKCamera.m */,
+				262E421B1D182C1200C82B27 /* CKGalleryViewManager.h */,
+				262E421C1D182C1200C82B27 /* CKGalleryViewManager.m */,
+				262E421E1D183A6B00C82B27 /* CKGalleryCollectionViewCell.h */,
+				262E421F1D183A6B00C82B27 /* CKGalleryCollectionViewCell.m */,
+				26F556701D2501C9007B1C11 /* GalleryData.h */,
+				26F556711D2501C9007B1C11 /* GalleryData.m */,
+				268A64B51D2BFE5A0034460B /* SelectionGesture.h */,
+				268A64B61D2BFE5A0034460B /* SelectionGesture.m */,
+				269292811D3B7D6000E07DDF /* CKCameraOverlayView.h */,
+				269292821D3B7D6000E07DDF /* CKCameraOverlayView.m */,
+				269292841D3B81C800E07DDF /* CKOverlayObject.h */,
+				269292851D3B81C800E07DDF /* CKOverlayObject.m */,
+				2625648E1E6572B300A7B90D /* CKGalleryCustomCollectionViewCell.h */,
+				2625648F1E6572B300A7B90D /* CKGalleryCustomCollectionViewCell.m */,
+			);
+			path = ReactNativeCameraKit;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		2646934D1CFB2A6B00F3A740 /* ReactNativeCameraKit */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 264693571CFB2A6B00F3A740 /* Build configuration list for PBXNativeTarget "ReactNativeCameraKit" */;
+			buildPhases = (
+				2646934A1CFB2A6B00F3A740 /* Sources */,
+				2646934B1CFB2A6B00F3A740 /* Frameworks */,
+				2646934C1CFB2A6B00F3A740 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ReactNativeCameraKit;
+			productName = ReactNativeCameraKit;
+			productReference = 2646934E1CFB2A6B00F3A740 /* libReactNativeCameraKit.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		264693461CFB2A6B00F3A740 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0730;
+				ORGANIZATIONNAME = Wix;
+				TargetAttributes = {
+					2646934D1CFB2A6B00F3A740 = {
+						CreatedOnToolsVersion = 7.3;
+					};
+				};
+			};
+			buildConfigurationList = 264693491CFB2A6B00F3A740 /* Build configuration list for PBXProject "ReactNativeCameraKit" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 264693451CFB2A6B00F3A740;
+			productRefGroup = 2646934F1CFB2A6B00F3A740 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				2646934D1CFB2A6B00F3A740 /* ReactNativeCameraKit */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		2646934A1CFB2A6B00F3A740 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				26550AF61CFC7086007FF2DF /* CKCameraManager.m in Sources */,
+				A7686BFE1EC9CFEC00959216 /* CKCompressedImage.m in Sources */,
+				262E42201D183A6B00C82B27 /* CKGalleryCollectionViewCell.m in Sources */,
+				262564901E6572B300A7B90D /* CKGalleryCustomCollectionViewCell.m in Sources */,
+				269292861D3B81C800E07DDF /* CKOverlayObject.m in Sources */,
+				26550AE61CFC2437007FF2DF /* CKGalleryManager.m in Sources */,
+				261F3F9D1F4471F00013E7C3 /* M13ProgressViewPie.m in Sources */,
+				2685AA241CFD89A300E4A446 /* CKCamera.m in Sources */,
+				269292831D3B7D6000E07DDF /* CKCameraOverlayView.m in Sources */,
+				26F556721D2501C9007B1C11 /* GalleryData.m in Sources */,
+				261F3FA01F4471FB0013E7C3 /* M13ProgressView.m in Sources */,
+				268A64B71D2BFE5A0034460B /* SelectionGesture.m in Sources */,
+				262E421D1D182C1200C82B27 /* CKGalleryViewManager.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		264693551CFB2A6B00F3A740 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		264693561CFB2A6B00F3A740 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		264693581CFB2A6B00F3A740 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/../../../react-native/React/**",
+					"$(inherited)",
+				);
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		264693591CFB2A6B00F3A740 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/../../../react-native/React/**",
+					"$(inherited)",
+				);
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		264693491CFB2A6B00F3A740 /* Build configuration list for PBXProject "ReactNativeCameraKit" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				264693551CFB2A6B00F3A740 /* Debug */,
+				264693561CFB2A6B00F3A740 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		264693571CFB2A6B00F3A740 /* Build configuration list for PBXNativeTarget "ReactNativeCameraKit" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				264693581CFB2A6B00F3A740 /* Debug */,
+				264693591CFB2A6B00F3A740 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 264693461CFB2A6B00F3A740 /* Project object */;
+}

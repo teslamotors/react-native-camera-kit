@@ -1,17 +1,27 @@
 {
-  "name": "example",
-  "version": "0.0.1",
-  "private": true,
-  "scripts": {
-    "start": "watchman watch-del-all && node node_modules/react-native/local-cli/cli.js start",
-    "quickinstall": "node scripts/quickinstall",
-    "xcode": "open ios/camera-kit.xcodeproj"
-  },
-  "dependencies": {
-    "lodash": "^4.13.1",
-    "react": "16.0.0-alpha.6",
-    "react-native": "0.43.4",
-    "react-native-camera-kit": "file:../",
-    "seamless-immutable": "^6.1.0"
-  }
+	"name": "example",
+	"version": "0.0.1",
+	"private": true,
+	"scripts": {
+		"start": "node node_modules/react-native/local-cli/cli.js start",
+		"test": "jest"
+	},
+	"dependencies": {
+		"react": "16.0.0",
+		"react-native": "0.50.2",
+		"react-native-camera-kit": "file:react-native-camera-kit",
+		"react-native-modal-dropdown": "^0.5.0",
+		"react-native-vector-icons": "^4.5.0",
+		"react-native-video": "^2.0.0",
+		"react-native-video-player": "^0.8.6"
+	},
+	"devDependencies": {
+		"babel-jest": "21.2.0",
+		"babel-preset-react-native": "4.0.0",
+		"jest": "21.2.1",
+		"react-test-renderer": "16.0.0"
+	},
+	"jest": {
+		"preset": "react-native"
+	}
 }
