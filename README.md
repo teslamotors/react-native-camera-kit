@@ -5,6 +5,9 @@ Native camera control.
 
 ![](img/crazyUnicorn.png)  ![](img/zoom.png)
 
+![](example/demo/album-demo.gif) ![]( example/demo/gallery-demo.gif) ![](example/demo/smart-gallery.gif) 
+
+
 ## Installation
 
 
