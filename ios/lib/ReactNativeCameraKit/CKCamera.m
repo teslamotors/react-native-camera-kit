@@ -63,6 +63,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 #define CAMERA_OPTION_FLASH_MODE                    @"flashMode"
 #define CAMERA_OPTION_FOCUS_MODE                    @"focusMode"
+#define CAMERA_OPTION_FOCUS_MODE_COLOR              @"focusModeColor"
 #define CAMERA_OPTION_ZOOM_MODE                     @"zoomMode"
 #define CAMERA_OPTION_CAMERA_RATIO_OVERLAY          @"ratioOverlay"
 #define CAMERA_OPTION_CAMERA_RATIO_OVERLAY_COLOR    @"ratioOverlayColor"
@@ -96,6 +97,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 // cameraOptions props
 @property (nonatomic) AVCaptureFlashMode flashMode;
 @property (nonatomic) CKCameraFocushMode focusMode;
+@property (nonatomic, strong) UIColor *focusModeColor;
 @property (nonatomic) CKCameraZoomMode zoomMode;
 @property (nonatomic, strong) NSString* ratioOverlayString;
 @property (nonatomic, strong) UIColor *ratioOverlayColor;
@@ -175,7 +177,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         
         [self addSubview:self.focusView];
         
-        // defualts
+        // defaults
         self.zoomMode = CKCameraZoomModeOn;
         self.flashMode = CKCameraFlashModeAuto;
         self.focusMode = CKCameraFocushModeOn;
@@ -204,8 +206,14 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
             [self addGestureRecognizer:tapGesture];
         }
     }
+
+    // CAMERA_OPTION_FOCUS_MODE_COLOR
+    id focusModeColor = self.cameraOptions[CAMERA_OPTION_FOCUS_MODE_COLOR];
+    if (focusModeColor) {
+        self.focusView.layer.borderColor = [RCTConvert UIColor:focusModeColor].CGColor;
+    }
     
-    // CAMERA_OPTION_FOCUS_MODE
+    // CAMERA_OPTION_ZOOM_MODE
     id zoomMode = self.cameraOptions[CAMERA_OPTION_ZOOM_MODE];
     if (zoomMode) {
         self.zoomMode = [RCTConvert CKCameraZoomMode:zoomMode];

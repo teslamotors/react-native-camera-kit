@@ -68,6 +68,7 @@ And in the package list in the same file (e.g. `getPackages`) add:
   cameraOptions={{
     flashMode: 'auto',             // on/off/auto(default)
     focusMode: 'on',               // off/on(default)
+    focusModeColor: '#FFFFFF77',   // optional
     zoomMode: 'on',                // off/on(default)
     ratioOverlay:'1:1',            // optional, ratio overlay on the camera and crop the image seamlessly
     ratioOverlayColor: '#00000077' // optional
@@ -83,6 +84,7 @@ Attribute         | Values                 | Description
 ----------------- | ---------------------- | -----------
 `flashMode`         |`'on'`/`'off'`/`'auto'` | camera flash mode (default is `auto`)
 `focusMode`         | `'on'`/`'off'`         | camera focus mode (default is `on`)
+`focusModeColor`    | Color                  | any color with alpha (default is ```'yellow'```)
 `zoomMode`          | `'on'`/`'off'`         | camera zoom mode
 `ratioOverlay`      | `['int':'int', ...]`   | overlay on top of the camera view (crop the image to the selected size) Example: `['16:9', '1:1', '3:4']`
 `ratioOverlayColor` |  Color                 | any color with alpha (default is ```'#ffffff77'```)

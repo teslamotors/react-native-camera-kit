@@ -14,6 +14,7 @@ export default class CameraKitCamera extends React.Component {
 
     const transformedProps = _.cloneDeep(this.props);
     _.update(transformedProps, 'cameraOptions.ratioOverlayColor', (c) => processColor(c));
+    _.update(transformedProps, 'cameraOptions.focusModeColor', (c) => processColor(c));
     return <NativeCamera {...transformedProps}/>
   }
   
