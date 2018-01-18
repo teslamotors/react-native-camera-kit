@@ -121,6 +121,8 @@ Capture image (`shouldSaveToCameraRoll: boolean`)
 const image = await this.camera.capture(true);
 ```
 
+*<span style="color: red">**Note:**</span> This only work on real devices. It will hang indefinitly on simulators.*
+
 #### setFlashMode - must have the wanted camera capture reference
 
 Set flash mode (`auto`/`on`/`off`)
