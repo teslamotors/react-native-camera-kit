@@ -184,7 +184,18 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
     self.imageView.contentMode = UIViewContentModeScaleAspectFill;
     self.imageView.clipsToBounds = YES;
     
+    // MARK:- Adding a video icon here
+    
+    self.videoIcon = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 30, 30)];
+    self.videoIcon.center = CGPointMake(CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds));
+    self.videoIcon.backgroundColor = [UIColor clearColor];
+    self.videoIcon.contentMode = UIViewContentModeScaleAspectFill;
+    self.videoIcon.clipsToBounds = YES;
+    self.videoIcon.image = [UIImage imageNamed:@"icon"];
+    //
+    
     [self addSubview:self.imageView];
+    [self addSubview:self.videoIcon];
     
     self.imageOveray = [[UIView alloc] initWithFrame:self.imageView.bounds];
     self.imageOveray.opaque = NO;

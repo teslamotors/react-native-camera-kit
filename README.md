@@ -3,7 +3,7 @@
 
 Native camera control.
 
-![](img/crazyUnicorn.png)  ![](img/zoom.png)
+![](img/crazyUnicorn.png)  ![](img/zoom.png) ![](img/gallery.gif)
 
 ## Installation
 

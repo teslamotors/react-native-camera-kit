@@ -253,42 +253,48 @@ RCT_EXPORT_METHOD(resizeImage:(NSDictionary*)image
         return;
     }
     
+
     NSMutableArray *assetsArray = [[NSMutableArray alloc] initWithArray:imagesIdArray];
     
     PHImageRequestOptions *imageRequestOptions = [[PHImageRequestOptions alloc] init];
     imageRequestOptions.synchronous = YES;
     
+    
     PHFetchResult *assets = [PHAsset fetchAssetsWithLocalIdentifiers:imagesIdArray options:nil];
     
     for (PHAsset *asset in assets) {
         
-        NSDictionary *assetInfoDict = [CKGalleryViewManager infoForAsset:asset imageRequestOptions:imageRequestOptions imageQuality:imageQuality];
-        NSString *assetLocalId = asset.localIdentifier;
-        
-        if (assetInfoDict && assetInfoDict[@"uri"] && assetInfoDict[@"size"] && assetInfoDict[@"name"] && assetLocalId) {
+        [CKGalleryViewManager infoForAsset:asset imageRequestOptions:imageRequestOptions imageQuality:imageQuality assetsInfo:^(NSMutableDictionary *dic) {
+            NSString *assetLocalId = asset.localIdentifier;
             
-            NSUInteger originalArrayIndex = [imagesIdArray indexOfObject:assetLocalId];
-            
-            [assetsArray replaceObjectAtIndex:originalArrayIndex withObject:@{@"uri": assetInfoDict[@"uri"],
-                                                                              @"width": assetInfoDict[@"width"],
-                                                                              @"height": assetInfoDict[@"height"],
-                                                                              @"size": assetInfoDict[@"size"],
-                                                                              @"name": assetInfoDict[@"name"],
-                                                                              @"id": assetLocalId}];
-        }
+            if (dic && dic[@"uri"] && dic[@"size"] && dic[@"name"]) {
+                
+                NSUInteger originalArrayIndex = [imagesIdArray indexOfObject:assetLocalId];
+                
+                [assetsArray replaceObjectAtIndex:originalArrayIndex withObject:@{@"uri": dic[@"uri"],
+                                                                                  @"width": dic[@"width"],
+                                                                                  @"height": dic[@"height"],
+                                                                                  @"size": dic[@"size"],
+                                                                                  @"name": dic[@"name"],
+                                                                                  @"mediaType": dic[@"mediaType"],
+                                                                                  @"id": dic}];
+            }
+            if (assetsArray.count == assets.count)
+            {
+                NSMutableArray *resolveArray = [NSMutableArray new];
+                for (id obj in assetsArray) {
+                    {
+                        [resolveArray addObject:obj];
+                    }
+                }
+                
+                if (resolve) {
+                    resolve(@{@"images": resolveArray});
+                }
+                
+            }
+        }];
     }
-    
-    NSMutableArray *resolveArray = [NSMutableArray new];
-    for (id obj in assetsArray) {
-        if ([obj isKindOfClass:[NSDictionary class]]) {
-            [resolveArray addObject:obj];
-        }
-    }
-    
-    if (resolve) {
-        resolve(@{@"images": resolveArray});
-    }
-    
     
 }
 

@@ -43,7 +43,7 @@
 
 @property (nonatomic, strong) UIImage *thumbnailImage;
 @property (nonatomic, copy) NSString *representedAssetIdentifier;
-
+@property (nonatomic,strong) UIImageView *videoIcon;
 @property (nonatomic) BOOL isSelected;
 @property (nonatomic) BOOL isSupported;
 @property (nonatomic) BOOL disableSelectionIcons;
