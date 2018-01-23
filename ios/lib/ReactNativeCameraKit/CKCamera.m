@@ -66,7 +66,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 #define CAMERA_OPTION_ZOOM_MODE                     @"zoomMode"
 #define CAMERA_OPTION_CAMERA_RATIO_OVERLAY          @"ratioOverlay"
 #define CAMERA_OPTION_CAMERA_RATIO_OVERLAY_COLOR    @"ratioOverlayColor"
-#define CAMERA_OPTION_ON_READ_CODE               @"onReadCode"
+#define CAMERA_OPTION_ON_READ_CODE                  @"onReadCode"
 #define TIMER_FOCUS_TIME_SECONDS            5
 
 @interface CKCamera () <AVCaptureFileOutputRecordingDelegate, AVCaptureMetadataOutputObjectsDelegate>
@@ -919,15 +919,18 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 #pragma mark - AVCaptureMetadataOutputObjectsDelegate
 
-- (void)captureOutput:(AVCaptureOutput *)output didOutputMetadataObjects:(NSArray<__kindof AVMetadataObject *> *)metadataObjects fromConnection:(AVCaptureConnection *)connection {
-    for(AVMetadataObject *metadataObject in metadataObjects) {
+- (void)captureOutput:(AVCaptureOutput *)output
+didOutputMetadataObjects:(NSArray<__kindof AVMetadataObject *> *)metadataObjects
+       fromConnection:(AVCaptureConnection *)connection {
+    
+    for(AVMetadataObject *metadataObject in metadataObjects)
+    {
         if ([metadataObject isKindOfClass:[AVMetadataMachineReadableCodeObject class]] && [self isSupportedBarCodeType:metadataObject.type]) {
             AVMetadataMachineReadableCodeObject *code = (AVMetadataMachineReadableCodeObject*)[self.previewLayer transformedMetadataObjectForMetadataObject:metadataObject];
-           if (code.stringValue && ![code.stringValue isEqualToString:self.recievedCodeStringValue]) { 
+            
+            if (self.onReadCode && code.stringValue && ![code.stringValue isEqualToString:self.recievedCodeStringValue]) {
                 self.recievedCodeStringValue = code.stringValue;
-                if (self.onReadCode) {
-                    self.onReadCode(@{@"recievedCodeStringValue": code.stringValue});
-               }
+                self.onReadCode(@{@"recievedCodeStringValue": code.stringValue});
             }
         }
     }
@@ -945,7 +948,6 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         }
     }
     return result;
-}
 
 
 
