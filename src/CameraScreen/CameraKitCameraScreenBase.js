@@ -138,6 +138,7 @@ export default class CameraScreenBase extends Component {
             ref={(cam) => this.camera = cam}
             style={{flex: 1, justifyContent: 'flex-end'}}
             cameraOptions={this.state.cameraOptions}
+            onReadCode={this.props.onReadCode}
           />
         }
       </View>
