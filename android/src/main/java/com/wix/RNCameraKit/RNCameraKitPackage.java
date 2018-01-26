@@ -9,6 +9,7 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.uimanager.ViewManager;
 import com.wix.RNCameraKit.camera.CameraModule;
 import com.wix.RNCameraKit.camera.CameraViewManager;
+import com.wix.RNCameraKit.camera.barcode.BarcodeCameraManager;
 import com.wix.RNCameraKit.camera.permission.CameraPermissionRequestCallback;
 import com.wix.RNCameraKit.gallery.GalleryViewManager;
 import com.wix.RNCameraKit.gallery.NativeGalleryModule;
@@ -61,6 +62,7 @@ public class RNCameraKitPackage implements ReactPackage {
         List<ViewManager> viewManagers = new ArrayList<>();
         viewManagers.add(new GalleryViewManager());
         viewManagers.add(new CameraViewManager());
+        viewManagers.add(new BarcodeCameraManager());
         return viewManagers;
     }
 
