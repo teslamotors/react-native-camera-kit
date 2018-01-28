@@ -7,7 +7,7 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
-  "version": "5.3.19",
+  "version": "5.3.20",
   "description": "Advanced native camera control with pre-defined aspect ratio, crop, etc",
   "author": "Ran Greenberg <rang@wix.com>",
   "nativePackage": true,
