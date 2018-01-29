@@ -3,25 +3,37 @@ package com.wix.RNCameraKit.camera;
 import android.content.Context;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
+import android.graphics.Rect;
 import android.hardware.Camera;
 import android.hardware.SensorManager;
 import android.support.annotation.IntRange;
+import android.util.Log;
 import android.view.Display;
 import android.view.OrientationEventListener;
 import android.view.WindowManager;
 
+import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.common.MapBuilder;
 import com.facebook.react.uimanager.SimpleViewManager;
 import com.facebook.react.uimanager.ThemedReactContext;
+import com.facebook.react.uimanager.events.RCTEventEmitter;
+import com.google.zxing.Result;
 import com.wix.RNCameraKit.Utils;
+import com.wix.RNCameraKit.camera.barcode.BarcodeScanner;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.annotation.Nullable;
+
 import static com.wix.RNCameraKit.camera.Orientation.getSupportedRotation;
 
-@SuppressWarnings("MagicNumber deprecation") // We're still using Camera API 1, everything is deprecated
+@SuppressWarnings("MagicNumber deprecation")
+// We're still using Camera API 1, everything is deprecated
 public class CameraViewManager extends SimpleViewManager<CameraView> {
 
     private static Camera camera = null;
@@ -32,6 +44,18 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     private static OrientationEventListener orientationListener;
     private static int currentRotation = 0;
     private static AtomicBoolean cameraReleased = new AtomicBoolean(false);
+
+    private static boolean shouldScan = true;
+    private static BarcodeScanner scanner;
+    private static Camera.PreviewCallback previewCallback = new Camera.PreviewCallback() {
+        @Override
+        public void onPreviewFrame(byte[] data, Camera camera) {
+            //TODO: handle frame
+            if (scanner != null) {
+                scanner.onPreviewFrame(data, camera);
+            }
+        }
+    };
 
     public static Camera getCamera() {
         return camera;
@@ -49,7 +73,7 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     }
 
     static void setCameraView(CameraView cameraView) {
-        if(!cameraViews.isEmpty() && cameraViews.peek() == cameraView) return;
+        if (!cameraViews.isEmpty() && cameraViews.peek() == cameraView) return;
         CameraViewManager.cameraViews.push(cameraView);
         connectHolder();
         createOrientationListener();
@@ -58,13 +82,13 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     private static void createOrientationListener() {
         if (orientationListener != null) return;
         orientationListener = new OrientationEventListener(reactContext, SensorManager.SENSOR_DELAY_NORMAL) {
-             @Override
-             public void onOrientationChanged(@IntRange(from = -1, to = 359) int angle) {
-                 if (angle == OrientationEventListener.ORIENTATION_UNKNOWN) return;
-                 setCameraRotation(359 - angle, false);
-             }
-         };
-         orientationListener.enable();
+            @Override
+            public void onOrientationChanged(@IntRange(from = -1, to = 359) int angle) {
+                if (angle == OrientationEventListener.ORIENTATION_UNKNOWN) return;
+                setCameraRotation(359 - angle, false);
+            }
+        };
+        orientationListener.enable();
     }
 
     static boolean setFlashMode(String mode) {
@@ -108,6 +132,7 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
         } catch (RuntimeException e) {
             e.printStackTrace();
         }
+        setBarcodeScanner();
     }
 
     private static void releaseCamera() {
@@ -116,16 +141,16 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     }
 
     private static void connectHolder() {
-        if (cameraViews.isEmpty()  || cameraViews.peek().getHolder() == null) return;
+        if (cameraViews.isEmpty() || cameraViews.peek().getHolder() == null) return;
 
         new Thread(new Runnable() {
             @Override
             public void run() {
-                if(camera == null) {
+                if (camera == null) {
                     initCamera();
                 }
 
-                if(cameraViews.isEmpty()) {
+                if (cameraViews.isEmpty()) {
                     return;
                 }
 
@@ -135,6 +160,9 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
                         try {
                             camera.stopPreview();
                             camera.setPreviewDisplay(cameraViews.peek().getHolder());
+                            if (shouldScan) {
+                                camera.setOneShotPreviewCallback(previewCallback);
+                            }
                             camera.startPreview();
                         } catch (IOException | RuntimeException e) {
                             e.printStackTrace();
@@ -146,12 +174,12 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     }
 
     static void removeCameraView() {
-        if(!cameraViews.isEmpty()) {
+        if (!cameraViews.isEmpty()) {
             cameraViews.pop();
         }
-        if(!cameraViews.isEmpty()) {
+        if (!cameraViews.isEmpty()) {
             connectHolder();
-        } else if(camera != null){
+        } else if (camera != null) {
             releaseCamera();
             camera = null;
         }
@@ -189,7 +217,7 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
 
     private static Camera.Size getOptimalPreviewSize(List<Camera.Size> sizes, int w, int h) {
         final double ASPECT_TOLERANCE = 0.1;
-        double targetRatio=(double)h / w;
+        double targetRatio = (double) h / w;
         if (sizes == null) return null;
         Camera.Size optimalSize = null;
         double minDiff = Double.MAX_VALUE;
@@ -232,10 +260,63 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
             parameters.setPictureSize(optimalPictureSize.width, optimalPictureSize.height);
             parameters.setFlashMode(flashMode);
             camera.setParameters(parameters);
-        } catch (RuntimeException ignored) {}
+        } catch (RuntimeException ignored) {
+        }
     }
 
     public static void reconnect() {
         connectHolder();
     }
+
+    public static int getRotationCount() {
+        return currentRotation / 90;
+    }
+
+    public static void setBarcodeScanner() {
+        scanner = new BarcodeScanner(reactContext, previewCallback);
+        scanner.setResultHandler(new BarcodeScanner.ResultHandler() {
+            @Override
+            public void handleResult(Result rawResult) {
+                Log.i("NIGA", "result = " + rawResult.getText());
+                WritableMap event = Arguments.createMap();
+                event.putString("message", rawResult.getText());
+                reactContext.getJSModule(RCTEventEmitter.class).receiveEvent(cameraViews.peek().getId(), "onReadCode", event);
+            }
+        });
+    }
+
+    @Nullable
+    @Override
+    public Map<String, Object> getExportedCustomDirectEventTypeConstants() {
+        return MapBuilder.<String, Object>builder()
+                .put("onReadCode",
+                        MapBuilder.of("registrationName", "onReadCode"))
+                .build();
+    }
+
+    //    public static synchronized Rect getFramingRectInPreview(int previewWidth, int previewHeight) {
+//        if (mFramingRectInPreview == null) {
+//            Rect framingRect = mViewFinderView.getFramingRect();
+//            int viewFinderViewWidth = mViewFinderView.getWidth();
+//            int viewFinderViewHeight = mViewFinderView.getHeight();
+//            if (framingRect == null || viewFinderViewWidth == 0 || viewFinderViewHeight == 0) {
+//                return null;
+//            }
+//
+//            Rect rect = new Rect(framingRect);
+//
+//            if (previewWidth < viewFinderViewWidth) {
+//                rect.left = rect.left * previewWidth / viewFinderViewWidth;
+//                rect.right = rect.right * previewWidth / viewFinderViewWidth;
+//            }
+//
+//            if (previewHeight < viewFinderViewHeight) {
+//                rect.top = rect.top * previewHeight / viewFinderViewHeight;
+//                rect.bottom = rect.bottom * previewHeight / viewFinderViewHeight;
+//            }
+//
+//            mFramingRectInPreview = rect;
+//        }
+//        return mFramingRectInPreview;
+//    }
 }

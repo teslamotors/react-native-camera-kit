@@ -62,7 +62,6 @@ public class RNCameraKitPackage implements ReactPackage {
         List<ViewManager> viewManagers = new ArrayList<>();
         viewManagers.add(new GalleryViewManager());
         viewManagers.add(new CameraViewManager());
-        viewManagers.add(new BarcodeCameraManager());
         return viewManagers;
     }
 

@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import {
   AppRegistry,
   StyleSheet,
@@ -14,9 +14,8 @@ import {
 } from 'react-native-camera-kit';
 
 import CameraScreen from './src/CameraScreen';
-import AlbumsScreen from  './src/AlbumsScreen';
-import GalleryScreen from  './src/GalleryScreen';
-import BarcodeScreen from './src/BarcodeScreen';
+import AlbumsScreen from './src/AlbumsScreen';
+import GalleryScreen from './src/GalleryScreen';
 
 class example extends Component {
 
@@ -33,29 +32,29 @@ class example extends Component {
       return <Example />;
     }
     return (
-      <View style={{flex: 1}}>
+      <View style={{ flex: 1 }}>
         <View style={styles.headerContainer}>
           <Text style={styles.headerText}>
             Welcome to Camera Kit
           </Text>
-          <Text style={{fontSize: 40}}>📷</Text>
+          <Text style={{ fontSize: 40 }}>📷</Text>
         </View>
 
 
         <View style={styles.container}>
-          <TouchableOpacity onPress={() => this.setState({example: CameraScreen})}>
+          <TouchableOpacity onPress={() => this.setState({ example: CameraScreen })}>
             <Text style={styles.buttonText}>
               Camera Screen
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => this.setState({example: AlbumsScreen})}>
+          <TouchableOpacity onPress={() => this.setState({ example: AlbumsScreen })}>
             <Text style={styles.buttonText}>
               Albums Screen
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => this.setState({example: GalleryScreen})}>
+          <TouchableOpacity onPress={() => this.setState({ example: GalleryScreen })}>
             <Text style={styles.buttonText}>
               Gallery Screen
             </Text>
@@ -73,11 +72,6 @@ class example extends Component {
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => this.setState({example: BarcodeScreen})}>
-            <Text style={styles.buttonText}>
-              Barcode scanner
-            </Text>
-          </TouchableOpacity>
         </View>
 
       </View>
