@@ -1,7 +1,9 @@
+import * as _ from 'lodash';
 import React, { Component } from 'react';
 import {
 	requireNativeComponent,
-	NativeModules
+  NativeModules,
+  processColor
 } from 'react-native';
 
 const NativeCamera = requireNativeComponent('CameraView', null);
