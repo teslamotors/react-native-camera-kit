@@ -279,7 +279,7 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
             public void handleResult(Result rawResult) {
                 Log.i("NIGA", "result = " + rawResult.getText());
                 WritableMap event = Arguments.createMap();
-                event.putString("message", rawResult.getText());
+                event.putString("receivedCodeStringValue", rawResult.getText());
                 reactContext.getJSModule(RCTEventEmitter.class).receiveEvent(cameraViews.peek().getId(), "onReadCode", event);
             }
         });

@@ -926,7 +926,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
            if (code.stringValue && ![code.stringValue isEqualToString:self.recievedCodeStringValue]) { 
                 self.recievedCodeStringValue = code.stringValue;
                 if (self.onReadCode) {
-                    self.onReadCode(@{@"recievedCodeStringValue": code.stringValue});
+                    self.onReadCode(@{@"receivedCodeStringValue": code.stringValue});
                }
             }
         }
