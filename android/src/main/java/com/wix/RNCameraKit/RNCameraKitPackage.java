@@ -9,7 +9,6 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.uimanager.ViewManager;
 import com.wix.RNCameraKit.camera.CameraModule;
 import com.wix.RNCameraKit.camera.CameraViewManager;
-import com.wix.RNCameraKit.camera.barcode.BarcodeCameraManager;
 import com.wix.RNCameraKit.camera.permission.CameraPermissionRequestCallback;
 import com.wix.RNCameraKit.gallery.GalleryViewManager;
 import com.wix.RNCameraKit.gallery.NativeGalleryModule;
