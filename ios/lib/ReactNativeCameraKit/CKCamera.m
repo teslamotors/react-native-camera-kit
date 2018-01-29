@@ -66,7 +66,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 #define CAMERA_OPTION_ZOOM_MODE                     @"zoomMode"
 #define CAMERA_OPTION_CAMERA_RATIO_OVERLAY          @"ratioOverlay"
 #define CAMERA_OPTION_CAMERA_RATIO_OVERLAY_COLOR    @"ratioOverlayColor"
-#define CAMERA_OPTION_ON_READ_CODE               @"onReadCode"
+#define CAMERA_OPTION_ON_READ_QR_CODE               @"onReadQRCode"
 #define TIMER_FOCUS_TIME_SECONDS            5
 
 @interface CKCamera () <AVCaptureFileOutputRecordingDelegate, AVCaptureMetadataOutputObjectsDelegate>
@@ -85,7 +85,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 @property (nonatomic) AVCaptureMovieFileOutput *movieFileOutput;
 @property (nonatomic) AVCaptureStillImageOutput *stillImageOutput;
 @property (nonatomic, strong) AVCaptureMetadataOutput *metadataOutput;
-@property (nonatomic, strong) NSString *recievedCodeStringValue;
+@property (nonatomic, strong) NSString *qrcodeStringValue;
 
 
 // utilities
@@ -99,7 +99,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 @property (nonatomic) CKCameraZoomMode zoomMode;
 @property (nonatomic, strong) NSString* ratioOverlayString;
 @property (nonatomic, strong) UIColor *ratioOverlayColor;
-@property (nonatomic, strong) RCTDirectEventBlock onReadCode;
+@property (nonatomic, strong) RCTDirectEventBlock onReadQRCode;
 
 @property (nonatomic) BOOL isAddedOberver;
 
@@ -287,11 +287,11 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         else {
             self.setupResult = CKSetupResultSessionConfigurationFailed;
         }
-        if (self.onReadCode) {//TODO check if qrcode mode is on
+        if (self.onReadQRCode) {//TODO check if qrcode mode is on
             self.metadataOutput = [[AVCaptureMetadataOutput alloc] init];
             [self.session addOutput:self.metadataOutput];
             [self.metadataOutput setMetadataObjectsDelegate:self queue:dispatch_get_main_queue()];
-            [self.metadataOutput setMetadataObjectTypes:[self.metadataOutput availableMetadataObjectTypes]];
+            [self.metadataOutput setMetadataObjectTypes:@[AVMetadataObjectTypeEAN13Code, AVMetadataObjectTypeQRCode]];
         }
         
         
@@ -919,32 +919,21 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 #pragma mark - AVCaptureMetadataOutputObjectsDelegate
 
-- (void)captureOutput:(AVCaptureOutput *)output didOutputMetadataObjects:(NSArray<__kindof AVMetadataObject *> *)metadataObjects fromConnection:(AVCaptureConnection *)connection {
-    for(AVMetadataObject *metadataObject in metadataObjects) {
-        if ([metadataObject isKindOfClass:[AVMetadataMachineReadableCodeObject class]] && [self isSupportedBarCodeType:metadataObject.type]) {
+- (void)captureOutput:(AVCaptureOutput *)output
+didOutputMetadataObjects:(NSArray<__kindof AVMetadataObject *> *)metadataObjects
+       fromConnection:(AVCaptureConnection *)connection {
+    
+    for(AVMetadataObject *metadataObject in metadataObjects)
+    {
+        if ([metadataObject isKindOfClass:[AVMetadataMachineReadableCodeObject class]]) {
             AVMetadataMachineReadableCodeObject *code = (AVMetadataMachineReadableCodeObject*)[self.previewLayer transformedMetadataObjectForMetadataObject:metadataObject];
-           if (code.stringValue && ![code.stringValue isEqualToString:self.recievedCodeStringValue]) { 
-                self.recievedCodeStringValue = code.stringValue;
-                if (self.onReadCode) {
-                    self.onReadCode(@{@"receivedCodeStringValue": code.stringValue});
-               }
+            
+            if (self.onReadQRCode && code.stringValue && ![code.stringValue isEqualToString:self.qrcodeStringValue]) {
+                self.qrcodeStringValue = code.stringValue;
+                self.onReadQRCode(@{@"qrcodeStringValue": code.stringValue});
             }
         }
     }
-}
-
-- (BOOL)isSupportedBarCodeType:(AVMetadataObjectType)currentType {
-    BOOL result = NO;
-    NSArray *supportedBarcodeTypes = @[AVMetadataObjectTypeUPCECode, AVMetadataObjectTypeCode39Code, AVMetadataObjectTypeCode39Mod43Code,
-                                       AVMetadataObjectTypeEAN13Code,AVMetadataObjectTypeEAN8Code, AVMetadataObjectTypeCode93Code,
-                                       AVMetadataObjectTypeCode128Code, AVMetadataObjectTypePDF417Code, AVMetadataObjectTypeQRCode,
-                                       AVMetadataObjectTypeAztecCode];
-    for (NSString* object in supportedBarcodeTypes) {
-        if ([currentType isEqualToString:object]) {
-            result = YES;
-        }
-    }
-    return result;
 }
 
 
