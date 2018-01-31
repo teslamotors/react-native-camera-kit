@@ -1,11 +1,13 @@
 package com.wix.RNCameraKit.camera;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.hardware.Camera;
 import android.hardware.SensorManager;
+import android.support.annotation.ColorInt;
 import android.support.annotation.IntRange;
 import android.view.Display;
 import android.view.OrientationEventListener;
@@ -46,7 +48,6 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     private static AtomicBoolean cameraReleased = new AtomicBoolean(false);
 
     private static boolean shouldScan = true;
-    private static boolean showFrame = true;
     private static BarcodeScanner scanner;
     private static Camera.PreviewCallback previewCallback = new Camera.PreviewCallback() {
         @Override
@@ -163,9 +164,6 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
                             camera.setPreviewDisplay(cameraViews.peek().getHolder());
                             if (shouldScan) {
                                 camera.setOneShotPreviewCallback(previewCallback);
-                            }
-                            if (showFrame) {
-                                cameraViews.peek().showFrame();
                             }
                             camera.startPreview();
                         } catch (IOException | RuntimeException e) {
@@ -304,7 +302,19 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
 
     @ReactProp(name = "showFrame", defaultBoolean = false)
     public void setFrame(CameraView view, boolean show) {
-        showFrame = show;
+        if (show) {
+            view.showFrame();
+        }
+    }
+
+    @ReactProp(name = "frameColor", defaultInt = Color.GREEN)
+    public void setFrameColor(CameraView view, @ColorInt int color) {
+        view.setFrameColor(color);
+    }
+
+    @ReactProp(name = "laserColor", defaultInt = Color.RED)
+    public void setLaserColor(CameraView view, @ColorInt int color) {
+        view.setLaserColor(color);
     }
 
     public static synchronized Rect getFramingRectInPreview(int previewWidth, int previewHeight) {

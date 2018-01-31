@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.hardware.Camera;
+import android.support.annotation.ColorInt;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -21,8 +22,10 @@ public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
     private ThemedReactContext context;
     private SurfaceView surface;
 
-    private static Rect viewFrameRect;
-    private static IViewFinder viewFinder;
+    private Rect viewFrameRect;
+    private IViewFinder viewFinder;
+    @ColorInt private int frameColor = Color.GREEN;
+    @ColorInt private int laserColor = Color.RED;
 
     public CameraView(ThemedReactContext context) {
         super(context);
@@ -104,10 +107,10 @@ public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
         requestLayout();
     }
 
-    private static IViewFinder createViewFinderView(Context context) {
+    private IViewFinder createViewFinderView(Context context) {
         ViewFinderView viewFinderView = new ViewFinderView(context);
-        viewFinderView.setBorderColor(Color.GREEN);
-        viewFinderView.setLaserColor(Color.RED);
+        viewFinderView.setBorderColor(frameColor);
+        viewFinderView.setLaserColor(laserColor);
         viewFinderView.setLaserEnabled(true);
         viewFinderView.setBorderStrokeWidth(5);
         viewFinderView.setBorderLineLength(60);
@@ -146,5 +149,19 @@ public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
             }
         }
         return viewFrameRect;
+    }
+
+    public void setFrameColor(@ColorInt int color) {
+        this.frameColor = color;
+        if (viewFinder != null) {
+            viewFinder.setBorderColor(frameColor);
+        }
+    }
+
+    public void setLaserColor(@ColorInt int color) {
+        this.laserColor = color;
+        if (viewFinder != null) {
+            viewFinder.setLaserColor(laserColor);
+        }
     }
 }

@@ -140,6 +140,8 @@ export default class CameraScreenBase extends Component {
               cameraOptions={this.state.cameraOptions}
               showFrame={true}
               scanBarcode={true}
+              laserColor={"blue"}
+              frameColor={"yellow"}
               onReadCode={((event) => console.log('QRCODE', event.nativeEvent.qrcodeStringValue))}
             />
         }
