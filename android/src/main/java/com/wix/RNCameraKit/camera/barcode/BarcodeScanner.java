@@ -172,47 +172,46 @@ public class BarcodeScanner {
         }
     }
 
-    public PlanarYUVLuminanceSource buildLuminanceSource(byte[] data, int width, int height) {
-//        Rect rect = CameraViewManager.getFramingRectInPreview(width, height);
-        Rect rect = new Rect(0, 0, width, height);
-        if (rect == null) {
-            return null;
-        }
-        // Go ahead and assume it's YUV rather than die.
-        PlanarYUVLuminanceSource source = null;
+    private PlanarYUVLuminanceSource buildLuminanceSource(byte[] data, int width, int height) {
+      Rect rect = CameraViewManager.getFramingRectInPreview(width, height);
+      if (rect == null) {
+          return null;
+      }
+      // Go ahead and assume it's YUV rather than die.
+      PlanarYUVLuminanceSource source = null;
 
-        try {
-            source = new PlanarYUVLuminanceSource(data, width, height, rect.left, rect.top,
-                    rect.width(), rect.height(), false);
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
+      try {
+          source = new PlanarYUVLuminanceSource(data, width, height, rect.left, rect.top,
+                  rect.width(), rect.height(), false);
+      } catch(Exception e) {
+          e.printStackTrace();
+      }
 
-        return source;
-    }
+      return source;
+  }
 
-    public static byte[] getRotatedData(byte[] data, Camera camera) {
-        Camera.Parameters parameters = camera.getParameters();
-        Camera.Size size = parameters.getPreviewSize();
-        int width = size.width;
-        int height = size.height;
+    private static byte[] getRotatedData(byte[] data, Camera camera) {
+      Camera.Parameters parameters = camera.getParameters();
+      Camera.Size size = parameters.getPreviewSize();
+      int width = size.width;
+      int height = size.height;
 
-        int rotationCount = CameraViewManager.getRotationCount();
+      int rotationCount = CameraViewManager.getRotationCount();
 
-        if (rotationCount == 1 || rotationCount == 3) {
-            for (int i = 0; i < rotationCount; i++) {
-                byte[] rotatedData = new byte[data.length];
-                for (int y = 0; y < height; y++) {
-                    for (int x = 0; x < width; x++)
-                        rotatedData[x * height + height - y - 1] = data[x + y * width];
-                }
-                data = rotatedData;
-                int tmp = width;
-                width = height;
-                height = tmp;
-            }
-        }
+      if (rotationCount == 1 || rotationCount == 3) {
+          for (int i = 0; i < rotationCount; i++) {
+              byte[] rotatedData = new byte[data.length];
+              for (int y = 0; y < height; y++) {
+                  for (int x = 0; x < width; x++)
+                      rotatedData[x * height + height - y - 1] = data[x + y * width];
+              }
+              data = rotatedData;
+              int tmp = width;
+              width = height;
+              height = tmp;
+          }
+      }
 
-        return data;
-    }
+      return data;
+  }
 }

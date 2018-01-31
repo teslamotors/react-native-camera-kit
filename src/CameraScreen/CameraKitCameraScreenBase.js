@@ -37,14 +37,14 @@ export default class CameraScreenBase extends Component {
       mode: FLASH_MODE_AUTO,
       image: _.get(this.props, 'flashImages.auto')
     },
-      {
-        mode: FLASH_MODE_ON,
-        image: _.get(this.props, 'flashImages.on')
-      },
-      {
-        mode: FLASH_MODE_OFF,
-        image: _.get(this.props, 'flashImages.off')
-      }
+    {
+      mode: FLASH_MODE_ON,
+      image: _.get(this.props, 'flashImages.on')
+    },
+    {
+      mode: FLASH_MODE_OFF,
+      image: _.get(this.props, 'flashImages.off')
+    }
     ];
     this.state = {
       captureImages: [],
@@ -130,15 +130,18 @@ export default class CameraScreenBase extends Component {
       <View style={styles.cameraContainer}>
         {
           this.isCaptureRetakeMode() ?
-          <Image
-            style={{flex: 1, justifyContent: 'flex-end'}}
-            source={{uri: this.state.imageCaptured.uri}}
-          /> :
-          <CameraKitCamera
-            ref={(cam) => this.camera = cam}
-            style={{flex: 1, justifyContent: 'flex-end'}}
-            cameraOptions={this.state.cameraOptions}
-          />
+            <Image
+              style={{ flex: 1, justifyContent: 'flex-end' }}
+              source={{ uri: this.state.imageCaptured.uri }}
+            /> :
+            <CameraKitCamera
+              ref={(cam) => this.camera = cam}
+              style={{ flex: 1, justifyContent: 'flex-end' }}
+              cameraOptions={this.state.cameraOptions}
+              showFrame={true}
+              scanBarcode={true}
+              onReadCode={((event) => console.log('NIGA', event))}
+            />
         }
       </View>
     );

@@ -277,7 +277,6 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
         scanner.setResultHandler(new BarcodeScanner.ResultHandler() {
             @Override
             public void handleResult(Result rawResult) {
-                Log.i("NIGA", "result = " + rawResult.getText());
                 WritableMap event = Arguments.createMap();
                 event.putString("qrcodeStringValue", rawResult.getText());
                 reactContext.getJSModule(RCTEventEmitter.class).receiveEvent(cameraViews.peek().getId(), "onReadCode", event);
@@ -294,29 +293,17 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
                 .build();
     }
 
-    //    public static synchronized Rect getFramingRectInPreview(int previewWidth, int previewHeight) {
-//        if (mFramingRectInPreview == null) {
-//            Rect framingRect = mViewFinderView.getFramingRect();
-//            int viewFinderViewWidth = mViewFinderView.getWidth();
-//            int viewFinderViewHeight = mViewFinderView.getHeight();
-//            if (framingRect == null || viewFinderViewWidth == 0 || viewFinderViewHeight == 0) {
-//                return null;
-//            }
-//
-//            Rect rect = new Rect(framingRect);
-//
-//            if (previewWidth < viewFinderViewWidth) {
-//                rect.left = rect.left * previewWidth / viewFinderViewWidth;
-//                rect.right = rect.right * previewWidth / viewFinderViewWidth;
-//            }
-//
-//            if (previewHeight < viewFinderViewHeight) {
-//                rect.top = rect.top * previewHeight / viewFinderViewHeight;
-//                rect.bottom = rect.bottom * previewHeight / viewFinderViewHeight;
-//            }
-//
-//            mFramingRectInPreview = rect;
-//        }
-//        return mFramingRectInPreview;
-//    }
+    @ReactProp(name = "scanBarcode")
+    public void setShouldScan(CameraView view, boolean scanBarcode) {
+        shouldScan = scanBarcode;
+    }
+
+    @ReactProp(name = "showFrame", defaultBoolean = false)
+    public void setFrame(CameraView view, boolean show) {
+        showFrame = show;
+    }
+
+    public static synchronized Rect getFramingRectInPreview(int previewWidth, int previewHeight) {
+        return cameraViews.peek().getFramingRectInPreview(previewWidth, previewHeight);
+    }
 }
