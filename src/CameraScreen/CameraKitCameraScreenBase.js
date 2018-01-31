@@ -140,7 +140,7 @@ export default class CameraScreenBase extends Component {
               cameraOptions={this.state.cameraOptions}
               showFrame={true}
               scanBarcode={true}
-              onReadCode={((event) => console.log('NIGA', event))}
+              onReadCode={((event) => console.log('QRCODE', event.nativeEvent.qrcodeStringValue))}
             />
         }
       </View>

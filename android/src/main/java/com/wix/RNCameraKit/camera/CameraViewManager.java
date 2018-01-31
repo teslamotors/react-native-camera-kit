@@ -7,7 +7,6 @@ import android.graphics.Rect;
 import android.hardware.Camera;
 import android.hardware.SensorManager;
 import android.support.annotation.IntRange;
-import android.util.Log;
 import android.view.Display;
 import android.view.OrientationEventListener;
 import android.view.WindowManager;
@@ -17,6 +16,7 @@ import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.common.MapBuilder;
 import com.facebook.react.uimanager.SimpleViewManager;
 import com.facebook.react.uimanager.ThemedReactContext;
+import com.facebook.react.uimanager.annotations.ReactProp;
 import com.facebook.react.uimanager.events.RCTEventEmitter;
 import com.google.zxing.Result;
 import com.wix.RNCameraKit.Utils;
@@ -46,6 +46,7 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     private static AtomicBoolean cameraReleased = new AtomicBoolean(false);
 
     private static boolean shouldScan = true;
+    private static boolean showFrame = true;
     private static BarcodeScanner scanner;
     private static Camera.PreviewCallback previewCallback = new Camera.PreviewCallback() {
         @Override
@@ -162,6 +163,9 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
                             camera.setPreviewDisplay(cameraViews.peek().getHolder());
                             if (shouldScan) {
                                 camera.setOneShotPreviewCallback(previewCallback);
+                            }
+                            if (showFrame) {
+                                cameraViews.peek().showFrame();
                             }
                             camera.startPreview();
                         } catch (IOException | RuntimeException e) {
