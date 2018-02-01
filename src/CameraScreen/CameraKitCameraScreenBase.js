@@ -138,11 +138,11 @@ export default class CameraScreenBase extends Component {
               ref={(cam) => this.camera = cam}
               style={{ flex: 1, justifyContent: 'flex-end' }}
               cameraOptions={this.state.cameraOptions}
-              showFrame={true}
-              scanBarcode={true}
-              laserColor={"blue"}
-              frameColor={"yellow"}
-              onReadCode={((event) => console.log('QRCODE', event.nativeEvent.qrcodeStringValue))}
+              showFrame={this.props.showFrame}
+              scanBarcode={this.props.scanBarcode}
+              laserColor={this.props.laserColor}
+              frameColor={this.props.frameColor}
+              onReadCode={this.props.onReadCode}
             />
         }
       </View>

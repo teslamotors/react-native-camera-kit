@@ -16,6 +16,7 @@ import {
 import CameraScreen from './src/CameraScreen';
 import AlbumsScreen from './src/AlbumsScreen';
 import GalleryScreen from './src/GalleryScreen';
+import BarcodeScreen from './src/BarcodeScreen';
 
 class example extends Component {
 
@@ -42,6 +43,12 @@ class example extends Component {
 
 
         <View style={styles.container}>
+          <TouchableOpacity onPress={() => this.setState({ example: BarcodeScreen })}>
+            <Text style={styles.buttonText}>
+              Barcode scanner Screen
+            </Text>
+          </TouchableOpacity>
+
           <TouchableOpacity onPress={() => this.setState({ example: CameraScreen })}>
             <Text style={styles.buttonText}>
               Camera Screen
@@ -71,7 +78,6 @@ class example extends Component {
               Photos Autotization Status
             </Text>
           </TouchableOpacity>
-
         </View>
 
       </View>
