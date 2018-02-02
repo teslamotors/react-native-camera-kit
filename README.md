@@ -36,6 +36,24 @@ Add the following to your project's `settings.gradle` file:
 + project(':rncamerakit').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-camera-kit/android/')
 ```
 
+
+To support the Kotlin part, please add the following to your project's `build.gradle` file:
+
+```diff
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.2.+'
++       classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.2.10"
+    }
+    
+}
+
+```
+
+
 Then add to your app `app/build.gradle` in the `dependencies` section:
 
 ```diff
