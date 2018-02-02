@@ -217,7 +217,7 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     }
 
     private static Camera.Size getOptimalPreviewSize(List<Camera.Size> sizes, int w, int h) {
-        final double ASPECT_TOLERANCE = 0.1;
+        final double ASPECT_TOLERANCE = 0.15;
         double targetRatio = (double) h / w;
         if (sizes == null) return null;
         Camera.Size optimalSize = null;
