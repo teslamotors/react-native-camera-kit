@@ -1,4 +1,4 @@
-package com.wix.RNCameraKit.camera;
+package com.wix.RNCameraKit.camera.view;
 
 import android.app.Activity;
 import android.hardware.Camera;
@@ -9,10 +9,10 @@ import com.wix.RNCameraKit.DeviceUtils;
 import static com.wix.RNCameraKit.camera.CameraViewManager.getCameraInfo;
 
 @SuppressWarnings({"MagicNumber", "deprecation"})
-class Orientation {
-    private static final int PORTRAIT_ROTATION = 90;
+public class Orientation {
+    public static final int PORTRAIT_ROTATION = 90;
 
-    static int getDeviceOrientation(Activity activity) {
+    public static int getDeviceOrientation(Activity activity) {
         if (activity == null) return PORTRAIT_ROTATION;
         int rotation = activity.getWindowManager().getDefaultDisplay().getRotation();
         Camera.CameraInfo info = getCameraInfo();
@@ -34,7 +34,7 @@ class Orientation {
         return result;
     }
 
-    static int getSupportedRotation(int rotation) {
+    public static int getSupportedRotation(int rotation) {
         int degrees = convertRotationToSupportedAxis(rotation);
         return isFrontFacingCamera() ? adaptFrontCamera(degrees) : adaptBackCamera(degrees);
     }
