@@ -2,17 +2,17 @@
   "name": "react-native-camera-kit",
   "repository": {
     "type": "git",
-    "url": "https://github.com/wix/react-native-camera-kit.git"
+    "url": "https://github.com/consoleau/react-native-camera-kit.git"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
-  "version": "5.3.19",
+  "version": "5.3.20",
   "description": "Advanced native camera control with pre-defined aspect ratio, crop, etc",
   "author": "Ran Greenberg <rang@wix.com>",
   "nativePackage": true,
   "bugs": {
-    "url": "https://github.com/wix/react-native-camera-kit/issues"
+    "url": "https://github.com/consoleau/react-native-camera-kit/issues"
   },
   "scripts": {
     "xcode": "open example/ios/camera-kit.xcodeproj"
@@ -32,5 +32,5 @@
     "seamless-immutable": "^6.1.0",
     "shell-utils": "*"
   },
-  "homepage": "https://github.com/wix/react-native-camera-kit"
+  "homepage": "https://github.com/consoleau/react-native-camera-kit"
 }
