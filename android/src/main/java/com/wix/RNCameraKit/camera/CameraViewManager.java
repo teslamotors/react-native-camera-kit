@@ -47,12 +47,11 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     private static int currentRotation = 0;
     private static AtomicBoolean cameraReleased = new AtomicBoolean(false);
 
-    private static boolean shouldScan = true;
+    private static boolean shouldScan = false;
     private static BarcodeScanner scanner;
     private static Camera.PreviewCallback previewCallback = new Camera.PreviewCallback() {
         @Override
         public void onPreviewFrame(byte[] data, Camera camera) {
-            //TODO: handle frame
             if (scanner != null) {
                 scanner.onPreviewFrame(data, camera);
             }
@@ -298,9 +297,12 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     @ReactProp(name = "scanBarcode")
     public void setShouldScan(CameraView view, boolean scanBarcode) {
         shouldScan = scanBarcode;
+        if (shouldScan && camera != null) {
+            camera.setOneShotPreviewCallback(previewCallback);
+        }
     }
 
-    @ReactProp(name = "showFrame", defaultBoolean = false)
+    @ReactProp(name = "showFrame")
     public void setFrame(CameraView view, boolean show) {
         if (show) {
             view.showFrame();
