@@ -26,7 +26,6 @@ export default class CameraKitCamera extends React.Component {
   static async requestDeviceCameraAuthorization() {
     const usersAuthorizationAnswer = await NativeCameraAction.requestDeviceCameraAuthorization();
     return usersAuthorizationAnswer;
-
   }
   
   async capture(saveToCameraRoll = true) {

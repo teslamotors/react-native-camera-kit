@@ -37,14 +37,14 @@ export default class CameraScreenBase extends Component {
       mode: FLASH_MODE_AUTO,
       image: _.get(this.props, 'flashImages.auto')
     },
-      {
-        mode: FLASH_MODE_ON,
-        image: _.get(this.props, 'flashImages.on')
-      },
-      {
-        mode: FLASH_MODE_OFF,
-        image: _.get(this.props, 'flashImages.off')
-      }
+    {
+      mode: FLASH_MODE_ON,
+      image: _.get(this.props, 'flashImages.on')
+    },
+    {
+      mode: FLASH_MODE_OFF,
+      image: _.get(this.props, 'flashImages.off')
+    }
     ];
     this.state = {
       captureImages: [],
@@ -130,15 +130,20 @@ export default class CameraScreenBase extends Component {
       <View style={styles.cameraContainer}>
         {
           this.isCaptureRetakeMode() ?
-          <Image
-            style={{flex: 1, justifyContent: 'flex-end'}}
-            source={{uri: this.state.imageCaptured.uri}}
-          /> :
-          <CameraKitCamera
-            ref={(cam) => this.camera = cam}
-            style={{flex: 1, justifyContent: 'flex-end'}}
-            cameraOptions={this.state.cameraOptions}
-          />
+            <Image
+              style={{ flex: 1, justifyContent: 'flex-end' }}
+              source={{ uri: this.state.imageCaptured.uri }}
+            /> :
+            <CameraKitCamera
+              ref={(cam) => this.camera = cam}
+              style={{ flex: 1, justifyContent: 'flex-end' }}
+              cameraOptions={this.state.cameraOptions}
+              showFrame={this.props.showFrame}
+              scanBarcode={this.props.scanBarcode}
+              laserColor={this.props.laserColor}
+              frameColor={this.props.frameColor}
+              onReadCode={this.props.onReadCode}
+            />
         }
       </View>
     );
@@ -195,7 +200,7 @@ export default class CameraScreenBase extends Component {
   }
 
   sendBottomButtonPressedAction(type, captureRetakeMode, image) {
-    if(this.props.onBottomButtonPressed) {
+    if (this.props.onBottomButtonPressed) {
       this.props.onBottomButtonPressed({ type, captureImages: this.state.captureImages, captureRetakeMode, image })
     }
   }
@@ -203,14 +208,14 @@ export default class CameraScreenBase extends Component {
   async onButtonPressed(type) {
     const captureRetakeMode = this.isCaptureRetakeMode();
     if (captureRetakeMode) {
-      if(type === 'left') {
+      if (type === 'left') {
         GalleryManager.deleteTempImage(this.state.imageCaptured.uri);
-        this.setState({imageCaptured: undefined});
+        this.setState({ imageCaptured: undefined });
       }
-      else if(type === 'right') {
+      else if (type === 'right') {
         const result = await GalleryManager.saveImageURLToCameraRoll(this.state.imageCaptured.uri);
-        const savedImage = {...this.state.imageCaptured, ...result}; // Note: Can't just return 'result' as on iOS not all data is returned by the native call (just the ID).
-        this.setState({imageCaptured: undefined, captureImages: _.concat(this.state.captureImages, savedImage)}, () => {
+        const savedImage = { ...this.state.imageCaptured, ...result }; // Note: Can't just return 'result' as on iOS not all data is returned by the native call (just the ID).
+        this.setState({ imageCaptured: undefined, captureImages: _.concat(this.state.captureImages, savedImage) }, () => {
           this.sendBottomButtonPressedAction(type, captureRetakeMode);
         });
       }
@@ -244,7 +249,7 @@ export default class CameraScreenBase extends Component {
 
   renderBottomButtons() {
     return (
-      <View style={[styles.bottomButtons, {backgroundColor: '#ffffff00'}]}>
+      <View style={[styles.bottomButtons, { backgroundColor: '#ffffff00' }]}>
         {this.renderBottomButton('left')}
         {this.renderCaptureButton()}
         {this.renderBottomButton('right')}

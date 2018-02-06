@@ -7,7 +7,7 @@ export {
 	CameraKitGallery,
 	CameraKitCamera,
   CameraKitGalleryView,
-	CameraKitCameraScreen
+  CameraKitCameraScreen,
 };
 
 
