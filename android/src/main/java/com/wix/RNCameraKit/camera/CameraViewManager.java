@@ -135,6 +135,12 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
                         try {
                             camera.stopPreview();
                             camera.setPreviewDisplay(cameraViews.peek().getHolder());
+                            camera.setOneShotPreviewCallback(new Camera.PreviewCallback() {
+                                @Override
+                                public void onPreviewFrame(byte[] bytes, Camera camera) {
+                                    cameraView.onReady();
+                                }
+                            });
                             camera.startPreview();
                         } catch (IOException | RuntimeException e) {
                             e.printStackTrace();

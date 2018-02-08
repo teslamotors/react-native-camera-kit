@@ -22,6 +22,7 @@ public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
 
 
         surface = new SurfaceView(context);
+        surface.setAlpha(0);
         setBackgroundColor(Color.BLACK);
         addView(surface, MATCH_PARENT, MATCH_PARENT);
         surface.getHolder().addCallback(this);
@@ -41,6 +42,10 @@ public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
                 }
             }
         });
+    }
+
+    public void onReady() {
+        surface.setAlpha(1);
     }
 
     @Override
