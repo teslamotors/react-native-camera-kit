@@ -27,6 +27,7 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     private static Camera camera = null;
     private static int currentCamera = 0;
     private static String flashMode = Camera.Parameters.FLASH_MODE_AUTO;
+    private static String autoFocus = Camera.Parameters.FOCUS_MODE_AUTO;
     private static Stack<CameraView> cameraViews = new Stack<>();
     private static ThemedReactContext reactContext;
     private static OrientationEventListener orientationListener;
@@ -49,22 +50,25 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     }
 
     static void setCameraView(CameraView cameraView) {
-        if(!cameraViews.isEmpty() && cameraViews.peek() == cameraView) return;
+        if (!cameraViews.isEmpty() && cameraViews.peek() == cameraView)
+            return;
         CameraViewManager.cameraViews.push(cameraView);
         connectHolder();
         createOrientationListener();
     }
 
     private static void createOrientationListener() {
-        if (orientationListener != null) return;
+        if (orientationListener != null)
+            return;
         orientationListener = new OrientationEventListener(reactContext, SensorManager.SENSOR_DELAY_NORMAL) {
-             @Override
-             public void onOrientationChanged(@IntRange(from = -1, to = 359) int angle) {
-                 if (angle == OrientationEventListener.ORIENTATION_UNKNOWN) return;
-                 setCameraRotation(359 - angle, false);
-             }
-         };
-         orientationListener.enable();
+            @Override
+            public void onOrientationChanged(@IntRange(from = -1, to = 359) int angle) {
+                if (angle == OrientationEventListener.ORIENTATION_UNKNOWN)
+                    return;
+                setCameraRotation(359 - angle, false);
+            }
+        };
+        orientationListener.enable();
     }
 
     static boolean setFlashMode(String mode) {
@@ -82,6 +86,24 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
         } else {
             return false;
         }
+    }
+
+    static boolean setFocusMode(String mode) {
+        if (camera == null) {
+            return false;
+        }
+        Camera.Parameters parameters = camera.getParameters();
+        List focusSupportedModes = parameters.getSupportedFocusModes();
+        if (focusSupportedModes != null && focusSupportedModes.contains(mode)) {
+            autoFocus = mode;
+            parameters.setFocusMode(autoFocus);
+            camera.setParameters(parameters);
+            camera.startPreview();
+            return true;
+        } else {
+            return false;
+        }
+
     }
 
     static boolean changeCamera() {
@@ -116,16 +138,17 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     }
 
     private static void connectHolder() {
-        if (cameraViews.isEmpty()  || cameraViews.peek().getHolder() == null) return;
+        if (cameraViews.isEmpty() || cameraViews.peek().getHolder() == null)
+            return;
 
         new Thread(new Runnable() {
             @Override
             public void run() {
-                if(camera == null) {
+                if (camera == null) {
                     initCamera();
                 }
 
-                if(cameraViews.isEmpty()) {
+                if (cameraViews.isEmpty()) {
                     return;
                 }
 
@@ -153,12 +176,12 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     }
 
     static void removeCameraView() {
-        if(!cameraViews.isEmpty()) {
+        if (!cameraViews.isEmpty()) {
             cameraViews.pop();
         }
-        if(!cameraViews.isEmpty()) {
+        if (!cameraViews.isEmpty()) {
             connectHolder();
-        } else if(camera != null){
+        } else if (camera != null) {
             releaseCamera();
             camera = null;
         }
@@ -175,13 +198,16 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     }
 
     private static void setCameraRotation(int rotation, boolean force) {
-        if (camera == null) return;
+        if (camera == null)
+            return;
         // force Activity's orientation
         int supportedRotation = Orientation.getDeviceOrientation(reactContext.getCurrentActivity());
-        if (supportedRotation == currentRotation && !force) return;
+        if (supportedRotation == currentRotation && !force)
+            return;
         currentRotation = supportedRotation;
 
-        if (cameraReleased.get()) return;
+        if (cameraReleased.get())
+            return;
         Camera.Parameters parameters = camera.getParameters();
         parameters.setRotation(supportedRotation);
         parameters.setPictureFormat(PixelFormat.JPEG);
@@ -197,13 +223,15 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
 
     private static Camera.Size getOptimalPreviewSize(List<Camera.Size> sizes, int w, int h) {
         final double ASPECT_TOLERANCE = 0.1;
-        double targetRatio=(double)h / w;
-        if (sizes == null) return null;
+        double targetRatio = (double) h / w;
+        if (sizes == null)
+            return null;
         Camera.Size optimalSize = null;
         double minDiff = Double.MAX_VALUE;
         for (Camera.Size size : sizes) {
             double ratio = (double) size.width / size.height;
-            if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE) continue;
+            if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE)
+                continue;
             if (Math.abs(size.height - h) < minDiff) {
                 optimalSize = size;
                 minDiff = Math.abs(size.height - h);
@@ -230,7 +258,8 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
             Point size = new Point();
             display.getSize(size);
             size.y = Utils.convertDeviceHeightToSupportedAspectRatio(size.x, size.y);
-            if (camera == null) return;
+            if (camera == null)
+                return;
             List<Camera.Size> supportedPreviewSizes = camera.getParameters().getSupportedPreviewSizes();
             List<Camera.Size> supportedPictureSizes = camera.getParameters().getSupportedPictureSizes();
             Camera.Size optimalSize = getOptimalPreviewSize(supportedPreviewSizes, size.x, size.y);
@@ -239,8 +268,10 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
             parameters.setPreviewSize(optimalSize.width, optimalSize.height);
             parameters.setPictureSize(optimalPictureSize.width, optimalPictureSize.height);
             parameters.setFlashMode(flashMode);
+            parameters.setFocusMode(autoFocus);
             camera.setParameters(parameters);
-        } catch (RuntimeException ignored) {}
+        } catch (RuntimeException ignored) {
+        }
     }
 
     public static void reconnect() {
