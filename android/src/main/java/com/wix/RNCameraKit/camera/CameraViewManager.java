@@ -133,8 +133,9 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
                     @Override
                     public void run() {
                         try {
+                            final CameraView cameraView = cameraViews.peek();
                             camera.stopPreview();
-                            camera.setPreviewDisplay(cameraViews.peek().getHolder());
+                            camera.setPreviewDisplay(cameraView.getHolder());
                             camera.setOneShotPreviewCallback(new Camera.PreviewCallback() {
                                 @Override
                                 public void onPreviewFrame(byte[] bytes, Camera camera) {
