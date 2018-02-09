@@ -6,6 +6,7 @@ import android.graphics.Point;
 import android.hardware.Camera;
 import android.hardware.SensorManager;
 import android.support.annotation.IntRange;
+import android.util.Log;
 import android.view.Display;
 import android.view.OrientationEventListener;
 import android.view.WindowManager;
@@ -13,15 +14,17 @@ import android.view.WindowManager;
 import com.facebook.react.uimanager.SimpleViewManager;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.wix.RNCameraKit.Utils;
+import com.wix.RNCameraKit.camera.view.CameraView;
+import com.wix.RNCameraKit.camera.view.Orientation;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.wix.RNCameraKit.camera.Orientation.getSupportedRotation;
+import static com.wix.RNCameraKit.camera.view.Orientation.getSupportedRotation;
 
-@SuppressWarnings("MagicNumber deprecation") // We're still using Camera API 1, everything is deprecated
+//@SuppressWarnings("MagicNumber deprecation") // We're still using Camera API 1, everything is deprecated
 public class CameraViewManager extends SimpleViewManager<CameraView> {
 
     private static Camera camera = null;
@@ -48,7 +51,7 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
         return new CameraView(reactContext);
     }
 
-    static void setCameraView(CameraView cameraView) {
+    public static void setCameraView(CameraView cameraView) {
         if(!cameraViews.isEmpty() && cameraViews.peek() == cameraView) return;
         CameraViewManager.cameraViews.push(cameraView);
         connectHolder();
@@ -67,7 +70,7 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
          orientationListener.enable();
     }
 
-    static boolean setFlashMode(String mode) {
+    public static boolean setFlashMode(String mode) {
         if (camera == null) {
             return false;
         }
@@ -82,6 +85,38 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
         } else {
             return false;
         }
+    }
+
+    public static boolean setFocusMode(String focusMode) {
+        if (camera == null) {
+            return false;
+        }
+        Camera.Parameters parameters = camera.getParameters();
+        if (parameters.getSupportedFocusModes().contains(focusMode)) {
+            parameters.setFocusMode(focusMode);
+            camera.setParameters(parameters);
+            camera.startPreview();
+            return true;
+        }
+        return false;
+    }
+
+    public static void setFocusingAreas(List<Camera.Area> focusingAreas) {
+        if (camera == null) {
+            return;
+        }
+        Camera.Parameters parameters = camera.getParameters();
+        if (parameters.getMaxNumMeteringAreas() > 0) {
+            parameters.setMeteringAreas(focusingAreas);
+        }
+        if (parameters.getMaxNumFocusAreas() > 0) {
+            if (parameters.getSupportedFocusModes().contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
+                parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+            }
+            parameters.setFocusAreas(focusingAreas);
+        }
+        camera.setParameters(parameters);
+        camera.startPreview();
     }
 
     static boolean changeCamera() {
@@ -145,7 +180,7 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
         }).start();
     }
 
-    static void removeCameraView() {
+    public static void removeCameraView() {
         if(!cameraViews.isEmpty()) {
             cameraViews.pop();
         }
@@ -230,6 +265,12 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
             Camera.Parameters parameters = camera.getParameters();
             parameters.setPreviewSize(optimalSize.width, optimalSize.height);
             parameters.setPictureSize(optimalPictureSize.width, optimalPictureSize.height);
+            if (parameters.getSupportedFocusModes().contains(
+                    Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO)) {
+                parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+            } else {
+                parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+            }
             parameters.setFlashMode(flashMode);
             camera.setParameters(parameters);
         } catch (RuntimeException ignored) {}

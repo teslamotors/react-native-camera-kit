@@ -1,4 +1,4 @@
-package com.wix.RNCameraKit.camera;
+package com.wix.RNCameraKit.camera.view;
 
 import android.graphics.Color;
 import android.hardware.Camera;
@@ -9,35 +9,60 @@ import android.widget.FrameLayout;
 
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.wix.RNCameraKit.Utils;
+import com.wix.RNCameraKit.camera.CameraViewManager;
+
+import java.util.List;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
 public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
     private ThemedReactContext context;
     private SurfaceView surface;
+    private FocusView focusView;
+    private boolean mIsAutoFocusing = false;
 
-    public CameraView(ThemedReactContext context) {
+    public CameraView(final ThemedReactContext context) {
         super(context);
         this.context = context;
 
-
-        surface = new SurfaceView(context);
         setBackgroundColor(Color.BLACK);
+        surface = new SurfaceView(context);
+        focusView = new FocusView(context);
         addView(surface, MATCH_PARENT, MATCH_PARENT);
+        addView(focusView, MATCH_PARENT, MATCH_PARENT);
+        initView();
+    }
+
+    private void initView() {
         surface.getHolder().addCallback(this);
+        focusView.setCameAreasUpdateListener(new CameraAreasUpdateListener() {
+
+            @Override
+            public void onCameraAreasUpdated(List<Camera.Area> areas) {
+                CameraViewManager.setFocusingAreas(areas);
+            }
+        });
         surface.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (CameraViewManager.getCamera() != null) {
-                    try {
+                if (CameraViewManager.getCamera() == null || mIsAutoFocusing) {
+                    return;
+                }
+                try {
+                    mIsAutoFocusing = true;
+                    CameraViewManager.getCamera().cancelAutoFocus();
+                    boolean focusModeSetResult = CameraViewManager.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+                    if (focusModeSetResult) {
                         CameraViewManager.getCamera().autoFocus(new Camera.AutoFocusCallback() {
                             @Override
                             public void onAutoFocus(boolean success, Camera camera) {
+                                mIsAutoFocusing = false;
                             }
                         });
-                    } catch (Exception e) {
-
+                    } else {
+                        mIsAutoFocusing = false;
                     }
+                } catch (Exception ignored) {
                 }
             }
         });
@@ -49,6 +74,7 @@ public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
         int actualPreviewHeight = getResources().getDisplayMetrics().heightPixels;
         int height = Utils.convertDeviceHeightToSupportedAspectRatio(actualPreviewWidth, actualPreviewHeight);
         surface.layout(0, 0, actualPreviewWidth, height);
+        focusView.layout(0, 0, actualPreviewHeight, height);
     }
 
     @Override
