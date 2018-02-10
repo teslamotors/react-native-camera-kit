@@ -194,12 +194,12 @@ Attribute | Values | Description
 `remoteDownloadIndicatorType`    | String (`'spinner'` / `'progress-bar'` / `'progress-pie'`) | iOS only - see [Images stored in iCloud](#images-stored-in-iCloud)
 `remoteDownloadIndicatorColor`   | Color             | iOS only - Color of the remote download indicator to show  
 `onRemoteDownloadChanged`        | Function          | iOS only - Callback when the device curentlly download remote image stored in the iCloud.
-`disableSelectionIcons`          | Integer           | 
-`autoSyncSelection`              | Integer           | 
-`imageQualityOnTap`              | String            | 
-`alwaysBounce`                   | Boolean           | 
-`isHorizontal`                   | Boolean           | Make CollectionView Horizontal, if it is true, set `columnCount` to `1` 
-`iCloudDownloadSimulateTime`     | Integer           | 
+`disableSelectionIcons`          | Integer           | iOS only
+`autoSyncSelection`              | Integer           | iOS only
+`imageQualityOnTap`              | String            | iOS only
+`alwaysBounce`                   | Boolean           | iOS only
+`isHorizontal`                   | Boolean           | iOS only - Make CollectionView Horizontal, if it is true, set `columnCount` to `1` 
+`iCloudDownloadSimulateTime`     | Integer           | iOS only
 
 #### Custom Button
 
@@ -217,7 +217,7 @@ Attribute | Values | Description
 `imagePosition` |`bottom/top-right/left` / `center`|  Selected/Unselected badge image position (Default:`top-right`)
 `overlayColor` |Color| Image selected overlay color
 `imageSizeAndroid` |`large`/`medium`| Android Only - Selected badge image size
-`enable`  | Bool | (Android) enable/disable selecting image
+`enable`  | Bool | Android Only - enable/disable selecting image
 
 #### Images stored in iCloud 
 On iOS images can be stored in iCould if the device is **low on space** which means full-resolution photos automatically replaced with optimized version and full resolution versions are stored in iCloud.
