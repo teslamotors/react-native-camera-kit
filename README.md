@@ -26,6 +26,9 @@ yarn add react-native-camera-kit
 - Drag the `ReactNativeCameraKit.xcodeproj` project file into your project
 - Add `libReactNativeCameraKit.a` to all your target **Linked Frameworks and Libraries** (prone to be forgotten)
 
+To `plist.info` add following Privacies and write proper description:
+- `Privacy - Photo Library Usage Description`
+- `Privacy - Camera Usage Description`
 #### Android
 
 Add the following to your project's `settings.gradle` file:
@@ -92,7 +95,12 @@ Attribute         | Values                 | Description
 #### checkDeviceCameraAuthorizationStatus
 
 ```js
-const isCameraAuthorized = await CameraKitCamera.checkDeviceCameraAuthorizationStatus();
+async componentWillMount() {
+    //To check Camera Privacy
+    const isCameraAuthorized = await CameraKitCamera.checkDeviceCameraAuthorizationStatus();
+    //To check is user authorized Camera Usage
+    const isUserAuthorizedCamera = await CameraKitCamera.requestDeviceCameraAuthorization();
+}
 ```
 
 return values:
@@ -106,7 +114,12 @@ otherwise, returns ```false```
 #### requestDeviceCameraAuthorization
 
 ```js
-const isUserAuthorizedCamera = await CameraKitCamera.requestDeviceCameraAuthorization();
+async componentWillMount() {
+    //To check Photo Library Privacy
+    const isPhotoLibraryAuthorized = await CameraKitGallery.checkDevicePhotosAuthorizationStatus();
+    //To check is user authorized Photo Library Usage
+    const isUserAuthorizedPhotoLibrary = await CameraKitGallery.requestDevicePhotosAuthorization();
+}
 ```
 
 `AVAuthorizationStatusAuthorized` returns `true`
@@ -155,7 +168,7 @@ Native Gallery View (based on `UICollectionView`(iOS) and ` RecyclerView` (Andro
   onTapImage={event => {
     // event.nativeEvent.selected - ALL selected images ids
   }}
-  selectedImages={<MAINTAIN_SELECETED_IMAGES>}
+  selectedImages={<MAINTAIN_SELECETED_IMAGES>}  // it is not required
   selectedImageIcon={require('<IMAGE_FILE_PATH>'))}
   unSelectedImageIcon={require('<IMAGE_FILE_PATH>')}
 />
@@ -167,7 +180,7 @@ Attribute | Values | Description
 `minimumLineSpacing`             | Float             | Minimum line spacing
 `imageStrokeColor`               | Color             | Image stroke color
 `imageStrokeColorWidth`          | Number > 0        | Image stroke color width 
-`albumName`                      | String            | Album name to show
+`albumName`                      | String            | Album name to show, default value is ```All Photos```
 `columnCount`                    | Integer           | How many clumns in one row
 `onTapImage`                     | Function          | Callback when image tapped
 `selectedImages`                 | Array             | Selected images (will show the selected badge)
@@ -204,6 +217,7 @@ Attribute | Values | Description
 `imagePosition` |`bottom/top-right/left` / `center`|  Selected/Unselected badge image position (Default:`top-right`)
 `overlayColor` |Color| Image selected overlay color
 `imageSizeAndroid` |`large`/`medium`| Android Only - Selected badge image size
+`enable`  | Bool | (Android) enable/disable selecting image
 
 #### Images stored in iCloud 
 On iOS images can be stored in iCould if the device is **low on space** which means full-resolution photos automatically replaced with optimized version and full resolution versions are stored in iCloud.
