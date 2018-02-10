@@ -181,6 +181,12 @@ Attribute | Values | Description
 `remoteDownloadIndicatorType`    | String (`'spinner'` / `'progress-bar'` / `'progress-pie'`) | iOS only - see [Images stored in iCloud](#images-stored-in-iCloud)
 `remoteDownloadIndicatorColor`   | Color             | iOS only - Color of the remote download indicator to show  
 `onRemoteDownloadChanged`        | Function          | iOS only - Callback when the device curentlly download remote image stored in the iCloud.
+`disableSelectionIcons`          | Integer           | 
+`autoSyncSelection`              | Integer           | 
+`imageQualityOnTap`              | String            | 
+`alwaysBounce`                   | Boolean           | 
+`isHorizontal`                   | Boolean           | Make CollectionView Horizontal, if it is true, set `columnCount` to `1` 
+`iCloudDownloadSimulateTime`     | Integer           | 
 
 #### Custom Button
 
