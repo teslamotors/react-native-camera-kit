@@ -53,7 +53,8 @@ export default class CameraScreenBase extends Component {
       cameraOptions: {},
       ratioArrayPosition: -1,
       imageCaptured: undefined,
-      captured: false
+      captured: false,
+      scannerOptions : {}
     };
     this.onSetFlash = this.onSetFlash.bind(this);
     this.onSwitchCameraPressed = this.onSwitchCameraPressed.bind(this);
@@ -61,6 +62,7 @@ export default class CameraScreenBase extends Component {
 
   componentDidMount() {
     const cameraOptions = this.getCameraOptions();
+    const scannerOptions = this.getScannerOptions();
     let ratios = [];
     if (this.props.cameraRatioOverlay) {
       ratios = this.props.cameraRatioOverlay.ratios || [];
@@ -94,6 +96,18 @@ export default class CameraScreenBase extends Component {
     return cameraOptions;
   }
 
+  getScannerOptions() {
+    const scannerOptions = this.props.scannerOptions || {}
+    scannerOptions.offsetFrame = this.props.offsetForScannerFrame || 30
+    scannerOptions.frameHeight = this.props.heightForScannerFrame || 200
+    if (this.props.colorForScannerFrame) {
+      scannerOptions.colorForFrame = processColor(this.props.colorForScannerFrame)
+    } else {
+      scannerOptions.colorForFrame = processColor("white")
+    }
+    return scannerOptions;
+  }
+
   renderFlashButton() {
     return !this.isCaptureRetakeMode() &&
       <TouchableOpacity style={{ paddingHorizontal: 15 }} onPress={() => this.onSetFlash(FLASH_MODE_AUTO)}>
@@ -117,12 +131,12 @@ export default class CameraScreenBase extends Component {
   }
 
   renderTopButtons() {
-    return (
+    return !this.props.hideControls && (
       <View style={styles.topButtons}>
         {this.renderFlashButton()}
         {this.renderSwitchCameraButton()}
       </View>
-    );
+    )
   }
 
   renderCamera() {
@@ -142,7 +156,10 @@ export default class CameraScreenBase extends Component {
               scanBarcode={this.props.scanBarcode}
               laserColor={this.props.laserColor}
               frameColor={this.props.frameColor}
-              onReadCode={this.props.onReadCode}
+              
+              onReadQRCode = {this.props.onReadQRCode}
+              scannerOptions = {this.state.scannerOptions}
+              isShowFrameForScanner = {this.props.isShowFrameForScanner}
             />
         }
       </View>
@@ -181,7 +198,7 @@ export default class CameraScreenBase extends Component {
   }
 
   renderRatioStrip() {
-    if (this.state.ratios.length === 0) {
+    if (this.state.ratios.length === 0 || this.props.hideControls) {
       return null;
     }
     return (
@@ -248,8 +265,8 @@ export default class CameraScreenBase extends Component {
   }
 
   renderBottomButtons() {
-    return (
-      <View style={[styles.bottomButtons, { backgroundColor: '#ffffff00' }]}>
+    return !this.props.hideControls && (
+      <View style={[styles.bottomButtons, {backgroundColor: '#ffffff00'}]}>
         {this.renderBottomButton('left')}
         {this.renderCaptureButton()}
         {this.renderBottomButton('right')}
