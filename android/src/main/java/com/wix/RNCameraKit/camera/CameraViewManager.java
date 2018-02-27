@@ -309,6 +309,11 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
         }
     }
 
+    @ReactProp(name = "backgroundColor", defaultInt = Color.BLACK)
+    public void setCameraBgColor(CameraView view, @ColorInt int color) {
+        view.setCameraBgColor(color);
+    }
+
     @ReactProp(name = "frameColor", defaultInt = Color.GREEN)
     public void setFrameColor(CameraView view, @ColorInt int color) {
         view.setFrameColor(color);

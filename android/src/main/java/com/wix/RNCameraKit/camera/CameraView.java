@@ -26,6 +26,7 @@ public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
     private IViewFinder viewFinder;
     @ColorInt private int frameColor = Color.GREEN;
     @ColorInt private int laserColor = Color.RED;
+    @ColorInt private int backgroundColor = Color.BLACK;
 
     public CameraView(ThemedReactContext context) {
         super(context);
@@ -34,6 +35,7 @@ public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
 
         surface = new SurfaceView(context);
         setBackgroundColor(Color.BLACK);
+        surface.setBackgroundColor(backgroundColor);
         addView(surface, MATCH_PARENT, MATCH_PARENT);
         surface.getHolder().addCallback(this);
         surface.setOnClickListener(new OnClickListener() {
@@ -149,6 +151,13 @@ public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
             }
         }
         return viewFrameRect;
+    }
+
+    public void setCameraBgColor(@ColorInt int color) {
+        this.backgroundColor = color;
+        if (surface != null) {
+            surface.setBackgroundColor(backgroundColor);
+        }
     }
 
     public void setFrameColor(@ColorInt int color) {
