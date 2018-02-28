@@ -1,16 +1,22 @@
 package com.wix.RNCameraKit.camera;
 
 import android.content.Context;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Rect;
+import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.support.annotation.ColorInt;
+import android.util.Log;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.TextureView;
 import android.view.View;
 import android.widget.FrameLayout;
 
 import com.facebook.react.uimanager.ThemedReactContext;
+import com.facebook.react.views.art.ARTSurfaceView;
 import com.wix.RNCameraKit.Utils;
 
 import me.dm7.barcodescanner.core.IViewFinder;
@@ -18,26 +24,24 @@ import me.dm7.barcodescanner.core.ViewFinderView;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
-public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
+public class CameraView extends FrameLayout implements TextureView.SurfaceTextureListener {
     private ThemedReactContext context;
-    private SurfaceView surface;
+    private ARTSurfaceView surface;
 
     private Rect viewFrameRect;
     private IViewFinder viewFinder;
     @ColorInt private int frameColor = Color.GREEN;
     @ColorInt private int laserColor = Color.RED;
-    @ColorInt private int backgroundColor = Color.BLACK;
 
     public CameraView(ThemedReactContext context) {
         super(context);
         this.context = context;
 
 
-        surface = new SurfaceView(context);
+        surface = new ARTSurfaceView(context);
         setBackgroundColor(Color.BLACK);
-        surface.setBackgroundColor(backgroundColor);
         addView(surface, MATCH_PARENT, MATCH_PARENT);
-        surface.getHolder().addCallback(this);
+        surface.setSurfaceTextureListener(this);
         surface.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -67,24 +71,8 @@ public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
         }
     }
 
-    @Override
-    public void surfaceCreated(SurfaceHolder holder) {
-        CameraViewManager.setCameraView(this);
-    }
-
-    @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-        CameraViewManager.setCameraView(this);
-    }
-
-    @Override
-    public void surfaceDestroyed(SurfaceHolder holder) {
-        CameraViewManager.removeCameraView();
-    }
-
-
-    public SurfaceHolder getHolder() {
-        return surface.getHolder();
+    public SurfaceTexture getSurfaceTexture() {
+        return surface.getSurfaceTexture();
     }
 
     private final Runnable measureAndLayout = new Runnable() {
@@ -154,10 +142,7 @@ public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
     }
 
     public void setCameraBgColor(@ColorInt int color) {
-        this.backgroundColor = color;
-        if (surface != null) {
-            surface.setBackgroundColor(backgroundColor);
-        }
+        setBackgroundColor(color);
     }
 
     public void setFrameColor(@ColorInt int color) {
@@ -172,5 +157,27 @@ public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
         if (viewFinder != null) {
             viewFinder.setLaserColor(laserColor);
         }
+    }
+
+    @Override
+    public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int width, int height) {
+        CameraViewManager.setCameraView(this);
+    }
+
+    @Override
+    public void onSurfaceTextureSizeChanged(SurfaceTexture surfaceTexture, int width, int height) {
+        CameraViewManager.setCameraView(this);
+    }
+
+    @Override
+    public boolean onSurfaceTextureDestroyed(SurfaceTexture surfaceTexture) {
+        surfaceTexture.release();
+        CameraViewManager.removeCameraView();
+        return false;
+    }
+
+    @Override
+    public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {
+        CameraViewManager.setCameraView(this);
     }
 }

@@ -142,7 +142,7 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     }
 
     private static void connectHolder() {
-        if (cameraViews.isEmpty() || cameraViews.peek().getHolder() == null) return;
+        if (cameraViews.isEmpty() || cameraViews.peek().getSurfaceTexture() == null) return;
 
         new Thread(new Runnable() {
             @Override
@@ -160,7 +160,7 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
                     public void run() {
                         try {
                             camera.stopPreview();
-                            camera.setPreviewDisplay(cameraViews.peek().getHolder());
+                            camera.setPreviewTexture(cameraViews.peek().getSurfaceTexture());
                             if (shouldScan) {
                                 camera.setOneShotPreviewCallback(previewCallback);
                             }
