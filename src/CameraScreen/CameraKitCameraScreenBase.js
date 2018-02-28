@@ -7,7 +7,8 @@ import {
   TouchableOpacity,
   Image,
   NativeModules,
-  Platform
+  Platform,
+  SafeAreaView
 } from 'react-native';
 import _ from 'lodash';
 import CameraKitCamera from './../CameraKitCamera';
@@ -37,14 +38,14 @@ export default class CameraScreenBase extends Component {
       mode: FLASH_MODE_AUTO,
       image: _.get(this.props, 'flashImages.auto')
     },
-    {
-      mode: FLASH_MODE_ON,
-      image: _.get(this.props, 'flashImages.on')
-    },
-    {
-      mode: FLASH_MODE_OFF,
-      image: _.get(this.props, 'flashImages.off')
-    }
+      {
+        mode: FLASH_MODE_ON,
+        image: _.get(this.props, 'flashImages.on')
+      },
+      {
+        mode: FLASH_MODE_OFF,
+        image: _.get(this.props, 'flashImages.off')
+      }
     ];
     this.state = {
       captureImages: [],
@@ -118,10 +119,10 @@ export default class CameraScreenBase extends Component {
 
   renderTopButtons() {
     return (
-      <View style={styles.topButtons}>
+      <SafeAreaView style={styles.topButtons}>
         {this.renderFlashButton()}
         {this.renderSwitchCameraButton()}
-      </View>
+      </SafeAreaView>
     );
   }
 
@@ -249,11 +250,11 @@ export default class CameraScreenBase extends Component {
 
   renderBottomButtons() {
     return (
-      <View style={[styles.bottomButtons, { backgroundColor: '#ffffff00' }]}>
+      <SafeAreaView style={[styles.bottomButtons, { backgroundColor: '#ffffff00' }]}>
         {this.renderBottomButton('left')}
         {this.renderCaptureButton()}
         {this.renderBottomButton('right')}
-      </View>
+      </SafeAreaView>
     );
   }
 
