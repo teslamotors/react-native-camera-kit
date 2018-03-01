@@ -54,6 +54,12 @@ And in the package list in the same file (e.g. `getPackages`) add:
 + new RNCameraKitPackage()
 ```
 
+## Running the example project
+
+- ```cd example```
+- ```yarn``` or ```npm install```
+- ```react-native run-ios``` or ```react-native run-android``` 
+
 ## APIs
 
 ### CameraKitCamera - Camera component 
