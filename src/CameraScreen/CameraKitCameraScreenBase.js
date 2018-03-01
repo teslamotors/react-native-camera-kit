@@ -9,7 +9,7 @@ import {
   NativeModules,
   Platform,
   SafeAreaView,
-  processColor
+  processColor  
 } from 'react-native';
 import _ from 'lodash';
 import CameraKitCamera from './../CameraKitCamera';
@@ -71,6 +71,7 @@ export default class CameraScreenBase extends Component {
     }
     this.setState({
       cameraOptions,
+      scannerOptions,
       ratios: (ratios || []),
       ratioArrayPosition: ((ratios.length > 0) ? 0 : -1)
     });
