@@ -25,7 +25,6 @@ yarn add react-native-camera-kit
 - Locate the module lib folder in your node modules: `PROJECT_DIR/node_modules/react-native-camera-kit/ios/lib`
 - Drag the `ReactNativeCameraKit.xcodeproj` project file into your project
 - Add `libReactNativeCameraKit.a` to all your target **Linked Frameworks and Libraries** (prone to be forgotten)
-- Add to your project ```info.plist``` the keys ```Privacy - Camera Usage Description``` and ```Privacy - Photo Library Usage Description``` as described [here](https://developer.apple.com/library/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html).
 
 #### Android
 
@@ -54,12 +53,6 @@ And in the package list in the same file (e.g. `getPackages`) add:
 ```diff
 + new RNCameraKitPackage()
 ```
-
-## Running the example project
-
-- ```cd example```
-- ```yarn``` or ```npm install``` (the ```yarn```/```npm``` should be in the example folder)
-- ```react-native run-ios``` or ```react-native run-android``` 
 
 ## APIs
 
