@@ -160,7 +160,7 @@ export default class CameraScreenBase extends Component {
               laserColor={this.props.laserColor}
               frameColor={this.props.frameColor}
               
-              onReadQRCode = {this.props.onReadQRCode}
+              onReadCode = {this.props.onReadCode}
               scannerOptions = {this.state.scannerOptions}
               isShowFrameForScanner = {this.props.isShowFrameForScanner}
             />

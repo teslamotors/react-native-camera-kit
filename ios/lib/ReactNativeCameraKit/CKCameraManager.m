@@ -26,7 +26,7 @@ RCT_EXPORT_MODULE()
 }
 
 RCT_EXPORT_VIEW_PROPERTY(cameraOptions, NSDictionary)
-RCT_EXPORT_VIEW_PROPERTY(onReadQRCode, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onReadCode, RCTDirectEventBlock)
 
 RCT_EXPORT_VIEW_PROPERTY(scannerOptions, NSDictionary)
 RCT_EXPORT_VIEW_PROPERTY(isShowFrameForScanner, BOOL)

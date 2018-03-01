@@ -96,6 +96,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 // frame for Scanner
 @property (nonatomic, strong) NSDictionary *scannerOptions;
 @property (nonatomic) BOOL isShowFrameForScanner;
+@property (nonatomic) UIView *greenScanner;
 
 @property (nonatomic) CGFloat frameOffset;
 @property (nonatomic) CGFloat heightFrame;
@@ -107,7 +108,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 @property (nonatomic) CKCameraZoomMode zoomMode;
 @property (nonatomic, strong) NSString* ratioOverlayString;
 @property (nonatomic, strong) UIColor *ratioOverlayColor;
-@property (nonatomic, strong) RCTDirectEventBlock onReadQRCode;
+@property (nonatomic, strong) RCTDirectEventBlock onReadCode;
 
 @property (nonatomic) BOOL isAddedOberver;
 
@@ -295,7 +296,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         else {
             self.setupResult = CKSetupResultSessionConfigurationFailed;
         }
-        if (self.onReadQRCode) {//TODO check if qrcode mode is on
+        if (self.onReadCode) {//TODO check if qrcode mode is on
             self.metadataOutput = [[AVCaptureMetadataOutput alloc] init];
             [self.session addOutput:self.metadataOutput];
             [self.metadataOutput setMetadataObjectsDelegate:self queue:dispatch_get_main_queue()];
@@ -914,13 +915,17 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 }
 
 - (void)startAnimatingScanner:(UIView *)inputView {
-    UIView *greenScanner = [[UIView alloc] initWithFrame:CGRectMake(0, 0, inputView.frame.size.width, 2)];
-    greenScanner.backgroundColor = [UIColor whiteColor];
-    [inputView addSubview:greenScanner];
+    self.greenScanner = [[UIView alloc] initWithFrame:CGRectMake(0, 0, inputView.frame.size.width, 2)];
+    self.greenScanner.backgroundColor = [UIColor whiteColor];
+    [inputView addSubview:self.greenScanner];
     [UIView animateWithDuration:3 delay:0 options:(UIViewAnimationOptionAutoreverse | UIViewAnimationOptionRepeat) animations:^{
         CGFloat middleX = inputView.frame.size.width / 2;
-        greenScanner.center = CGPointMake(middleX, inputView.frame.size.height);
+        self.greenScanner.center = CGPointMake(middleX, inputView.frame.size.height);
     } completion:^(BOOL finished) {}];
+}
+
+- (void)stopAnimatingScanner {
+    [self.greenScanner removeFromSuperview];
 }
 
 #pragma mark - observers
@@ -1045,9 +1050,10 @@ didOutputMetadataObjects:(NSArray<__kindof AVMetadataObject *> *)metadataObjects
         if ([metadataObject isKindOfClass:[AVMetadataMachineReadableCodeObject class]] && [self isSupportedBarCodeType:metadataObject.type]) {
             AVMetadataMachineReadableCodeObject *code = (AVMetadataMachineReadableCodeObject*)[self.previewLayer transformedMetadataObjectForMetadataObject:metadataObject];
             
-            if (self.onReadQRCode && code.stringValue && ![code.stringValue isEqualToString:self.qrcodeStringValue]) {
+            if (self.onReadCode && code.stringValue && ![code.stringValue isEqualToString:self.qrcodeStringValue]) {
                 self.qrcodeStringValue = code.stringValue;
-                self.onReadQRCode(@{@"qrcodeStringValue": code.stringValue});
+                self.onReadCode(@{@"qrcodeStringValue": code.stringValue});
+                [self stopAnimatingScanner];
             }
         }
     }
