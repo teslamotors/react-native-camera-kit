@@ -8,7 +8,8 @@ import {
   Image,
   NativeModules,
   Platform,
-  SafeAreaView
+  SafeAreaView,
+  processColor 
 } from 'react-native';
 import _ from 'lodash';
 import CameraKitCamera from './../CameraKitCamera';
