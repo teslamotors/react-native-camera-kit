@@ -21,6 +21,8 @@ const FLASH_MODE_AUTO = 'auto';
 const FLASH_MODE_ON = 'on';
 const FLASH_MODE_OFF = 'off';
 const OVERLAY_DEFAULT_COLOR = '#ffffff77';
+const OFFSET_FRAME = 30;
+const FRAME_HEIGHT = 200;
 
 export default class CameraScreenBase extends Component {
 
@@ -100,13 +102,13 @@ export default class CameraScreenBase extends Component {
   }
 
   getScannerOptions() {
-    const scannerOptions = this.props.scannerOptions || {}
-    scannerOptions.offsetFrame = this.props.offsetForScannerFrame || 30
-    scannerOptions.frameHeight = this.props.heightForScannerFrame || 200
+    const scannerOptions = this.props.scannerOptions || {};
+    scannerOptions.offsetFrame = this.props.offsetForScannerFrame || OFFSET_FRAME;
+    scannerOptions.frameHeight = this.props.heightForScannerFrame || FRAME_HEIGHT;
     if (this.props.colorForScannerFrame) {
-      scannerOptions.colorForFrame = processColor(this.props.colorForScannerFrame)
+      scannerOptions.colorForFrame = processColor(this.props.colorForScannerFrame);
     } else {
-      scannerOptions.colorForFrame = processColor("white")
+      scannerOptions.colorForFrame = processColor("white");
     }
     return scannerOptions;
   }

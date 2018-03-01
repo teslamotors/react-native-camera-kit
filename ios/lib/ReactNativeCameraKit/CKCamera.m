@@ -85,7 +85,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 @property (nonatomic) AVCaptureMovieFileOutput *movieFileOutput;
 @property (nonatomic) AVCaptureStillImageOutput *stillImageOutput;
 @property (nonatomic, strong) AVCaptureMetadataOutput *metadataOutput;
-@property (nonatomic, strong) NSString *qrcodeStringValue;
+@property (nonatomic, strong) NSString *codeStringValue;
 
 
 // utilities
@@ -1050,9 +1050,9 @@ didOutputMetadataObjects:(NSArray<__kindof AVMetadataObject *> *)metadataObjects
         if ([metadataObject isKindOfClass:[AVMetadataMachineReadableCodeObject class]] && [self isSupportedBarCodeType:metadataObject.type]) {
             AVMetadataMachineReadableCodeObject *code = (AVMetadataMachineReadableCodeObject*)[self.previewLayer transformedMetadataObjectForMetadataObject:metadataObject];
             
-            if (self.onReadCode && code.stringValue && ![code.stringValue isEqualToString:self.qrcodeStringValue]) {
-                self.qrcodeStringValue = code.stringValue;
-                self.onReadCode(@{@"qrcodeStringValue": code.stringValue});
+            if (self.onReadCode && code.stringValue && ![code.stringValue isEqualToString:self.codeStringValue]) {
+                self.codeStringValue = code.stringValue;
+                self.onReadCode(@{@"codeStringValue": code.stringValue});
                 [self stopAnimatingScanner];
             }
         }
