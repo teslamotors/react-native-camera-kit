@@ -8,7 +8,8 @@ import {
   Image,
   NativeModules,
   Platform,
-  SafeAreaView
+  SafeAreaView,
+  processColor  
 } from 'react-native';
 import _ from 'lodash';
 import CameraKitCamera from './../CameraKitCamera';
@@ -20,6 +21,8 @@ const FLASH_MODE_AUTO = 'auto';
 const FLASH_MODE_ON = 'on';
 const FLASH_MODE_OFF = 'off';
 const OVERLAY_DEFAULT_COLOR = '#ffffff77';
+const OFFSET_FRAME = 30;
+const FRAME_HEIGHT = 200;
 
 export default class CameraScreenBase extends Component {
 
@@ -54,7 +57,8 @@ export default class CameraScreenBase extends Component {
       cameraOptions: {},
       ratioArrayPosition: -1,
       imageCaptured: undefined,
-      captured: false
+      captured: false,
+      scannerOptions : {}
     };
     this.onSetFlash = this.onSetFlash.bind(this);
     this.onSwitchCameraPressed = this.onSwitchCameraPressed.bind(this);
@@ -62,12 +66,14 @@ export default class CameraScreenBase extends Component {
 
   componentDidMount() {
     const cameraOptions = this.getCameraOptions();
+    const scannerOptions = this.getScannerOptions();
     let ratios = [];
     if (this.props.cameraRatioOverlay) {
       ratios = this.props.cameraRatioOverlay.ratios || [];
     }
     this.setState({
       cameraOptions,
+      scannerOptions,
       ratios: (ratios || []),
       ratioArrayPosition: ((ratios.length > 0) ? 0 : -1)
     });
@@ -95,6 +101,18 @@ export default class CameraScreenBase extends Component {
     return cameraOptions;
   }
 
+  getScannerOptions() {
+    const scannerOptions = this.props.scannerOptions || {};
+    scannerOptions.offsetFrame = this.props.offsetForScannerFrame || OFFSET_FRAME;
+    scannerOptions.frameHeight = this.props.heightForScannerFrame || FRAME_HEIGHT;
+    if (this.props.colorForScannerFrame) {
+      scannerOptions.colorForFrame = processColor(this.props.colorForScannerFrame);
+    } else {
+      scannerOptions.colorForFrame = processColor("white");
+    }
+    return scannerOptions;
+  }
+
   renderFlashButton() {
     return !this.isCaptureRetakeMode() &&
       <TouchableOpacity style={{ paddingHorizontal: 15 }} onPress={() => this.onSetFlash(FLASH_MODE_AUTO)}>
@@ -118,11 +136,11 @@ export default class CameraScreenBase extends Component {
   }
 
   renderTopButtons() {
-    return (
-      <SafeAreaView style={styles.topButtons}>
-        {this.renderFlashButton()}
-        {this.renderSwitchCameraButton()}
-      </SafeAreaView>
+    return !this.props.hideControls && (
+        <SafeAreaView style={styles.topButtons}>
+            {this.renderFlashButton()}
+            {this.renderSwitchCameraButton()}
+        </SafeAreaView>
     );
   }
 
@@ -143,7 +161,10 @@ export default class CameraScreenBase extends Component {
               scanBarcode={this.props.scanBarcode}
               laserColor={this.props.laserColor}
               frameColor={this.props.frameColor}
-              onReadCode={this.props.onReadCode}
+              
+              onReadCode = {this.props.onReadCode}
+              scannerOptions = {this.state.scannerOptions}
+              isShowFrameForScanner = {this.props.isShowFrameForScanner}
             />
         }
       </View>
@@ -182,7 +203,7 @@ export default class CameraScreenBase extends Component {
   }
 
   renderRatioStrip() {
-    if (this.state.ratios.length === 0) {
+    if (this.state.ratios.length === 0 || this.props.hideControls) {
       return null;
     }
     return (
@@ -249,7 +270,7 @@ export default class CameraScreenBase extends Component {
   }
 
   renderBottomButtons() {
-    return (
+    return !this.props.hideControls && (
       <SafeAreaView style={[styles.bottomButtons, { backgroundColor: '#ffffff00' }]}>
         {this.renderBottomButton('left')}
         {this.renderCaptureButton()}

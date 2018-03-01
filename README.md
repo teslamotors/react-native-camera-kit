@@ -25,7 +25,6 @@ yarn add react-native-camera-kit
 - Locate the module lib folder in your node modules: `PROJECT_DIR/node_modules/react-native-camera-kit/ios/lib`
 - Drag the `ReactNativeCameraKit.xcodeproj` project file into your project
 - Add `libReactNativeCameraKit.a` to all your target **Linked Frameworks and Libraries** (prone to be forgotten)
-- Add to your project ```info.plist``` the keys ```Privacy - Camera Usage Description``` and ```Privacy - Photo Library Usage Description``` as described [here](https://developer.apple.com/library/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html).
 
 #### Android
 
@@ -54,12 +53,6 @@ And in the package list in the same file (e.g. `getPackages`) add:
 ```diff
 + new RNCameraKitPackage()
 ```
-
-## Running the example project
-
-- ```cd example```
-- ```yarn``` or ```npm install``` (the ```yarn```/```npm``` should be in the example folder)
-- ```react-native run-ios``` or ```react-native run-android``` 
 
 ## APIs
 
@@ -223,9 +216,22 @@ Attribute | Values
  >In order to simulate this loading behaviour, since reach low on storage situation is hard, add this prop `iCloudDownloadSimulateTime={TIME_IN_SECONDS}`, just **DO NOT FORGET TO REMOVE IT**.
 
 ## QR Code 
+```js
+<CameraKitCameraScreen
+    actions={{ rightButtonText: 'Done', leftButtonText: 'Cancel' }}
+    onBottomButtonPressed={(event) => this.onBottomButtonPressed(event)}
+    scanBarcode={true}
+    laserColor={"blue"}
+    frameColor={"yellow"}
 
-Want/Need QR Code support embed in this package, please vote [HERE](https://github.com/wix/react-native-camera-kit/issues/60) 
-
+    onReadQRCode={((event) => Alert.alert("Qr code found"))} //optional
+    hideControls={false}           //(default false) optional, hide buttons and additional controls on top and bottom of screen
+    isShowFrameForScanner={true}   //(default false) optional, show frame with transparent layer (qr code or barcode will be read on this area ONLY), start animation for scanner,that stoped when find any code. Frame always at center of the screen
+    offsetForScannerFrame = {10}   //(default 30) optional, offset from left and right side of the screen
+    heightForScannerFrame = {300}  //(default 200) optional, change height of the scanner frame
+    colorForScannerFrame = {'red'} //(default white) optional, change colot of the scanner frame
+/>
+```
 
 ## Credits
 
