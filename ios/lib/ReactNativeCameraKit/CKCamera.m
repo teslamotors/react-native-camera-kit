@@ -1059,7 +1059,7 @@ didOutputMetadataObjects:(NSArray<__kindof AVMetadataObject *> *)metadataObjects
     }
 }
 
-- (BOOL)isSupportedBarCodeType:(AVMetadataObjectType)currentType {
+- (BOOL)isSupportedBarCodeType:(NSString*)currentType {
     BOOL result = NO;
     NSArray *supportedBarcodeTypes = @[AVMetadataObjectTypeUPCECode,AVMetadataObjectTypeCode39Code,AVMetadataObjectTypeCode39Mod43Code,
                                        AVMetadataObjectTypeEAN13Code,AVMetadataObjectTypeEAN8Code, AVMetadataObjectTypeCode93Code,
