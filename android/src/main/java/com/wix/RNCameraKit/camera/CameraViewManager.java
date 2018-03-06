@@ -279,7 +279,7 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
             @Override
             public void handleResult(Result rawResult) {
                 WritableMap event = Arguments.createMap();
-                event.putString("qrcodeStringValue", rawResult.getText());
+                event.putString("codeStringValue", rawResult.getText());
                 reactContext.getJSModule(RCTEventEmitter.class).receiveEvent(cameraViews.peek().getId(), "onReadCode", event);
             }
         });
