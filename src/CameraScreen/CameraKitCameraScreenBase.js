@@ -164,7 +164,6 @@ export default class CameraScreenBase extends Component {
               
               onReadCode = {this.props.onReadCode}
               scannerOptions = {this.state.scannerOptions}
-              isShowFrameForScanner = {this.props.isShowFrameForScanner}
             />
         }
       </View>

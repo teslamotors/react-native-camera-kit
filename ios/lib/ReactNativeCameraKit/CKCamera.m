@@ -95,7 +95,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 // frame for Scanner
 @property (nonatomic, strong) NSDictionary *scannerOptions;
-@property (nonatomic) BOOL isShowFrameForScanner;
+@property (nonatomic) BOOL showFrame;
 @property (nonatomic) UIView *greenScanner;
 
 @property (nonatomic) CGFloat frameOffset;
@@ -363,7 +363,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
                 [self addObservers];
                 [self.session startRunning];
                 self.sessionRunning = self.session.isRunning;
-                if (self.isShowFrameForScanner) {
+                if (self.showFrame) {
                     dispatch_async(dispatch_get_main_queue(), ^{
                         [self addFrameForScanner];
                     });
