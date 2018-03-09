@@ -101,6 +101,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 @property (nonatomic) CGFloat frameOffset;
 @property (nonatomic) CGFloat heightFrame;
 @property (nonatomic, strong) UIColor *frameColor;
+@property (nonatomic) UIView * dataReadingFrame;
 
 // cameraOptions props
 @property (nonatomic) AVCaptureFlashMode flashMode;
@@ -837,17 +838,17 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 - (void)addFrameForScanner {
     CGFloat frameWidth = self.bounds.size.width - 2 * self.frameOffset;
-    UIView * dataReadingFrame = [[UIView alloc] initWithFrame:CGRectMake(0, 0, frameWidth, self.heightFrame)]; //
-    dataReadingFrame.backgroundColor = [UIColor clearColor];
-    [self createCustomFramesForView:dataReadingFrame];
-    [self addSubview:dataReadingFrame];
+    self.dataReadingFrame = [[UIView alloc] initWithFrame:CGRectMake(0, 0, frameWidth, self.heightFrame)]; //
+    self.dataReadingFrame.backgroundColor = [UIColor clearColor];
+    [self createCustomFramesForView:self.dataReadingFrame];
+    [self addSubview:self.dataReadingFrame];
     //[self.cameraPreviewView.layer addSublayer:self.dataReadingFrame.layer];
-    dataReadingFrame.center = self.center;
+    self.dataReadingFrame.center = self.center;
     
-    [self addVisualEffects:dataReadingFrame.frame];
-    [self startAnimatingScanner:dataReadingFrame];
+    [self startAnimatingScanner:self.dataReadingFrame];
+    [self addVisualEffects:self.dataReadingFrame.frame];
     
-    CGRect visibleRect = [self.previewLayer metadataOutputRectOfInterestForRect:dataReadingFrame.frame];
+    CGRect visibleRect = [self.previewLayer metadataOutputRectOfInterestForRect:self.dataReadingFrame.frame];
     self.metadataOutput.rectOfInterest = visibleRect;
 }
 
@@ -915,17 +916,27 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 }
 
 - (void)startAnimatingScanner:(UIView *)inputView {
-    self.greenScanner = [[UIView alloc] initWithFrame:CGRectMake(0, 0, inputView.frame.size.width, 2)];
+    self.greenScanner = [[UIView alloc] initWithFrame:CGRectMake(2, 0, inputView.frame.size.width - 4, 2)];
     self.greenScanner.backgroundColor = [UIColor whiteColor];
     [inputView addSubview:self.greenScanner];
     [UIView animateWithDuration:3 delay:0 options:(UIViewAnimationOptionAutoreverse | UIViewAnimationOptionRepeat) animations:^{
         CGFloat middleX = inputView.frame.size.width / 2;
-        self.greenScanner.center = CGPointMake(middleX, inputView.frame.size.height);
+        self.greenScanner.center = CGPointMake(middleX, inputView.frame.size.height - 1);
     } completion:^(BOOL finished) {}];
 }
 
 - (void)stopAnimatingScanner {
     [self.greenScanner removeFromSuperview];
+}
+
+//Observer actions
+
+- (void)didEnterBackground:(NSNotification *)notification {
+    [self stopAnimatingScanner];
+}
+
+- (void)willEnterForeground:(NSNotification *)notification {
+    [self startAnimatingScanner:self.dataReadingFrame];
 }
 
 #pragma mark - observers
@@ -945,10 +956,21 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         // and show a preview is paused message. See the documentation of AVCaptureSessionWasInterruptedNotification for other
         // interruption reasons.
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sessionWasInterrupted:) name:AVCaptureSessionWasInterruptedNotification object:self.session];
+        //Observers for re-usage animation when app go to the background and back
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(didEnterBackground:) name:UIApplicationDidEnterBackgroundNotification
+                                                   object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(willEnterForeground:)
+                                                     name:UIApplicationWillEnterForegroundNotification
+                                                   object:nil];
+        
         self.isAddedOberver = YES;
     }
 }
 
+//UIApplicationDidEnterBackgroundNotification       NS_AVAILABLE_IOS(4_0);
+//UIKIT_EXTERN NSNotificationName const UIApplicationWillEnterForegroundNotification
 
 - (void)sessionWasInterrupted:(NSNotification *)notification
 {
@@ -1059,7 +1081,7 @@ didOutputMetadataObjects:(NSArray<__kindof AVMetadataObject *> *)metadataObjects
     }
 }
 
-- (BOOL)isSupportedBarCodeType:(NSString*)currentType {
+- (BOOL)isSupportedBarCodeType:(NSString *)currentType {
     BOOL result = NO;
     NSArray *supportedBarcodeTypes = @[AVMetadataObjectTypeUPCECode,AVMetadataObjectTypeCode39Code,AVMetadataObjectTypeCode39Mod43Code,
                                        AVMetadataObjectTypeEAN13Code,AVMetadataObjectTypeEAN8Code, AVMetadataObjectTypeCode93Code,
@@ -1084,3 +1106,4 @@ const NSString *rgbColor              = @"colorWithRGB";
 
 
 @end
+
