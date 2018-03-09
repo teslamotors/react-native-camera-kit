@@ -105,6 +105,7 @@ export default class CameraScreenBase extends Component {
     const scannerOptions = this.props.scannerOptions || {};
     scannerOptions.offsetFrame = this.props.offsetForScannerFrame || OFFSET_FRAME;
     scannerOptions.frameHeight = this.props.heightForScannerFrame || FRAME_HEIGHT;
+    scannerOptions.isNeedMultipleScanBarcode = this.props.isNeedMultipleScanBarcode || true;
     if (this.props.colorForScannerFrame) {
       scannerOptions.colorForFrame = processColor(this.props.colorForScannerFrame);
     } else {
@@ -161,7 +162,7 @@ export default class CameraScreenBase extends Component {
               scanBarcode={this.props.scanBarcode}
               laserColor={this.props.laserColor}
               frameColor={this.props.frameColor}
-              
+            
               onReadCode = {this.props.onReadCode}
               scannerOptions = {this.state.scannerOptions}
             />

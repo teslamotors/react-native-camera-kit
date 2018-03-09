@@ -102,6 +102,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 @property (nonatomic) CGFloat heightFrame;
 @property (nonatomic, strong) UIColor *frameColor;
 @property (nonatomic) UIView * dataReadingFrame;
+@property (nonatomic) BOOL isNeedMultipleScanBarcode;
 
 // cameraOptions props
 @property (nonatomic) AVCaptureFlashMode flashMode;
@@ -834,6 +835,9 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         UIColor *acolor = [RCTConvert UIColor:scannerOptions[colorForFrame]];
         self.frameColor = (acolor) ? acolor : [UIColor whiteColor];
     }
+    if (scannerOptions[isNeedMultipleScanBarcode]) {
+        self.isNeedMultipleScanBarcode = [scannerOptions[isNeedMultipleScanBarcode] boolValue];
+    }
 }
 
 - (void)addFrameForScanner {
@@ -1073,7 +1077,9 @@ didOutputMetadataObjects:(NSArray<__kindof AVMetadataObject *> *)metadataObjects
             AVMetadataMachineReadableCodeObject *code = (AVMetadataMachineReadableCodeObject*)[self.previewLayer transformedMetadataObjectForMetadataObject:metadataObject];
             
             if (self.onReadCode && code.stringValue && ![code.stringValue isEqualToString:self.codeStringValue]) {
-                self.codeStringValue = code.stringValue;
+                if (!self.isNeedMultipleScanBarcode) {
+                    self.codeStringValue = code.stringValue;
+                }
                 self.onReadCode(@{@"codeStringValue": code.stringValue});
                 [self stopAnimatingScanner];
             }
@@ -1097,13 +1103,12 @@ didOutputMetadataObjects:(NSArray<__kindof AVMetadataObject *> *)metadataObjects
 
 #pragma mark - String Constants For Scanner
 
-const NSString *offsetForScannerFrame = @"offsetFrame";
-const NSString *heightForScannerFrame = @"frameHeight";
-const NSString *colorForFrame         = @"colorForFrame";
-const NSString *hexColor              = @"colorWithHex";
-const NSString *rgbColor              = @"colorWithRGB";
+const NSString *offsetForScannerFrame     = @"offsetFrame";
+const NSString *heightForScannerFrame     = @"frameHeight";
+const NSString *colorForFrame             = @"colorForFrame";
+const NSString *isNeedMultipleScanBarcode = @"isNeedMultipleScanBarcode";
+
 
 
 
 @end
-
