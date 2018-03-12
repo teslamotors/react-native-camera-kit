@@ -37,6 +37,7 @@ export default class CameraScreen extends Component {
        
         onReadCode={((event) => Alert.alert(`Qr code found ${event.nativeEvent.codeStringValue} `))} 
         hideControls={true} 
+        isNeedMultipleScanBarcode = {true}
         // offsetForScannerFrame = {10}  
         // heightForScannerFrame = {300}  
         colorForScannerFrame = {'blue'} 

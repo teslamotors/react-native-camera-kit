@@ -158,6 +158,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
     
 }
 
+
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     
@@ -1112,3 +1113,4 @@ const NSString *isNeedMultipleScanBarcode = @"isNeedMultipleScanBarcode";
 
 
 @end
+
