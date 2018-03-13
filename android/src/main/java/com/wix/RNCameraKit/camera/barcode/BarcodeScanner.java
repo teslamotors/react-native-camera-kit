@@ -151,8 +151,7 @@ public class BarcodeScanner {
                         ResultHandler tmpResultHandler = mResultHandler;
                         mResultHandler = null;
 
-                        //TODO:decide if I need to do this
-                        //stopCameraPreview();
+                        camera.stopPreview();
                         if (tmpResultHandler != null) {
                             tmpResultHandler.handleResult(finalRawResult);
                         }
