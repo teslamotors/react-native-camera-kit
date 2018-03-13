@@ -103,15 +103,10 @@ public class BarcodeScanner {
             int width = size.width;
             int height = size.height;
 
-            if (DisplayUtils.getScreenOrientation(context) == Configuration.ORIENTATION_PORTRAIT) {
-                int rotationCount = CameraViewManager.getRotationCount();
-                if (rotationCount == 1 || rotationCount == 3) {
-                    int tmp = width;
-                    width = height;
-                    height = tmp;
-                }
-                data = getRotatedData(data, camera);
-            }
+            int tmp = width;
+            width = height;
+            height = tmp;
+            data = getRotatedData(data, camera);
 
             Result rawResult = null;
             PlanarYUVLuminanceSource source = buildLuminanceSource(data, width, height);
@@ -196,21 +191,15 @@ public class BarcodeScanner {
       int width = size.width;
       int height = size.height;
 
-      int rotationCount = CameraViewManager.getRotationCount();
-
-      if (rotationCount == 1 || rotationCount == 3) {
-          for (int i = 0; i < rotationCount; i++) {
-              byte[] rotatedData = new byte[data.length];
-              for (int y = 0; y < height; y++) {
-                  for (int x = 0; x < width; x++)
-                      rotatedData[x * height + height - y - 1] = data[x + y * width];
-              }
-              data = rotatedData;
-              int tmp = width;
-              width = height;
-              height = tmp;
-          }
+      byte[] rotatedData = new byte[data.length];
+      for (int y = 0; y < height; y++) {
+          for (int x = 0; x < width; x++)
+              rotatedData[x * height + height - y - 1] = data[x + y * width];
       }
+      data = rotatedData;
+      int tmp = width;
+      width = height;
+      height = tmp;
 
       return data;
   }
