@@ -3,6 +3,7 @@ package com.wix.RNCameraKit.camera.barcode;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.support.annotation.Nullable;
 import android.graphics.Rect;
 import android.hardware.Camera;
 import android.os.Handler;
@@ -93,7 +94,7 @@ public class BarcodeScanner {
         mMultiFormatReader.setHints(hints);
     }
 
-    public void onPreviewFrame(byte[] data, Camera camera) {
+    public void onPreviewFrame(byte[] data, final Camera camera) {
         if(mResultHandler == null) {
             return;
         }
