@@ -108,37 +108,9 @@ public class BarcodeScanner {
             height = tmp;
             data = getRotatedData(data, camera);
 
-            Result rawResult = null;
-            PlanarYUVLuminanceSource source = buildLuminanceSource(data, width, height);
+            LuminanceSource source = buildLuminanceSource(data, width, height);
 
-            if (source != null) {
-                BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
-                try {
-                    rawResult = mMultiFormatReader.decodeWithState(bitmap);
-                } catch (ReaderException re) {
-                    // continue
-                } catch (NullPointerException npe) {
-                    // This is terrible
-                } catch (ArrayIndexOutOfBoundsException ignored) {
-
-                } finally {
-                    mMultiFormatReader.reset();
-                }
-
-                if (rawResult == null) {
-                    LuminanceSource invertedSource = source.invert();
-                    bitmap = new BinaryBitmap(new HybridBinarizer(invertedSource));
-                    try {
-                        rawResult = mMultiFormatReader.decodeWithState(bitmap);
-                    } catch (NotFoundException e) {
-                        // continue
-                    } finally {
-                        mMultiFormatReader.reset();
-                    }
-                }
-            }
-
-            final Result finalRawResult = rawResult;
+            final Result finalRawResult = getFinalResult(source);
 
             if (finalRawResult != null) {
                 Handler handler = new Handler(Looper.getMainLooper());
@@ -166,16 +138,48 @@ public class BarcodeScanner {
         }
     }
 
-    private PlanarYUVLuminanceSource buildLuminanceSource(byte[] data, int width, int height) {
+    @Nullable
+    private Result getFinalResult(LuminanceSource source) {
+        Result rawResult = null;
+        if (source != null) {
+            BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
+            try {
+                rawResult = mMultiFormatReader.decodeWithState(bitmap);
+            } catch (ReaderException re) {
+                // continue
+            } catch (NullPointerException npe) {
+                // This is terrible
+            } catch (ArrayIndexOutOfBoundsException ignored) {
+
+            } finally {
+                mMultiFormatReader.reset();
+            }
+
+            if (rawResult == null && source.isRotateSupported()) {
+                LuminanceSource rotatedSource = source.rotateCounterClockwise();
+                bitmap = new BinaryBitmap(new HybridBinarizer(rotatedSource));
+                try {
+                    rawResult = mMultiFormatReader.decodeWithState(bitmap);
+                } catch (NotFoundException e) {
+                    // continue
+                } finally {
+                    mMultiFormatReader.reset();
+                }
+            }
+          }
+        return rawResult;
+    }
+
+    private LuminanceSource buildLuminanceSource(byte[] data, int width, int height) {
       Rect rect = CameraViewManager.getFramingRectInPreview(width, height);
       if (rect == null) {
           return null;
       }
       // Go ahead and assume it's YUV rather than die.
-      PlanarYUVLuminanceSource source = null;
+      LuminanceSource source = null;
 
       try {
-          source = new PlanarYUVLuminanceSource(data, width, height, rect.left, rect.top,
+          source = new RotateLuminanceSource(data, width, height, rect.left, rect.top,
                   rect.width(), rect.height(), false);
       } catch(Exception e) {
           e.printStackTrace();
