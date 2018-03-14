@@ -3,7 +3,7 @@ import {
   Alert
 } from 'react-native';
 import { CameraKitCameraScreen } from 'react-native-camera-kit';
-import ExampleScreen from './ExampleScreen';
+import CheckingScreen from './CheckingScreen';
 
 
 export default class CameraScreen extends Component {
@@ -47,7 +47,7 @@ export default class CameraScreen extends Component {
         frameColor={"yellow"}
        
         //onReadCode={((event) => Alert.alert(`Qr code found ${event.nativeEvent.codeStringValue} `))} 
-        onReadCode = {((event) => this.setState({ example: ExampleScreen}))}
+        onReadCode = {((event) => this.setState({ example: CheckingScreen}))}
         hideControls={true} 
         isNeedMultipleScanBarcode = {true}
         // offsetForScannerFrame = {10}  
