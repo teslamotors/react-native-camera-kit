@@ -7,17 +7,11 @@ import { CameraKitCameraScreen } from 'react-native-camera-kit';
 
 export default class CameraScreen extends Component {
 
-
-  onBottomButtonPressed(event) {
-    const captureImages = JSON.stringify(event.captureImages);
-    Alert.alert(
-      `${event.type} button pressed`,
-      `${captureImages}`,
-      [
-        { text: 'OK', onPress: () => console.log('OK Pressed') },
-      ],
-      { cancelable: false }
-    )
+  showCodeAlert = ({ nativeEvent: { codeStringValue } }) => {
+    if (this.codeStringValue !== codeStringValue) {
+      this.codeStringValue = codeStringValue;
+      Alert.alert(`Qr code found ${this.codeStringValue} `)
+    }
   }
 
   render() {
@@ -34,12 +28,12 @@ export default class CameraScreen extends Component {
         scanBarcode={true}
         laserColor={"blue"}
         frameColor={"yellow"}
-       
-        onReadCode={((event) => Alert.alert(`Qr code found ${event.nativeEvent.codeStringValue} `))} 
-        hideControls={true} 
+
+        onReadCode={this.showCodeAlert}
+        hideControls={true}
         // offsetForScannerFrame = {10}  
         // heightForScannerFrame = {300}  
-        colorForScannerFrame = {'blue'} 
+        colorForScannerFrame={'blue'}
       />
     );
   }

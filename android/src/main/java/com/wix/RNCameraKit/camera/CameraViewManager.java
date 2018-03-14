@@ -137,6 +137,7 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     }
 
     private static void releaseCamera() {
+        camera.setPreviewCallback(null);
         cameraReleased.set(true);
         camera.release();
     }
@@ -161,10 +162,10 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
                         try {
                             camera.stopPreview();
                             camera.setPreviewDisplay(cameraViews.peek().getHolder());
-                            if (shouldScan) {
-                                camera.setOneShotPreviewCallback(previewCallback);
-                            }
                             camera.startPreview();
+                            if (shouldScan) {
+                                camera.setPreviewCallback(previewCallback);
+                            }
                         } catch (IOException | RuntimeException e) {
                             e.printStackTrace();
                         }
@@ -274,7 +275,7 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     }
 
     public static void setBarcodeScanner() {
-        scanner = new BarcodeScanner(reactContext, previewCallback);
+        scanner = new BarcodeScanner();
         scanner.setResultHandler(new BarcodeScanner.ResultHandler() {
             @Override
             public void handleResult(Result rawResult) {
@@ -298,7 +299,7 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     public void setShouldScan(CameraView view, boolean scanBarcode) {
         shouldScan = scanBarcode;
         if (shouldScan && camera != null) {
-            camera.setOneShotPreviewCallback(previewCallback);
+            camera.setPreviewCallback(previewCallback);
         }
     }
 
