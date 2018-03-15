@@ -1,14 +1,4 @@
-import CameraKitGallery from './src/CameraKitGallery';
-import CameraKitCamera from './src/CameraKitCamera';
-import CameraKitGalleryView from './src/CameraKitGalleryView';
-import CameraKitCameraScreen from './src/CameraScreen/CameraKitCameraScreen';
-
-export {
-	CameraKitGallery,
-	CameraKitCamera,
-  CameraKitGalleryView,
-  CameraKitCameraScreen,
-};
-
-
-
+// This index is the example app index,
+// if you look for react-naitve-camera-kit index,
+// please jump src/index 😅
+require('./ExampleCode/app');
