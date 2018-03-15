@@ -899,7 +899,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.camera-kit.camera-kit.dsfgdfgsdf";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.camera-kit.camera-kit";
 				PRODUCT_NAME = "camera-kit";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
@@ -922,7 +922,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.camera-kit.camera-kit.dsfgdfgsdf";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.camera-kit.camera-kit";
 				PRODUCT_NAME = "camera-kit";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
