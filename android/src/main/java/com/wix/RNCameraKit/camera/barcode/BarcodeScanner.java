@@ -1,7 +1,6 @@
 package com.wix.RNCameraKit.camera.barcode;
 
 
-import android.content.Context;
 import android.graphics.Rect;
 import android.hardware.Camera;
 import android.os.Handler;
@@ -33,7 +32,7 @@ public class BarcodeScanner {
     }
 
     private MultiFormatReader mMultiFormatReader;
-    public static final List<BarcodeFormat> ALL_FORMATS = new ArrayList<>();
+    private static final List<BarcodeFormat> ALL_FORMATS = new ArrayList<>();
     private List<BarcodeFormat> mFormats;
     private ResultHandler resultHandler;
 
@@ -108,6 +107,7 @@ public class BarcodeScanner {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
+                        Log.i("NIGA", "result = " + finalRawResult.getText());
                         if (resultHandler != null) {
                             resultHandler.handleResult(finalRawResult);
                         }

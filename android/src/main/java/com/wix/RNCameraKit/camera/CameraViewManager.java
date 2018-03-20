@@ -281,7 +281,8 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
             public void handleResult(Result rawResult) {
                 WritableMap event = Arguments.createMap();
                 event.putString("codeStringValue", rawResult.getText());
-                reactContext.getJSModule(RCTEventEmitter.class).receiveEvent(cameraViews.peek().getId(), "onReadCode", event);
+                if (!cameraViews.empty())
+                    reactContext.getJSModule(RCTEventEmitter.class).receiveEvent(cameraViews.peek().getId(), "onReadCode", event);
             }
         });
     }

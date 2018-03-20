@@ -109,7 +109,27 @@ public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
     public Rect getFramingRectInPreview(int previewWidth, int previewHeight) {
         if (frameRect == null) {
             if (barcodeFrame != null) {
-                frameRect = barcodeFrame.getFrameRect();
+                Rect framingRect = barcodeFrame.getFrameRect();
+                int viewFinderViewWidth = barcodeFrame.getWidth();
+                int viewFinderViewHeight = barcodeFrame.getHeight();
+                if (framingRect == null || viewFinderViewWidth == 0 || viewFinderViewHeight == 0) {
+                    return null;
+                }
+
+                Rect rect = new Rect(framingRect);
+
+                if (previewWidth < viewFinderViewWidth) {
+                    rect.left = rect.left * previewWidth / viewFinderViewWidth;
+                    rect.right = rect.right * previewWidth / viewFinderViewWidth;
+                }
+
+                if (previewHeight < viewFinderViewHeight) {
+                    rect.top = rect.top * previewHeight / viewFinderViewHeight;
+                    rect.bottom = rect.bottom * previewHeight / viewFinderViewHeight;
+                }
+
+                frameRect = rect;
+
             } else {
                 frameRect = new Rect(0, 0, previewWidth, previewHeight);
             }
