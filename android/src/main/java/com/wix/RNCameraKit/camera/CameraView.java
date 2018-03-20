@@ -1,6 +1,5 @@
 package com.wix.RNCameraKit.camera;
 
-import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.hardware.Camera;
@@ -12,9 +11,7 @@ import android.widget.FrameLayout;
 
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.wix.RNCameraKit.Utils;
-
-import me.dm7.barcodescanner.core.IViewFinder;
-import me.dm7.barcodescanner.core.ViewFinderView;
+import com.wix.RNCameraKit.camera.barcode.BarcodeFrame;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
@@ -23,7 +20,7 @@ public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
     private SurfaceView surface;
 
     private Rect viewFrameRect;
-    private IViewFinder viewFinder;
+    private BarcodeFrame barcodeFrame;
     @ColorInt private int frameColor = Color.GREEN;
     @ColorInt private int laserColor = Color.RED;
 
@@ -60,8 +57,8 @@ public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
         int actualPreviewHeight = getResources().getDisplayMetrics().heightPixels;
         int height = Utils.convertDeviceHeightToSupportedAspectRatio(actualPreviewWidth, actualPreviewHeight);
         surface.layout(0, 0, actualPreviewWidth, height);
-        if (viewFinder != null) {
-            ((View) viewFinder).layout(0, 0, actualPreviewWidth, height);
+        if (barcodeFrame != null) {
+            ((View) barcodeFrame).layout(0, 0, actualPreviewWidth, height);
         }
     }
 
@@ -102,31 +99,17 @@ public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
     }
 
     public void showFrame() {
-        viewFinder = createViewFinderView(getContext());
-        addView((View) viewFinder);
+        barcodeFrame = new BarcodeFrame(getContext());
+        addView(barcodeFrame);
         requestLayout();
-    }
-
-    private IViewFinder createViewFinderView(Context context) {
-        ViewFinderView viewFinderView = new ViewFinderView(context);
-        viewFinderView.setBorderColor(frameColor);
-        viewFinderView.setLaserColor(laserColor);
-        viewFinderView.setLaserEnabled(true);
-        viewFinderView.setBorderStrokeWidth(5);
-        viewFinderView.setBorderLineLength(60);
-        viewFinderView.setMaskColor(Color.argb(60, 0, 0, 0));
-
-        viewFinderView.setSquareViewFinder(true);
-        viewFinderView.setViewFinderOffset(11);
-        return viewFinderView;
     }
 
     public Rect getFramingRectInPreview(int previewWidth, int previewHeight) {
         if (viewFrameRect == null) {
-            if (viewFinder != null) {
-                Rect framingRect = viewFinder.getFramingRect();
-                int viewFinderViewWidth = viewFinder.getWidth();
-                int viewFinderViewHeight = viewFinder.getHeight();
+            if (barcodeFrame != null) {
+                Rect framingRect = barcodeFrame.getFrameRect();
+                int viewFinderViewWidth = barcodeFrame.getWidth();
+                int viewFinderViewHeight = barcodeFrame.getHeight();
                 if (framingRect == null || viewFinderViewWidth == 0 || viewFinderViewHeight == 0) {
                     return null;
                 }
@@ -153,15 +136,15 @@ public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
 
     public void setFrameColor(@ColorInt int color) {
         this.frameColor = color;
-        if (viewFinder != null) {
-            viewFinder.setBorderColor(frameColor);
-        }
+//        if (barcodeFrame != null) {
+//            barcodeFrame.setBorderColor(frameColor);
+//        }
     }
 
     public void setLaserColor(@ColorInt int color) {
         this.laserColor = color;
-        if (viewFinder != null) {
-            viewFinder.setLaserColor(laserColor);
-        }
+//        if (barcodeFrame != null) {
+//            barcodeFrame.setLaserColor(laserColor);
+//        }
     }
 }

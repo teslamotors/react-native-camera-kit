@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "25.0.1"
+    buildToolsVersion "26.0.2"
 
     defaultConfig {
         minSdkVersion 16
@@ -22,6 +22,5 @@ dependencies {
     compile 'com.facebook.react:react-native:+'
     compile 'com.android.support:recyclerview-v7:25.0.1'
     compile 'com.google.zxing:core:3.3.0'
-    compile 'me.dm7.barcodescanner:core:1.9.8'
     compile group: 'com.drewnoakes', name: 'metadata-extractor', version: '2.9.1'
 }

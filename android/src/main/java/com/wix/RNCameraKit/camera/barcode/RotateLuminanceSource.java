@@ -1,10 +1,6 @@
 package com.wix.RNCameraKit.camera.barcode;
 
-import android.util.Log;
-
 import com.google.zxing.LuminanceSource;
-
-import java.util.Arrays;
 
 public class RotateLuminanceSource extends LuminanceSource {
 

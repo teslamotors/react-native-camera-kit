@@ -1,6 +1,8 @@
 package com.camerakit;
 
 import android.app.Application;
+import android.content.Context;
+import android.support.multidex.MultiDex;
 
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactNativeHost;
@@ -34,6 +36,12 @@ public class MainApplication extends Application implements ReactApplication {
       return "index";
     }
   };
+
+  @Override
+  protected void attachBaseContext(Context base) {
+    super.attachBaseContext(base);
+    MultiDex.install(this);
+  }
 
   @Override
   public ReactNativeHost getReactNativeHost() {
