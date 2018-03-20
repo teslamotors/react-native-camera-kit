@@ -19,7 +19,7 @@ public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
     private ThemedReactContext context;
     private SurfaceView surface;
 
-    private Rect viewFrameRect;
+    private Rect frameRect;
     private BarcodeFrame barcodeFrame;
     @ColorInt private int frameColor = Color.GREEN;
     @ColorInt private int laserColor = Color.RED;
@@ -100,51 +100,34 @@ public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
 
     public void showFrame() {
         barcodeFrame = new BarcodeFrame(getContext());
+        barcodeFrame.setFrameColor(frameColor);
+        barcodeFrame.setLaserColor(laserColor);
         addView(barcodeFrame);
         requestLayout();
     }
 
     public Rect getFramingRectInPreview(int previewWidth, int previewHeight) {
-        if (viewFrameRect == null) {
+        if (frameRect == null) {
             if (barcodeFrame != null) {
-                Rect framingRect = barcodeFrame.getFrameRect();
-                int viewFinderViewWidth = barcodeFrame.getWidth();
-                int viewFinderViewHeight = barcodeFrame.getHeight();
-                if (framingRect == null || viewFinderViewWidth == 0 || viewFinderViewHeight == 0) {
-                    return null;
-                }
-
-                Rect rect = new Rect(framingRect);
-
-                if (previewWidth < viewFinderViewWidth) {
-                    rect.left = rect.left * previewWidth / viewFinderViewWidth;
-                    rect.right = rect.right * previewWidth / viewFinderViewWidth;
-                }
-
-                if (previewHeight < viewFinderViewHeight) {
-                    rect.top = rect.top * previewHeight / viewFinderViewHeight;
-                    rect.bottom = rect.bottom * previewHeight / viewFinderViewHeight;
-                }
-
-                viewFrameRect = rect;
+                frameRect = barcodeFrame.getFrameRect();
             } else {
-                viewFrameRect = new Rect(0, 0, previewWidth, previewHeight);
+                frameRect = new Rect(0, 0, previewWidth, previewHeight);
             }
         }
-        return viewFrameRect;
+        return frameRect;
     }
 
     public void setFrameColor(@ColorInt int color) {
         this.frameColor = color;
-//        if (barcodeFrame != null) {
-//            barcodeFrame.setBorderColor(frameColor);
-//        }
+        if (barcodeFrame != null) {
+            barcodeFrame.setFrameColor(color);
+        }
     }
 
     public void setLaserColor(@ColorInt int color) {
         this.laserColor = color;
-//        if (barcodeFrame != null) {
-//            barcodeFrame.setLaserColor(laserColor);
-//        }
+        if (barcodeFrame != null) {
+            barcodeFrame.setLaserColor(laserColor);
+        }
     }
 }
