@@ -7,14 +7,16 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.support.annotation.ColorInt;
-import android.util.Log;
 import android.view.View;
 
 import com.wix.RNCameraKit.R;
 
 public class BarcodeFrame extends View {
 
-    private static final int STROKE_WITDH = 5;
+    private static final int STROKE_WIDTH = 5;
+    private static final int ANIMATION_SPEED = 8;
+    private static final int WIDTH_SCALE = 7;
+    private static final double HEIGHT_SCALE = 2.75;
 
     private Paint dimPaint;
     private Paint framePaint;
@@ -41,10 +43,10 @@ public class BarcodeFrame extends View {
         dimPaint.setColor(context.getResources().getColor(R.color.bg_dark));
         borderPaint = new Paint();
         borderPaint.setStyle(Paint.Style.STROKE);
-        borderPaint.setStrokeWidth(STROKE_WITDH);
+        borderPaint.setStrokeWidth(STROKE_WIDTH);
         laserPaint = new Paint();
         laserPaint.setStyle(Paint.Style.STROKE);
-        laserPaint.setStrokeWidth(STROKE_WITDH);
+        laserPaint.setStrokeWidth(STROKE_WIDTH);
 
         frameRect = new Rect();
         borderMargin = context.getResources().getDimensionPixelSize(R.dimen.border_length);
@@ -56,8 +58,8 @@ public class BarcodeFrame extends View {
 
         width = getMeasuredWidth();
         height = getMeasuredHeight();
-        int marginWidth = width / 7;
-        int marginHeight = (int) (height / 2.75);
+        int marginWidth = width / WIDTH_SCALE;
+        int marginHeight = (int) (height / HEIGHT_SCALE);
 
         frameRect.left = marginWidth;
         frameRect.right = width - marginWidth;
@@ -90,8 +92,8 @@ public class BarcodeFrame extends View {
 
     private void drawLaser(Canvas canvas, long timeElapsed) {
         if (laserY > frameRect.bottom || laserY < frameRect.top) laserY = frameRect.top;
-        canvas.drawLine(frameRect.left + STROKE_WITDH, laserY, frameRect.right - STROKE_WITDH, laserY, laserPaint);
-        laserY += (timeElapsed) / 8;
+        canvas.drawLine(frameRect.left + STROKE_WIDTH, laserY, frameRect.right - STROKE_WIDTH, laserY, laserPaint);
+        laserY += (timeElapsed) / ANIMATION_SPEED;
     }
 
     public Rect getFrameRect() {

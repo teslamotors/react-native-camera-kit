@@ -29,19 +29,13 @@ public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
         setBackgroundColor(Color.BLACK);
         addView(surface, MATCH_PARENT, MATCH_PARENT);
         surface.getHolder().addCallback(this);
-        surface.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (CameraViewManager.getCamera() != null) {
-                    try {
-                        CameraViewManager.getCamera().autoFocus(new Camera.AutoFocusCallback() {
-                            @Override
-                            public void onAutoFocus(boolean success, Camera camera) {
-                            }
-                        });
-                    } catch (Exception e) {
+        surface.setOnClickListener(v -> {
+            if (CameraViewManager.getCamera() != null) {
+                try {
+                    CameraViewManager.getCamera().autoFocus((success, camera) -> {
+                    });
+                } catch (Exception ignored) {
 
-                    }
                 }
             }
         });
@@ -78,14 +72,11 @@ public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
         return surface.getHolder();
     }
 
-    private final Runnable measureAndLayout = new Runnable() {
-        @Override
-        public void run() {
-            measure(
-                    MeasureSpec.makeMeasureSpec(getWidth(), MeasureSpec.EXACTLY),
-                    MeasureSpec.makeMeasureSpec(getHeight(), MeasureSpec.EXACTLY));
-            layout(getLeft(), getTop(), getRight(), getBottom());
-        }
+    private final Runnable measureAndLayout = () -> {
+        measure(
+                MeasureSpec.makeMeasureSpec(getWidth(), MeasureSpec.EXACTLY),
+                MeasureSpec.makeMeasureSpec(getHeight(), MeasureSpec.EXACTLY));
+        layout(getLeft(), getTop(), getRight(), getBottom());
     };
 
     @Override
