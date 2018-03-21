@@ -247,8 +247,8 @@ export default class CameraScreenBase extends Component {
 
   renderBottomButton(type) {
     let showButton = true;
-    if (type === 'right') {
-      showButton = this.state.captureImages.length || this.isCaptureRetakeMode();
+    if ( this.isCaptureRetakeMode() && type === 'right') {
+      showButton = this.state.captureImages.length;
     }
     if (showButton) {
       const buttonNameSuffix = this.isCaptureRetakeMode() ? 'CaptureRetakeButtonText' : 'ButtonText';
