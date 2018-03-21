@@ -13,14 +13,12 @@ import com.google.zxing.BinaryBitmap;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.LuminanceSource;
 import com.google.zxing.MultiFormatReader;
-import com.google.zxing.NotFoundException;
 import com.google.zxing.ReaderException;
 import com.google.zxing.Result;
 import com.google.zxing.common.HybridBinarizer;
 import com.wix.RNCameraKit.camera.CameraViewManager;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -33,8 +31,9 @@ public class BarcodeScanner {
 
     private MultiFormatReader mMultiFormatReader;
     private static final List<BarcodeFormat> ALL_FORMATS = new ArrayList<>();
-    private List<BarcodeFormat> mFormats;
     private ResultHandler resultHandler;
+
+    private Camera.PreviewCallback previewCallback;
 
     static {
         ALL_FORMATS.add(BarcodeFormat.AZTEC);
@@ -56,31 +55,17 @@ public class BarcodeScanner {
         ALL_FORMATS.add(BarcodeFormat.UPC_EAN_EXTENSION);
     }
 
-    public BarcodeScanner() {
-        initMultiFormatReader();
-    }
+    public BarcodeScanner(Camera.PreviewCallback previewCallback) {
+        Map<DecodeHintType, Object> hints = new EnumMap<>(DecodeHintType.class);
+        hints.put(DecodeHintType.POSSIBLE_FORMATS, ALL_FORMATS);
+        mMultiFormatReader = new MultiFormatReader();
+        mMultiFormatReader.setHints(hints);
 
-    public void setFormats(List<BarcodeFormat> formats) {
-        mFormats = formats;
-        initMultiFormatReader();
+        this.previewCallback = previewCallback;
     }
 
     public void setResultHandler(ResultHandler resultHandler) {
         this.resultHandler = resultHandler;
-    }
-
-    public Collection<BarcodeFormat> getFormats() {
-        if (mFormats == null) {
-            return ALL_FORMATS;
-        }
-        return mFormats;
-    }
-
-    private void initMultiFormatReader() {
-        Map<DecodeHintType, Object> hints = new EnumMap<>(DecodeHintType.class);
-        hints.put(DecodeHintType.POSSIBLE_FORMATS, getFormats());
-        mMultiFormatReader = new MultiFormatReader();
-        mMultiFormatReader.setHints(hints);
     }
 
     public void onPreviewFrame(byte[] data, final Camera camera) {
@@ -88,8 +73,7 @@ public class BarcodeScanner {
             return;
         }
         try {
-            Camera.Parameters parameters = camera.getParameters();
-            Camera.Size size = parameters.getPreviewSize();
+            Camera.Size size = camera.getParameters().getPreviewSize();
             int width = size.width;
             int height = size.height;
 
@@ -98,41 +82,25 @@ public class BarcodeScanner {
             height = tmp;
             data = getRotatedData(data, camera);
 
-            LuminanceSource source = buildLuminanceSource(data, width, height);
+            final Result result = decodeResult(getLuminanceSource(data, width, height));
 
-            final Result finalRawResult = getFinalResult(source);
-
-            if (finalRawResult != null) {
-                Handler handler = new Handler(Looper.getMainLooper());
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Log.i("NIGA", "result = " + finalRawResult.getText());
-                        if (resultHandler != null) {
-                            resultHandler.handleResult(finalRawResult);
-                        }
-                    }
-                });
+            if (result != null) {
+                new Handler(Looper.getMainLooper()).post(() -> resultHandler.handleResult(result));
             }
+            camera.setOneShotPreviewCallback(previewCallback);
         } catch (RuntimeException e) {
-            // TODO: Terrible hack. It is possible that this method is invoked after camera is released.
             Log.w("CameraKit", e.toString());
         }
     }
 
     @Nullable
-    private Result getFinalResult(LuminanceSource source) {
+    private Result decodeResult(LuminanceSource source) {
         Result rawResult = null;
         if (source != null) {
             BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
             try {
                 rawResult = mMultiFormatReader.decodeWithState(bitmap);
-            } catch (ReaderException re) {
-                // continue
-            } catch (NullPointerException npe) {
-                // This is terrible
-            } catch (ArrayIndexOutOfBoundsException ignored) {
-
+            } catch (ReaderException ignored) {
             } finally {
                 mMultiFormatReader.reset();
             }
@@ -142,8 +110,7 @@ public class BarcodeScanner {
                 bitmap = new BinaryBitmap(new HybridBinarizer(rotatedSource));
                 try {
                     rawResult = mMultiFormatReader.decodeWithState(bitmap);
-                } catch (NotFoundException e) {
-                    // continue
+                } catch (ReaderException ignored) {
                 } finally {
                     mMultiFormatReader.reset();
                 }
@@ -152,25 +119,18 @@ public class BarcodeScanner {
         return rawResult;
     }
 
-    private LuminanceSource buildLuminanceSource(byte[] data, int width, int height) {
+    private LuminanceSource getLuminanceSource(byte[] data, int width, int height) {
         Rect rect = CameraViewManager.getFramingRectInPreview(width, height);
-        if (rect == null) {
-            return null;
-        }
-        // Go ahead and assume it's YUV rather than die.
-        LuminanceSource source = null;
-
         try {
-            source = new RotateLuminanceSource(data, width, height, rect.left, rect.top,
+            return new RotateLuminanceSource(data, width, height, rect.left, rect.top,
                     rect.width(), rect.height(), false);
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        return source;
+        return null;
     }
 
-    private static byte[] getRotatedData(byte[] data, Camera camera) {
+    private byte[] getRotatedData(byte[] data, Camera camera) {
         Camera.Parameters parameters = camera.getParameters();
         Camera.Size size = parameters.getPreviewSize();
         int width = size.width;
@@ -181,11 +141,6 @@ public class BarcodeScanner {
             for (int x = 0; x < width; x++)
                 rotatedData[x * height + height - y - 1] = data[x + y * width];
         }
-        data = rotatedData;
-        int tmp = width;
-        width = height;
-        height = tmp;
-
-        return data;
+        return rotatedData;
     }
 }

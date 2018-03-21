@@ -51,10 +51,12 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     private static BarcodeScanner scanner;
     private static Camera.PreviewCallback previewCallback = new Camera.PreviewCallback() {
         @Override
-        public void onPreviewFrame(byte[] data, Camera camera) {
-            if (scanner != null) {
-                scanner.onPreviewFrame(data, camera);
-            }
+        public void onPreviewFrame(final byte[] data, final Camera camera) {
+            new Thread(() -> {
+                if (scanner != null) {
+                    scanner.onPreviewFrame(data, camera);
+                }
+            }).start();
         }
     };
 
@@ -137,7 +139,7 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     }
 
     private static void releaseCamera() {
-        camera.setPreviewCallback(null);
+        camera.setOneShotPreviewCallback(null);
         cameraReleased.set(true);
         camera.release();
     }
@@ -164,7 +166,7 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
                             camera.setPreviewDisplay(cameraViews.peek().getHolder());
                             camera.startPreview();
                             if (shouldScan) {
-                                camera.setPreviewCallback(previewCallback);
+                                camera.setOneShotPreviewCallback(previewCallback);
                             }
                         } catch (IOException | RuntimeException e) {
                             e.printStackTrace();
@@ -275,7 +277,7 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     }
 
     public static void setBarcodeScanner() {
-        scanner = new BarcodeScanner();
+        scanner = new BarcodeScanner(previewCallback);
         scanner.setResultHandler(new BarcodeScanner.ResultHandler() {
             @Override
             public void handleResult(Result rawResult) {
@@ -300,7 +302,7 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     public void setShouldScan(CameraView view, boolean scanBarcode) {
         shouldScan = scanBarcode;
         if (shouldScan && camera != null) {
-            camera.setPreviewCallback(previewCallback);
+            camera.setOneShotPreviewCallback(previewCallback);
         }
     }
 

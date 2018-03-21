@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "26.0.2"
+    buildToolsVersion "26.0.3"
 
     defaultConfig {
         minSdkVersion 16
@@ -15,6 +15,11 @@ android {
     }
     lintOptions {
        warning 'InvalidPackage'
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 

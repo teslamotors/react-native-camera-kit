@@ -16,7 +16,6 @@ import com.wix.RNCameraKit.camera.barcode.BarcodeFrame;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
 public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
-    private ThemedReactContext context;
     private SurfaceView surface;
 
     private Rect frameRect;
@@ -26,9 +25,6 @@ public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
 
     public CameraView(ThemedReactContext context) {
         super(context);
-        this.context = context;
-
-
         surface = new SurfaceView(context);
         setBackgroundColor(Color.BLACK);
         addView(surface, MATCH_PARENT, MATCH_PARENT);
@@ -109,27 +105,20 @@ public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
     public Rect getFramingRectInPreview(int previewWidth, int previewHeight) {
         if (frameRect == null) {
             if (barcodeFrame != null) {
-                Rect framingRect = barcodeFrame.getFrameRect();
-                int viewFinderViewWidth = barcodeFrame.getWidth();
-                int viewFinderViewHeight = barcodeFrame.getHeight();
-                if (framingRect == null || viewFinderViewWidth == 0 || viewFinderViewHeight == 0) {
-                    return null;
+                Rect framingRect = new Rect(barcodeFrame.getFrameRect());
+                int frameWidth = barcodeFrame.getWidth();
+                int frameHeight = barcodeFrame.getHeight();
+
+                if (previewWidth < frameWidth) {
+                    framingRect.left = framingRect.left * previewWidth / frameWidth;
+                    framingRect.right = framingRect.right * previewWidth / frameWidth;
+                }
+                if (previewHeight < frameHeight) {
+                    framingRect.top = framingRect.top * previewHeight / frameHeight;
+                    framingRect.bottom = framingRect.bottom * previewHeight / frameHeight;
                 }
 
-                Rect rect = new Rect(framingRect);
-
-                if (previewWidth < viewFinderViewWidth) {
-                    rect.left = rect.left * previewWidth / viewFinderViewWidth;
-                    rect.right = rect.right * previewWidth / viewFinderViewWidth;
-                }
-
-                if (previewHeight < viewFinderViewHeight) {
-                    rect.top = rect.top * previewHeight / viewFinderViewHeight;
-                    rect.bottom = rect.bottom * previewHeight / viewFinderViewHeight;
-                }
-
-                frameRect = rect;
-
+                frameRect = framingRect;
             } else {
                 frameRect = new Rect(0, 0, previewWidth, previewHeight);
             }
