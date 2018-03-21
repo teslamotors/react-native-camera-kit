@@ -6,6 +6,7 @@ import com.google.zxing.LuminanceSource;
  * This class is mostly copy of {@link com.google.zxing.PlanarYUVLuminanceSource} class.
  * The only difference is adding {@code rotateCounterClockwise()} method
  * It was copied due to PlanarYUVLuminanceSource being final, so it can not be extended
+ * Zxing license - {https://github.com/zxing/zxing/blob/master/LICENSE}
  */
 public class RotateLuminanceSource extends LuminanceSource {
 
