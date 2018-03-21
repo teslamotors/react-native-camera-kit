@@ -216,4 +216,9 @@ public class Utils {
     public static int convertDeviceHeightToSupportedAspectRatio(float actualWidth, float actualHeight) {
         return (int) (actualHeight / actualWidth > MAX_SCREEN_RATIO ? actualWidth * MAX_SCREEN_RATIO : actualHeight);
     }
+
+
+    public static void runOnWorkerThread(Runnable runnable) {
+        new Thread(runnable).start();
+    }
 }

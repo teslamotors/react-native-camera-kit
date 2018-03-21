@@ -5,6 +5,7 @@ import android.graphics.Rect;
 import android.hardware.Camera;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -55,23 +56,17 @@ public class BarcodeScanner {
         ALL_FORMATS.add(BarcodeFormat.UPC_EAN_EXTENSION);
     }
 
-    public BarcodeScanner(Camera.PreviewCallback previewCallback) {
+    public BarcodeScanner(@NonNull Camera.PreviewCallback previewCallback, @NonNull ResultHandler resultHandler) {
         Map<DecodeHintType, Object> hints = new EnumMap<>(DecodeHintType.class);
         hints.put(DecodeHintType.POSSIBLE_FORMATS, ALL_FORMATS);
         mMultiFormatReader = new MultiFormatReader();
         mMultiFormatReader.setHints(hints);
 
         this.previewCallback = previewCallback;
-    }
-
-    public void setResultHandler(ResultHandler resultHandler) {
         this.resultHandler = resultHandler;
     }
 
     public void onPreviewFrame(byte[] data, final Camera camera) {
-        if (resultHandler == null) {
-            return;
-        }
         try {
             Camera.Size size = camera.getParameters().getPreviewSize();
             int width = size.width;
@@ -131,8 +126,7 @@ public class BarcodeScanner {
     }
 
     private byte[] getRotatedData(byte[] data, Camera camera) {
-        Camera.Parameters parameters = camera.getParameters();
-        Camera.Size size = parameters.getPreviewSize();
+        Camera.Size size = camera.getParameters().getPreviewSize();
         int width = size.width;
         int height = size.height;
 
