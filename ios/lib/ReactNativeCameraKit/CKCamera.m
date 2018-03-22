@@ -175,6 +175,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         self.previewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:self.session];
         [self.layer addSublayer:self.previewLayer];
         self.previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
+        self.previewLayer.orientation = [[UIApplication sharedApplication] statusBarOrientation];
 #endif
         
         UIView *focusView = [[UIView alloc] initWithFrame:CGRectZero];
