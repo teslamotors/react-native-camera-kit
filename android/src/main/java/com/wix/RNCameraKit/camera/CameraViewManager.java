@@ -51,10 +51,15 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     private static BarcodeScanner scanner;
     private static Camera.PreviewCallback previewCallback = new Camera.PreviewCallback() {
         @Override
-        public void onPreviewFrame(byte[] data, Camera camera) {
-            if (scanner != null) {
-                scanner.onPreviewFrame(data, camera);
-            }
+        public void onPreviewFrame(final byte[] data, final Camera camera) {
+            Utils.runOnWorkerThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (scanner != null) {
+                        scanner.onPreviewFrame(data, camera);
+                    }
+                }
+            });
         }
     };
 
@@ -137,6 +142,7 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     }
 
     private static void releaseCamera() {
+        camera.setOneShotPreviewCallback(null);
         cameraReleased.set(true);
         camera.release();
     }
@@ -161,10 +167,10 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
                         try {
                             camera.stopPreview();
                             camera.setPreviewDisplay(cameraViews.peek().getHolder());
+                            camera.startPreview();
                             if (shouldScan) {
                                 camera.setOneShotPreviewCallback(previewCallback);
                             }
-                            camera.startPreview();
                         } catch (IOException | RuntimeException e) {
                             e.printStackTrace();
                         }
@@ -274,13 +280,13 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     }
 
     public static void setBarcodeScanner() {
-        scanner = new BarcodeScanner(reactContext, previewCallback);
-        scanner.setResultHandler(new BarcodeScanner.ResultHandler() {
+        scanner = new BarcodeScanner(previewCallback, new BarcodeScanner.ResultHandler() {
             @Override
-            public void handleResult(Result rawResult) {
+            public void handleResult(Result result) {
                 WritableMap event = Arguments.createMap();
-                event.putString("codeStringValue", rawResult.getText());
-                reactContext.getJSModule(RCTEventEmitter.class).receiveEvent(cameraViews.peek().getId(), "onReadCode", event);
+                event.putString("codeStringValue", result.getText());
+                if (!cameraViews.empty())
+                    reactContext.getJSModule(RCTEventEmitter.class).receiveEvent(cameraViews.peek().getId(), "onReadCode", event);
             }
         });
     }

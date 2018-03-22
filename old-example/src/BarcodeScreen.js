@@ -51,7 +51,7 @@ export default class CameraScreen extends Component {
         hideControls={true} 
         // offsetForScannerFrame = {10}  
         // heightForScannerFrame = {300}  
-        colorForScannerFrame = {'blue'} 
+        colorForScannerFrame={'blue'}
       />
     );
   }

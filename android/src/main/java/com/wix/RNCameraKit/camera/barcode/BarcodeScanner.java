@@ -1,13 +1,12 @@
 package com.wix.RNCameraKit.camera.barcode;
 
 
-import android.content.Context;
-import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.hardware.Camera;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.AttributeSet;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.google.zxing.BarcodeFormat;
@@ -15,33 +14,26 @@ import com.google.zxing.BinaryBitmap;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.LuminanceSource;
 import com.google.zxing.MultiFormatReader;
-import com.google.zxing.NotFoundException;
-import com.google.zxing.PlanarYUVLuminanceSource;
 import com.google.zxing.ReaderException;
 import com.google.zxing.Result;
 import com.google.zxing.common.HybridBinarizer;
 import com.wix.RNCameraKit.camera.CameraViewManager;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-import me.dm7.barcodescanner.core.DisplayUtils;
-
 public class BarcodeScanner {
 
     public interface ResultHandler {
-        void handleResult(Result rawResult);
+        void handleResult(Result result);
     }
 
     private MultiFormatReader mMultiFormatReader;
-    public static final List<BarcodeFormat> ALL_FORMATS = new ArrayList<>();
-    private List<BarcodeFormat> mFormats;
-    private ResultHandler mResultHandler;
+    private static final List<BarcodeFormat> ALL_FORMATS = new ArrayList<>();
+    private ResultHandler resultHandler;
 
-    private Context context;
     private Camera.PreviewCallback previewCallback;
 
     static {
@@ -64,154 +56,90 @@ public class BarcodeScanner {
         ALL_FORMATS.add(BarcodeFormat.UPC_EAN_EXTENSION);
     }
 
-    public BarcodeScanner(Context context, Camera.PreviewCallback previewCallback) {
-        this.context = context;
-        this.previewCallback = previewCallback;
-        initMultiFormatReader();
-    }
-
-    public void setFormats(List<BarcodeFormat> formats) {
-        mFormats = formats;
-        initMultiFormatReader();
-    }
-
-    public void setResultHandler(ResultHandler resultHandler) {
-        mResultHandler = resultHandler;
-    }
-
-    public Collection<BarcodeFormat> getFormats() {
-        if(mFormats == null) {
-            return ALL_FORMATS;
-        }
-        return mFormats;
-    }
-
-    private void initMultiFormatReader() {
-        Map<DecodeHintType,Object> hints = new EnumMap<>(DecodeHintType.class);
-        hints.put(DecodeHintType.POSSIBLE_FORMATS, getFormats());
+    public BarcodeScanner(@NonNull Camera.PreviewCallback previewCallback, @NonNull ResultHandler resultHandler) {
+        Map<DecodeHintType, Object> hints = new EnumMap<>(DecodeHintType.class);
+        hints.put(DecodeHintType.POSSIBLE_FORMATS, ALL_FORMATS);
         mMultiFormatReader = new MultiFormatReader();
         mMultiFormatReader.setHints(hints);
+
+        this.previewCallback = previewCallback;
+        this.resultHandler = resultHandler;
     }
 
-    public void onPreviewFrame(byte[] data, Camera camera) {
-        if(mResultHandler == null) {
-            return;
-        }
+    public void onPreviewFrame(byte[] data, final Camera camera) {
         try {
-            Camera.Parameters parameters = camera.getParameters();
-            Camera.Size size = parameters.getPreviewSize();
+            Camera.Size size = camera.getParameters().getPreviewSize();
             int width = size.width;
             int height = size.height;
 
-            if (DisplayUtils.getScreenOrientation(context) == Configuration.ORIENTATION_PORTRAIT) {
-                int rotationCount = CameraViewManager.getRotationCount();
-                if (rotationCount == 1 || rotationCount == 3) {
-                    int tmp = width;
-                    width = height;
-                    height = tmp;
-                }
-                data = getRotatedData(data, camera);
-            }
+            int tmp = width;
+            width = height;
+            height = tmp;
+            data = getRotatedData(data, camera);
 
-            Result rawResult = null;
-            PlanarYUVLuminanceSource source = buildLuminanceSource(data, width, height);
+            final Result result = decodeResult(getLuminanceSource(data, width, height));
 
-            if (source != null) {
-                BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
-                try {
-                    rawResult = mMultiFormatReader.decodeWithState(bitmap);
-                } catch (ReaderException re) {
-                    // continue
-                } catch (NullPointerException npe) {
-                    // This is terrible
-                } catch (ArrayIndexOutOfBoundsException ignored) {
-
-                } finally {
-                    mMultiFormatReader.reset();
-                }
-
-                if (rawResult == null) {
-                    LuminanceSource invertedSource = source.invert();
-                    bitmap = new BinaryBitmap(new HybridBinarizer(invertedSource));
-                    try {
-                        rawResult = mMultiFormatReader.decodeWithState(bitmap);
-                    } catch (NotFoundException e) {
-                        // continue
-                    } finally {
-                        mMultiFormatReader.reset();
-                    }
-                }
-            }
-
-            final Result finalRawResult = rawResult;
-
-            if (finalRawResult != null) {
-                Handler handler = new Handler(Looper.getMainLooper());
-                handler.post(new Runnable() {
+            if (result != null) {
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
-                        // Stopping the preview can take a little long.
-                        // So we want to set result handler to null to discard subsequent calls to
-                        // onPreviewFrame.
-                        ResultHandler tmpResultHandler = mResultHandler;
-                        mResultHandler = null;
-
-                        //TODO:decide if I need to do this
-                        //stopCameraPreview();
-                        if (tmpResultHandler != null) {
-                            tmpResultHandler.handleResult(finalRawResult);
-                        }
+                        resultHandler.handleResult(result);
                     }
                 });
-            } else {
-                camera.setOneShotPreviewCallback(previewCallback);
             }
-        } catch(RuntimeException e) {
-            // TODO: Terrible hack. It is possible that this method is invoked after camera is released.
+            camera.setOneShotPreviewCallback(previewCallback);
+        } catch (RuntimeException e) {
             Log.w("CameraKit", e.toString());
         }
     }
 
-    private PlanarYUVLuminanceSource buildLuminanceSource(byte[] data, int width, int height) {
-      Rect rect = CameraViewManager.getFramingRectInPreview(width, height);
-      if (rect == null) {
-          return null;
-      }
-      // Go ahead and assume it's YUV rather than die.
-      PlanarYUVLuminanceSource source = null;
+    @Nullable
+    private Result decodeResult(LuminanceSource source) {
+        Result rawResult = null;
+        if (source != null) {
+            BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
+            try {
+                rawResult = mMultiFormatReader.decodeWithState(bitmap);
+            } catch (ReaderException ignored) {
+            } finally {
+                mMultiFormatReader.reset();
+            }
 
-      try {
-          source = new PlanarYUVLuminanceSource(data, width, height, rect.left, rect.top,
-                  rect.width(), rect.height(), false);
-      } catch(Exception e) {
-          e.printStackTrace();
-      }
+            if (rawResult == null && source.isRotateSupported()) {
+                LuminanceSource rotatedSource = source.rotateCounterClockwise();
+                bitmap = new BinaryBitmap(new HybridBinarizer(rotatedSource));
+                try {
+                    rawResult = mMultiFormatReader.decodeWithState(bitmap);
+                } catch (ReaderException ignored) {
+                } finally {
+                    mMultiFormatReader.reset();
+                }
+            }
+        }
+        return rawResult;
+    }
 
-      return source;
-  }
+    private LuminanceSource getLuminanceSource(byte[] data, int width, int height) {
+        Rect rect = CameraViewManager.getFramingRectInPreview(width, height);
+        try {
+            return new RotateLuminanceSource(data, width, height, rect.left, rect.top,
+                    rect.width(), rect.height(), false);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
-    private static byte[] getRotatedData(byte[] data, Camera camera) {
-      Camera.Parameters parameters = camera.getParameters();
-      Camera.Size size = parameters.getPreviewSize();
-      int width = size.width;
-      int height = size.height;
+    private byte[] getRotatedData(byte[] data, Camera camera) {
+        Camera.Size size = camera.getParameters().getPreviewSize();
+        int width = size.width;
+        int height = size.height;
 
-      int rotationCount = CameraViewManager.getRotationCount();
-
-      if (rotationCount == 1 || rotationCount == 3) {
-          for (int i = 0; i < rotationCount; i++) {
-              byte[] rotatedData = new byte[data.length];
-              for (int y = 0; y < height; y++) {
-                  for (int x = 0; x < width; x++)
-                      rotatedData[x * height + height - y - 1] = data[x + y * width];
-              }
-              data = rotatedData;
-              int tmp = width;
-              width = height;
-              height = tmp;
-          }
-      }
-
-      return data;
-  }
+        byte[] rotatedData = new byte[data.length];
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++)
+                rotatedData[x * height + height - y - 1] = data[x + y * width];
+        }
+        return rotatedData;
+    }
 }
