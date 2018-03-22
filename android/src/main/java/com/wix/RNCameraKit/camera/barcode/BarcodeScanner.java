@@ -27,7 +27,7 @@ import java.util.Map;
 public class BarcodeScanner {
 
     public interface ResultHandler {
-        void handleResult(Result rawResult);
+        void handleResult(Result result);
     }
 
     private MultiFormatReader mMultiFormatReader;
@@ -80,7 +80,12 @@ public class BarcodeScanner {
             final Result result = decodeResult(getLuminanceSource(data, width, height));
 
             if (result != null) {
-                new Handler(Looper.getMainLooper()).post(() -> resultHandler.handleResult(result));
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        resultHandler.handleResult(result);
+                    }
+                });
             }
             camera.setOneShotPreviewCallback(previewCallback);
         } catch (RuntimeException e) {

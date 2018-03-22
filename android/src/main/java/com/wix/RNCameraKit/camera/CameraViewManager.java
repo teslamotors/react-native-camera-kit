@@ -20,6 +20,7 @@ import com.facebook.react.uimanager.SimpleViewManager;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.annotations.ReactProp;
 import com.facebook.react.uimanager.events.RCTEventEmitter;
+import com.google.zxing.Result;
 import com.wix.RNCameraKit.Utils;
 import com.wix.RNCameraKit.camera.barcode.BarcodeScanner;
 
@@ -51,9 +52,12 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     private static Camera.PreviewCallback previewCallback = new Camera.PreviewCallback() {
         @Override
         public void onPreviewFrame(final byte[] data, final Camera camera) {
-            Utils.runOnWorkerThread(() -> {
-                if (scanner != null) {
-                    scanner.onPreviewFrame(data, camera);
+            Utils.runOnWorkerThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (scanner != null) {
+                        scanner.onPreviewFrame(data, camera);
+                    }
                 }
             });
         }
@@ -276,11 +280,14 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     }
 
     public static void setBarcodeScanner() {
-        scanner = new BarcodeScanner(previewCallback, result -> {
-            WritableMap event = Arguments.createMap();
-            event.putString("codeStringValue", result.getText());
-            if (!cameraViews.empty())
-                reactContext.getJSModule(RCTEventEmitter.class).receiveEvent(cameraViews.peek().getId(), "onReadCode", event);
+        scanner = new BarcodeScanner(previewCallback, new BarcodeScanner.ResultHandler() {
+            @Override
+            public void handleResult(Result result) {
+                WritableMap event = Arguments.createMap();
+                event.putString("codeStringValue", result.getText());
+                if (!cameraViews.empty())
+                    reactContext.getJSModule(RCTEventEmitter.class).receiveEvent(cameraViews.peek().getId(), "onReadCode", event);
+            }
         });
     }
 
