@@ -29,23 +29,6 @@ public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
         setBackgroundColor(Color.BLACK);
         addView(surface, MATCH_PARENT, MATCH_PARENT);
         surface.getHolder().addCallback(this);
-        surface.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (CameraViewManager.getCamera() != null) {
-                    try {
-                        CameraViewManager.getCamera().autoFocus(new Camera.AutoFocusCallback() {
-                            @Override
-                            public void onAutoFocus(boolean success, Camera camera) {
-
-                            }
-                        });
-                    } catch (Exception ignored) {
-
-                    }
-                }
-            }
-        });
     }
 
     @Override
