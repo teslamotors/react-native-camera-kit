@@ -130,6 +130,11 @@ public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
         }
     }
 
+    /**
+     * Set background color for Surface view on the period, while camera is not loaded yet.
+     * Provides opportunity for user to hide period while camera is loading
+     * @param color - color of the surfaceview
+     */
     public void setSurfaceBgColor(@ColorInt int color) {
         surface.setBackgroundColor(color);
     }
