@@ -2,7 +2,6 @@ package com.wix.RNCameraKit.camera;
 
 import android.graphics.Color;
 import android.graphics.Rect;
-import android.hardware.Camera;
 import android.support.annotation.ColorInt;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -18,6 +17,7 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
     private SurfaceView surface;
 
+    private boolean showFrame;
     private Rect frameRect;
     private BarcodeFrame barcodeFrame;
     @ColorInt private int frameColor = Color.GREEN;
@@ -78,12 +78,18 @@ public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
         post(measureAndLayout);
     }
 
+    public void setShowFrame(boolean showFrame) {
+        this.showFrame = showFrame;
+    }
+
     public void showFrame() {
-        barcodeFrame = new BarcodeFrame(getContext());
-        barcodeFrame.setFrameColor(frameColor);
-        barcodeFrame.setLaserColor(laserColor);
-        addView(barcodeFrame);
-        requestLayout();
+        if (showFrame) {
+            barcodeFrame = new BarcodeFrame(getContext());
+            barcodeFrame.setFrameColor(frameColor);
+            barcodeFrame.setLaserColor(laserColor);
+            addView(barcodeFrame);
+            requestLayout();
+        }
     }
 
     public Rect getFramingRectInPreview(int previewWidth, int previewHeight) {
@@ -122,5 +128,14 @@ public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
         if (barcodeFrame != null) {
             barcodeFrame.setLaserColor(laserColor);
         }
+    }
+
+    /**
+     * Set background color for Surface view on the period, while camera is not loaded yet.
+     * Provides opportunity for user to hide period while camera is loading
+     * @param color - color of the surfaceview
+     */
+    public void setSurfaceBgColor(@ColorInt int color) {
+        surface.setBackgroundColor(color);
     }
 }

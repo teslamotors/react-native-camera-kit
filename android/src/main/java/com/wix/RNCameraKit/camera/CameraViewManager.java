@@ -48,6 +48,7 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     private static AtomicBoolean cameraReleased = new AtomicBoolean(false);
 
     private static boolean shouldScan = false;
+
     private static BarcodeScanner scanner;
     private static Camera.PreviewCallback previewCallback = new Camera.PreviewCallback() {
         @Override
@@ -171,6 +172,8 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
                             if (shouldScan) {
                                 camera.setOneShotPreviewCallback(previewCallback);
                             }
+                            cameraViews.peek().setSurfaceBgColor(Color.TRANSPARENT);
+                            cameraViews.peek().showFrame();
                         } catch (IOException | RuntimeException e) {
                             e.printStackTrace();
                         }
@@ -309,11 +312,9 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
         }
     }
 
-    @ReactProp(name = "showFrame")
+    @ReactProp(name = "showFrame", defaultBoolean = false)
     public void setFrame(CameraView view, boolean show) {
-        if (show) {
-            view.showFrame();
-        }
+        view.setShowFrame(show);
     }
 
     @ReactProp(name = "frameColor", defaultInt = Color.GREEN)
@@ -324,6 +325,11 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     @ReactProp(name = "laserColor", defaultInt = Color.RED)
     public void setLaserColor(CameraView view, @ColorInt int color) {
         view.setLaserColor(color);
+    }
+
+    @ReactProp(name = "surfaceColor")
+    public void setSurfaceBackground(CameraView view, @ColorInt int color) {
+        view.setSurfaceBgColor(color);
     }
 
     public static synchronized Rect getFramingRectInPreview(int previewWidth, int previewHeight) {
