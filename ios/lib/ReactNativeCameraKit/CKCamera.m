@@ -99,9 +99,10 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 @property (nonatomic) CGFloat frameOffset;
 @property (nonatomic) CGFloat heightFrame;
-@property (nonatomic, strong) UIColor *frameColor;
+@property (nonatomic) UIColor *frameColor;
 @property (nonatomic) UIView *dataReadingFrame;
 @property (nonatomic) UIView *perfomanceBackground;
+@property (nonatomic) UIColor *perfomanceBackgroundColor;
 
 // cameraOptions props
 @property (nonatomic) AVCaptureFlashMode flashMode;
@@ -836,7 +837,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 - (void)addSplashScreen {
     dispatch_async(dispatch_get_main_queue(), ^{
         self.perfomanceBackground = [[UIView alloc]initWithFrame:self.bounds];
-        self.perfomanceBackground.backgroundColor = [UIColor blackColor];
+        self.perfomanceBackground.backgroundColor = self.perfomanceBackgroundColor;
         [self addSubview:self.perfomanceBackground];
         [self bringSubviewToFront:self.perfomanceBackground];
     });
@@ -852,6 +853,10 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
     if (scannerOptions[colorForFrame]) {
         UIColor *acolor = [RCTConvert UIColor:scannerOptions[colorForFrame]];
         self.frameColor = (acolor) ? acolor : [UIColor whiteColor];
+    }
+    if (scannerOptions[surfaceColor]) {
+        UIColor *acolor = [RCTConvert UIColor:scannerOptions[surfaceColor]];
+        self.perfomanceBackgroundColor = (acolor) ? acolor : [UIColor blackColor];
     }
 }
 
@@ -1137,7 +1142,7 @@ didOutputMetadataObjects:(NSArray<__kindof AVMetadataObject *> *)metadataObjects
 const NSString *offsetForScannerFrame     = @"offsetFrame";
 const NSString *heightForScannerFrame     = @"frameHeight";
 const NSString *colorForFrame             = @"colorForFrame";
-const NSString *isNeedMultipleScanBarcode = @"isNeedMultipleScanBarcode";
+const NSString *surfaceColor              = @"surfaceColor";
 const CGFloat scannerHeight = 2;
 
 

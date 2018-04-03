@@ -104,11 +104,16 @@ export default class CameraScreenBase extends Component {
   getScannerOptions() {
     const scannerOptions = this.props.scannerOptions || {};
     scannerOptions.offsetFrame = this.props.offsetForScannerFrame || OFFSET_FRAME;
-    scannerOptions.frameHeight = this.props.heightForScannerFrame || FRAME_HEIGHT;
+    scannerOptions.frameHeight = this.props.heightForScannerFrame || FRAME_HEIGHT;  
     if (this.props.colorForScannerFrame) {
       scannerOptions.colorForFrame = processColor(this.props.colorForScannerFrame);
     } else {
       scannerOptions.colorForFrame = processColor("white");
+    }  
+    if (this.props.surfaceColor) {
+      scannerOptions.surfaceColor = processColor(this.props.surfaceColor)
+    } else {
+      scannerOptions.surfaceColor = processColor("black")
     }
     return scannerOptions;
   }
