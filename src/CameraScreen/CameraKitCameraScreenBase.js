@@ -130,8 +130,8 @@ export default class CameraScreenBase extends Component {
       scannerOptions.laserColor = processColor('white')
     }
     
-    if (this.props.colorForScannerFrame) {
-      scannerOptions.colorForFrame = processColor(this.props.colorForScannerFrame);
+    if (this.props.frameColor) {
+      scannerOptions.colorForFrame = processColor(this.props.frameColor);
     } else {
       scannerOptions.colorForFrame = processColor("white");
     }  
