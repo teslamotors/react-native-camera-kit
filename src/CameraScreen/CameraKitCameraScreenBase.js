@@ -131,7 +131,7 @@ export default class CameraScreenBase extends Component {
     }
     
     if (this.props.frameColor) {
-      scannerOptions.colorForFrame = processColor(this.props.colorForScannerFrame);
+      scannerOptions.colorForFrame = processColor(this.props.frameColor);
     } else {
       scannerOptions.colorForFrame = processColor("white");
     }  
@@ -191,8 +191,11 @@ export default class CameraScreenBase extends Component {
               cameraOptions={this.state.cameraOptions}
               showFrame={this.props.showFrame}
               scanBarcode={this.props.scanBarcode}
-              onReadCode={this.props.onReadCode}
-              scannerOptions={this.state.scannerOptions}
+              laserColor={this.props.laserColor}
+              frameColor={this.props.frameColor}
+              surfaceColor={this.props.surfaceColor}
+              onReadCode = {this.props.onReadCode}
+              scannerOptions = {this.state.scannerOptions}
             />
         }
       </View>
