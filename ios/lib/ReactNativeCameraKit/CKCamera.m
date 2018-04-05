@@ -1139,10 +1139,11 @@ didOutputMetadataObjects:(NSArray<__kindof AVMetadataObject *> *)metadataObjects
 
 #pragma mark - String Constants For Scanner
 
-const NSString *offsetForScannerFrame     = @"offsetFrame";
-const NSString *heightForScannerFrame     = @"frameHeight";
+const NSString *sFrameHeight     = @"frameHeight";
+const NSString *sframeWidth      = @"frameWidth";
 const NSString *colorForFrame             = @"colorForFrame";
 const NSString *surfaceColor              = @"surfaceColor";
+const NSString *laserColor   = 
 const CGFloat scannerHeight = 2;
 
 
