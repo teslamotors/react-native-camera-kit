@@ -22,12 +22,6 @@ public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
     private boolean showFrame;
     private Rect frameRect;
     private BarcodeFrame barcodeFrame;
-    //    @ColorInt private int frameColor = Color.GREEN;
-//    @ColorInt private int laserColor = Color.RED;
-//    private int frameLeft;
-//    private int frameTop;
-//    private int frameWidth;
-//    private int frameHeight;
     private ReadableMap scannerOptions;
 
     public CameraView(ThemedReactContext context) {
