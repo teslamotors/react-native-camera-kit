@@ -3,11 +3,13 @@ package com.wix.RNCameraKit.camera;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.support.annotation.ColorInt;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.wix.RNCameraKit.Utils;
 import com.wix.RNCameraKit.camera.barcode.BarcodeFrame;
@@ -20,12 +22,13 @@ public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
     private boolean showFrame;
     private Rect frameRect;
     private BarcodeFrame barcodeFrame;
-    @ColorInt private int frameColor = Color.GREEN;
-    @ColorInt private int laserColor = Color.RED;
-    private int frameLeft;
-    private int frameTop;
-    private int frameWidth;
-    private int frameHeight;
+    //    @ColorInt private int frameColor = Color.GREEN;
+//    @ColorInt private int laserColor = Color.RED;
+//    private int frameLeft;
+//    private int frameTop;
+//    private int frameWidth;
+//    private int frameHeight;
+    private ReadableMap scannerOptions;
 
     public CameraView(ThemedReactContext context) {
         super(context);
@@ -88,9 +91,7 @@ public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
 
     public void showFrame() {
         if (showFrame) {
-            barcodeFrame = new BarcodeFrame(getContext(), frameLeft, frameTop, frameHeight, frameWidth);
-            barcodeFrame.setFrameColor(frameColor);
-            barcodeFrame.setLaserColor(laserColor);
+            barcodeFrame = new BarcodeFrame(getContext(), scannerOptions);
             addView(barcodeFrame);
             requestLayout();
         }
@@ -120,20 +121,6 @@ public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
         return frameRect;
     }
 
-    public void setFrameColor(@ColorInt int color) {
-        this.frameColor = color;
-        if (barcodeFrame != null) {
-            barcodeFrame.setFrameColor(color);
-        }
-    }
-
-    public void setLaserColor(@ColorInt int color) {
-        this.laserColor = color;
-        if (barcodeFrame != null) {
-            barcodeFrame.setLaserColor(laserColor);
-        }
-    }
-
     /**
      * Set background color for Surface view on the period, while camera is not loaded yet.
      * Provides opportunity for user to hide period while camera is loading
@@ -144,19 +131,7 @@ public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
         surface.setBackgroundColor(color);
     }
 
-    public void setFrameLeft(int frameLeft) {
-        this.frameLeft = frameLeft;
-    }
-
-    public void setFrameTop(int frameTop) {
-        this.frameTop = frameTop;
-    }
-
-    public void setFrameWidth(int frameWidth) {
-        this.frameWidth = frameWidth;
-    }
-
-    public void setFrameHeight(int frameHeight) {
-        this.frameHeight = frameHeight;
+    public void setScannerOptions(ReadableMap scannerOptions) {
+        this.scannerOptions = scannerOptions;
     }
 }

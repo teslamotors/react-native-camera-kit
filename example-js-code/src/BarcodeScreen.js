@@ -1,10 +1,17 @@
 import React, { Component } from 'react';
 import {
-  Alert
+  Alert,
+  Dimensions
 } from 'react-native';
 import { CameraKitCameraScreen } from '../../src';
 import CheckingScreen from './CheckingScreen';
 
+const { width, height } = Dimensions.get('window');
+const frameleft = parseInt(width / 7);
+const frameTop = parseInt(height / 2.75);
+const frameWidth = width - 2 * frameleft;
+const frameHeight = height - 2 * frameTop;
+console.log('NIGA', `w=${width} h=${height} l=${frameleft} t=${frameTop}`);
 
 export default class CameraScreen extends Component {
 
@@ -46,20 +53,14 @@ export default class CameraScreen extends Component {
         laserColor={"blue"}
         surfaceColor={"black"}
         frameColor={"yellow"}
-        frameTop={100}
-        frameLeft={100}
-        frameHeight={100}
-        frameWidth={100}
         onReadCode={((event) => this.setState({ example: CheckingScreen }))}
         hideControls={true}
-
         colorForScannerFrame={'blue'}
-        
-        frameHeight = {200}
-        frameWidth = {200}
-        frameLeft = {20}
-        frameTop = {300}
-        overlayColor = {'black'}
+        frameHeight={frameHeight}
+        frameWidth={frameWidth}
+        frameLeft={frameleft}
+        frameTop={frameTop}
+        overlayColor={'black'}
       />
     );
   }
