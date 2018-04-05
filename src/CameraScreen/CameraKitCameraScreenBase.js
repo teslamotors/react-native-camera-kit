@@ -9,7 +9,7 @@ import {
   NativeModules,
   Platform,
   SafeAreaView,
-  processColor  
+  processColor
 } from 'react-native';
 import _ from 'lodash';
 import CameraKitCamera from './../CameraKitCamera';
@@ -41,14 +41,14 @@ export default class CameraScreenBase extends Component {
       mode: FLASH_MODE_AUTO,
       image: _.get(this.props, 'flashImages.auto')
     },
-      {
-        mode: FLASH_MODE_ON,
-        image: _.get(this.props, 'flashImages.on')
-      },
-      {
-        mode: FLASH_MODE_OFF,
-        image: _.get(this.props, 'flashImages.off')
-      }
+    {
+      mode: FLASH_MODE_ON,
+      image: _.get(this.props, 'flashImages.on')
+    },
+    {
+      mode: FLASH_MODE_OFF,
+      image: _.get(this.props, 'flashImages.off')
+    }
     ];
     this.state = {
       captureImages: [],
@@ -58,7 +58,7 @@ export default class CameraScreenBase extends Component {
       ratioArrayPosition: -1,
       imageCaptured: undefined,
       captured: false,
-      scannerOptions : {}
+      scannerOptions: {}
     };
     this.onSetFlash = this.onSetFlash.bind(this);
     this.onSwitchCameraPressed = this.onSwitchCameraPressed.bind(this);
@@ -169,10 +169,10 @@ export default class CameraScreenBase extends Component {
 
   renderTopButtons() {
     return !this.props.hideControls && (
-        <SafeAreaView style={styles.topButtons}>
-            {this.renderFlashButton()}
-            {this.renderSwitchCameraButton()}
-        </SafeAreaView>
+      <SafeAreaView style={styles.topButtons}>
+        {this.renderFlashButton()}
+        {this.renderSwitchCameraButton()}
+      </SafeAreaView>
     );
   }
 

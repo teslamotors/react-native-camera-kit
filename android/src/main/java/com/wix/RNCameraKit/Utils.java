@@ -2,10 +2,12 @@ package com.wix.RNCameraKit;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.util.TypedValue;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReadableArray;
@@ -37,23 +39,30 @@ public class Utils {
         return null;
     }
 
-    public static @Nullable Integer getIntSafe(ReadableMap map, String key) {
+    @Nullable
+    public static Integer getIntSafe(ReadableMap map, String key) {
+        return getIntSafe(map, key, null);
+    }
+
+    public static Integer getIntSafe(ReadableMap map, String key, Integer defaultInt) {
         if (map.hasKey(key)) {
             return map.getInt(key);
         }
-        return null;
+        return defaultInt;
     }
 
-    public static @Nullable Boolean getBooleanSafe(ReadableMap map, String key) {
+    @Nullable
+    public static Boolean getBooleanSafe(ReadableMap map, String key) {
         if (map.hasKey(key)) {
             return map.getBoolean(key);
         }
         return null;
     }
 
-    public static @NonNull ArrayList<String> readableArrayToList(ReadableArray items) {
+    @NonNull
+    public static ArrayList<String> readableArrayToList(ReadableArray items) {
         ArrayList<String> list = new ArrayList<>();
-        for(int i = 0; i < items.size(); i++) {
+        for (int i = 0; i < items.size(); i++) {
             list.add(items.getString(i));
         }
         return list;
@@ -83,8 +92,8 @@ public class Utils {
 
         WritableMap ans = Arguments.createMap();
         ans.merge(image);
-        ans.putString("uri", FILE_PREFIX+resizedImagePath);
-        ans.putInt("size",  (int)new File(resizedImagePath).length());
+        ans.putString("uri", FILE_PREFIX + resizedImagePath);
+        ans.putInt("size", (int) new File(resizedImagePath).length());
         ans.putInt("width", scaledImage.getWidth());
         ans.putInt("height", scaledImage.getHeight());
         return ans;
@@ -104,7 +113,7 @@ public class Utils {
             float width = image.getWidth();
             float height = image.getHeight();
 
-            float ratio = Math.min((float)maxWidth / width, (float)maxHeight / height);
+            float ratio = Math.min((float) maxWidth / width, (float) maxHeight / height);
 
             int finalWidth = (int) (width * ratio);
             int finalHeight = (int) (height * ratio);
@@ -166,14 +175,14 @@ public class Utils {
      * Loads the bitmap resource from the file specified in imagePath.
      */
     private static Bitmap loadBitmapFromFile(Context context, String imagePath, int newWidth,
-                                             int newHeight) throws IOException  {
+                                             int newHeight) throws IOException {
         // Decode the image bounds to find the size of the source image.
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         loadBitmap(context, imagePath, options);
 
         // Set a sample size according to the image size to lower memory usage.
-        options.inSampleSize = calculateInSampleSize(options.outWidth, options.outHeight , newWidth, newHeight);
+        options.inSampleSize = calculateInSampleSize(options.outWidth, options.outHeight, newWidth, newHeight);
         options.inJustDecodeBounds = false;
         return loadBitmap(context, imagePath, options);
     }
@@ -190,7 +199,7 @@ public class Utils {
         }
 
         File newFile = new File(saveDirectory, fileName + "." + compressFormat.name());
-        if(!newFile.createNewFile()) {
+        if (!newFile.createNewFile()) {
             throw new IOException("The file already exists");
         }
 
@@ -220,5 +229,10 @@ public class Utils {
 
     public static void runOnWorkerThread(Runnable runnable) {
         new Thread(runnable).start();
+    }
+
+    public static int convertDpToPx(int dp, Context context) {
+        Resources r = context.getResources();
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics());
     }
 }
