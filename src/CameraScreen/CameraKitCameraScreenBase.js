@@ -21,8 +21,8 @@ const FLASH_MODE_AUTO = 'auto';
 const FLASH_MODE_ON = 'on';
 const FLASH_MODE_OFF = 'off';
 const OVERLAY_DEFAULT_COLOR = '#ffffff77';
-const OFFSET_FRAME = 30;
-const FRAME_HEIGHT = 200;
+const FRAME_LEFT = 0;
+const FRAME_TOP = 0;
 
 export default class CameraScreenBase extends Component {
 
@@ -103,18 +103,45 @@ export default class CameraScreenBase extends Component {
 
   getScannerOptions() {
     const scannerOptions = this.props.scannerOptions || {};
-    scannerOptions.offsetFrame = this.props.offsetForScannerFrame || OFFSET_FRAME;
-    scannerOptions.frameHeight = this.props.heightForScannerFrame || FRAME_HEIGHT;  
+    if (this.props.showFrame == true) {
+      if (this.props.frameHeight) {
+        scannerOptions.frameHeight = this.props.frameHeight
+      } else {
+        console.warn("frameHeight is required property, if you want to use scannerFrame set frameHeight value")
+      }
+      if (this.props.frameWidth) {
+        scannerOptions.frameWidth = this.props.frameWidth
+      } else {
+        console.warn("frameWidth is required property, if you want to use scannerFrame set frameWidth value")
+      }
+    }
+    scannerOptions.frameLeft = this.props.frameLeft || FRAME_LEFT
+    scannerOptions.frameTop = this.props.frameTop || FRAME_TOP
+
+    if (this.props.overlayColor) {
+      scannerOptions.overlayColor = processColor(this.props.overlayColor)
+    } else {
+      scannerOptions.overlayColor = processColor('black')
+    }
+
+    if (this.props.laserColor) {
+      scannerOptions.laserColor = processColor(this.props.laserColor)
+    } else {
+      scannerOptions.laserColor = processColor('white')
+    }
+    
     if (this.props.colorForScannerFrame) {
       scannerOptions.colorForFrame = processColor(this.props.colorForScannerFrame);
     } else {
       scannerOptions.colorForFrame = processColor("white");
     }  
+    
     if (this.props.surfaceColor) {
       scannerOptions.surfaceColor = processColor(this.props.surfaceColor)
     } else {
       scannerOptions.surfaceColor = processColor("black")
     }
+    
     return scannerOptions;
   }
 

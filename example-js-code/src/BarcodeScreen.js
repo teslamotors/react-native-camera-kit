@@ -48,9 +48,14 @@ export default class CameraScreen extends Component {
         frameColor={"yellow"}
         onReadCode={((event) => this.setState({ example: CheckingScreen }))}
         hideControls={true}
-        // offsetForScannerFrame = {10}  
-        // heightForScannerFrame = {300}  
+
         colorForScannerFrame={'blue'}
+        
+        frameHeight = {200}
+        frameWidth = {200}
+        frameLeft = {20}
+        frameTop = {300}
+        overlayColor = {'black'}
       />
     );
   }
