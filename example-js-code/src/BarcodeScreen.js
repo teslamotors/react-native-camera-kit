@@ -11,7 +11,6 @@ const frameleft = parseInt(width / 7);
 const frameTop = parseInt(height / 2.75);
 const frameWidth = width - 2 * frameleft;
 const frameHeight = height - 2 * frameTop;
-console.log('NIGA', `w=${width} h=${height} l=${frameleft} t=${frameTop}`);
 
 export default class CameraScreen extends Component {
 
