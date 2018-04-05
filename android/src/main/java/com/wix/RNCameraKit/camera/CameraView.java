@@ -22,6 +22,10 @@ public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
     private BarcodeFrame barcodeFrame;
     @ColorInt private int frameColor = Color.GREEN;
     @ColorInt private int laserColor = Color.RED;
+    private int frameLeft;
+    private int frameTop;
+    private int frameWidth;
+    private int frameHeight;
 
     public CameraView(ThemedReactContext context) {
         super(context);
@@ -84,7 +88,7 @@ public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
 
     public void showFrame() {
         if (showFrame) {
-            barcodeFrame = new BarcodeFrame(getContext());
+            barcodeFrame = new BarcodeFrame(getContext(), frameLeft, frameTop, frameHeight, frameWidth);
             barcodeFrame.setFrameColor(frameColor);
             barcodeFrame.setLaserColor(laserColor);
             addView(barcodeFrame);
@@ -133,9 +137,26 @@ public class CameraView extends FrameLayout implements SurfaceHolder.Callback {
     /**
      * Set background color for Surface view on the period, while camera is not loaded yet.
      * Provides opportunity for user to hide period while camera is loading
+     *
      * @param color - color of the surfaceview
      */
     public void setSurfaceBgColor(@ColorInt int color) {
         surface.setBackgroundColor(color);
+    }
+
+    public void setFrameLeft(int frameLeft) {
+        this.frameLeft = frameLeft;
+    }
+
+    public void setFrameTop(int frameTop) {
+        this.frameTop = frameTop;
+    }
+
+    public void setFrameWidth(int frameWidth) {
+        this.frameWidth = frameWidth;
+    }
+
+    public void setFrameHeight(int frameHeight) {
+        this.frameHeight = frameHeight;
     }
 }

@@ -46,6 +46,10 @@ export default class CameraScreen extends Component {
         laserColor={"blue"}
         surfaceColor={"black"}
         frameColor={"yellow"}
+        frameTop={100}
+        frameLeft={100}
+        frameHeight={100}
+        frameWidth={100}
         onReadCode={((event) => this.setState({ example: CheckingScreen }))}
         hideControls={true}
         // offsetForScannerFrame = {10}  

@@ -332,6 +332,26 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
         view.setSurfaceBgColor(color);
     }
 
+    @ReactProp(name = "frameHeight")
+    public void setHeight(CameraView view, int height) {
+        view.setFrameHeight(height);
+    }
+
+    @ReactProp(name = "frameWidth")
+    public void setWidth(CameraView view, int width) {
+        view.setFrameWidth(width);
+    }
+
+    @ReactProp(name = "frameLeft")
+    public void setFrameTop(CameraView view, int left) {
+        view.setFrameLeft(left);
+    }
+
+    @ReactProp(name = "frameTop")
+    public void setFrameLeft(CameraView view, int top) {
+        view.setFrameTop(top);
+    }
+
     public static synchronized Rect getFramingRectInPreview(int previewWidth, int previewHeight) {
         return cameraViews.peek().getFramingRectInPreview(previewWidth, previewHeight);
     }

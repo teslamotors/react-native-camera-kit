@@ -30,12 +30,12 @@ public class BarcodeFrame extends View {
     private long previousFrameTime = System.currentTimeMillis();
     private int laserY;
 
-    public BarcodeFrame(Context context) {
+    public BarcodeFrame(Context context, int frameLeft, int frameTop, int frameHeight, int frameWidth) {
         super(context);
-        init(context);
+        init(context, frameLeft, frameTop, frameHeight, frameWidth);
     }
 
-    private void init(Context context) {
+    private void init(Context context, int frameLeft, int frameTop, int frameHeight, int frameWidth) {
         framePaint = new Paint();
         framePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
         dimPaint = new Paint();
@@ -49,6 +49,10 @@ public class BarcodeFrame extends View {
         laserPaint.setStrokeWidth(STROKE_WIDTH);
 
         frameRect = new Rect();
+        frameRect.left = frameLeft;
+        frameRect.top = frameTop;
+        frameRect.right = frameLeft + frameWidth;
+        frameRect.bottom = frameTop + frameHeight;
         borderMargin = context.getResources().getDimensionPixelSize(R.dimen.border_length);
     }
 
@@ -58,13 +62,13 @@ public class BarcodeFrame extends View {
 
         width = getMeasuredWidth();
         height = getMeasuredHeight();
-        int marginWidth = width / WIDTH_SCALE;
-        int marginHeight = (int) (height / HEIGHT_SCALE);
-
-        frameRect.left = marginWidth;
-        frameRect.right = width - marginWidth;
-        frameRect.top = marginHeight;
-        frameRect.bottom = height - marginHeight;
+//        int marginWidth = width / WIDTH_SCALE;
+//        int marginHeight = (int) (height / HEIGHT_SCALE);
+//
+//        frameRect.left = marginWidth;
+//        frameRect.right = width - marginWidth;
+//        frameRect.top = marginHeight;
+//        frameRect.bottom = height - marginHeight;
     }
 
     @Override
