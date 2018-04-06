@@ -59,7 +59,7 @@ export default class CameraScreen extends Component {
         frameWidth={frameWidth}
         frameLeft={frameleft}
         frameTop={frameTop}
-        overlayColor={'black'}
+        overlayColor={'rgba(255, 0, 0, 0.5)'}
       />
     );
   }

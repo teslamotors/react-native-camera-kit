@@ -32,15 +32,15 @@ public class BarcodeFrame extends View {
 
     public BarcodeFrame(Context context, ReadableMap options) {
         super(context);
-        init(context, options);
+        init(options);
     }
 
-    private void init(Context context, ReadableMap options) {
+    private void init(ReadableMap options) {
         framePaint = new Paint();
         framePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
         dimPaint = new Paint();
         dimPaint.setStyle(Paint.Style.FILL);
-        dimPaint.setColor(context.getResources().getColor(R.color.bg_dark));
+        dimPaint.setColor(getContext().getResources().getColor(R.color.bg_dark));
         borderPaint = new Paint();
         borderPaint.setStyle(Paint.Style.STROKE);
         borderPaint.setStrokeWidth(STROKE_WIDTH);
@@ -49,7 +49,7 @@ public class BarcodeFrame extends View {
         laserPaint.setStrokeWidth(STROKE_WIDTH);
 
         frameRect = new Rect();
-        borderMargin = context.getResources().getDimensionPixelSize(R.dimen.border_length);
+        borderMargin = getContext().getResources().getDimensionPixelSize(R.dimen.border_length);
         parseOptions(options);
     }
 
@@ -60,6 +60,7 @@ public class BarcodeFrame extends View {
         frameRect.bottom = frameRect.top + Utils.convertDpToPx(Utils.getIntSafe(options, "frameHeight", 0), getContext());
         borderPaint.setColor(Utils.getIntSafe(options, "frameColor", Color.GREEN));
         laserPaint.setColor(Utils.getIntSafe(options, "laserColor", Color.RED));
+        dimPaint.setColor(Utils.getIntSafe(options, "overlayColor", getContext().getResources().getColor(R.color.bg_dark)));
     }
 
     @Override
