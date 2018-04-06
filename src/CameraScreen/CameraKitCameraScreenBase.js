@@ -118,7 +118,6 @@ export default class CameraScreenBase extends Component {
     scannerOptions.frameLeft = this.props.frameLeft || FRAME_LEFT
     scannerOptions.frameTop = this.props.frameTop || FRAME_TOP
 
-    console.log('NIGA', "color = " + this.props.overlayColor);
     if (this.props.overlayColor) {
       scannerOptions.overlayColor = processColor(this.props.overlayColor)
     } else {
