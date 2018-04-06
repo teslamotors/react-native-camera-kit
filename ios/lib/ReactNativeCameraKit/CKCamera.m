@@ -843,12 +843,14 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 }
 
 - (void)addSplashScreen {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        self.perfomanceBackground = [[UIView alloc]initWithFrame:self.bounds];
-        self.perfomanceBackground.backgroundColor = self.perfomanceBackgroundColor;
-        [self addSubview:self.perfomanceBackground];
-        [self bringSubviewToFront:self.perfomanceBackground];
-    });
+    if (self.showFrame) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.perfomanceBackground = [[UIView alloc]initWithFrame:self.bounds];
+            self.perfomanceBackground.backgroundColor = self.perfomanceBackgroundColor;
+            [self addSubview:self.perfomanceBackground];
+            [self bringSubviewToFront:self.perfomanceBackground];
+        });
+    }
 }
 
 - (void)setScannerOptions:(NSDictionary *)scannerOptions {
