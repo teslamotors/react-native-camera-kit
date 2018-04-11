@@ -23,7 +23,8 @@
 
 +(NSMutableDictionary*)infoForAsset:(PHAsset*)asset
                 imageRequestOptions:(PHImageRequestOptions*)imageRequestOptions
-                       imageQuality:(NSString*)imageQuality;
+                       imageQuality:(NSString*)imageQuality
+             keepOriginalColorSpace:(BOOL)keepOriginalColorSpace;
 
 
 @end
