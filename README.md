@@ -215,7 +215,7 @@ In order to do so, we provide 3 types of loading/progress inidcators:
 Sets `remoteDownloadIndicatorType` prop (and `remoteDownloadIndicatorColor` in order to sets the Color) on CameraKitGalleryView:
 
 Attribute | Values
-————— | :-----:
+-------- | :-----:
  `'spinner'`     | ![](img/spinner.png)
  `'progress-bar'`| ![](img/progressBar.png)
  `'progress-pie'`| ![](img/pie.png)
