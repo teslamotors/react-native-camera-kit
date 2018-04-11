@@ -25,6 +25,20 @@
 static void * CapturingStillImageContext = &CapturingStillImageContext;
 static void * SessionRunningContext = &SessionRunningContext;
 
+#pragma mark - String Constants For Scanner
+
+const NSString *sFrameHeight     = @"frameHeight";
+const NSString *sFrameWidth      = @"frameWidth";
+const NSString *sFrameLeft       = @"frameLeft";
+const NSString *sFrameTop        = @"frameTop";
+const NSString *overlayColor     = @"overlayColor";
+
+const NSString *colorForFrame    = @"colorForFrame";
+const NSString *surfaceColor     = @"surfaceColor";
+const NSString *laserColor       = @"laserColor";
+const CGFloat scannerHeight = 2;
+const CGFloat defaultAlpha = 0.6;
+
 typedef NS_ENUM( NSInteger, CKSetupResult ) {
     CKSetupResultSuccess,
     CKSetupResultCameraNotAuthorized,
@@ -110,7 +124,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 @property (nonatomic) UIView *dataReadingFrame;
 @property (nonatomic) UIView *perfomanceBackground;
-@property (nonatomic) UIColor *perfomanceBackgroundColor;
+@property (nonatomic) UIColor *surfaceColor;
 
 // cameraOptions props
 @property (nonatomic) AVCaptureFlashMode flashMode;
@@ -846,7 +860,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
     if (self.showFrame) {
         dispatch_async(dispatch_get_main_queue(), ^{
             self.perfomanceBackground = [[UIView alloc]initWithFrame:self.bounds];
-            self.perfomanceBackground.backgroundColor = self.perfomanceBackgroundColor;
+            self.perfomanceBackground.backgroundColor = self.surfaceColor;
             [self addSubview:self.perfomanceBackground];
             [self bringSubviewToFront:self.perfomanceBackground];
         });
@@ -872,7 +886,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
     }
     if (scannerOptions[surfaceColor]) {
         UIColor *acolor = [RCTConvert UIColor:scannerOptions[surfaceColor]];
-        self.perfomanceBackgroundColor = (acolor) ? acolor : [UIColor blackColor];
+        self.surfaceColor = (acolor) ? acolor : [UIColor blackColor];
     }
     if (scannerOptions[overlayColor]) {
         UIColor *acolor = [RCTConvert UIColor:scannerOptions[overlayColor]];
@@ -942,7 +956,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 - (void)addVisualEffects:(CGRect)inputRect {
     self.overlayView = [[UIView alloc] initWithFrame:self.bounds];
-    self.overlayView.alpha = 0.6;
+    self.overlayView.alpha = defaultAlpha;
     self.overlayView.autoresizingMask = UIViewAutoresizingFlexibleHeight;
     [self addSubview:self.overlayView];
     
@@ -1152,18 +1166,7 @@ didOutputMetadataObjects:(NSArray<__kindof AVMetadataObject *> *)metadataObjects
     return result;
 }
 
-#pragma mark - String Constants For Scanner
 
-const NSString *sFrameHeight     = @"frameHeight";
-const NSString *sFrameWidth      = @"frameWidth";
-const NSString *sFrameLeft       = @"frameLeft";
-const NSString *sFrameTop        = @"frameTop";
-const NSString *overlayColor     = @"overlayColor";
-
-const NSString *colorForFrame    = @"colorForFrame";
-const NSString *surfaceColor     = @"surfaceColor";
-const NSString *laserColor       = @"laserColor";
-const CGFloat scannerHeight = 2;
 
 
 

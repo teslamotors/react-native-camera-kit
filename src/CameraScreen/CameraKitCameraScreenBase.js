@@ -14,6 +14,8 @@ import {
 import _ from 'lodash';
 import CameraKitCamera from './../CameraKitCamera';
 
+
+const Container = SafeAreaView && View;
 const IsIOS = Platform.OS === 'ios';
 const GalleryManager = IsIOS ? NativeModules.CKGalleryManager : NativeModules.NativeGalleryModule;
 
@@ -169,10 +171,10 @@ export default class CameraScreenBase extends Component {
 
   renderTopButtons() {
     return !this.props.hideControls && (
-      <SafeAreaView style={styles.topButtons}>
+      <Container style={styles.topButtons}>
         {this.renderFlashButton()}
         {this.renderSwitchCameraButton()}
-      </SafeAreaView>
+      </Container>
     );
   }
 
@@ -302,11 +304,11 @@ export default class CameraScreenBase extends Component {
 
   renderBottomButtons() {
     return !this.props.hideControls && (
-      <SafeAreaView style={[styles.bottomButtons, { backgroundColor: '#ffffff00' }]}>
+      <Container style={[styles.bottomButtons, { backgroundColor: '#ffffff00' }]}>
         {this.renderBottomButton('left')}
         {this.renderCaptureButton()}
         {this.renderBottomButton('right')}
-      </SafeAreaView>
+      </Container>
     );
   }
 
