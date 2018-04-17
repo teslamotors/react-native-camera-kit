@@ -100,8 +100,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 @property (nonatomic) CGFloat frameOffset;
 @property (nonatomic) CGFloat heightFrame;
 @property (nonatomic, strong) UIColor *frameColor;
-@property (nonatomic) UIView *dataReadingFrame;
-@property (nonatomic) UIView *perfomanceBackground;
+@property (nonatomic) UIView * dataReadingFrame;
 
 // cameraOptions props
 @property (nonatomic) AVCaptureFlashMode flashMode;
@@ -825,21 +824,11 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 - (void)didMoveToWindow {
     [super didMoveToWindow];
-    [self addSplashScreen];
     if (self.sessionRunning && self.dataReadingFrame) {
         dispatch_async(dispatch_get_main_queue(), ^{
             [self startAnimatingScanner:self.dataReadingFrame];
         });
     }
-}
-
-- (void)addSplashScreen {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        self.perfomanceBackground = [[UIView alloc]initWithFrame:self.bounds];
-        self.perfomanceBackground.backgroundColor = [UIColor blackColor];
-        [self addSubview:self.perfomanceBackground];
-        [self bringSubviewToFront:self.perfomanceBackground];
-    });
 }
 
 - (void)setScannerOptions:(NSDictionary *)scannerOptions {
@@ -913,6 +902,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         UIView * cornerView = [[UIView alloc] initWithFrame:CGRectMake(x, y, width, height)];
         cornerView.backgroundColor = self.frameColor;
         [frameView addSubview:cornerView];
+        
     }
 }
 
@@ -933,38 +923,26 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
                                                                   self.frame.size.height - inputRect.origin.y - self.heightFrame)];
     bottomView.backgroundColor = [UIColor colorWithRed:0.0/255.0 green:0.0/255.0 blue:0.0/255.0 alpha:0.4];
     [self addSubview:bottomView];
-    [self bringSubviewToFront:self.perfomanceBackground];
     
 }
 
 - (void)startAnimatingScanner:(UIView *)inputView {
     if (!self.greenScanner) {
-        self.greenScanner = [[UIView alloc] initWithFrame:CGRectMake(scannerHeight, 0, inputView.frame.size.width - (2*scannerHeight), scannerHeight)];
+        self.greenScanner = [[UIView alloc] initWithFrame:CGRectMake(2, 0, inputView.frame.size.width - 4, 2)];
         self.greenScanner.backgroundColor = [UIColor whiteColor];
     }
     if (self.greenScanner.frame.origin.y != 0) {
-        [self.greenScanner setFrame:CGRectMake(scannerHeight, 0, inputView.frame.size.width - (2*scannerHeight), scannerHeight)];
+        [self.greenScanner setFrame:CGRectMake(2, 0, inputView.frame.size.width - 4, 2)];
     }
-    [self checkPerfomancebackground];
     [inputView addSubview:self.greenScanner];
     [UIView animateWithDuration:3 delay:0 options:(UIViewAnimationOptionAutoreverse | UIViewAnimationOptionRepeat) animations:^{
-        CGFloat middleX = inputView.frame.size.width / scannerHeight;
-        self.greenScanner.center = CGPointMake(middleX, inputView.frame.size.height - (scannerHeight/2));
+        CGFloat middleX = inputView.frame.size.width / 2;
+        self.greenScanner.center = CGPointMake(middleX, inputView.frame.size.height - 1);
     } completion:^(BOOL finished) {}];
 }
 
 - (void)stopAnimatingScanner {
     [self.greenScanner removeFromSuperview];
-}
-
-- (void)checkPerfomancebackground {
-    if (self.perfomanceBackground != nil) {
-        [UIView animateWithDuration:0.5 animations:^{
-            self.perfomanceBackground.alpha = 0;
-        } completion:^(BOOL finished) {
-            [self.perfomanceBackground removeFromSuperview];
-        }];
-    }
 }
 
 //Observer actions
@@ -1138,7 +1116,6 @@ const NSString *offsetForScannerFrame     = @"offsetFrame";
 const NSString *heightForScannerFrame     = @"frameHeight";
 const NSString *colorForFrame             = @"colorForFrame";
 const NSString *isNeedMultipleScanBarcode = @"isNeedMultipleScanBarcode";
-const CGFloat scannerHeight = 2;
 
 
 
