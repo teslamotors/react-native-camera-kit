@@ -2,21 +2,21 @@ package com.wix.RNCameraKit.camera.barcode;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
+import android.support.annotation.ColorInt;
 import android.view.View;
 
-import com.facebook.react.bridge.ReadableMap;
 import com.wix.RNCameraKit.R;
-import com.wix.RNCameraKit.Utils;
 
 public class BarcodeFrame extends View {
 
     private static final int STROKE_WIDTH = 5;
     private static final int ANIMATION_SPEED = 8;
+    private static final int WIDTH_SCALE = 7;
+    private static final double HEIGHT_SCALE = 2.75;
 
     private Paint dimPaint;
     private Paint framePaint;
@@ -30,17 +30,17 @@ public class BarcodeFrame extends View {
     private long previousFrameTime = System.currentTimeMillis();
     private int laserY;
 
-    public BarcodeFrame(Context context, ReadableMap options) {
+    public BarcodeFrame(Context context) {
         super(context);
-        init(options);
+        init(context);
     }
 
-    private void init(ReadableMap options) {
+    private void init(Context context) {
         framePaint = new Paint();
         framePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
         dimPaint = new Paint();
         dimPaint.setStyle(Paint.Style.FILL);
-        dimPaint.setColor(getContext().getResources().getColor(R.color.bg_dark));
+        dimPaint.setColor(context.getResources().getColor(R.color.bg_dark));
         borderPaint = new Paint();
         borderPaint.setStyle(Paint.Style.STROKE);
         borderPaint.setStrokeWidth(STROKE_WIDTH);
@@ -49,18 +49,7 @@ public class BarcodeFrame extends View {
         laserPaint.setStrokeWidth(STROKE_WIDTH);
 
         frameRect = new Rect();
-        borderMargin = getContext().getResources().getDimensionPixelSize(R.dimen.border_length);
-        parseOptions(options);
-    }
-
-    private void parseOptions(ReadableMap options) {
-        frameRect.left = Utils.convertDpToPx(Utils.getIntSafe(options, "frameLeft", 0), getContext());
-        frameRect.top = Utils.convertDpToPx(Utils.getIntSafe(options, "frameTop", 0), getContext());
-        frameRect.right = frameRect.left + Utils.convertDpToPx(Utils.getIntSafe(options, "frameWidth", 0), getContext());
-        frameRect.bottom = frameRect.top + Utils.convertDpToPx(Utils.getIntSafe(options, "frameHeight", 0), getContext());
-        borderPaint.setColor(Utils.getIntSafe(options, "frameColor", Color.GREEN));
-        laserPaint.setColor(Utils.getIntSafe(options, "laserColor", Color.RED));
-        dimPaint.setColor(Utils.getIntSafe(options, "overlayColor", getContext().getResources().getColor(R.color.bg_dark)));
+        borderMargin = context.getResources().getDimensionPixelSize(R.dimen.border_length);
     }
 
     @Override
@@ -69,6 +58,13 @@ public class BarcodeFrame extends View {
 
         width = getMeasuredWidth();
         height = getMeasuredHeight();
+        int marginWidth = width / WIDTH_SCALE;
+        int marginHeight = (int) (height / HEIGHT_SCALE);
+
+        frameRect.left = marginWidth;
+        frameRect.right = width - marginWidth;
+        frameRect.top = marginHeight;
+        frameRect.bottom = height - marginHeight;
     }
 
     @Override
@@ -104,4 +100,11 @@ public class BarcodeFrame extends View {
         return frameRect;
     }
 
+    public void setFrameColor(@ColorInt int borderColor) {
+        borderPaint.setColor(borderColor);
+    }
+
+    public void setLaserColor(@ColorInt int laserColor) {
+        laserPaint.setColor(laserColor);
+    }
 }
