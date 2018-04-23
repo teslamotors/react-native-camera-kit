@@ -848,7 +848,6 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 - (void)didMoveToWindow {
     [super didMoveToWindow];
-    [self addSplashScreen];
     if (self.sessionRunning && self.dataReadingFrame) {
         dispatch_async(dispatch_get_main_queue(), ^{
             [self startAnimatingScanner:self.dataReadingFrame];
@@ -951,6 +950,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         UIView * cornerView = [[UIView alloc] initWithFrame:CGRectMake(x, y, width, height)];
         cornerView.backgroundColor = self.frameColor;
         [frameView addSubview:cornerView];
+        
     }
 }
 
@@ -989,16 +989,6 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 - (void)stopAnimatingScanner {
     [self.laserView removeFromSuperview];
-}
-
-- (void)checkPerfomancebackground {
-    if (self.perfomanceBackground != nil) {
-        [UIView animateWithDuration:0.5 animations:^{
-            self.perfomanceBackground.alpha = 0;
-        } completion:^(BOOL finished) {
-            [self.perfomanceBackground removeFromSuperview];
-        }];
-    }
 }
 
 //Observer actions
