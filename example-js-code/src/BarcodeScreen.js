@@ -1,10 +1,16 @@
 import React, { Component } from 'react';
 import {
-  Alert
+  Alert,
+  Dimensions
 } from 'react-native';
 import { CameraKitCameraScreen } from '../../src';
 import CheckingScreen from './CheckingScreen';
 
+const { width, height } = Dimensions.get('window');
+const frameleft = parseInt(width / 7);
+const frameTop = parseInt(height / 2.75);
+const frameWidth = width - 2 * frameleft;
+const frameHeight = height - 2 * frameTop;
 
 export default class CameraScreen extends Component {
 
@@ -48,9 +54,12 @@ export default class CameraScreen extends Component {
         frameColor={"yellow"}
         onReadCode={((event) => this.setState({ example: CheckingScreen }))}
         hideControls={true}
-        // offsetForScannerFrame = {10}  
-        // heightForScannerFrame = {300}  
         colorForScannerFrame={'blue'}
+        frameHeight={frameHeight}
+        frameWidth={frameWidth}
+        frameLeft={frameleft}
+        frameTop={frameTop}
+        overlayColor={'rgba(255, 0, 0, 0.5)'}
       />
     );
   }
