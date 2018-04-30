@@ -198,16 +198,24 @@ RCT_EXPORT_METHOD(getAlbumsWithThumbnails:(RCTPromiseResolveBlock)resolve
 RCT_EXPORT_METHOD(getImagesForIds:(NSArray*)imagesIdArray
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(__unused RCTPromiseRejectBlock)reject) {
-    [self imagesForIds:imagesIdArray imageQuality:nil resolve:resolve reject:reject];
+    [self imagesForIds:imagesIdArray imageQuality:nil keepOriginalColorSpace:NO resolve:resolve reject:reject];
 }
-
 
 RCT_EXPORT_METHOD(getImagesForIds:(NSArray*)imagesIdArray
                   imageQuality:(NSString*)imageQuality
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(__unused RCTPromiseRejectBlock)reject) {
+  
+  [self imagesForIds:imagesIdArray imageQuality:imageQuality keepOriginalColorSpace:NO resolve:resolve reject:reject];
+}
+
+RCT_EXPORT_METHOD(getImagesForIds:(NSArray*)imagesIdArray
+                  imageQuality:(NSString*)imageQuality
+                  keepOriginalColorSpace:(BOOL)keepOriginalColorSpace
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(__unused RCTPromiseRejectBlock)reject) {
     
-    [self imagesForIds:imagesIdArray imageQuality:imageQuality resolve:resolve reject:reject];
+    [self imagesForIds:imagesIdArray imageQuality:imageQuality keepOriginalColorSpace:keepOriginalColorSpace resolve:resolve reject:reject];
 }
 
 RCT_EXPORT_METHOD(resizeImage:(NSDictionary*)image
@@ -245,6 +253,7 @@ RCT_EXPORT_METHOD(resizeImage:(NSDictionary*)image
 
 -(void)imagesForIds:(NSArray*)imagesIdArray
        imageQuality:(NSString*)imageQuality
+keepOriginalColorSpace:(BOOL)keepOriginalColorSpace
             resolve:(RCTPromiseResolveBlock)resolve
              reject:(__unused RCTPromiseRejectBlock)reject {
     
@@ -262,7 +271,7 @@ RCT_EXPORT_METHOD(resizeImage:(NSDictionary*)image
     
     for (PHAsset *asset in assets) {
         
-        NSDictionary *assetInfoDict = [CKGalleryViewManager infoForAsset:asset imageRequestOptions:imageRequestOptions imageQuality:imageQuality];
+        NSDictionary *assetInfoDict = [CKGalleryViewManager infoForAsset:asset imageRequestOptions:imageRequestOptions imageQuality:imageQuality keepOriginalColorSpace:keepOriginalColorSpace];
         NSString *assetLocalId = asset.localIdentifier;
         
         if (assetInfoDict && assetInfoDict[@"uri"] && assetInfoDict[@"size"] && assetInfoDict[@"name"] && assetLocalId) {

@@ -50,6 +50,7 @@ typedef void (^CompletionBlock)(BOOL success);
 @property (nonatomic, strong) NSMutableArray *selectedImages;
 
 @property (nonatomic, strong) PHImageRequestOptions *imageRequestOptions;
+@property (nonatomic)         BOOL keepOriginalColorSpace;
 
 @property (nonatomic, strong) PHFetchOptions *fetchOptions;
 @property (nonatomic, strong) NSString *selectedBase64Image;
@@ -652,7 +653,7 @@ static NSString * const CustomCellReuseIdentifier = @"CustomCell";
         if (shouldReturnUrl) {
             PHImageRequestOptions *imageRequestOptions = [[PHImageRequestOptions alloc] init];
             imageRequestOptions.synchronous = YES;
-            NSDictionary *info = [CKGalleryViewManager infoForAsset:asset imageRequestOptions:imageRequestOptions imageQuality:self.imageQualityOnTap];
+            NSDictionary *info = [CKGalleryViewManager infoForAsset:asset imageRequestOptions:imageRequestOptions imageQuality:self.imageQualityOnTap keepOriginalColorSpace: self.keepOriginalColorSpace];
             NSString *uriString = info[@"uri"];
             
             if (uriString) {
@@ -758,6 +759,7 @@ RCT_EXPORT_VIEW_PROPERTY(contentInset, UIEdgeInsets);
 RCT_EXPORT_VIEW_PROPERTY(imageQualityOnTap, NSString);
 RCT_EXPORT_VIEW_PROPERTY(alwaysBounce, BOOL);
 RCT_EXPORT_VIEW_PROPERTY(isHorizontal, BOOL);
+RCT_EXPORT_VIEW_PROPERTY(keepOriginalColorSpace, BOOL);
 RCT_EXPORT_VIEW_PROPERTY(remoteDownloadIndicatorColor, UIColor);
 RCT_EXPORT_VIEW_PROPERTY(remoteDownloadIndicatorType, NSString);
 RCT_EXPORT_VIEW_PROPERTY(onRemoteDownloadChanged, RCTDirectEventBlock);
@@ -774,7 +776,8 @@ RCT_EXPORT_METHOD(getSelectedImages:(RCTPromiseResolveBlock)resolve
     [[NSFileManager defaultManager] createDirectoryAtURL:directoryURL withIntermediateDirectories:YES attributes:nil error:&error];
     
     NSMutableArray *assetsUrls = [[NSMutableArray alloc] init];
-    
+  
+    BOOL keepOriginalColorSpace = self.galleryView.keepOriginalColorSpace;
     for (PHAsset *asset in self.galleryView.selectedImages) {
         
         [self.galleryView.imageManager requestImageDataForAsset:asset options:nil resultHandler:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
@@ -787,7 +790,7 @@ RCT_EXPORT_METHOD(getSelectedImages:(RCTPromiseResolveBlock)resolve
             }
             
             NSMutableDictionary *assetInfoDict = [[NSMutableDictionary alloc] init];
-            imageData = [CKGalleryViewManager handleNonJPEGOrPNGFormatsData:imageData dataUTI:dataUTI];
+            imageData = [CKGalleryViewManager handleNonJPEGOrPNGFormatsData:imageData dataUTI:dataUTI keepOriginalColorSpace: keepOriginalColorSpace];
             NSString *fileName = ((NSURL*)info[@"PHImageFileURLKey"]).lastPathComponent;
             
             fileName = [CKGalleryViewManager handleNonJPEGOrPNGFormatsFileName:fileName dataUTI:dataUTI];
@@ -844,7 +847,8 @@ RCT_EXPORT_METHOD(modifyGalleryViewContentOffset:(NSDictionary*)params) {
 
 +(NSMutableDictionary*)infoForAsset:(PHAsset*)asset
                 imageRequestOptions:(PHImageRequestOptions*)imageRequestOptions
-                       imageQuality:(NSString*)imageQuality {
+                       imageQuality:(NSString*)imageQuality
+             keepOriginalColorSpace:(BOOL) keepOriginalColorSpace {
     
     NSError *error = nil;
     NSURL *directoryURL = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:[[NSProcessInfo processInfo] globallyUniqueString]] isDirectory:YES];
@@ -862,7 +866,7 @@ RCT_EXPORT_METHOD(modifyGalleryViewContentOffset:(NSDictionary*)params) {
         
         NSString *fileName = ((NSURL*)info[@"PHImageFileURLKey"]).lastPathComponent;
         fileName = [CKGalleryViewManager handleNonJPEGOrPNGFormatsFileName:fileName dataUTI:dataUTI];
-        imageData = [CKGalleryViewManager handleNonJPEGOrPNGFormatsData:imageData dataUTI:dataUTI];
+        imageData = [CKGalleryViewManager handleNonJPEGOrPNGFormatsData:imageData dataUTI:dataUTI keepOriginalColorSpace:keepOriginalColorSpace];
         
         NSData *compressedImageData = imageData;
         
@@ -911,7 +915,7 @@ RCT_EXPORT_METHOD(modifyGalleryViewContentOffset:(NSDictionary*)params) {
 }
 
 
-+(NSData*)handleNonJPEGOrPNGFormatsData:(NSData*)imageData dataUTI:(NSString*)dataUTI {
++(NSData*)handleNonJPEGOrPNGFormatsData:(NSData*)imageData dataUTI:(NSString*)dataUTI keepOriginalColorSpace:(BOOL)keepOriginalColorSpace {
     NSData *ans = imageData;
     if([dataUTI isEqualToString:(__bridge NSString*)kUTTypeJPEG] == NO && [dataUTI isEqualToString:(__bridge NSString*)kUTTypePNG] == NO)
     {
@@ -920,7 +924,7 @@ RCT_EXPORT_METHOD(modifyGalleryViewContentOffset:(NSDictionary*)params) {
         
         if ([context respondsToSelector:@selector(JPEGRepresentationOfImage:colorSpace:options:)]) {
             ans = [context JPEGRepresentationOfImage:image
-                                          colorSpace:CGColorSpaceCreateWithName(kCGColorSpaceSRGB)
+                                          colorSpace: keepOriginalColorSpace ? image.colorSpace : CGColorSpaceCreateWithName(kCGColorSpaceSRGB)
                                              options:@{(NSString*)kCGImageDestinationLossyCompressionQuality: @1.0}];
         }
     }
