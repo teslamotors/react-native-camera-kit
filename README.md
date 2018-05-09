@@ -138,7 +138,7 @@ const success = await this.camera.setFlashMode(newFlashData.mode);
 
 #### changeCamera - must have the wanted camera capture reference
 
-Change to fornt/rear camera
+Change to front/rear camera
 
 ```js
 const success = await this.camera.changeCamera();
