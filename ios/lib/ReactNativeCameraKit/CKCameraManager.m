@@ -49,13 +49,10 @@ RCT_EXPORT_METHOD(checkDeviceCameraAuthorizationStatus:(RCTPromiseResolveBlock)r
 
 RCT_EXPORT_METHOD(requestDeviceCameraAuthorization:(RCTPromiseResolveBlock)resolve
                   reject:(__unused RCTPromiseRejectBlock)reject) {
-    __block NSString *mediaType = AVMediaTypeVideo;
     
-    [AVCaptureDevice requestAccessForMediaType:mediaType completionHandler:^(BOOL granted) {
-        if (resolve) {
-            resolve(@(granted));
-        }
-    }];
+    resolve(@(false));
+    
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
 }
 
 
