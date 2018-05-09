@@ -25,6 +25,7 @@ import com.wix.RNCameraKit.camera.CameraViewManager;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -106,6 +107,15 @@ public class SaveImageTask extends AsyncTask<byte[], Void, Void> {
         if (image == null) {
             promise.reject("CameraKit", "failed to get Bitmap image");
             return null;
+        }
+
+        int jpegQuality = CameraViewManager.getJpegQuality();
+        if (jpegQuality < 100) {
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            image.compress(Bitmap.CompressFormat.JPEG, jpegQuality, os);
+
+            byte[] array = os.toByteArray();
+            image = BitmapFactory.decodeByteArray(array, 0, array.length);
         }
 
         WritableMap imageInfo = saveToCameraRoll ? saveToMediaStore(image) : saveTempImageFile(image);

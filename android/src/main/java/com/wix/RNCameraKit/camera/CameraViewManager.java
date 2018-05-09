@@ -40,6 +40,7 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
 
     private static Camera camera = null;
     private static int currentCamera = 0;
+    private static int jpegQuality = 100;
     private static String flashMode = Camera.Parameters.FLASH_MODE_AUTO;
     private static Stack<CameraView> cameraViews = new Stack<>();
     private static ThemedReactContext reactContext;
@@ -283,6 +284,10 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
         return currentRotation / 90;
     }
 
+    public static int getJpegQuality() {
+        return jpegQuality;
+    }
+
     public static void setBarcodeScanner() {
         scanner = new BarcodeScanner(previewCallback, new BarcodeScanner.ResultHandler() {
             @Override
@@ -330,6 +335,13 @@ public class CameraViewManager extends SimpleViewManager<CameraView> {
     @ReactProp(name = "surfaceColor")
     public void setSurfaceBackground(CameraView view, @ColorInt int color) {
         view.setSurfaceBgColor(color);
+    }
+
+    @ReactProp(name = "quality")
+    public void setJpegQuality(CameraView view, int quality) {
+        if (quality >= 0 && quality <= 100) {
+            jpegQuality = quality;
+        }
     }
 
     public static synchronized Rect getFramingRectInPreview(int previewWidth, int previewHeight) {
