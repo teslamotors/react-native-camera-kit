@@ -164,6 +164,8 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         // Create the AVCaptureSession.
         self.session = [[AVCaptureSession alloc] init];
         
+        self.session.sessionPreset = AVCaptureSessionPresetPhoto;
+        
         // Communicate with the session and other session objects on this queue.
         self.sessionQueue = dispatch_queue_create( "session queue", DISPATCH_QUEUE_SERIAL );
         
