@@ -303,11 +303,10 @@ RCT_EXPORT_METHOD(checkDevicePhotosAuthorizationStatus:(RCTPromiseResolveBlock)r
 
 RCT_EXPORT_METHOD(requestDevicePhotosAuthorization:(RCTPromiseResolveBlock)resolve
                   reject:(__unused RCTPromiseRejectBlock)reject) {
-    [CKGalleryManager requestDeviceGalleryAuthorization:^(BOOL isAuthorized) {
-        if (resolve) {
-            resolve(@(isAuthorized));
-        }
-    }];
+    
+    resolve(@(false));
+    
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
 }
 
 
