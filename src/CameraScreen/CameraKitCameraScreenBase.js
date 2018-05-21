@@ -28,10 +28,12 @@ export default class CameraScreenBase extends Component {
 
   static propTypes = {
     allowCaptureRetake: PropTypes.bool,
+    shouldSaveToCameraRoll: PropTypes.bool
   };
 
   static defaultProps = {
     allowCaptureRetake: false,
+    shouldSaveToCameraRoll: true
   };
 
   constructor(props) {
@@ -290,8 +292,7 @@ export default class CameraScreenBase extends Component {
   }
 
   async onCaptureImagePressed() {
-    const shouldSaveToCameraRoll = !this.props.allowCaptureRetake;
-    const image = await this.camera.capture(shouldSaveToCameraRoll);
+    const image = await this.camera.capture(this.props.shouldSaveToCameraRoll);
 
     if (this.props.allowCaptureRetake) {
       this.setState({ imageCaptured: image });
