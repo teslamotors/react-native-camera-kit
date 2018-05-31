@@ -8,7 +8,7 @@
 
 ---
 ### Environment
-* React Native Navigation version: [FILL THIS OUT]
+* React Native Camera Kit version: [FILL THIS OUT]
 * React Native version: [FILL THIS OUT]
 * Platform(s) (iOS, Android, or both?): [FILL THIS OUT]
 * Device info (Simulator/Device? OS version? Debug/Release?): [FILL THIS OUT]
