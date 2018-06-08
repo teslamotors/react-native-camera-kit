@@ -2,8 +2,9 @@ import * as _ from 'lodash';
 import React, { Component } from 'react';
 import {
 	requireNativeComponent,
-  NativeModules,
-  processColor
+  	NativeModules,
+  	processColor,
+	PermissionsAndroid
 } from 'react-native';
 
 const NativeCamera = requireNativeComponent('CameraView', null);
@@ -27,9 +28,17 @@ export default class CameraKitCamera extends React.Component {
     console.log('flashMode?', await NativeCameraModule.getFlashMode());
   }
 
-  static async requestDeviceCameraAuthorization() {
-    const usersAuthorizationAnswer = await NativeCameraModule.requestDeviceCameraAuthorization();
-    return usersAuthorizationAnswer;
+  static requestDeviceCameraAuthorization() {
+    return new Promise((resolve, reject) => {
+      PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.CAMERA
+      ).then(result => {
+        if (result == PermissionsAndroid.RESULTS.GRANTED || result == true)
+          resolve(true);
+        else
+          resolve(false)
+      })
+    });
   }
 
   async capture(saveToCameraRoll = true) {
