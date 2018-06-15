@@ -118,9 +118,9 @@ public class SaveImageTask extends AsyncTask<byte[], Void, Void> {
         return null;
     }
 
-    private WritableMap createImageInfo(String filePath, String id, String fileName, long fileSize, int width, int height) {
+    private WritableMap createImageInfo(String fileUri, String id, String fileName, long fileSize, int width, int height) {
         WritableMap imageInfo = Arguments.createMap();
-        imageInfo.putString("uri",  filePath);
+        imageInfo.putString("uri",  fileUri);
         imageInfo.putString("id", id);
         imageInfo.putString("name", fileName);
         imageInfo.putInt("size", (int) fileSize);
@@ -144,7 +144,7 @@ public class SaveImageTask extends AsyncTask<byte[], Void, Void> {
             long fileSize = new File(filePath).length();
             cursor.close();
 
-            return createImageInfo(filePath, filePath, fileName, fileSize, image.getWidth(), image.getHeight());
+            return createImageInfo(fileUri, filePath, fileName, fileSize, image.getWidth(), image.getHeight());
         } catch (Exception e) {
             return null;
         }
