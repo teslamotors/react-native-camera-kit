@@ -1,4 +1,4 @@
-export default styleObject = {
+export default {
   bottomButtons: {
     flex: 2,
     flexDirection: 'row',
