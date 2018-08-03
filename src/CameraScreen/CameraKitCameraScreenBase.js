@@ -292,6 +292,8 @@ export default class CameraScreenBase extends Component {
   }
 
   async onCaptureImagePressed() {
+    this.sendBottomButtonPressedAction('processing', false, {});
+    
     const image = await this.camera.capture(this.props.shouldSaveToCameraRoll);
 
     if (this.props.allowCaptureRetake) {
