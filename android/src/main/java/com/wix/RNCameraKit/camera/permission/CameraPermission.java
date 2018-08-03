@@ -58,6 +58,6 @@ public class CameraPermission {
     }
 
     private boolean isPermissionGranted(Activity activity) {
-        return checkAuthorizationStatus(activity) == PermissionChecker.PERMISSION_GRANTED;
+        return checkAuthorizationStatus(activity) == PERMISSION_GRANTED;
     }
 }
