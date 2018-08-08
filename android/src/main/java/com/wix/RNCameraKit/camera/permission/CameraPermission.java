@@ -29,7 +29,10 @@ public class CameraPermission {
 
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (isCameraPermission(requestCode, permissions)) {
-            if (requestAccessPromise != null) requestAccessPromise.resolve(grantResults[0] == PermissionChecker.PERMISSION_GRANTED);
+            if (requestAccessPromise != null) {
+                requestAccessPromise.resolve(grantResults[0] == PermissionChecker.PERMISSION_GRANTED);
+                requestAccessPromise = null;
+            }
         }
     }
 
