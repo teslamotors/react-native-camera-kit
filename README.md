@@ -33,14 +33,14 @@ Add the following to your project's `settings.gradle` file:
 
 
 ```diff
-+ include ':rncamerakit'
-+ project(':rncamerakit').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-camera-kit/android/')
++ include ':RNCameraKit'
++ project(':RNCameraKit').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-camera-kit/android/')
 ```
 
 Then add to your app `app/build.gradle` in the `dependencies` section:
 
 ```diff
-+ compile project(":rncamerakit")
++ compile project(":RNCameraKit")
 ```
 
 Then in `MainApplication.java` add:
