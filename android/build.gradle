@@ -1,12 +1,16 @@
+def safeExtGet(prop, fallback) {
+    rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
+}
+
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "26.0.3"
+    compileSdkVersion safeExtGet('compileSdkVersion', 25)
+    buildToolsVersion safeExtGet('buildToolsVersion', '26.0.3')
 
     defaultConfig {
-        minSdkVersion 16
-        targetSdkVersion 25
+        minSdkVersion safeExtGet('minSdkVersion', 16)
+        targetSdkVersion safeExtGet('targetSdkVersion', 25)
         versionCode 1
         versionName "1.0"
         ndk {

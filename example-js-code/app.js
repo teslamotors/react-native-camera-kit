@@ -66,13 +66,13 @@ class example extends Component {
 
           <TouchableOpacity onPress={() => this.onCheckCameraAuthoPressed()}>
             <Text style={styles.buttonText}>
-              Camera Autotization Status
+              Camera Authorization Status
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => this.onCheckGalleryAuthoPressed()}>
             <Text style={styles.buttonText}>
-              Photos Autotization Status
+              Photos Authorization Status
             </Text>
           </TouchableOpacity>
         </View>
