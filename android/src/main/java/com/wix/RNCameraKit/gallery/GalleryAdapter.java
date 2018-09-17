@@ -15,6 +15,8 @@ import com.facebook.react.uimanager.UIManagerModule;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -110,7 +112,16 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
             }
 
             onTapImage(image.uri, image.width, image.height);
+            // optimistically update the selection state for responsiveness -
+            // ultimately the selection state will be reset based on the
+            // imagesSelected prop which should be updated based on the
+            // onTapImage handler
             v.setSelected(!isSelected);
+            if (isSelected) {
+                selectedUris.remove(image.uri);
+            } else {
+                selectedUris.add(image.uri);
+            }
         }
 
         private boolean isSelected() {
@@ -189,6 +200,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
 
     private boolean isDirty = true;
     private ArrayList<Image> images = new ArrayList<>();
+    private HashMap<String, Integer> imagePositions = new HashMap<>();
 
     public GalleryAdapter(ReactContext reactContext, GalleryView galleryView) {
         this.reactContext = reactContext;
@@ -206,7 +218,9 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
     }
 
     public void setSelectedUris(ArrayList<String> selectedUris) {
+        ArrayList<String> oldSelectedUris = this.selectedUris;
         this.selectedUris = selectedUris;
+        updateSelectedItems(oldSelectedUris, selectedUris);
     }
 
     void setDirtyUris(List<String> dirtyUris) {
@@ -280,6 +294,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
 
         int preItemsCount = getItemCount();
         images.clear();
+        imagePositions.clear();
 
         String selection = "";
         String[] args = null;
@@ -313,6 +328,13 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
             images.add(new Image(null, -1, "", 0, 0,0));
         }
         Collections.reverse(images);
+        int index = 0;
+        for (Image img : images) {
+            if (img.uri != null) {
+                imagePositions.put(img.uri, index);
+            }
+            index++;
+        }
         cursor.close();
         notifyItemsLoaded(preItemsCount, getItemCount());
     }
@@ -334,6 +356,50 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.AbsViewH
                         @Override
                         public void run() {
                             notifyItemsLoaded(preCount, postCount);
+                        }
+                    }, 10);
+                }
+            }
+        });
+    }
+
+    private void updateSelectedItems(final ArrayList<String> oldSelections, final ArrayList<String> newSelections) {
+        // get intersection of new and old for unchanged selections
+        HashSet<String> unchangedImageUris = new HashSet<>(oldSelections);
+        unchangedImageUris.retainAll(newSelections);
+
+        // get union of new and old and remove the intersection for the changedImageUris
+        HashSet<String> changedImageUris = new HashSet<>(oldSelections);
+        changedImageUris.addAll(newSelections);
+        changedImageUris.removeAll(unchangedImageUris);
+
+        if (!changedImageUris.isEmpty()) {
+            ArrayList<Integer> changedImagePositions = new ArrayList<>(changedImageUris.size());
+            for (String changedUri: changedImageUris) {
+                Integer imagePosition = imagePositions.get(changedUri);
+                if (imagePosition != null) {
+                    changedImagePositions.add(imagePosition);
+                }
+            }
+            notifyItemsChanged(changedImagePositions);
+        }
+    }
+
+    private void notifyItemsChanged(final List<Integer> changedPositions) {
+        reactContext.runOnUiQueueThread(new Runnable() {
+            @Override
+            public void run() {
+                if (!galleryView.isComputingLayout()) {
+                    for (int pos: changedPositions) {
+                        notifyItemChanged(pos);
+                    }
+                    // http://stackoverflow.com/a/42549611/453052
+                    galleryView.scrollBy(0, 0);
+                } else {
+                    new Timer().schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            notifyItemsChanged(changedPositions);
                         }
                     }, 10);
                 }

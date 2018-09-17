@@ -109,8 +109,7 @@ public class SelectableImage extends FrameLayout {
     }
 
     public void bind(ThreadPoolExecutor executor, boolean selected, boolean forceBind, final Integer id, boolean supported,final Integer orientation) {
-        this.selected = selected;
-        selectedView.setImageDrawable(selected ? selectedDrawable : unselectedDrawable);
+        setSelected(selected);
         if (this.id != id || forceBind) {
             this.id = id;
             imageView.setImageBitmap(null);
@@ -166,6 +165,10 @@ public class SelectableImage extends FrameLayout {
 
     @Override
     public void setSelected(boolean selected) {
+        // If we're already in the appropriate state do not update again.
+        if (this.selected == selected) {
+            return;
+        }
         this.selected = selected;
         selectedView.setImageDrawable(selected ? selectedDrawable : unselectedDrawable);
         selectedOverlay.setBackgroundColor(selected ? this.selectedOverlayColor : Color.TRANSPARENT);
