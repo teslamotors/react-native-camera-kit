@@ -16,30 +16,25 @@ export default class CameraKitCamera extends React.Component {
     _.update(transformedProps, 'cameraOptions.ratioOverlayColor', (c) => processColor(c));
     return <NativeCamera {...transformedProps}/>
   }
-  
+
   static async checkDeviceCameraAuthorizationStatus() {
-      const deviceAutorizationStatus = await NativeCameraAction.checkDeviceCameraAuthorizationStatus();
-      return deviceAutorizationStatus;
-    
+    return await NativeCameraAction.checkDeviceCameraAuthorizationStatus();
+
   }
 
   static async requestDeviceCameraAuthorization() {
-    const usersAuthorizationAnswer = await NativeCameraAction.requestDeviceCameraAuthorization();
-    return usersAuthorizationAnswer;
+    return await NativeCameraAction.requestDeviceCameraAuthorization();
   }
-  
+
   async capture(saveToCameraRoll = true) {
-    const imageTmpPath = await NativeCameraAction.capture(saveToCameraRoll);
-    return imageTmpPath;
+    return await NativeCameraAction.capture(saveToCameraRoll);
   }
-  
+
   async changeCamera() {
-    const success = await NativeCameraAction.changeCamera();
-    return success;
+    return await NativeCameraAction.changeCamera();
   }
-  
+
   async setFlashMode(flashMode = 'auto') {
-    const success = await NativeCameraAction.setFlashMode(flashMode);
-    return success;
+    return await NativeCameraAction.setFlashMode(flashMode);
   }
 }

@@ -1,10 +1,8 @@
 import {NativeModules} from 'react-native';
 const NativeGalleryModule = NativeModules.NativeGalleryModule;
-import _ from 'lodash';
 
 async function getAlbumsWithThumbnails() {
-  const albums = await NativeGalleryModule.getAlbumsWithThumbnails();
-  return albums;
+  return await NativeGalleryModule.getAlbumsWithThumbnails();
 }
 
 async function getImageUriForId(imageId) {
@@ -26,7 +24,7 @@ async function getImagesForCameraEvent(event) {
   if (!event.captureImages) {
     return [];
   }
-  
+
   const images = [];
   event.captureImages.forEach(async (image) => {
     images.push({
@@ -42,21 +40,18 @@ async function resizeImage(image = {}, quality = 'original') {
 }
 
 async function checkDevicePhotosAuthorizationStatus() {
-  const isAuthorized = await NativeGalleryModule.checkDeviceStorageAuthorizationStatus();
-  return isAuthorized;
+  return await NativeGalleryModule.checkDeviceStorageAuthorizationStatus();
 }
 
 async function requestDevicePhotosAuthorization() {
-  const isAuthorized = await NativeGalleryModule.requestDeviceStorageAuthorization();
-  return isAuthorized;
+  return await NativeGalleryModule.requestDeviceStorageAuthorization();
 }
 
 async function resizeImage(image = {}, quality = 'original') {
     if (quality === 'original') {
         return images;
     }
-    const ans = await NativeGalleryModule.resizeImage(image, quality);
-    return ans;
+  return await NativeGalleryModule.resizeImage(image, quality);
 }
 
 
