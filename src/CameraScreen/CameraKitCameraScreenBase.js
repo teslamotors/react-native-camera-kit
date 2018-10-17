@@ -9,7 +9,7 @@ import {
   NativeModules,
   Platform,
   SafeAreaView,
-  processColor  
+  processColor
 } from 'react-native';
 import _ from 'lodash';
 import CameraKitCamera from './../CameraKitCamera';
@@ -58,9 +58,11 @@ export default class CameraScreenBase extends Component {
       ratioArrayPosition: -1,
       imageCaptured: undefined,
       captured: false,
-      scannerOptions : {}
+      scannerOptions : {},
+      isTorchOn: false
     };
     this.onSetFlash = this.onSetFlash.bind(this);
+    this.onSetTorch = this.onSetTorch.bind(this);
     this.onSwitchCameraPressed = this.onSwitchCameraPressed.bind(this);
   }
 
@@ -135,11 +137,23 @@ export default class CameraScreenBase extends Component {
       </TouchableOpacity>
   }
 
+  renderTorchButton() {
+    return !this.isCaptureRetakeMode() &&
+      <TouchableOpacity style={{ paddingHorizontal: 15 }} onPress={this.onSetTorch}>
+        <Image
+          style={{ flex: 1, justifyContent: 'center' }}
+          source={this.state.flashData.image}
+          resizeMode={Image.resizeMode.contain}
+        />
+      </TouchableOpacity>
+  }
+
   renderTopButtons() {
     return !this.props.hideControls && (
         <SafeAreaView style={styles.topButtons}>
             {this.renderFlashButton()}
             {this.renderSwitchCameraButton()}
+            {this.renderTorchButton()}
         </SafeAreaView>
     );
   }
@@ -287,6 +301,11 @@ export default class CameraScreenBase extends Component {
     const newFlashData = this.flashArray[this.currentFlashArrayPosition];
     this.setState({ flashData: newFlashData });
     this.camera.setFlashMode(newFlashData.mode);
+  }
+
+  async onSetTorch() {
+    await this.setState({isTorchOn: !this.state.isTorchOn});
+    await this.camera.setTorchMode(this.state.isTorchOn);
   }
 
   async onCaptureImagePressed() {
