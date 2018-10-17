@@ -138,11 +138,12 @@ export default class CameraScreenBase extends Component {
   }
 
   renderTorchButton() {
+    const imageColor = this.state.isTorchOn ? 'yellow' : 'white';
     return !this.isCaptureRetakeMode() &&
       <TouchableOpacity style={{ paddingHorizontal: 15 }} onPress={this.onSetTorch}>
         <Image
-          style={{ flex: 1, justifyContent: 'center' }}
-          source={this.state.flashData.image}
+          style={{ flex: 1, justifyContent: 'center', backgroundColor: imageColor}}
+          source={require('./../../img/flashOn.png')}
           resizeMode={Image.resizeMode.contain}
         />
       </TouchableOpacity>
