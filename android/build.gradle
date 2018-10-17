@@ -1,5 +1,4 @@
 apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion 26
@@ -23,11 +22,9 @@ dependencies {
     implementation 'com.android.support:recyclerview-v7:25.0.1'
     implementation 'com.google.zxing:core:3.3.0'
     implementation group: 'com.drewnoakes', name: 'metadata-extractor', version: '2.9.1'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
 
 buildscript {
-    ext.kotlin_version = '1.2.71'
     repositories {
         maven {
            url 'https://maven.google.com'
@@ -37,7 +34,6 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.2.0'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 
@@ -46,7 +42,4 @@ allprojects {
         jcenter()
         google()
     }
-}
-repositories {
-    mavenCentral()
 }
