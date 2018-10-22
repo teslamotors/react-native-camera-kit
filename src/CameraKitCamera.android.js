@@ -1,13 +1,14 @@
 import * as _ from 'lodash';
 import React, { Component } from 'react';
 import {
-	requireNativeComponent,
+  requireNativeComponent,
   NativeModules,
   processColor
 } from 'react-native';
 
 const NativeCamera = requireNativeComponent('CameraView', null);
 const NativeCameraModule = NativeModules.CameraModule;
+const TorchModule = NativeModules.CKTorch;
 
 export default class CameraKitCamera extends React.Component {
 
@@ -41,6 +42,18 @@ export default class CameraKitCamera extends React.Component {
 
   async setFlashMode(flashMode = 'auto') {
     return await NativeCameraModule.setFlashMode(flashMode);
+  }
+
+  async setTorchMode(newState) {
+    let done;
+    let failure;
+
+    const result = new Promise((resolve, reject) => {
+      done = resolve;
+      failure = reject;
+    });
+    await TorchModule.switchState(newState, done, failure);
+    return result;
   }
 
   static async checkDeviceCameraAuthorizationStatus() {
