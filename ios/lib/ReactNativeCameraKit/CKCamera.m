@@ -22,6 +22,8 @@
 #import "CKCameraOverlayView.h"
 #import "CKGalleryManager.h"
 
+#define DEGREES_TO_RADIANS(angle) (angle / 180.0 * M_PI)
+
 static void * CapturingStillImageContext = &CapturingStillImageContext;
 static void * SessionRunningContext = &SessionRunningContext;
 
