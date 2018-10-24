@@ -562,22 +562,50 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
     } );
 }
 
-+(UIImage*)rotateImage:(UIImage*)originalImage {
++(UIImage*)normalizeImage:(UIImage*)originalImage {
+    CGFloat rotation = DEGREES_TO_RADIANS(0);
     
-    if (originalImage.imageOrientation == UIImageOrientationUp || originalImage == nil)
-        return originalImage;
+    switch(UIDevice.currentDevice.orientation)
+    {
+        case UIDeviceOrientationPortrait:
+            rotation = DEGREES_TO_RADIANS(0);
+            break;
+            
+        case UIDeviceOrientationLandscapeLeft:
+            rotation = DEGREES_TO_RADIANS(-90);
+            break;
+            
+        case UIDeviceOrientationLandscapeRight:
+            rotation = DEGREES_TO_RADIANS(90);
+            break;
+            
+        case UIDeviceOrientationPortraitUpsideDown:
+            rotation = DEGREES_TO_RADIANS(180);
+            break;
+            
+        default:
+            rotation = DEGREES_TO_RADIANS(0);
+            break;
+    };
     
+    // Calculate Destination Size
+    CGAffineTransform t = CGAffineTransformMakeRotation(rotation);
+    CGRect sizeRect = (CGRect) {.size = originalImage.size};
+    CGRect destRect = CGRectApplyAffineTransform(sizeRect, t);
+    CGSize destinationSize = destRect.size;
     
-    UIGraphicsBeginImageContextWithOptions(originalImage.size, NO, originalImage.scale);
+    // Draw image
+    UIGraphicsBeginImageContext(destinationSize);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    CGContextTranslateCTM(context, destinationSize.width / 2.0f, destinationSize.height / 2.0f);
+    CGContextRotateCTM(context, rotation);
+    [originalImage drawInRect:CGRectMake(-originalImage.size.width / 2.0f, -originalImage.size.height / 2.0f, originalImage.size.width, originalImage.size.height)];
     
-    [originalImage drawInRect:(CGRect){0, 0, originalImage.size}];
-    UIImage *normalizedImage =  UIGraphicsGetImageFromCurrentImageContext();
-    
+    // Save image
+    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
-    
-    return normalizedImage;
+    return newImage;
 }
-
 
 -(void)changeCamera:(CallbackBlock)block
 {
