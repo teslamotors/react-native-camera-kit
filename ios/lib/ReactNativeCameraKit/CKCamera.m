@@ -602,9 +602,9 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
     [originalImage drawInRect:CGRectMake(-originalImage.size.width / 2.0f, -originalImage.size.height / 2.0f, originalImage.size.width, originalImage.size.height)];
     
     // Save image
-    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIImage *normalizedImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
-    return newImage;
+    return normalizedImage;
 }
 
 -(void)changeCamera:(CallbackBlock)block
