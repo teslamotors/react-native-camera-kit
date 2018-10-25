@@ -565,6 +565,10 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 }
 
 +(UIImage*)normalizeImage:(UIImage*)originalImage {
+    if (originalImage == nil) {
+        return originalImage;
+    }
+    
     CGFloat rotation = DEGREES_TO_RADIANS(0);
     
     switch(UIDevice.currentDevice.orientation)
