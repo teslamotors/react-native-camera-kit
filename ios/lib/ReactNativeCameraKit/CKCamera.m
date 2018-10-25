@@ -22,6 +22,8 @@
 #import "CKCameraOverlayView.h"
 #import "CKGalleryManager.h"
 
+#define DEGREES_TO_RADIANS(angle) (angle / 180.0 * M_PI)
+
 static void * CapturingStillImageContext = &CapturingStillImageContext;
 static void * SessionRunningContext = &SessionRunningContext;
 
@@ -562,22 +564,54 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
     } );
 }
 
-+(UIImage*)rotateImage:(UIImage*)originalImage {
-    
-    if (originalImage.imageOrientation == UIImageOrientationUp || originalImage == nil)
++(UIImage*)normalizeImage:(UIImage*)originalImage {
+    if (originalImage == nil) {
         return originalImage;
+    }
     
+    CGFloat rotation = DEGREES_TO_RADIANS(0);
     
-    UIGraphicsBeginImageContextWithOptions(originalImage.size, NO, originalImage.scale);
+    switch(UIDevice.currentDevice.orientation)
+    {
+        case UIDeviceOrientationPortrait:
+            rotation = DEGREES_TO_RADIANS(0);
+            break;
+            
+        case UIDeviceOrientationLandscapeLeft:
+            rotation = DEGREES_TO_RADIANS(-90);
+            break;
+            
+        case UIDeviceOrientationLandscapeRight:
+            rotation = DEGREES_TO_RADIANS(90);
+            break;
+            
+        case UIDeviceOrientationPortraitUpsideDown:
+            rotation = DEGREES_TO_RADIANS(180);
+            break;
+            
+        default:
+            rotation = DEGREES_TO_RADIANS(0);
+            break;
+    };
     
-    [originalImage drawInRect:(CGRect){0, 0, originalImage.size}];
-    UIImage *normalizedImage =  UIGraphicsGetImageFromCurrentImageContext();
+    // Calculate Destination Size
+    CGAffineTransform t = CGAffineTransformMakeRotation(rotation);
+    CGRect sizeRect = (CGRect) {.size = originalImage.size};
+    CGRect destRect = CGRectApplyAffineTransform(sizeRect, t);
+    CGSize destinationSize = destRect.size;
     
+    // Draw image
+    UIGraphicsBeginImageContext(destinationSize);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    CGContextTranslateCTM(context, destinationSize.width / 2.0f, destinationSize.height / 2.0f);
+    CGContextRotateCTM(context, rotation);
+    [originalImage drawInRect:CGRectMake(-originalImage.size.width / 2.0f, -originalImage.size.height / 2.0f, originalImage.size.width, originalImage.size.height)];
+    
+    // Save image
+    UIImage *normalizedImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
-    
     return normalizedImage;
 }
-
 
 -(void)changeCamera:(CallbackBlock)block
 {
