@@ -16,7 +16,7 @@
   },
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
-    "xcode": "open example/ios/camera-kit.xcodeproj"
+    "xcode": "open example-ios/CameraKit.xcodeproj"
   },
   "main": "src/index.js",
   "dependencies": {
