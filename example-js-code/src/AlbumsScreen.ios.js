@@ -3,7 +3,6 @@ import {
   StyleSheet,
   Text,
   View,
-  ListView,
   TouchableOpacity,
   Image,
   Switch
@@ -20,7 +19,6 @@ export default class AlbumsScreen extends Component {
   constructor(props) {
     
     super(props);
-    const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
     this.state = {
       album: {albumName: 'All Photos'},
       albums: [],
@@ -167,7 +165,7 @@ export default class AlbumsScreen extends Component {
     let albums = await CameraKitGallery.getAlbumsWithThumbnails();
     albums = albums.albums;
     
-    this.setState({albumsDS: this.state.albumsDS.cloneWithRows(albums), albums: {albums}, shouldShowListView: true});
+    this.setState({albums: {albums}, shouldShowListView: true});
   }
   
 }
