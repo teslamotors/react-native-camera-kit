@@ -41,7 +41,7 @@ export default class GalleryScreen extends Component {
       <View style={{position: 'absolute', width, height, backgroundColor: 'green'}}>
         <View style={styles.container}>
           <Image
-            resizeMode={Image.resizeMode.cover}
+            resizeMode={'cover'}
             style={{width: 300, height: 300}}
             source={{uri: this.state.presentedImage.imageUri}}
           />

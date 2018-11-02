@@ -131,6 +131,7 @@ export default class CameraScreenBase extends Component {
           style={{ flex: 1, justifyContent: 'center' }}
           source={this.props.cameraFlipImage}
           resizeMode="contain"
+
         />
       </TouchableOpacity>
   }

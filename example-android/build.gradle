@@ -24,3 +24,18 @@ allprojects {
         google()
     }
 }
+
+subprojects {
+    task allDeps(type: DependencyReportTask) {}
+    afterEvaluate {
+        android {
+            compileSdkVersion 26
+            buildToolsVersion "26.0.1"
+
+            defaultConfig {
+                minSdkVersion 21
+                targetSdkVersion 25
+            }
+        }
+    }
+}
