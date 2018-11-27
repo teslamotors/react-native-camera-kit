@@ -526,27 +526,25 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
                 capturedImage = [UIImage imageWithCGImage:imageRef scale:capturedImage.scale orientation:UIImageOrientationUp];
                 imageData = UIImageJPEGRepresentation(capturedImage, 0.85f);
                 
-                [PHPhotoLibrary requestAuthorization:^( PHAuthorizationStatus status ) {
-                    if ( status == PHAuthorizationStatusAuthorized ) {
-                        
-                        NSMutableDictionary *imageInfoDict = [[NSMutableDictionary alloc] init];
-                        
-                        NSURL *temporaryFileURL = [CKCamera saveToTmpFolder:imageData];
-                        if (temporaryFileURL) {
-                            imageInfoDict[@"uri"] = temporaryFileURL.description;
-                            imageInfoDict[@"name"] = temporaryFileURL.lastPathComponent;
-                        }
-                        imageInfoDict[@"size"] = [NSNumber numberWithInteger:imageData.length];
-                        
-                        if (capturedImage && [capturedImage isKindOfClass:[UIImage class]]) {
-                            imageInfoDict[@"width"] = [NSNumber numberWithDouble:capturedImage.size.width];
-                            imageInfoDict[@"height"] = [NSNumber numberWithDouble:capturedImage.size.height];
-                        }
-                        
-                        
-                        if (shouldSaveToCameraRoll) {
-                            NSData *compressedImageData = UIImageJPEGRepresentation(capturedImage, 1.0f);
+                NSMutableDictionary *imageInfoDict = [[NSMutableDictionary alloc] init];
+                
+                NSURL *temporaryFileURL = [CKCamera saveToTmpFolder:imageData];
+                if (temporaryFileURL) {
+                    imageInfoDict[@"uri"] = temporaryFileURL.description;
+                    imageInfoDict[@"name"] = temporaryFileURL.lastPathComponent;
+                }
+                imageInfoDict[@"size"] = [NSNumber numberWithInteger:imageData.length];
+                
+                if (capturedImage && [capturedImage isKindOfClass:[UIImage class]]) {
+                    imageInfoDict[@"width"] = [NSNumber numberWithDouble:capturedImage.size.width];
+                    imageInfoDict[@"height"] = [NSNumber numberWithDouble:capturedImage.size.height];
+                }
+                
+                if (shouldSaveToCameraRoll) {
+                    [PHPhotoLibrary requestAuthorization:^( PHAuthorizationStatus status ) {
+                        if ( status == PHAuthorizationStatusAuthorized ) {
                             
+                            NSData *compressedImageData = UIImageJPEGRepresentation(capturedImage, 1.0f);
                             [CKGalleryManager saveImageToCameraRoll:compressedImageData temporaryFileURL:temporaryFileURL block:^(BOOL success) {
                                 if (success) {
                                     NSString *localIdentifier = [CKGalleryManager getImageLocalIdentifierForFetchOptions:self.fetchOptions];
@@ -562,15 +560,13 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
                                     //NSLog( @"Could not save to camera roll");
                                 }
                             }];
-                        } else if (block) {
-                            block(imageInfoDict);
                         }
-                    }
-                }];
-                
+                    }];
+                } else if (block) {
+                    block(imageInfoDict);
+                }
                 CGImageRelease(imageRef);
-            }
-            else {
+            } else {
                 //NSLog( @"Could not capture still image: %@", error );
             }
         }];
