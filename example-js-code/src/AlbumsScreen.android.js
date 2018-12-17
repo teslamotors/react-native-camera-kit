@@ -3,9 +3,9 @@ import {
     StyleSheet,
     Text,
     View,
-    ListView,
     TouchableOpacity,
-    Image
+    Image,
+    FlatList
 } from 'react-native';
 
 import {CameraKitGallery} from '../../src';
@@ -17,10 +17,9 @@ export default class AlbumsScreen extends Component {
   constructor(props) {
 
     super(props);
-    const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
     this.state = {
       albums:{},
-      albumsDS: ds,
+      albumsDS: [],
       albumName: undefined
     }
   }
@@ -38,30 +37,28 @@ export default class AlbumsScreen extends Component {
 
     return (
         <View style={styles.container}>
-          <ListView
+          <FlatList
               style={styles.listView}
-              dataSource={this.state.albumsDS}
-              renderRow={(rowData) =>
-                      this._renderRow(rowData)
-                    }
+              data={this.state.albumsDS}
+              renderItem={this._renderRow}
           />
         </View>
     );
   }
 
   _renderRow(rowData) {
-    const image = 'file://' + rowData.thumbUri;
-    //console.error(rowData)
+    const item = rowData.item;
+    const image = 'file://' + item.thumbUri;
     return (
-        <View style={{flex:1, backgroundColor: '#95a5a6', flexDirection: 'row', padding: 8 }}>
+        <View key={item.thumbUri} style={{flex:1, backgroundColor: '#95a5a6', flexDirection: 'row', padding: 8 }}>
           <Image
 
               style={{width: 60, height: 60, backgroundColor: 'white'}}
               source={{uri: image, scale: 3}}
           />
-          <TouchableOpacity style={{alignSelf: 'center', padding: 4}} onPress={() => this.setState({albumName: rowData.albumName})}>
-            <Text style={{fontSize: 18}}>{rowData.albumName}</Text>
-            <Text style={{fontSize: 18}}>{rowData.imagesCount}</Text>
+          <TouchableOpacity style={{alignSelf: 'center', padding: 4}} onPress={() => this.setState({albumName: item.albumName})}>
+            <Text style={{fontSize: 18}}>{item.albumName}</Text>
+            <Text style={{fontSize: 18}}>{item.imagesCount}</Text>
           </TouchableOpacity>
         </View>
     )
@@ -70,7 +67,7 @@ export default class AlbumsScreen extends Component {
     let albums = await CameraKitGallery.getAlbumsWithThumbnails();
     albums = albums.albums;
 
-    this.setState({albumsDS:this.state.albumsDS.cloneWithRows(albums), albums:{albums}, shouldShowListView: true});
+    this.setState({albumsDS: albums, albums:{albums}, shouldShowListView: true});
   }
 
 }

@@ -7,7 +7,7 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
-  "version": "7.1.0",
+  "version": "6.3.0",
   "description": "Advanced native camera control with pre-defined aspect ratio, crop, etc",
   "author": "Ran Greenberg <rang@wix.com>",
   "nativePackage": true,
@@ -24,8 +24,8 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "react": "16.0.0",
-    "react-native": "0.51.0",
+    "react": "16.6.0-alpha.8af6728",
+    "react-native": "0.57.4",
     "babel-jest": "22.4.1",
     "babel-preset-react-native": "4.0.0",
     "jest": "22.4.2",
