@@ -13,7 +13,6 @@ import com.wix.RNCameraKit.camera.permission.CameraPermissionRequestCallback;
 import com.wix.RNCameraKit.gallery.GalleryViewManager;
 import com.wix.RNCameraKit.gallery.NativeGalleryModule;
 import com.wix.RNCameraKit.gallery.permission.StoragePermissionRequestCallback;
-import com.wix.RNCameraKit.torch.TorchModule;
 
 import java.util.ArrayList;
 import java.util.Collections;
