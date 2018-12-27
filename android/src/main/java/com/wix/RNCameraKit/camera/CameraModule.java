@@ -17,7 +17,6 @@ public class CameraModule extends ReactContextBaseJavaModule {
 
     private final CameraPermission cameraPermission;
     private Promise checkPermissionStatusPromise;
-    private TorchModule torchModule;
 
     public CameraModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -110,6 +109,7 @@ public class CameraModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void setTorchMode(Boolean newState, Callback successCallback, Callback failureCallback) {
+        TorchModule torchModule = new TorchModule(getReactApplicationContext());
         torchModule.switchState(newState, successCallback, failureCallback);
     }
 

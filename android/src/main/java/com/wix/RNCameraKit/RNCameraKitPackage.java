@@ -49,8 +49,6 @@ public class RNCameraKitPackage implements ReactPackage {
         }
         modules.add(galleryModule);
 
-        modules.add(new TorchModule(reactContext));
-
         return modules;
     }
 

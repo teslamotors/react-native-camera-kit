@@ -7,26 +7,20 @@ import android.os.Build;
 
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.bridge.ReactContextBaseJavaModule;
-import com.facebook.react.bridge.ReactMethod;
 
-public class TorchModule extends ReactContextBaseJavaModule {
+public class TorchModule {
+    private final ReactApplicationContext reactContext;
     private Boolean isTorchOn = false;
     private Camera camera;
 
     public TorchModule(ReactApplicationContext reactContext) {
-        super(reactContext);
-    }
-
-    @Override
-    public String getName() {
-        return "CKTorch";
+        this.reactContext = reactContext;
     }
 
     public void switchState(Boolean newState, Callback successCallback, Callback failureCallback) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             try {
-                CameraManager cameraManager = (CameraManager) getReactApplicationContext().getSystemService(Context.CAMERA_SERVICE);
+                CameraManager cameraManager = (CameraManager) this.reactContext.getSystemService(Context.CAMERA_SERVICE);
                 String cameraId;
                 if (cameraManager != null) {
                     cameraId = cameraManager.getCameraIdList()[0];
