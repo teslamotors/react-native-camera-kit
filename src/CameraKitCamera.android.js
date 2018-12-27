@@ -43,8 +43,17 @@ export default class CameraKitCamera extends React.Component {
     return await NativeCameraModule.setFlashMode(flashMode);
   }
 
-  async setTorchMode(newState) {
-    return await NativeCameraModule.setTorchMode(newState);
+  async switchState(newState: boolean): Promise<boolean> {
+    let done;
+    let failure;
+
+    const result = new Promise((resolve, reject) => {
+      done = resolve;
+      failure = reject;
+    });
+
+    NativeCameraModule.switchState(newState, done, failure);
+    return result;
   }
 
   static async checkDeviceCameraAuthorizationStatus() {
