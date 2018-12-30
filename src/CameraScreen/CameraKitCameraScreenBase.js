@@ -61,6 +61,7 @@ export default class CameraScreenBase extends Component {
       scannerOptions : {}
     };
     this.onSetFlash = this.onSetFlash.bind(this);
+    this.setTorchMode = this.setTorchMode.bind(this);
     this.onSwitchCameraPressed = this.onSwitchCameraPressed.bind(this);
   }
 
