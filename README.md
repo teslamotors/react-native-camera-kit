@@ -55,6 +55,12 @@ And in the package list in the same file (e.g. `getPackages`) add:
 + new RNCameraKitPackage()
 ```
 
+Add to `proguard-rules.pro` file:
+
+```diff
++ -dontwarn com.google.zxing.qrcode.decoder.**
+```
+
 ## Running the example project
 
 - ```cd old-example```

@@ -37,8 +37,11 @@ public class CameraPermission {
     }
 
     private boolean isCameraPermission(int requestCode, String[] permissions) {
-        return requestCode == CAMERA_PERMISSION_REQUEST_CODE &&
-               Manifest.permission.CAMERA.equals(permissions[0]);
+        if (permissions.length > 0) {
+            return requestCode == CAMERA_PERMISSION_REQUEST_CODE &&
+                    Manifest.permission.CAMERA.equals(permissions[0]);
+        }
+        return false;
     }
 
     public int checkAuthorizationStatus(Activity activity) {
