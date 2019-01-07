@@ -55,15 +55,21 @@ And in the package list in the same file (e.g. `getPackages`) add:
 + new RNCameraKitPackage()
 ```
 
-## Running the example project	
+Add to `proguard-rules.pro` file:
 
-- ```cd old-example```	
-- ```yarn``` or ```npm install``` (the ```yarn```/```npm``` should be in the example folder)	
-- ```react-native run-ios``` or ```react-native run-android``` 
+```diff
++ -dontwarn com.google.zxing.qrcode.decoder.**
+```
+
+## Running the example project
+
+- ```cd old-example```
+- ```yarn``` or ```npm install``` (the ```yarn```/```npm``` should be in the example folder)
+- ```react-native run-ios``` or ```react-native run-android```
 
 ## APIs
 
-### CameraKitCamera - Camera component 
+### CameraKitCamera - Camera component
 
 ```js
 <CameraKitCamera
@@ -80,7 +86,7 @@ And in the package list in the same file (e.g. `getPackages`) add:
     ratioOverlayColor: '#00000077' // optional
   }}
   onReadQRCode={(event) => console.log(event.nativeEvent.qrcodeStringValue)} // optional
-  
+
 />
 ```
 
@@ -136,6 +142,14 @@ Set flash mode (`auto`/`on`/`off`)
 const success = await this.camera.setFlashMode(newFlashData.mode);
 ```
 
+#### setTorchMode
+
+Set torch mode (`true`/`false`)
+
+```js
+const success = await this.camera.setTorchMode(true);
+```
+
 #### changeCamera - must have the wanted camera capture reference
 
 Change to fornt/rear camera
@@ -143,7 +157,7 @@ Change to fornt/rear camera
 ```js
 const success = await this.camera.changeCamera();
 ```
- 
+
 
 ### CameraKitGalleryView - Gallery grid component
 
@@ -173,7 +187,7 @@ Attribute | Values | Description
 `minimumInteritemSpacing`        | Float             | Minimum inner Item spacing
 `minimumLineSpacing`             | Float             | Minimum line spacing
 `imageStrokeColor`               | Color             | Image stroke color
-`imageStrokeColorWidth`          | Number > 0        | Image stroke color width 
+`imageStrokeColorWidth`          | Number > 0        | Image stroke color width
 `albumName`                      | String            | Album name to show
 `columnCount`                    | Integer           | How many clumns in one row
 `onTapImage`                     | Function          | Callback when image tapped
@@ -186,7 +200,7 @@ Attribute | Values | Description
 `onCustomButtonPress`            | Function          | Callback when custom button tapped
 `contentInset` (iOS)             | Object            | The amount by which the gellery view content is inset from its edges (similar to `ScrollView` contentInset)
 `remoteDownloadIndicatorType`    | String (`'spinner'` / `'progress-bar'` / `'progress-pie'`) | iOS only - see [Images stored in iCloud](#images-stored-in-iCloud)
-`remoteDownloadIndicatorColor`   | Color             | iOS only - Color of the remote download indicator to show  
+`remoteDownloadIndicatorColor`   | Color             | iOS only - Color of the remote download indicator to show
 `onRemoteDownloadChanged`        | Function          | iOS only - Callback when the device curentlly download remote image stored in the iCloud.
 
 #### Custom Button
@@ -206,10 +220,10 @@ Attribute | Values | Description
 `overlayColor` |Color| Image selected overlay color
 `imageSizeAndroid` |`large`/`medium`| Android Only - Selected badge image size
 
-#### Images stored in iCloud 
+#### Images stored in iCloud
 On iOS images can be stored in iCould if the device is **low on space** which means full-resolution photos automatically replaced with optimized version and full resolution versions are stored in iCloud.
 
-In this case, we need to download the image from iCloud and *Photos Framework* by Apple does a great job. Downloading take time and we deal with UI, so we need to show loading/progress indicator. 
+In this case, we need to download the image from iCloud and *Photos Framework* by Apple does a great job. Downloading take time and we deal with UI, so we need to show loading/progress indicator.
 In order to do so, we provide 3 types of loading/progress inidcators:
 
 Sets `remoteDownloadIndicatorType` prop (and `remoteDownloadIndicatorColor` in order to sets the Color) on CameraKitGalleryView:
@@ -219,10 +233,10 @@ Attribute | Values
  `'spinner'`     | ![](img/spinner.png)
  `'progress-bar'`| ![](img/progressBar.png)
  `'progress-pie'`| ![](img/pie.png)
- 
+
  >In order to simulate this loading behaviour, since reach low on storage situation is hard, add this prop `iCloudDownloadSimulateTime={TIME_IN_SECONDS}`, just **DO NOT FORGET TO REMOVE IT**.
 
-## QR Code 
+## QR Code
 ```js
 <CameraKitCameraScreen
     actions={{ rightButtonText: 'Done', leftButtonText: 'Cancel' }}

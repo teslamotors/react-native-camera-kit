@@ -9,7 +9,7 @@ import {
   NativeModules,
   Platform,
   SafeAreaView,
-  processColor  
+  processColor
 } from 'react-native';
 import _ from 'lodash';
 import CameraKitCamera from './../CameraKitCamera';
@@ -61,6 +61,7 @@ export default class CameraScreenBase extends Component {
       scannerOptions : {}
     };
     this.onSetFlash = this.onSetFlash.bind(this);
+    this.setTorchMode = this.setTorchMode.bind(this);
     this.onSwitchCameraPressed = this.onSwitchCameraPressed.bind(this);
   }
 
@@ -301,6 +302,10 @@ export default class CameraScreenBase extends Component {
       }
       this.sendBottomButtonPressedAction('capture', false, image);
     }
+  }
+
+  async setTorchMode(newMode) {
+    await this.camera.setTorchMode(newMode);
   }
 
   onRatioButtonPressed() {
