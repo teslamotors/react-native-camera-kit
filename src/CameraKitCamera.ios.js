@@ -8,7 +8,6 @@ import {
 
 const NativeCamera = requireNativeComponent('CKCamera', null);
 const NativeCameraAction = NativeModules.CKCameraManager;
-const TorchModule = NativeModules.CKTorch;
 
 export default class CameraKitCamera extends React.Component {
   render() {
@@ -37,9 +36,5 @@ export default class CameraKitCamera extends React.Component {
 
   async setFlashMode(flashMode = 'auto') {
     return await NativeCameraAction.setFlashMode(flashMode);
-  }
-
-  async setTorchMode(newState) {
-    return await TorchModule.switchState(newState);
   }
 }

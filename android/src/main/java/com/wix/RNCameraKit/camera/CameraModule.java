@@ -2,7 +2,6 @@ package com.wix.RNCameraKit.camera;
 
 import android.hardware.Camera;
 
-import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -10,7 +9,6 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.wix.RNCameraKit.camera.commands.Capture;
 import com.wix.RNCameraKit.camera.permission.CameraPermission;
-import com.wix.RNCameraKit.torch.TorchModule;
 
 
 public class CameraModule extends ReactContextBaseJavaModule {
@@ -105,12 +103,6 @@ public class CameraModule extends ReactContextBaseJavaModule {
     public void getFlashMode(Promise promise) {
         Camera camera = CameraViewManager.getCamera();
         promise.resolve(camera.getParameters().getFlashMode());
-    }
-
-    @ReactMethod
-    public void setTorchMode(Boolean newState, Callback successCallback, Callback failureCallback) {
-        TorchModule torchModule = new TorchModule(getReactApplicationContext());
-        torchModule.switchState(newState, successCallback, failureCallback);
     }
 
     @ReactMethod

@@ -19,7 +19,6 @@
 		269292831D3B7D6000E07DDF /* CKCameraOverlayView.m in Sources */ = {isa = PBXBuildFile; fileRef = 269292821D3B7D6000E07DDF /* CKCameraOverlayView.m */; };
 		269292861D3B81C800E07DDF /* CKOverlayObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 269292851D3B81C800E07DDF /* CKOverlayObject.m */; };
 		26F556721D2501C9007B1C11 /* GalleryData.m in Sources */ = {isa = PBXBuildFile; fileRef = 26F556711D2501C9007B1C11 /* GalleryData.m */; };
-		89404F46217DB694003D4C36 /* CKTorch.m in Sources */ = {isa = PBXBuildFile; fileRef = 89404F45217DB694003D4C36 /* CKTorch.m */; };
 		A7686BFE1EC9CFEC00959216 /* CKCompressedImage.m in Sources */ = {isa = PBXBuildFile; fileRef = A7686BFD1EC9CFEC00959216 /* CKCompressedImage.m */; };
 /* End PBXBuildFile section */
 
@@ -61,8 +60,6 @@
 		269292851D3B81C800E07DDF /* CKOverlayObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CKOverlayObject.m; sourceTree = "<group>"; };
 		26F556701D2501C9007B1C11 /* GalleryData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GalleryData.h; sourceTree = "<group>"; };
 		26F556711D2501C9007B1C11 /* GalleryData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GalleryData.m; sourceTree = "<group>"; };
-		89404F44217DB66D003D4C36 /* CKTorch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CKTorch.h; sourceTree = "<group>"; };
-		89404F45217DB694003D4C36 /* CKTorch.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CKTorch.m; sourceTree = "<group>"; };
 		A7686BFC1EC9CFEC00959216 /* CKCompressedImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CKCompressedImage.h; sourceTree = "<group>"; };
 		A7686BFD1EC9CFEC00959216 /* CKCompressedImage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CKCompressedImage.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -131,8 +128,6 @@
 				269292851D3B81C800E07DDF /* CKOverlayObject.m */,
 				2625648E1E6572B300A7B90D /* CKGalleryCustomCollectionViewCell.h */,
 				2625648F1E6572B300A7B90D /* CKGalleryCustomCollectionViewCell.m */,
-				89404F44217DB66D003D4C36 /* CKTorch.h */,
-				89404F45217DB694003D4C36 /* CKTorch.m */,
 			);
 			path = ReactNativeCameraKit;
 			sourceTree = "<group>";
@@ -193,7 +188,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				89404F46217DB694003D4C36 /* CKTorch.m in Sources */,
 				26550AF61CFC7086007FF2DF /* CKCameraManager.m in Sources */,
 				A7686BFE1EC9CFEC00959216 /* CKCompressedImage.m in Sources */,
 				262E42201D183A6B00C82B27 /* CKGalleryCollectionViewCell.m in Sources */,
