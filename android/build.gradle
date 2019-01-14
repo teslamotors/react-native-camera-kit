@@ -19,8 +19,8 @@ android {
 }
 
 dependencies {
-    compile 'com.facebook.react:react-native:+'
-    compile 'com.android.support:recyclerview-v7:25.0.1'
-    compile 'com.google.zxing:core:3.3.0'
-    compile group: 'com.drewnoakes', name: 'metadata-extractor', version: '2.9.1'
+    implementation 'com.facebook.react:react-native:+'
+    implementation 'com.android.support:recyclerview-v7:25.0.1'
+    implementation 'com.google.zxing:core:3.3.0'
+    implementation group: 'com.drewnoakes', name: 'metadata-extractor', version: '2.9.1'
 }
