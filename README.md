@@ -79,7 +79,7 @@ And in the package list in the same file (e.g. `getPackages`) add:
     ratioOverlay:'1:1',            // optional, ratio overlay on the camera and crop the image seamlessly
     ratioOverlayColor: '#00000077' // optional
   }}
-  onReadQRCode={(event) => console.log(event.nativeEvent.qrcodeStringValue)} // optional
+  onReadCode={(event) => console.log(event.nativeEvent.codeStringValue)} // optional
   
 />
 ```
@@ -231,7 +231,7 @@ Attribute | Values
     laserColor={"blue"}
     frameColor={"yellow"}
 
-    onReadQRCode={((event) => Alert.alert("Qr code found"))} //optional
+    onReadCode={((event) => Alert.alert("Qr code found"))} //optional
     hideControls={false}           //(default false) optional, hide buttons and additional controls on top and bottom of screen
     showFrame={true}   //(default false) optional, show frame with transparent layer (qr code or barcode will be read on this area ONLY), start animation for scanner,that stoped when find any code. Frame always at center of the screen
     offsetForScannerFrame = {10}   //(default 30) optional, offset from left and right side of the screen
