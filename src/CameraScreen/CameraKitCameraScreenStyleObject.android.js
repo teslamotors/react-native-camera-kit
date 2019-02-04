@@ -1,7 +1,7 @@
 import { Dimensions } from 'react-native';
 const { width, height } = Dimensions.get('window');
 
-export default styleObject = {
+const styleObject = {
     cameraContainer: {
         position: 'absolute',
         top: 0,
@@ -26,3 +26,5 @@ export default styleObject = {
         flexDirection: 'column'
     },
 };
+
+export default styleObject;
