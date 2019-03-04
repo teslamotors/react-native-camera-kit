@@ -297,16 +297,21 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         else {
             self.setupResult = CKSetupResultSessionConfigurationFailed;
         }
-        if (self.onReadCode) {//TODO check if qrcode mode is on
-            self.metadataOutput = [[AVCaptureMetadataOutput alloc] init];
-            [self.session addOutput:self.metadataOutput];
-            [self.metadataOutput setMetadataObjectsDelegate:self queue:dispatch_get_main_queue()];
-            [self.metadataOutput setMetadataObjectTypes:[self.metadataOutput availableMetadataObjectTypes]];
-        }
-        
         
         [self.session commitConfiguration];
     } );
+}
+
+-(void)setOnReadCode:(RCTDirectEventBlock)onReadCode
+{
+    _onReadCode = onReadCode;
+    if (self.onReadCode) {//TODO check if qrcode mode is on
+        self.metadataOutput = [[AVCaptureMetadataOutput alloc] init];
+        [self.session addOutput:self.metadataOutput];
+        [self.metadataOutput setMetadataObjectsDelegate:self queue:dispatch_get_main_queue()];
+        [self.metadataOutput setMetadataObjectTypes:[self.metadataOutput availableMetadataObjectTypes]];
+    }
+    [self.session commitConfiguration];
 }
 
 -(void)handleCameraPermission {
