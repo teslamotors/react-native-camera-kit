@@ -308,10 +308,14 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 {
     if (onReadCode) {
         _onReadCode = onReadCode;
-        self.metadataOutput = [[AVCaptureMetadataOutput alloc] init];
-        [self.session addOutput:self.metadataOutput];
-        [self.metadataOutput setMetadataObjectsDelegate:self queue:dispatch_get_main_queue()];
-        [self.metadataOutput setMetadataObjectTypes:[self.metadataOutput availableMetadataObjectTypes]];
+
+        AVCaptureMetadataOutput * output = [[AVCaptureMetadataOutput alloc] init];
+        if ([self.session canAddOutput:output]) {
+            self.metadataOutput = output;
+            [self.session addOutput:self.metadataOutput];
+            [self.metadataOutput setMetadataObjectsDelegate:self queue:dispatch_get_main_queue()];
+            [self.metadataOutput setMetadataObjectTypes:[self.metadataOutput availableMetadataObjectTypes]];
+        }
     }
 }
 
