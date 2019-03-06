@@ -299,19 +299,20 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         }
         
         [self.session commitConfiguration];
+        
+        [self setOnReadCode:self.onReadCode];
     } );
 }
 
 -(void)setOnReadCode:(RCTDirectEventBlock)onReadCode
 {
-    _onReadCode = onReadCode;
-    if (self.onReadCode) {//TODO check if qrcode mode is on
+    if (onReadCode) {
+        _onReadCode = onReadCode;
         self.metadataOutput = [[AVCaptureMetadataOutput alloc] init];
         [self.session addOutput:self.metadataOutput];
         [self.metadataOutput setMetadataObjectsDelegate:self queue:dispatch_get_main_queue()];
         [self.metadataOutput setMetadataObjectTypes:[self.metadataOutput availableMetadataObjectTypes]];
     }
-    [self.session commitConfiguration];
 }
 
 -(void)handleCameraPermission {
