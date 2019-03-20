@@ -34,10 +34,6 @@ async function getImagesForCameraEvent(event) {
   });
   return images;
 }
-async function resizeImage(image = {}, quality = 'original') {
-  console.log('Warning - CameraKitGallery.resizeImage isn\'t  support on Android yet');
-  return;
-}
 
 async function checkDevicePhotosAuthorizationStatus() {
   return await NativeGalleryModule.checkDeviceStorageAuthorizationStatus();
