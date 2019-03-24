@@ -121,7 +121,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 - (void)dealloc
 {
     [self removeObservers];
-    NSLog(@"dealloc");
+//    NSLog(@"dealloc");
 }
 
 -(PHFetchOptions *)fetchOptions {
@@ -140,7 +140,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 - (void)removeReactSubview:(UIView *)subview
 {
     [subview removeFromSuperview];
-    [super removeReactSubview:subview];
+//    [super removeReactSubview:subview];
 }
 
 - (void)removeFromSuperview
@@ -805,9 +805,6 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 +(CGSize)cropImageToPreviewSize:(UIImage*)image size:(CGSize)previewSize {
     
-//    CGRect ans = CGRectZero;
-//    CGSize centerSize = CGSizeZero;
-    
     float imageToPreviewWidthScale = image.size.width/previewSize.width;
     float imageToPreviewHeightScale = image.size.width/previewSize.width;
     
@@ -1057,8 +1054,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         }
     }
     else if ( context == SessionRunningContext ) {
-        NSLog(@"context == SessionRunningContext");
-//        BOOL isSessionRunning = [change[NSKeyValueChangeNewKey] boolValue];
+        BOOL isSessionRunning = [change[NSKeyValueChangeNewKey] boolValue];
         
         //        dispatch_async( dispatch_get_main_queue(), ^{
         //            // Only enable the ability to change camera if the device has more than one camera.
@@ -1077,8 +1073,6 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 - (void)captureOutput:(AVCaptureOutput *)output
 didOutputMetadataObjects:(NSArray<__kindof AVMetadataObject *> *)metadataObjects
        fromConnection:(AVCaptureConnection *)connection {
-    
-    NSLog(@"didOutputMetadataObjectsdidOutputMetadataObjectsdidOutputMetadataObjectsdidOutputMetadataObjects");
     
     for(AVMetadataObject *metadataObject in metadataObjects)
     {
