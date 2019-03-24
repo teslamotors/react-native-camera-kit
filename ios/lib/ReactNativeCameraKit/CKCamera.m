@@ -140,7 +140,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 - (void)removeReactSubview:(UIView *)subview
 {
     [subview removeFromSuperview];
-//    [super removeReactSubview:subview];
+    [super removeReactSubview:subview];
 }
 
 - (void)removeFromSuperview
