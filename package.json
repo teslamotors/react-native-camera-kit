@@ -21,8 +21,8 @@
   "main": "src/index.js",
   "dependencies": {
     "lodash": "^4.14.2",
-    "react": "16.6.0-alpha.8af6728",
-    "react-native": "0.57.4"
+    "react": "16.8.3",
+    "react-native": "0.59.x"
   },
   "license": "MIT",
   "devDependencies": {
