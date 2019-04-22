@@ -20,12 +20,12 @@
   },
   "main": "src/index.js",
   "dependencies": {
-    "lodash": "^4.14.2",
-    "react": "16.8.3",
-    "react-native": "0.59.x"
+    "lodash": "^4.14.2"
   },
   "license": "MIT",
   "devDependencies": {
+    "react": "16.8.3",
+    "react-native": "0.59.x",
     "babel-jest": "22.4.1",
     "babel-preset-react-native": "4.0.0",
     "jest": "22.4.2",
