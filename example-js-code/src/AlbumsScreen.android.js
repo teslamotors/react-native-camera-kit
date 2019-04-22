@@ -29,7 +29,6 @@ export default class AlbumsScreen extends Component {
   }
 
   render() {
-
     if (this.state.albumName) {
       const albumName = this.state.albumName;
       return <GalleryScreen albumName={albumName}/>;

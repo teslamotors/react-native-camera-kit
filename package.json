@@ -16,7 +16,8 @@
   },
   "scripts": {
     "start": "watchman watch-del-all && node node_modules/react-native/local-cli/cli.js start",
-    "xcode": "open example-ios/CameraKit.xcodeproj"
+    "xcode": "open example-ios/CameraKit.xcodeproj",
+    "androidStudio": "open -a /Applications/Android\\ Studio.app ./example-android"
   },
   "main": "src/index.js",
   "dependencies": {
@@ -29,7 +30,8 @@
     "babel-jest": "22.4.1",
     "babel-preset-react-native": "4.0.0",
     "jest": "22.4.2",
-    "react-test-renderer": "16.0.0"
+    "react-test-renderer": "16.0.0",
+    "metro-react-native-babel-preset": "0.51.0"
   },
   "homepage": "https://github.com/wix/react-native-camera-kit"
 }
