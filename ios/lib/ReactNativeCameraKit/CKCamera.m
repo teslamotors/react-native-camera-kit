@@ -30,6 +30,17 @@ typedef NS_ENUM( NSInteger, CKSetupResult ) {
     CKSetupResultSessionConfigurationFailed
 };
 
+@implementation RCTConvert(CKCameraTorchMode)
+
+RCT_ENUM_CONVERTER(CKCameraTorchMode, (@{
+                                         @"auto": @(AVCaptureTorchModeAuto),
+                                         @"on": @(AVCaptureTorchModeOn),
+                                         @"off": @(AVCaptureTorchModeOff)
+                                         }), AVCaptureTorchModeAuto, integerValue)
+
+
+@end
+
 @implementation RCTConvert(CKCameraFlashMode)
 
 RCT_ENUM_CONVERTER(CKCameraFlashMode, (@{
@@ -103,6 +114,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 @property (nonatomic) UIView * dataReadingFrame;
 
 // cameraOptions props
+@property (nonatomic) AVCaptureTorchMode torchMode;
 @property (nonatomic) AVCaptureFlashMode flashMode;
 @property (nonatomic) CKCameraFocushMode focusMode;
 @property (nonatomic) CKCameraZoomMode zoomMode;
@@ -459,6 +471,26 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
     }
     
     return captureDevice;
+}
+
+-(void)setTorchMode:(AVCaptureTorchMode)torchMode callback:(CallbackBlock)block
+{
+    _torchMode = torchMode;
+    [CKCamera setTorchMode:torchMode forDevice:self.videoDeviceInput.device];
+    if (block) {
+        block(self.videoDeviceInput.device.torchMode == torchMode);
+    }
+}
+
++(void)setTorchMode:(AVCaptureTorchMode)torchMode forDevice:(AVCaptureDevice *)device
+{
+    if (device.hasTorch && [device isTorchModeSupported:torchMode]) {
+        NSError* err = nil;
+        if ( [device lockForConfiguration:&err] ) {
+            [device setTorchMode:torchMode];
+            [device unlockForConfiguration];
+        }
+    }
 }
 
 

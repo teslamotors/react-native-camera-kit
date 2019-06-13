@@ -37,4 +37,8 @@ export default class CameraKitCamera extends React.Component {
   async setFlashMode(flashMode = 'auto') {
     return await NativeCameraAction.setFlashMode(flashMode);
   }
+
+  async setTorchMode(torchMode = '') {
+    return await NativeCameraAction.setTorchMode(torchMode);
+  }
 }
