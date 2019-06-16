@@ -476,23 +476,17 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 -(void)setTorchMode:(AVCaptureTorchMode)torchMode callback:(CallbackBlock)block
 {
     _torchMode = torchMode;
-    [CKCamera setTorchMode:torchMode forDevice:self.videoDeviceInput.device];
+    if (self.videoDeviceInput && [self.videoDeviceInput.device isTorchModeSupported:torchMode] && self.videoDeviceInput.device.hasTorch) {
+        NSError* err = nil;
+        if ( [self.videoDeviceInput.device lockForConfiguration:&err] ) {
+            [self.videoDeviceInput.device setTorchMode:torchMode];
+            [self.videoDeviceInput.device unlockForConfiguration];
+        }
+    }
     if (block) {
         block(self.videoDeviceInput.device.torchMode == torchMode);
     }
 }
-
-+(void)setTorchMode:(AVCaptureTorchMode)torchMode forDevice:(AVCaptureDevice *)device
-{
-    if (device.hasTorch && [device isTorchModeSupported:torchMode]) {
-        NSError* err = nil;
-        if ( [device lockForConfiguration:&err] ) {
-            [device setTorchMode:torchMode];
-            [device unlockForConfiguration];
-        }
-    }
-}
-
 
 - (void)setFlashMode:(AVCaptureFlashMode)flashMode callback:(CallbackBlock)block {
     _flashMode = flashMode;
