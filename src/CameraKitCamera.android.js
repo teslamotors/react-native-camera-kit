@@ -8,8 +8,8 @@ import {
 
 const NativeCamera = requireNativeComponent('CameraView', null);
 const NativeCameraModule = NativeModules.CameraModule;
-const TORCH_MODE_ON = "on";
-const TORCH_MODE_CALL_ARG = "torch";
+const TORCH_MODE_ON = 'on';
+const TORCH_MODE_CALL_ARG = 'torch';
 
 export default class CameraKitCamera extends React.Component {
 

@@ -95,11 +95,11 @@ RCT_EXPORT_METHOD(setFlashMode:(CKCameraFlashMode)flashMode
     }];
 }
 
-RCT_EXPORT_METHOD(setTorchMode:(CKCameraTorchMode)flashMode
+RCT_EXPORT_METHOD(setTorchMode:(CKCameraTorchMode)torchMode
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
     
-    [self.camera setTorchMode:flashMode callback:^(BOOL success) {
+    [self.camera setTorchMode:torchMode callback:^(BOOL success) {
         if (resolve) {
             resolve([NSNumber numberWithBool:success]);
         }

@@ -141,7 +141,7 @@ const success = await this.camera.setFlashMode(newFlashData.mode);
 Set Torch mode (`auto`/`on`/`off`)
 
 ```js
-const success = await this.camera.setTorchMode(TORCH_MODE_ON);
+const success = await this.camera.setTorchMode(newTorchMode);
 ```
 
 #### changeCamera - must have the wanted camera capture reference
