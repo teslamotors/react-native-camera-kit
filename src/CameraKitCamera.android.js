@@ -8,6 +8,8 @@ import {
 
 const NativeCamera = requireNativeComponent('CameraView', null);
 const NativeCameraModule = NativeModules.CameraModule;
+const TORCH_MODE_ON = 'on';
+const TORCH_MODE_CALL_ARG = 'torch';
 
 export default class CameraKitCamera extends React.Component {
 
@@ -37,6 +39,13 @@ export default class CameraKitCamera extends React.Component {
 
   async changeCamera() {
     return await NativeCameraModule.changeCamera();
+  }
+
+  async setTorchMode(torchMode) {
+    if (torchMode == TORCH_MODE_ON){
+      return await NativeCameraModule.setFlashMode(TORCH_MODE_CALL_ARG);
+    }
+    return await NativeCameraModule.setFlashMode(torchMode);
   }
 
   async setFlashMode(flashMode = 'auto') {

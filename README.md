@@ -136,6 +136,14 @@ Set flash mode (`auto`/`on`/`off`)
 const success = await this.camera.setFlashMode(newFlashData.mode);
 ```
 
+#### setTorchMode - must have the wanted camera capture reference
+
+Set Torch mode (`on`/`off`)
+
+```js
+const success = await this.camera.setTorchMode(newTorchMode);
+```
+
 #### changeCamera - must have the wanted camera capture reference
 
 Change to fornt/rear camera
