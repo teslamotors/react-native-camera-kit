@@ -863,7 +863,7 @@ RCT_EXPORT_METHOD(modifyGalleryViewContentOffset:(NSDictionary*)params) {
         NSString *fileName = ((NSURL*)info[@"PHImageFileURLKey"]).lastPathComponent;
 
         if (!fileName) {
-            *fileName = ((NSURL*)info[@"PHImageFileUTIKey"]).lastPathComponent;
+            fileName = ((NSURL*)info[@"PHImageFileUTIKey"]).lastPathComponent;
         }
 
         fileName = [CKGalleryViewManager handleNonJPEGOrPNGFormatsFileName:fileName dataUTI:dataUTI];
@@ -875,8 +875,8 @@ RCT_EXPORT_METHOD(modifyGalleryViewContentOffset:(NSDictionary*)params) {
         
         NSURL *fileURLKey = info[@"PHImageFileURLKey"];
 
-        if (fileURLKey) {
-            !fNSURL *fileURLKey = info[@"PHImageFileUTIKey"];
+        if (!fileURLKey) {
+            fileURLKey = info[@"PHImageFileUTIKey"];
         }
         
         if (fileURLKey) {
