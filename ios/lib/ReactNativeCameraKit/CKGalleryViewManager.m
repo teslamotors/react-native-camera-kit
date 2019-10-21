@@ -861,6 +861,11 @@ RCT_EXPORT_METHOD(modifyGalleryViewContentOffset:(NSDictionary*)params) {
     [[PHCachingImageManager defaultManager] requestImageDataForAsset:asset options:imageRequestOptions resultHandler:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
         
         NSString *fileName = ((NSURL*)info[@"PHImageFileURLKey"]).lastPathComponent;
+
+        if (!fileName) {
+            fileName = ((NSURL*)info[@"PHImageFileUTIKey"]).lastPathComponent;
+        }
+
         fileName = [CKGalleryViewManager handleNonJPEGOrPNGFormatsFileName:fileName dataUTI:dataUTI];
         imageData = [CKGalleryViewManager handleNonJPEGOrPNGFormatsData:imageData dataUTI:dataUTI];
         
@@ -869,6 +874,10 @@ RCT_EXPORT_METHOD(modifyGalleryViewContentOffset:(NSDictionary*)params) {
         UIImage *compressedImage = [UIImage imageWithData:imageData];
         
         NSURL *fileURLKey = info[@"PHImageFileURLKey"];
+
+        if (!fileURLKey) {
+            fileURLKey = info[@"PHImageFileUTIKey"];
+        }
         
         if (fileURLKey) {
             
