@@ -2,7 +2,7 @@ package com.wix.RNCameraKit.camera;
 
 import android.graphics.Color;
 import android.graphics.Rect;
-import android.support.annotation.ColorInt;
+import androidx.annotation.ColorInt;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;

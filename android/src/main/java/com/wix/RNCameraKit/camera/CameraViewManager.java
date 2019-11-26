@@ -7,8 +7,9 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.hardware.Camera;
 import android.hardware.SensorManager;
-import android.support.annotation.ColorInt;
-import android.support.annotation.IntRange;
+import androidx.annotation.ColorInt;
+import androidx.annotation.IntRange;
+
 import android.view.Display;
 import android.view.OrientationEventListener;
 import android.view.WindowManager;

@@ -1,14 +1,11 @@
 package com.wix.RNCameraKit.gallery;
 
-import android.content.ContentResolver;
-import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.LifecycleEventListener;
@@ -24,14 +21,9 @@ import com.wix.RNCameraKit.SaveImageTask;
 import com.wix.RNCameraKit.Utils;
 import com.wix.RNCameraKit.gallery.permission.StoragePermission;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 
 import static com.wix.RNCameraKit.Utils.getStringSafe;
