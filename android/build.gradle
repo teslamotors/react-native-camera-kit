@@ -19,7 +19,7 @@ android {
 
 dependencies {
     implementation 'com.facebook.react:react-native:+'
-    implementation 'com.android.support:recyclerview-v7:28.0.1'
+    implementation 'androidx.recyclerview:recyclerview:1.0.0'
     implementation 'com.google.zxing:core:3.4.0'
     implementation group: 'com.drewnoakes', name: 'metadata-extractor', version: '2.12.0'
 }

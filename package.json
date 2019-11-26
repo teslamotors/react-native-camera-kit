@@ -26,12 +26,13 @@
   "license": "MIT",
   "devDependencies": {
     "react": "16.9.x",
-    "react-native": "0.61.x",
+    "react-native": "0.61.3",
     "babel-jest": "22.4.1",
     "babel-preset-react-native": "5.0.2",
     "jest": "22.x.x",
     "react-test-renderer": "16.6.0",
-    "metro-react-native-babel-preset": "0.51.0"
+    "metro-react-native-babel-preset": "0.51.0",
+    "jsc-android": "245459.0.0"
   },
   "homepage": "https://github.com/wix/react-native-camera-kit"
 }
