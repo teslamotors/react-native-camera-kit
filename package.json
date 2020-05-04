@@ -17,11 +17,14 @@
   "scripts": {
     "start": "watchman watch-del-all && node node_modules/react-native/local-cli/cli.js start",
     "xcode": "open example-ios/CameraKit.xcodeproj",
-    "androidStudio": "open -a /Applications/Android\\ Studio.app ./example-android"
+    "androidStudio": "open -a /Applications/Android\\ Studio.app ./example-android",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "main": "src/index.js",
   "dependencies": {
-    "lodash": "^4.14.2"
+    "lodash": "^4.14.2",
+    "snyk": "^1.317.0"
   },
   "license": "MIT",
   "devDependencies": {
@@ -34,5 +37,6 @@
     "metro-react-native-babel-preset": "0.51.0",
     "jsc-android": "245459.0.0"
   },
-  "homepage": "https://github.com/wix/react-native-camera-kit"
+  "homepage": "https://github.com/wix/react-native-camera-kit",
+  "snyk": true
 }
