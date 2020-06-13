@@ -66,6 +66,8 @@ And in the package list in the same file (e.g. `getPackages`) add:
 ### CameraKitCamera - Camera component 
 
 ```js
+import { CameraKitCamera } from 'react-native-camera-kit';
+
 <CameraKitCamera
   ref={cam => this.camera = cam}
   style={{
@@ -160,6 +162,8 @@ Native Gallery View (based on `UICollectionView`(iOS) and ` RecyclerView` (Andro
 ![](img/camerakitgalleryview.png)
 
 ```js
+import { CameraKitGalleryView } from 'react-native-camera-kit';
+
 <CameraKitGalleryView
   ref={gallery => this.gallery = gallery}
   style={{flex: 1, marginTop: 20}}
@@ -232,6 +236,8 @@ Attribute | Values
 
 ## QR Code 
 ```js
+import { CameraKitCameraScreen } from 'react-native-camera-kit';
+
 <CameraKitCameraScreen
     actions={{ rightButtonText: 'Done', leftButtonText: 'Cancel' }}
     onBottomButtonPressed={(event) => this.onBottomButtonPressed(event)}
