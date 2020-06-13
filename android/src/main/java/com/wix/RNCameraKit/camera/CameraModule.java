@@ -51,7 +51,7 @@ public class CameraModule extends ReactContextBaseJavaModule {
 
     @Override
     public String getName() {
-        return "CameraModule";
+        return "RNKitCameraModule";
     }
 
     @ReactMethod

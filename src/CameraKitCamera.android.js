@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 
 const NativeCamera = requireNativeComponent('CameraView', null);
-const NativeCameraModule = NativeModules.CameraModule;
+const NativeCameraModule = NativeModules.RNKitCameraModule;
 const TORCH_MODE_ON = 'on';
 const TORCH_MODE_CALL_ARG = 'torch';
 
