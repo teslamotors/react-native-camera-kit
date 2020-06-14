@@ -1118,7 +1118,7 @@ didOutputMetadataObjects:(NSArray<__kindof AVMetadataObject *> *)metadataObjects
     NSArray *supportedBarcodeTypes = @[AVMetadataObjectTypeUPCECode,AVMetadataObjectTypeCode39Code,AVMetadataObjectTypeCode39Mod43Code,
                                        AVMetadataObjectTypeEAN13Code,AVMetadataObjectTypeEAN8Code, AVMetadataObjectTypeCode93Code,
                                        AVMetadataObjectTypeCode128Code, AVMetadataObjectTypePDF417Code, AVMetadataObjectTypeQRCode,
-                                       AVMetadataObjectTypeAztecCode];
+                                       AVMetadataObjectTypeAztecCode, AVMetadataObjectTypeDataMatrixCode];
     for (NSString* object in supportedBarcodeTypes) {
         if ([currentType isEqualToString:object]) {
             result = YES;
