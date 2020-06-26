@@ -148,7 +148,7 @@ const success = await this.camera.setTorchMode(newTorchMode);
 
 #### changeCamera - must have the wanted camera capture reference
 
-Change to fornt/rear camera
+Change to front/rear camera
 
 ```js
 const success = await this.camera.changeCamera();
