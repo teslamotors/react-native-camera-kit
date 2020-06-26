@@ -1,4 +1,4 @@
-export default styleObject = {
+const styleObject = {
   bottomButtons: {
     flex: 2,
     flexDirection: 'row',
@@ -12,4 +12,6 @@ export default styleObject = {
 //     alignItems: 'center',
 //     padding: 10
 //   }
-}
+};
+
+export default styleObject;
