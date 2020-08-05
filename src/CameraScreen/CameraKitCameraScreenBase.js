@@ -324,7 +324,11 @@ export default class CameraScreenBase extends Component {
   }
 }
 
-import styleObject from './CameraKitCameraScreenStyleObject';
+import styleObjectAndroid from './CameraKitCameraScreenStyleObject.android';
+import styleObjectIOS from './CameraKitCameraScreenStyleObject.ios';
+
+const styleObject = IsIOS ? styleObjectIOS : styleObjectAndroid;
+
 const styles = StyleSheet.create(_.merge(styleObject, {
   textStyle: {
     color: 'white',
