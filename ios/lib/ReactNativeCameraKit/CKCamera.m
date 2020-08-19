@@ -77,7 +77,6 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 #define CAMERA_OPTION_CAMERA_RATIO_OVERLAY          @"ratioOverlay"
 #define CAMERA_OPTION_CAMERA_RATIO_OVERLAY_COLOR    @"ratioOverlayColor"
 #define CAMERA_OPTION_ON_READ_QR_CODE               @"onReadQRCode"
-#define TIMER_FOCUS_TIME_SECONDS            5
 
 @interface CKCamera () <AVCaptureMetadataOutputObjectsDelegate>
 
@@ -87,6 +86,12 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 @property (nonatomic, strong) UIView *focusView;
 @property (nonatomic, strong) NSTimer *focusViewTimer;
 @property (nonatomic, strong) CKCameraOverlayView *cameraOverlayView;
+
+@property (nonatomic, strong) NSTimer *focusResetTimer;
+@property (nonatomic) BOOL startFocusResetTimerAfterFocusing;
+@property (nonatomic) NSInteger resetFocusTimeout;
+@property (nonatomic) BOOL resetFocusWhenMotionDetected;
+@property (nonatomic) BOOL tapToFocusEngaged;
 
 // session management
 @property (nonatomic) dispatch_queue_t sessionQueue;
@@ -184,7 +189,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         [self handleCameraPermission];
         
 #if !(TARGET_IPHONE_SIMULATOR)
-        [self setupCaptionSession];
+        [self setupCaptureSession];
         self.previewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:self.session];
         [self.layer addSublayer:self.previewLayer];
         self.previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
@@ -258,7 +263,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
     //    }
 }
 
--(void)setupCaptionSession {
+-(void)setupCaptureSession {
     // Setup the capture session.
     // In general it is not safe to mutate an AVCaptureSession or any of its inputs, outputs, or connections from multiple threads at the same time.
     // Why not do all of this on the main queue?
@@ -432,34 +437,6 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 #pragma mark -
 
 
--(void)startFocusViewTimer {
-    [self stopFocusViewTimer];
-    
-    self.focusViewTimer = [NSTimer scheduledTimerWithTimeInterval:TIMER_FOCUS_TIME_SECONDS target:self selector:@selector(dismissFocusView) userInfo:nil repeats:NO];
-}
-
--(void)stopFocusViewTimer {
-    if (self.focusViewTimer) {
-        [self.focusViewTimer invalidate];
-        self.focusViewTimer = nil;
-    }
-}
-
--(void)dismissFocusView {
-    
-    [self stopFocusViewTimer];
-    
-    [UIView animateWithDuration:0.8 animations:^{
-        self.focusView.alpha = 0;
-        
-    } completion:^(BOOL finished) {
-        self.focusView.frame = CGRectZero;
-        self.focusView.hidden = YES;
-        self.focusView.alpha = 1;
-    }];
-}
-
-
 + (AVCaptureDevice *)deviceWithMediaType:(NSString *)mediaType preferringPosition:(AVCaptureDevicePosition)position
 {
     NSArray *devices = [AVCaptureDevice devicesWithMediaType:mediaType];
@@ -529,22 +506,9 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
     dispatch_async( self.sessionQueue, ^{
         AVCaptureConnection *connection = [self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
         
-        // Use device orientation to support taking landscape photos with orientation lock (portrait)
-        switch([UIDevice currentDevice].orientation) {
-            default:
-            case UIDeviceOrientationPortrait:
-                connection.videoOrientation = AVCaptureVideoOrientationPortrait;
-                break;
-            case UIDeviceOrientationPortraitUpsideDown:
-                connection.videoOrientation = AVCaptureVideoOrientationPortraitUpsideDown;
-                break;
-            case UIDeviceOrientationLandscapeLeft:
-                connection.videoOrientation = AVCaptureVideoOrientationLandscapeRight;
-                break;
-            case UIDeviceOrientationLandscapeRight:
-                connection.videoOrientation = AVCaptureVideoOrientationLandscapeLeft;
-                break;
-        }
+        // Update the orientation on the still image output video connection before capturing.
+        connection.videoOrientation = self.previewLayer.connection.videoOrientation;
+        
         
         // Capture a still image.
         [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:connection completionHandler:^( CMSampleBufferRef imageDataSampleBuffer, NSError *error ) {
@@ -606,6 +570,8 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
                     block(imageInfoDict);
                 }
                 CGImageRelease(imageRef);
+                
+                [self resetFocus];
             } else {
                 //NSLog( @"Could not capture still image: %@", error );
             }
@@ -656,6 +622,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         AVCaptureDevice *videoDevice = [CKCamera deviceWithMediaType:AVMediaTypeVideo preferringPosition:preferredPosition];
         AVCaptureDeviceInput *videoDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:nil];
         
+        [self removeObservers];
         [self.session beginConfiguration];
         
         // Remove the existing device input first, since using the front and back camera simultaneously is not supported.
@@ -665,7 +632,6 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
             [[NSNotificationCenter defaultCenter] removeObserver:self name:AVCaptureDeviceSubjectAreaDidChangeNotification object:currentVideoDevice];
             
             [CKCamera setFlashMode:self.flashMode forDevice:videoDevice];
-            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(subjectAreaDidChange:) name:AVCaptureDeviceSubjectAreaDidChangeNotification object:videoDevice];
             
             [self.session addInput:videoDeviceInput];
             self.videoDeviceInput = videoDeviceInput;
@@ -680,6 +646,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         }
         
         [self.session commitConfiguration];
+        [self addObservers];
         
         dispatch_async( dispatch_get_main_queue(), ^{
             
@@ -718,63 +685,124 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 - (void)focusAndExposeTap:(UIGestureRecognizer *)gestureRecognizer
 {
-    CGPoint devicePoint = [(AVCaptureVideoPreviewLayer *)self.previewLayer captureDevicePointOfInterestForPoint:[gestureRecognizer locationInView:gestureRecognizer.view]];
+    CGPoint touchPoint = [gestureRecognizer locationInView:self];
+    CGPoint devicePoint = [(AVCaptureVideoPreviewLayer *)self.previewLayer captureDevicePointOfInterestForPoint:touchPoint];
+    
+    // Engage manual focus
     [self focusWithMode:AVCaptureFocusModeAutoFocus exposeWithMode:AVCaptureExposureModeAutoExpose atDevicePoint:devicePoint monitorSubjectAreaChange:YES];
     
-    CGPoint touchPoint = [gestureRecognizer locationInView:self];
-    CGFloat halfDiagonal = 80;
+    // Disengage manual focus once focusing finishing (if focusTimeout > 0)
+    // See [self observeValueForKeyPath]
+    self.startFocusResetTimerAfterFocusing = YES;
+    
+    self.tapToFocusEngaged = YES;
+
+    // Animate focus rectangle
+    CGFloat halfDiagonal = 73;
     CGFloat halfDiagonalAnimation = halfDiagonal*2;
     
-    CGRect focusViewFrame = CGRectMake(touchPoint.x - (halfDiagonal/2), touchPoint.y - (halfDiagonal/2), halfDiagonal, halfDiagonal);
-    CGRect focusViewFrameFoAnimation = CGRectMake(touchPoint.x - (halfDiagonalAnimation/2), touchPoint.y - (halfDiagonalAnimation/2), halfDiagonalAnimation, halfDiagonalAnimation);
+    CGRect focusViewFrame = CGRectMake(touchPoint.x - (halfDiagonal/2),
+                                       touchPoint.y - (halfDiagonal/2),
+                                       halfDiagonal,
+                                       halfDiagonal);
+    
+    self.focusView.alpha = 0;
+    self.focusView.hidden = NO;
+    self.focusView.frame = CGRectMake(touchPoint.x - (halfDiagonalAnimation/2),
+                                      touchPoint.y - (halfDiagonalAnimation/2),
+                                      halfDiagonalAnimation,
+                                      halfDiagonalAnimation);
+    
+    [UIView animateWithDuration:0.2 animations:^{
+        self.focusView.frame = focusViewFrame;
+        self.focusView.alpha = 1;
+    } completion:^(BOOL finished) {
+        self.focusView.alpha = 1;
+        self.focusView.frame = focusViewFrame;
+    }];
+}
+
+- (void)resetFocus
+{
+    if (self.focusResetTimer) {
+        [self.focusResetTimer invalidate];
+        self.focusResetTimer = nil;
+    }
+    
+    // Resetting focus to continuous focus, so not interested in resetting anymore
+    self.startFocusResetTimerAfterFocusing = NO;
+
+    // Avoid showing reset-focus animation after each photo capture
+    if (!self.tapToFocusEngaged) {
+        return;
+    }
+    
+    self.tapToFocusEngaged = NO;
+    
+    // 1. Reset actual camera focus
+    CGPoint deviceCenter = CGPointMake(0.5, 0.5);
+    [self focusWithMode:AVCaptureFocusModeContinuousAutoFocus exposeWithMode:AVCaptureExposureModeContinuousAutoExposure atDevicePoint:deviceCenter monitorSubjectAreaChange:NO];
+    
+    // 2. Create animation to indicate the new focus location
+    CGPoint layerCenter = [self.previewLayer pointForCaptureDevicePointOfInterest:deviceCenter];
+    
+    CGFloat halfDiagonal = 123;
+    CGFloat halfDiagonalAnimation = halfDiagonal*2;
+    
+    CGRect focusViewFrame = CGRectMake(layerCenter.x - (halfDiagonal/2), layerCenter.y - (halfDiagonal/2), halfDiagonal, halfDiagonal);
+    CGRect focusViewFrameFoAnimation = CGRectMake(layerCenter.x - (halfDiagonalAnimation/2), layerCenter.y - (halfDiagonalAnimation/2), halfDiagonalAnimation, halfDiagonalAnimation);
     
     self.focusView.alpha = 0;
     self.focusView.hidden = NO;
     self.focusView.frame = focusViewFrameFoAnimation;
     
-    
     [UIView animateWithDuration:0.2 animations:^{
         self.focusView.frame = focusViewFrame;
         self.focusView.alpha = 1;
-        
     } completion:^(BOOL finished) {
         self.focusView.alpha = 1;
         self.focusView.frame = focusViewFrame;
         
+        if (self.focusViewTimer) {
+            [self.focusViewTimer invalidate];
+        }
+        self.focusViewTimer = [NSTimer scheduledTimerWithTimeInterval:2 repeats:NO block:^(NSTimer *timer) {
+            [UIView animateWithDuration:0.2 animations:^{
+                self.focusView.alpha = 0;
+            } completion:^(BOOL finished) {
+                self.focusView.frame = CGRectZero;
+                self.focusView.hidden = YES;
+            }];
+        }];
     }];
-    
-    [self startFocusViewTimer];
 }
-
 
 - (void)focusWithMode:(AVCaptureFocusMode)focusMode exposeWithMode:(AVCaptureExposureMode)exposureMode atDevicePoint:(CGPoint)point monitorSubjectAreaChange:(BOOL)monitorSubjectAreaChange
 {
     dispatch_async( self.sessionQueue, ^{
         AVCaptureDevice *device = self.videoDeviceInput.device;
         NSError *error = nil;
-        if ( [device lockForConfiguration:&error] ) {
-            // Setting (focus/exposure)PointOfInterest alone does not initiate a (focus/exposure) operation.
-            // Call -set(Focus/Exposure)Mode: to apply the new point of interest.
-            if ( device.isFocusPointOfInterestSupported && [device isFocusModeSupported:focusMode] ) {
-                device.focusPointOfInterest = point;
-                device.focusMode = focusMode;
-            }
-            
-            if ( device.isExposurePointOfInterestSupported && [device isExposureModeSupported:exposureMode] ) {
-                device.exposurePointOfInterest = point;
-                device.exposureMode = exposureMode;
-            }
-            
-            device.subjectAreaChangeMonitoringEnabled = monitorSubjectAreaChange;
-            [device unlockForConfiguration];
+        if (![device lockForConfiguration:&error]) {
+            NSLog(@"Unable to device.lockForConfiguration() %@", error);
+            return;
         }
-        else {
-            //NSLog( @"Could not lock device for configuration: %@", error );
+        
+        // Setting (focus/exposure)PointOfInterest alone does not initiate a (focus/exposure) operation.
+        // Call -set(Focus/Exposure)Mode: to apply the new point of interest.
+        if ( device.isFocusPointOfInterestSupported && [device isFocusModeSupported:focusMode] ) {
+            device.focusPointOfInterest = point;
+            device.focusMode = focusMode;
         }
-    } );
+        
+        if ( device.isExposurePointOfInterestSupported && [device isExposureModeSupported:exposureMode] ) {
+            device.exposurePointOfInterest = point;
+            device.exposureMode = exposureMode;
+        }
+        
+        device.subjectAreaChangeMonitoringEnabled = monitorSubjectAreaChange && self.resetFocusWhenMotionDetected;
+        [device unlockForConfiguration];
+    });
 }
-
-
 
 - (void)zoom:(CGFloat)velocity {
     if (isnan(velocity)) {
@@ -998,6 +1026,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         [self.session addObserver:self forKeyPath:@"running" options:NSKeyValueObservingOptionNew context:SessionRunningContext];
         [self.stillImageOutput addObserver:self forKeyPath:@"capturingStillImage" options:NSKeyValueObservingOptionNew context:CapturingStillImageContext];
         
+        [self.videoDeviceInput.device addObserver:self forKeyPath:@"adjustingFocus" options:NSKeyValueObservingOptionNew context:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(subjectAreaDidChange:) name:AVCaptureDeviceSubjectAreaDidChangeNotification object:self.videoDeviceInput.device];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sessionRuntimeError:) name:AVCaptureSessionRuntimeErrorNotification object:self.session];
         // A session can only run when the app is full screen. It will be interrupted in a multi-app layout, introduced in iOS 9,
@@ -1049,6 +1078,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         [[NSNotificationCenter defaultCenter] removeObserver:self];
         [self.session removeObserver:self forKeyPath:@"running" context:SessionRunningContext];
         [self.stillImageOutput removeObserver:self forKeyPath:@"capturingStillImage" context:CapturingStillImageContext];
+        [self.videoDeviceInput.device removeObserver:self forKeyPath:@"adjustingFocus"];
         self.isAddedOberver = NO;
     }
 }
@@ -1075,37 +1105,53 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 - (void)subjectAreaDidChange:(NSNotification *)notification
 {
-    //    CGPoint devicePoint = CGPointMake( 0.5, 0.5 );
-    //    [self focusWithMode:AVCaptureFocusModeContinuousAutoFocus exposeWithMode:AVCaptureExposureModeContinuousAutoExposure atDevicePoint:devicePoint monitorSubjectAreaChange:NO];
-    //        //NSLog(@"subjectAreaDidChange");
+    [self resetFocus];
 }
-
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
-    if ( context == CapturingStillImageContext ) {
+    if (context == CapturingStillImageContext)
+    {
+        // Flash/dim preview to indicate shutter action
         BOOL isCapturingStillImage = [change[NSKeyValueChangeNewKey] boolValue];
-        
-        if ( isCapturingStillImage ) {
-            dispatch_async( dispatch_get_main_queue(), ^{
+        if ( isCapturingStillImage )
+        {
+            dispatch_async(dispatch_get_main_queue(), ^{
                 self.alpha = 0.0;
                 [UIView animateWithDuration:0.35 animations:^{
                     self.alpha = 1.0;
                 }];
-            } );
+            });
         }
     }
-    else if ( context == SessionRunningContext ) {
-        BOOL isSessionRunning = [change[NSKeyValueChangeNewKey] boolValue];
-        
-        //        dispatch_async( dispatch_get_main_queue(), ^{
-        //            // Only enable the ability to change camera if the device has more than one camera.
-        //            self.cameraButton.enabled = isSessionRunning && ( [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo].count > 1 );
-        //            self.recordButton.enabled = isSessionRunning;
-        //            self.stillButton.enabled = isSessionRunning;
-        //        } );
+    else if ([keyPath isEqualToString:@"adjustingFocus"])
+    {
+        // Note: oldKey is not available (value is always NO it seems) so we only check on newKey
+        BOOL isFocusing = [change[NSKeyValueChangeNewKey] boolValue];
+        if (self.startFocusResetTimerAfterFocusing == YES && !isFocusing && self.resetFocusTimeout > 0)
+        {
+            self.startFocusResetTimerAfterFocusing = NO;
+            
+            // Disengage manual focus after focusTimeout milliseconds
+            NSTimeInterval focusTimeoutSeconds = self.resetFocusTimeout / 1000;
+            self.focusResetTimer = [NSTimer scheduledTimerWithTimeInterval:focusTimeoutSeconds repeats:NO block:^(NSTimer *timer) {
+                [self resetFocus];
+            }];
+        }
     }
-    else {
+    else if (context == SessionRunningContext)
+    {
+//        BOOL isSessionRunning = [change[NSKeyValueChangeNewKey] boolValue];
+//
+//        dispatch_async( dispatch_get_main_queue(), ^{
+//            // Only enable the ability to change camera if the device has more than one camera.
+//            self.cameraButton.enabled = isSessionRunning && ( [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo].count > 1 );
+//            self.recordButton.enabled = isSessionRunning;
+//            self.stillButton.enabled = isSessionRunning;
+//        } );
+    }
+    else
+    {
         [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
     }
 }
