@@ -67,7 +67,8 @@ And in the package list in the same file (e.g. `getPackages`) add:
 
 ```js
 import { CameraKitCamera } from 'react-native-camera-kit';
-
+```
+```jsx
 <CameraKitCamera
   ref={cam => this.camera = cam}
   style={{
@@ -75,26 +76,35 @@ import { CameraKitCamera } from 'react-native-camera-kit';
     backgroundColor: 'white'
   }}
   cameraOptions={{
-    flashMode: 'auto',             // on/off/auto(default)
-    focusMode: 'on',               // off/on(default)
-    zoomMode: 'on',                // off/on(default)
-    ratioOverlay:'1:1',            // optional, ratio overlay on the camera and crop the image seamlessly
-    ratioOverlayColor: '#00000077' // optional
+    flashMode: 'auto',                // on/off/auto(default)
+    focusMode: 'on',                  // off/on(default)
+    zoomMode: 'on',                   // off/on(default)
+    ratioOverlay:'1:1',               // optional
+    ratioOverlayColor: '#00000077'    // optional
   }}
-  onReadCode={(event) => console.log(event.nativeEvent.codeStringValue)} // optional
-  
+  onReadCode={event =>                // optional
+    console.log(event.nativeEvent.codeStringValue)
+  }
+  resetFocusTimeout={0}               // optional
+  resetFocusWhenMotionDetected={true} // optional
 />
 ```
 
-### CameraKitCamera cameraOptions
+Prop | Type | Description
+-------- | ----- | ------------
+`resetFocusTimeout`          | Number  | iOS only. Dismiss tap to focus after this many milliseconds. Default `0` (disabled). Example: `5000` is 5 seconds.
+`resetFocusWhenMotionDetected` | Boolean | iOS only. Dismiss tap to focus when focus area content changes. Native iOS feature, see documentation: https://developer.apple.com/documentation/avfoundation/avcapturedevice/1624644-subjectareachangemonitoringenabl?language=objc). Default `true`.
+`cameraOptions`                      | Object  | See `cameraOptions` below
+
+### cameraOptions
 
 Attribute         | Values                 | Description
 ----------------- | ---------------------- | -----------
-`flashMode`         |`'on'`/`'off'`/`'auto'` | camera flash mode (default is `auto`)
-`focusMode`         | `'on'`/`'off'`         | camera focus mode (default is `on`)
-`zoomMode`          | `'on'`/`'off'`         | camera zoom mode
-`ratioOverlay`      | `['int':'int', ...]`   | overlay on top of the camera view (crop the image to the selected size) Example: `['16:9', '1:1', '3:4']`
-`ratioOverlayColor` |  Color                 | any color with alpha (default is ```'#ffffff77'```)
+`flashMode`         |`'on'`/`'off'`/`'auto'` | Camera flash mode (default is `auto`)
+`focusMode`         | `'on'`/`'off'`         | Camera focus mode (default is `on`)
+`zoomMode`          | `'on'`/`'off'`         | Camera zoom mode
+`ratioOverlay`      | `['int':'int', ...]`   | Crop the image to the selected ratio. Example: `['16:9', '1:1', '3:4']`
+`ratioOverlayColor` |  Color                 | Any color with alpha (default is ```'#ffffff77'```)
 
 ### CameraKitCamera API
 
