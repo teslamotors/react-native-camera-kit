@@ -1,9 +1,9 @@
 import * as _ from 'lodash';
 import React, { Component } from 'react';
 import {
-	requireNativeComponent,
+  requireNativeComponent,
   NativeModules,
-  processColor
+  processColor,
 } from 'react-native';
 
 const NativeCamera = requireNativeComponent('CameraView', null);
@@ -12,17 +12,6 @@ const TORCH_MODE_ON = 'on';
 const TORCH_MODE_CALL_ARG = 'torch';
 
 export default class CameraKitCamera extends React.Component {
-
-  render() {
-    const transformedProps = _.cloneDeep(this.props);
-    _.update(transformedProps, 'cameraOptions.ratioOverlayColor', (c) => processColor(c));
-    _.update(transformedProps, 'frameColor', (c) => processColor(c));
-    _.update(transformedProps, 'laserColor', (c) => processColor(c));
-    _.update(transformedProps, 'surfaceColor', (c) => processColor(c));
-
-    return <NativeCamera {...transformedProps}/>
-  }
-
   async logData() {
     console.log('front Camera?', await NativeCameraModule.hasFrontCamera());
     console.log('hasFlash?', await NativeCameraModule.hasFlashForCurrentCamera());
@@ -58,5 +47,15 @@ export default class CameraKitCamera extends React.Component {
 
   static async hasCameraPermission() {
     return await NativeCameraModule.hasCameraPermission();
+  }
+
+  render() {
+    const transformedProps = _.cloneDeep(this.props);
+    _.update(transformedProps, 'cameraOptions.ratioOverlayColor', (c) => processColor(c));
+    _.update(transformedProps, 'frameColor', (c) => processColor(c));
+    _.update(transformedProps, 'laserColor', (c) => processColor(c));
+    _.update(transformedProps, 'surfaceColor', (c) => processColor(c));
+
+    return <NativeCamera {...transformedProps}/>;
   }
 }
