@@ -103,7 +103,7 @@ Attribute         | Values                 | Description
 `flashMode`         |`'on'`/`'off'`/`'auto'` | Camera flash mode (default is `auto`)
 `focusMode`         | `'on'`/`'off'`         | Camera focus mode (default is `on`)
 `zoomMode`          | `'on'`/`'off'`         | Camera zoom mode
-`ratioOverlay`      | `['int':'int', ...]`   | Crop the image to the selected ratio. Example: `['16:9', '1:1', '3:4']`
+`ratioOverlay`      | `['int':'int', ...]`   | Show a guiding overlay in the camera preview for the selected ratio. Does not crop image as of v9.0. Example: `['16:9', '1:1', '3:4']`
 `ratioOverlayColor` |  Color                 | Any color with alpha (default is ```'#ffffff77'```)
 
 ### CameraKitCamera API
