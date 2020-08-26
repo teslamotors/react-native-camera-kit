@@ -506,95 +506,80 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
     dispatch_async( self.sessionQueue, ^{
         AVCaptureConnection *connection = [self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
         
-        // Update the orientation on the still image output video connection before capturing.
-        connection.videoOrientation = self.previewLayer.connection.videoOrientation;
-        
+        UIImageOrientation imageOrientation = UIImageOrientationUp;
+        switch([UIDevice currentDevice].orientation) {
+            default:
+            case UIDeviceOrientationPortrait:
+                connection.videoOrientation = AVCaptureVideoOrientationPortrait;
+                imageOrientation = UIImageOrientationUp;
+                break;
+            case UIDeviceOrientationPortraitUpsideDown:
+                connection.videoOrientation = AVCaptureVideoOrientationPortraitUpsideDown;
+                imageOrientation = UIImageOrientationDown;
+                break;
+            case UIDeviceOrientationLandscapeLeft:
+                imageOrientation = UIImageOrientationRight;
+                connection.videoOrientation = AVCaptureVideoOrientationLandscapeRight;
+                break;
+            case UIDeviceOrientationLandscapeRight:
+                connection.videoOrientation = AVCaptureVideoOrientationLandscapeLeft;
+                imageOrientation = UIImageOrientationRightMirrored;
+                break;
+        }
         
         // Capture a still image.
         [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:connection completionHandler:^( CMSampleBufferRef imageDataSampleBuffer, NSError *error ) {
-            if ( imageDataSampleBuffer ) {
-                // The sample buffer is not retained. Create image data before saving the still image to the photo library asynchronously.
-                NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
-                UIImage *capturedImage = [UIImage imageWithData:imageData];
-                capturedImage = [CKCamera rotateImage:capturedImage];
-                
-                CGSize previewScaleSize = [CKCamera cropImageToPreviewSize:capturedImage size:self.previewLayer.bounds.size];
-                CGRect rectToCrop = CGRectMake((capturedImage.size.width-previewScaleSize.width)*0.5, (capturedImage.size.height-previewScaleSize.height)*0.5, previewScaleSize.width, previewScaleSize.height);
-                
-                if (self.ratioOverlayString) {
+            if (!imageDataSampleBuffer) {
+                //NSLog( @"Could not capture still image: %@", error );
+                return;
+            }
+            // The sample buffer is not retained. Create image data before saving the still image to the photo library asynchronously.
+            NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
+            UIImage *capturedImage = [UIImage imageWithData:imageData];
+            
+            NSMutableDictionary *imageInfoDict = [[NSMutableDictionary alloc] init];
+            
+            NSURL *temporaryFileURL = [CKCamera saveToTmpFolder:imageData];
+            if (temporaryFileURL) {
+                imageInfoDict[@"uri"] = temporaryFileURL.description;
+                imageInfoDict[@"name"] = temporaryFileURL.lastPathComponent;
+            }
+            imageInfoDict[@"size"] = [NSNumber numberWithInteger:imageData.length];
+            
+            if (capturedImage && [capturedImage isKindOfClass:[UIImage class]]) {
+                imageInfoDict[@"width"] = [NSNumber numberWithDouble:capturedImage.size.width];
+                imageInfoDict[@"height"] = [NSNumber numberWithDouble:capturedImage.size.height];
+            }
+            
+            if (shouldSaveToCameraRoll) {
+                [PHPhotoLibrary requestAuthorization:^( PHAuthorizationStatus status ) {
+                    if ( status != PHAuthorizationStatusAuthorized ) {
+                        return;
+                    }
                     
-                    rectToCrop = [CKCamera cropRectForSize:rectToCrop overlayObject:self.cameraOverlayView.overlayObject];
-                }
-                
-                CGImageRef imageRef = CGImageCreateWithImageInRect(capturedImage.CGImage, rectToCrop);
-                capturedImage = [UIImage imageWithCGImage:imageRef scale:capturedImage.scale orientation:UIImageOrientationUp];
-                imageData = UIImageJPEGRepresentation(capturedImage, 0.85f);
-                
-                NSMutableDictionary *imageInfoDict = [[NSMutableDictionary alloc] init];
-                
-                NSURL *temporaryFileURL = [CKCamera saveToTmpFolder:imageData];
-                if (temporaryFileURL) {
-                    imageInfoDict[@"uri"] = temporaryFileURL.description;
-                    imageInfoDict[@"name"] = temporaryFileURL.lastPathComponent;
-                }
-                imageInfoDict[@"size"] = [NSNumber numberWithInteger:imageData.length];
-                
-                if (capturedImage && [capturedImage isKindOfClass:[UIImage class]]) {
-                    imageInfoDict[@"width"] = [NSNumber numberWithDouble:capturedImage.size.width];
-                    imageInfoDict[@"height"] = [NSNumber numberWithDouble:capturedImage.size.height];
-                }
-                
-                if (shouldSaveToCameraRoll) {
-                    [PHPhotoLibrary requestAuthorization:^( PHAuthorizationStatus status ) {
-                        if ( status == PHAuthorizationStatusAuthorized ) {
-                            
-                            NSData *compressedImageData = UIImageJPEGRepresentation(capturedImage, 1.0f);
-                            [CKGalleryManager saveImageToCameraRoll:compressedImageData temporaryFileURL:temporaryFileURL block:^(BOOL success) {
-                                if (success) {
-                                    NSString *localIdentifier = [CKGalleryManager getImageLocalIdentifierForFetchOptions:self.fetchOptions];
-                                    if (localIdentifier) {
-                                        imageInfoDict[@"id"] = localIdentifier;
-                                    }
-                                    
-                                    if (block) {
-                                        block(imageInfoDict);
-                                    }
-                                }
-                                else {
-                                    //NSLog( @"Could not save to camera roll");
-                                }
-                            }];
+                    [CKGalleryManager saveImageToCameraRoll:imageData temporaryFileURL:temporaryFileURL block:^(BOOL success) {
+                        if (!success) {
+                            //NSLog( @"Could not save to camera roll");
+                            return;
+                        }
+                        NSString *localIdentifier = [CKGalleryManager getImageLocalIdentifierForFetchOptions:self.fetchOptions];
+                        if (localIdentifier) {
+                            imageInfoDict[@"id"] = localIdentifier;
+                        }
+                        
+                        if (block) {
+                            block(imageInfoDict);
                         }
                     }];
-                } else if (block) {
-                    block(imageInfoDict);
-                }
-                CGImageRelease(imageRef);
-                
-                [self resetFocus];
-            } else {
-                //NSLog( @"Could not capture still image: %@", error );
+                }];
+            } else if (block) {
+                block(imageInfoDict);
             }
+            
+            [self resetFocus];
         }];
-    } );
+    });
 }
-
-+(UIImage*)rotateImage:(UIImage*)originalImage {
-    
-    if (originalImage.imageOrientation == UIImageOrientationUp || originalImage == nil)
-        return originalImage;
-    
-    
-    UIGraphicsBeginImageContextWithOptions(originalImage.size, NO, originalImage.scale);
-    
-    [originalImage drawInRect:(CGRect){0, 0, originalImage.size}];
-    UIImage *normalizedImage =  UIGraphicsGetImageFromCurrentImageContext();
-    
-    UIGraphicsEndImageContext();
-    
-    return normalizedImage;
-}
-
 
 -(void)changeCamera:(CallbackBlock)block
 {
@@ -750,11 +735,11 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
     CGFloat halfDiagonalAnimation = halfDiagonal*2;
     
     CGRect focusViewFrame = CGRectMake(layerCenter.x - (halfDiagonal/2), layerCenter.y - (halfDiagonal/2), halfDiagonal, halfDiagonal);
-    CGRect focusViewFrameFoAnimation = CGRectMake(layerCenter.x - (halfDiagonalAnimation/2), layerCenter.y - (halfDiagonalAnimation/2), halfDiagonalAnimation, halfDiagonalAnimation);
+    CGRect focusViewFrameForAnimation = CGRectMake(layerCenter.x - (halfDiagonalAnimation/2), layerCenter.y - (halfDiagonalAnimation/2), halfDiagonalAnimation, halfDiagonalAnimation);
     
     self.focusView.alpha = 0;
     self.focusView.hidden = NO;
-    self.focusView.frame = focusViewFrameFoAnimation;
+    self.focusView.frame = focusViewFrameForAnimation;
     
     [UIView animateWithDuration:0.2 animations:^{
         self.focusView.frame = focusViewFrame;
