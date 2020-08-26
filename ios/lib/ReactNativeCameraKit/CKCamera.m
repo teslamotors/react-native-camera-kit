@@ -138,7 +138,6 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 - (void)dealloc
 {
     [self removeObservers];
-//    NSLog(@"dealloc");
 }
 
 -(PHFetchOptions *)fetchOptions {
@@ -485,8 +484,9 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
             device.flashMode = flashMode;
             [device unlockForConfiguration];
         }
-        else {
-            //NSLog( @"Could not lock device for configuration: %@", error );
+        else
+        {
+            NSLog(@"Could not lock device for configuration: %@", error);
         }
     }
 }
@@ -530,7 +530,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         // Capture a still image.
         [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:connection completionHandler:^( CMSampleBufferRef imageDataSampleBuffer, NSError *error ) {
             if (!imageDataSampleBuffer) {
-                //NSLog( @"Could not capture still image: %@", error );
+                NSLog(@"Could not capture still image: %@", error);
                 return;
             }
             // The sample buffer is not retained. Create image data before saving the still image to the photo library asynchronously.
@@ -559,7 +559,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
                     
                     [CKGalleryManager saveImageToCameraRoll:imageData temporaryFileURL:temporaryFileURL block:^(BOOL success) {
                         if (!success) {
-                            //NSLog( @"Could not save to camera roll");
+                            NSLog(@"Could not save to camera roll");
                             return;
                         }
                         NSString *localIdentifier = [CKGalleryManager getImageLocalIdentifierForFetchOptions:self.fetchOptions];
@@ -651,11 +651,8 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
     NSError *error = nil;
     [data writeToURL:temporaryFileURL options:NSDataWritingAtomic error:&error];
     
-    if ( error ) {
-        //NSLog( @"Error occured while writing image data to a temporary file: %@", error );
-    }
-    else {
-        //NSLog(@"Image Saved - YOU ROCK!");
+    if (error) {
+        NSLog(@"Error occured while writing image data to a temporary file: %@", error);
     }
     return temporaryFileURL;
 }
