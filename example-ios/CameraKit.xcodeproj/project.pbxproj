@@ -136,7 +136,7 @@
 				ORGANIZATIONNAME = Facebook;
 				TargetAttributes = {
 					13B07F861A680F5B00A75B9A = {
-						DevelopmentTeam = S3GLW74Y8N;
+						DevelopmentTeam = 7HJ894LG96;
 					};
 				};
 			};
@@ -145,6 +145,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 			);
@@ -241,7 +242,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = NO;
-				DEVELOPMENT_TEAM = S3GLW74Y8N;
+				DEVELOPMENT_TEAM = 7HJ894LG96;
 				INFOPLIST_FILE = CameraKit/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = (
@@ -249,6 +250,7 @@
 					"-ObjC",
 					"-lc++",
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = dk.seph.example.CameraKit;
 				PRODUCT_NAME = CameraKit;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
@@ -260,7 +262,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = S3GLW74Y8N;
+				DEVELOPMENT_TEAM = 7HJ894LG96;
 				INFOPLIST_FILE = CameraKit/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = (
@@ -268,6 +270,7 @@
 					"-ObjC",
 					"-lc++",
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = dk.seph.example.CameraKit;
 				PRODUCT_NAME = CameraKit;
 				VERSIONING_SYSTEM = "apple-generic";
 			};

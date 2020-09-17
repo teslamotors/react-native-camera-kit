@@ -92,6 +92,8 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 @property (nonatomic) NSInteger resetFocusTimeout;
 @property (nonatomic) BOOL resetFocusWhenMotionDetected;
 @property (nonatomic) BOOL tapToFocusEngaged;
+@property (nonatomic) BOOL saveToCameraRoll;
+@property (nonatomic) BOOL saveToCameraRollWithPhUrl;
 
 // session management
 @property (nonatomic) dispatch_queue_t sessionQueue;
@@ -436,24 +438,21 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 #pragma mark -
 
 
-+ (AVCaptureDevice *)deviceWithMediaType:(NSString *)mediaType preferringPosition:(AVCaptureDevicePosition)position
-{
++ (AVCaptureDevice *)deviceWithMediaType:(NSString *)mediaType preferringPosition:(AVCaptureDevicePosition)position {
     NSArray *devices = [AVCaptureDevice devicesWithMediaType:mediaType];
     AVCaptureDevice *captureDevice = devices.firstObject;
     
-    for ( AVCaptureDevice *device in devices ) {
-        if ( device.position == position ) {
+    for (AVCaptureDevice *device in devices) {
+        if (device.position == position) {
             captureDevice = device;
             break;
         }
-        
     }
     
     return captureDevice;
 }
 
--(void)setTorchMode:(AVCaptureTorchMode)torchMode callback:(CallbackBlock)block
-{
+-(void)setTorchMode:(AVCaptureTorchMode)torchMode callback:(CallbackBlock)block {
     _torchMode = torchMode;
     if (self.videoDeviceInput && [self.videoDeviceInput.device isTorchModeSupported:torchMode] && self.videoDeviceInput.device.hasTorch) {
         NSError* err = nil;
@@ -483,9 +482,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         if ( [device lockForConfiguration:&error] ) {
             device.flashMode = flashMode;
             [device unlockForConfiguration];
-        }
-        else
-        {
+        } else {
             NSLog(@"Could not lock device for configuration: %@", error);
         }
     }
@@ -502,7 +499,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 
 
-- (void)snapStillImage:(BOOL)shouldSaveToCameraRoll success:(CaptureBlock)block {
+- (void)snapStillImage:(NSDictionary*)options success:(CaptureBlock)onSuccess onError:(void (^)(NSString*))onError {
     dispatch_async( self.sessionQueue, ^{
         AVCaptureConnection *connection = [self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
         
@@ -531,19 +528,16 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:connection completionHandler:^( CMSampleBufferRef imageDataSampleBuffer, NSError *error ) {
             if (!imageDataSampleBuffer) {
                 NSLog(@"Could not capture still image: %@", error);
+                onError(@"Could not capture still image");
                 return;
             }
+            
             // The sample buffer is not retained. Create image data before saving the still image to the photo library asynchronously.
             NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
             UIImage *capturedImage = [UIImage imageWithData:imageData];
             
             NSMutableDictionary *imageInfoDict = [[NSMutableDictionary alloc] init];
             
-            NSURL *temporaryFileURL = [CKCamera saveToTmpFolder:imageData];
-            if (temporaryFileURL) {
-                imageInfoDict[@"uri"] = temporaryFileURL.description;
-                imageInfoDict[@"name"] = temporaryFileURL.lastPathComponent;
-            }
             imageInfoDict[@"size"] = [NSNumber numberWithInteger:imageData.length];
             
             if (capturedImage && [capturedImage isKindOfClass:[UIImage class]]) {
@@ -551,29 +545,64 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
                 imageInfoDict[@"height"] = [NSNumber numberWithDouble:capturedImage.size.height];
             }
             
-            if (shouldSaveToCameraRoll) {
-                [PHPhotoLibrary requestAuthorization:^( PHAuthorizationStatus status ) {
-                    if ( status != PHAuthorizationStatusAuthorized ) {
+            if (self.saveToCameraRoll) {
+                [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
+                    if (status != PHAuthorizationStatusAuthorized) {
+                        onError(@"Photo library permission is not authorized.");
                         return;
                     }
                     
-                    [CKGalleryManager saveImageToCameraRoll:imageData temporaryFileURL:temporaryFileURL block:^(BOOL success) {
+                    // To preserve the metadata, we create an asset from the JPEG NSData representation.
+                    // Note that creating an asset from a UIImage discards the metadata.
+                    // In iOS 9, we can use -[PHAssetCreationRequest addResourceWithType:data:options].
+                    [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
+                        [[PHAssetCreationRequest creationRequestForAsset] addResourceWithType:PHAssetResourceTypePhoto data:imageData options:nil];
+                    } completionHandler:^(BOOL success, NSError *error) {
                         if (!success) {
                             NSLog(@"Could not save to camera roll");
+                            onError(@"Photo library asset creation failed");
                             return;
                         }
-                        NSString *localIdentifier = [CKGalleryManager getImageLocalIdentifierForFetchOptions:self.fetchOptions];
+                        
+                        // Get local identifier
+                        PHFetchResult *fetchResult = [PHAsset fetchAssetsWithMediaType:PHAssetMediaTypeImage options:self.fetchOptions];
+                        PHAsset *firstAsset = [fetchResult firstObject];
+                        NSString *localIdentifier = firstAsset.localIdentifier;
+                        
                         if (localIdentifier) {
                             imageInfoDict[@"id"] = localIdentifier;
                         }
                         
-                        if (block) {
-                            block(imageInfoDict);
+                        // 'ph://' is a rnc/cameraroll URL scheme for loading PHAssets by localIdentifier
+                        // which are loaded via RNCAssetsLibraryRequestHandler module that conforms to RCTURLRequestHandler
+                        if (self.saveToCameraRollWithPhUrl) {
+                            imageInfoDict[@"uri"] = [NSString stringWithFormat:@"ph://%@", localIdentifier];
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                                onSuccess(imageInfoDict);
+                            });
+                        } else {
+                            PHContentEditingInputRequestOptions *options = [[PHContentEditingInputRequestOptions alloc] init];
+                            [options setNetworkAccessAllowed:YES];
+                            [firstAsset requestContentEditingInputWithOptions:options completionHandler:^(PHContentEditingInput * _Nullable contentEditingInput, NSDictionary * _Nonnull info) {
+                                imageInfoDict[@"uri"] = contentEditingInput.fullSizeImageURL.absoluteString;
+                                
+                                dispatch_async(dispatch_get_main_queue(), ^{
+                                    onSuccess(imageInfoDict);
+                                });
+                            }];
                         }
+                        
+                        
                     }];
                 }];
-            } else if (block) {
-                block(imageInfoDict);
+            } else {
+                NSURL *temporaryFileURL = [CKCamera saveToTmpFolder:imageData];
+                if (temporaryFileURL) {
+                    imageInfoDict[@"uri"] = temporaryFileURL.description;
+                    imageInfoDict[@"name"] = temporaryFileURL.lastPathComponent;
+                }
+                
+                onSuccess(imageInfoDict);
             }
             
             [self resetFocus];
