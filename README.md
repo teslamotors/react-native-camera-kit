@@ -94,6 +94,8 @@ Prop | Type | Description
 -------- | ----- | ------------
 `resetFocusTimeout`          | Number  | iOS only. Dismiss tap to focus after this many milliseconds. Default `0` (disabled). Example: `5000` is 5 seconds.
 `resetFocusWhenMotionDetected` | Boolean | iOS only. Dismiss tap to focus when focus area content changes. Native iOS feature, see documentation: https://developer.apple.com/documentation/avfoundation/avcapturedevice/1624644-subjectareachangemonitoringenabl?language=objc). Default `true`.
+`saveToCameraRoll` | Boolean | Using the camera roll is slower than using regular files stored in your app. On an iPhone X in debug mode, on a real phone, we measured around 100-150ms processing time to save to the camera roll. *<span style="color: red">**Note:**</span> This only work on real devices. It will hang indefinitly on simulators.*
+`saveToCameraRollWithPhUrl` | Boolean | iOS only. If true, speeds up photo taking by about 5-50ms (measured on iPhone X) by only returning a [rn-cameraroll-compatible](https://github.com/react-native-community/react-native-cameraroll/blob/a09af08f0a46a98b29f6ad470e59d3dc627864a2/ios/RNCAssetsLibraryRequestHandler.m#L36) `ph://..` URL instead of a regular `file://..` URL.
 `cameraOptions`                      | Object  | See `cameraOptions` below
 
 ### cameraOptions
@@ -132,15 +134,13 @@ const isUserAuthorizedCamera = await CameraKitCamera.requestDeviceCameraAuthoriz
 
 otherwise, returns `false`
 
-#### capture - must have the wanted camera capture reference
+#### capture({ ... }) - must have the wanted camera capture reference
 
-Capture image (`shouldSaveToCameraRoll: boolean`)
+Capture image (`{ saveToCameraRoll: boolean }`). Using the camera roll is slower than using regular files stored in your app. On an iPhone X in debug mode, on a real phone, we measured around 100-150ms processing time to save to the camera roll.
 
 ```js
-const image = await this.camera.capture(true);
+const image = await this.camera.capture();
 ```
-
-*<span style="color: red">**Note:**</span> This only work on real devices. It will hang indefinitly on simulators.*
 
 #### setFlashMode - must have the wanted camera capture reference
 
