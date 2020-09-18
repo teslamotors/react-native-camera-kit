@@ -26,7 +26,5 @@ typedef void (^SaveBlock)(BOOL success);
 @interface CKGalleryManager : NSObject <RCTBridgeModule>
 
 +(void)deviceGalleryAuthorizationStatus:(CallbackGalleryAuthorizationStatus)callback;
-+(void)saveImageToCameraRoll:(NSData*)imageData temporaryFileURL:(NSURL*)temporaryFileURL block:(SaveBlock)block;
-+(NSString*)getImageLocalIdentifierForFetchOptions:(PHFetchOptions*)fetchOption;
 
 @end

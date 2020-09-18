@@ -345,64 +345,6 @@ RCT_EXPORT_METHOD(requestDevicePhotosAuthorization:(RCTPromiseResolveBlock)resol
     return @NO;
 }
 
-+(NSString*)getImageLocalIdentifierForFetchOptions:(PHFetchOptions*)fetchOption {
-    PHFetchResult *fetchResult = [PHAsset fetchAssetsWithMediaType:PHAssetMediaTypeImage options:fetchOption];
-    PHAsset *lastImageAsset = [fetchResult firstObject];
-    return lastImageAsset.localIdentifier;
-}
-
-+(void)saveImageToCameraRoll:(NSData*)imageData temporaryFileURL:(NSURL*)temporaryFileURL block:(SaveBlock)block {
-    // To preserve the metadata, we create an asset from the JPEG NSData representation.
-    // Note that creating an asset from a UIImage discards the metadata.
-    // In iOS 9, we can use -[PHAssetCreationRequest addResourceWithType:data:options].
-    // In iOS 8, we save the image to a temporary file and use +[PHAssetChangeRequest creationRequestForAssetFromImageAtFileURL:].
-    if ( [PHAssetCreationRequest class] && imageData) {
-        [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
-            [[PHAssetCreationRequest creationRequestForAsset] addResourceWithType:PHAssetResourceTypePhoto data:imageData options:nil];
-        } completionHandler:^( BOOL success, NSError *error ) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                if ( block ) {
-                    block(success);
-                }
-            });
-            
-        }];
-    }
-    else {
-        [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
-            [PHAssetChangeRequest creationRequestForAssetFromImageAtFileURL:temporaryFileURL];
-        } completionHandler:^( BOOL success, NSError *error ) {
-            if ( block ) {
-                block(success);
-            }
-        }];
-    }
-}
-
-+(void)saveImageURLToCameraRoll:(NSString*)temporaryFileURL block:(SaveBlock)block {
-    NSURL *imageURL = [NSURL URLWithString:temporaryFileURL];
-    if(!imageURL) {
-        block(NO);
-        return;
-    }
-    [CKGalleryManager saveImageToCameraRoll:nil temporaryFileURL:imageURL block:block];
-}
-
-RCT_EXPORT_METHOD(saveImageURLToCameraRoll:(NSString*)imageURL
-                  resolve:(RCTPromiseResolveBlock)resolve
-                  reject:(RCTPromiseRejectBlock)reject) {
-    [CKGalleryManager saveImageURLToCameraRoll:imageURL block:^(BOOL success) {
-        if (resolve) {
-            NSMutableDictionary *result = [NSMutableDictionary dictionaryWithDictionary:@{@"success": @(success)}];
-            NSString *localIdentifier = [CKGalleryManager getImageLocalIdentifierForFetchOptions:self.fetchOptions];
-            if(localIdentifier) {
-                result[@"id"] = localIdentifier;
-            }
-            resolve(result);
-        }
-    }];
-}
-
 RCT_EXPORT_METHOD(deleteTempImage:(NSString*)tempImageURL
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
