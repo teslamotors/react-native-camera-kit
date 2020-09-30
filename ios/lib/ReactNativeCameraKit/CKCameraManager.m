@@ -32,6 +32,8 @@ RCT_EXPORT_VIEW_PROPERTY(scannerOptions, NSDictionary)
 RCT_EXPORT_VIEW_PROPERTY(showFrame, BOOL)
 RCT_EXPORT_VIEW_PROPERTY(resetFocusTimeout, NSInteger)
 RCT_EXPORT_VIEW_PROPERTY(resetFocusWhenMotionDetected, BOOL)
+RCT_EXPORT_VIEW_PROPERTY(saveToCameraRoll, BOOL)
+RCT_EXPORT_VIEW_PROPERTY(saveToCameraRollWithPhUrl, BOOL)
 
 RCT_EXPORT_METHOD(checkDeviceCameraAuthorizationStatus:(RCTPromiseResolveBlock)resolve
                   reject:(__unused RCTPromiseRejectBlock)reject) {
@@ -59,16 +61,14 @@ RCT_EXPORT_METHOD(requestDeviceCameraAuthorization:(RCTPromiseResolveBlock)resol
 }
 
 
-RCT_EXPORT_METHOD(capture:(BOOL)shouldSaveToCameraRoll
+RCT_EXPORT_METHOD(capture:(NSDictionary*)options
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
     
-    [self.camera snapStillImage:shouldSaveToCameraRoll success:^(NSDictionary *imageObject) {
-        if (imageObject) {
-            if (resolve) {
-                resolve(imageObject);
-            }
-        }
+    [self.camera snapStillImage:options success:^(NSDictionary *imageObject) {
+        resolve(imageObject);
+    } onError:^(NSString* error) {
+        reject(@"capture_error", error, nil);
     }];
 }
 
@@ -77,9 +77,9 @@ RCT_EXPORT_METHOD(changeCamera:(RCTPromiseResolveBlock)resolve
     
     [self.camera changeCamera:^(BOOL success) {
         if (success) {
-            if (resolve) {
-                resolve([NSNumber numberWithBool:success]);
-            }
+            resolve([NSNumber numberWithBool:success]);
+        } else {
+            reject(@"change_camera_error", @"Unable to change camera", nil);
         }
     }];
 }
@@ -89,9 +89,7 @@ RCT_EXPORT_METHOD(setFlashMode:(CKCameraFlashMode)flashMode
                   reject:(RCTPromiseRejectBlock)reject) {
     
     [self.camera setFlashMode:flashMode callback:^(BOOL success) {
-        if (resolve) {
-            resolve([NSNumber numberWithBool:success]);
-        }
+        resolve([NSNumber numberWithBool:success]);
     }];
 }
 
@@ -100,9 +98,7 @@ RCT_EXPORT_METHOD(setTorchMode:(CKCameraTorchMode)torchMode
                   reject:(RCTPromiseRejectBlock)reject) {
     
     [self.camera setTorchMode:torchMode callback:^(BOOL success) {
-        if (resolve) {
-            resolve([NSNumber numberWithBool:success]);
-        }
+        resolve([NSNumber numberWithBool:success]);
     }];
 }
 

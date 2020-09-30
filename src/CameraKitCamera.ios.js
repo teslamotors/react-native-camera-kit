@@ -4,6 +4,7 @@ import {
   requireNativeComponent,
   NativeModules,
   processColor,
+  Platform,
 } from 'react-native';
 
 const NativeCamera = requireNativeComponent('CKCamera', null);
@@ -18,8 +19,14 @@ export default class CameraKitCamera extends React.Component {
     return await NativeCameraAction.requestDeviceCameraAuthorization();
   }
 
-  async capture(saveToCameraRoll = true) {
-    return await NativeCameraAction.capture(saveToCameraRoll);
+  capture(options) {
+    if (Platform.OS === 'ios') {
+      return NativeCameraAction.capture(options);
+    }
+    if (Platform.OS === 'android') {
+      // Android has not been updated to use props yet
+      return NativeCameraAction.capture(!!this.props.saveToCameraRoll);
+    }
   }
 
   async changeCamera() {
@@ -38,11 +45,13 @@ export default class CameraKitCamera extends React.Component {
     const transformedProps = _.cloneDeep(this.props);
     _.update(transformedProps, 'cameraOptions.ratioOverlayColor', (c) => processColor(c));
     return (
-      <NativeCamera
-        resetFocusTimeout={0}
-        resetFocusWhenMotionDetected
-        {...transformedProps}
-      />
+      <NativeCamera {...transformedProps} />
     );
   }
 }
+
+CameraKitCamera.defaultProps = {
+  resetFocusTimeout: 0,
+  resetFocusWhenMotionDetected: true,
+  saveToCameraRoll: true,
+};

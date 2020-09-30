@@ -299,11 +299,6 @@ public class NativeGalleryModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void saveImageURLToCameraRoll(String imageUrl, final Promise promise) {
-        new SaveImageTask(imageUrl, getReactApplicationContext(), promise, true).execute();
-    }
-
-    @ReactMethod
     public void deleteTempImage(String imageUrl, final Promise promise) {
         boolean success = true;
         String imagePath = imageUrl.replace("file://", "");
