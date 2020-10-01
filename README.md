@@ -1,4 +1,5 @@
 
+
 # react-native-camera-kit
 
 Native camera control.
@@ -94,7 +95,7 @@ Prop | Type | Description
 -------- | ----- | ------------
 `resetFocusTimeout`          | Number  | iOS only. Dismiss tap to focus after this many milliseconds. Default `0` (disabled). Example: `5000` is 5 seconds.
 `resetFocusWhenMotionDetected` | Boolean | iOS only. Dismiss tap to focus when focus area content changes. Native iOS feature, see documentation: https://developer.apple.com/documentation/avfoundation/avcapturedevice/1624644-subjectareachangemonitoringenabl?language=objc). Default `true`.
-`saveToCameraRoll` | Boolean | Using the camera roll is slower than using regular files stored in your app. On an iPhone X in debug mode, on a real phone, we measured around 100-150ms processing time to save to the camera roll. *<span style="color: red">**Note:**</span> This only work on real devices. It will hang indefinitly on simulators.*
+`saveToCameraRoll` | Boolean | Using the camera roll is slower than using regular files stored in your app. On an iPhone X in debug mode, on a real phone, we measured around 100-150ms processing time to save to the camera roll. *<span style="color: red">**Note:**</span> This only work on real devices. It will hang indefinitely on simulators.*
 `saveToCameraRollWithPhUrl` | Boolean | iOS only. If true, speeds up photo taking by about 5-50ms (measured on iPhone X) by only returning a [rn-cameraroll-compatible](https://github.com/react-native-community/react-native-cameraroll/blob/a09af08f0a46a98b29f6ad470e59d3dc627864a2/ios/RNCAssetsLibraryRequestHandler.m#L36) `ph://..` URL instead of a regular `file://..` URL.
 `cameraOptions`                      | Object  | See `cameraOptions` below
 
@@ -231,10 +232,10 @@ Attribute | Values | Description
 `imageSizeAndroid` |`large`/`medium`| Android Only - Selected badge image size
 
 #### Images stored in iCloud 
-On iOS images can be stored in iCould if the device is **low on space** which means full-resolution photos automatically replaced with optimized version and full resolution versions are stored in iCloud.
+On iOS images can be stored in iCould if the device is **low on space** which means full-resolution photos automatically replaced with optimized version and full-resolution versions are stored in iCloud.
 
-In this case, we need to download the image from iCloud and *Photos Framework* by Apple does a great job. Downloading take time and we deal with UI, so we need to show loading/progress indicator. 
-In order to do so, we provide 3 types of loading/progress inidcators:
+In this case, we need to download the image from iCloud, and *Photos Framework* by Apple does a great job. Downloading takes time and we deal with UI, so we need to show loading/progress indicator. 
+To do so, we provide 3 types of loading/progress indicators:
 
 Sets `remoteDownloadIndicatorType` prop (and `remoteDownloadIndicatorColor` in order to sets the Color) on CameraKitGalleryView:
 
@@ -244,7 +245,7 @@ Attribute | Values
  `'progress-bar'`| ![](img/progressBar.png)
  `'progress-pie'`| ![](img/pie.png)
  
- >In order to simulate this loading behaviour, since reach low on storage situation is hard, add this prop `iCloudDownloadSimulateTime={TIME_IN_SECONDS}`, just **DO NOT FORGET TO REMOVE IT**.
+ > To simulate this loading behavior, since reach low on storage situation is hard, add this prop `iCloudDownloadSimulateTime={TIME_IN_SECONDS}`, just **DO NOT FORGET TO REMOVE IT**.
 
 ## QR Code 
 ```js
