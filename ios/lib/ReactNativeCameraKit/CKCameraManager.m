@@ -1,11 +1,3 @@
-//
-//  CKCameraManager.m
-//  ReactNativeCameraKit
-//
-//  Created by Ran Greenberg on 30/05/2016.
-//  Copyright © 2016 Wix. All rights reserved.
-//
-
 #import "CKCameraManager.h"
 #import "CKCamera.h"
 
@@ -38,7 +30,7 @@ RCT_EXPORT_VIEW_PROPERTY(saveToCameraRollWithPhUrl, BOOL)
 RCT_EXPORT_METHOD(checkDeviceCameraAuthorizationStatus:(RCTPromiseResolveBlock)resolve
                   reject:(__unused RCTPromiseRejectBlock)reject) {
 
-    
+
     AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
     if(authStatus == AVAuthorizationStatusAuthorized) {
         resolve(@YES);
@@ -52,7 +44,7 @@ RCT_EXPORT_METHOD(checkDeviceCameraAuthorizationStatus:(RCTPromiseResolveBlock)r
 RCT_EXPORT_METHOD(requestDeviceCameraAuthorization:(RCTPromiseResolveBlock)resolve
                   reject:(__unused RCTPromiseRejectBlock)reject) {
     __block NSString *mediaType = AVMediaTypeVideo;
-    
+
     [AVCaptureDevice requestAccessForMediaType:mediaType completionHandler:^(BOOL granted) {
         if (resolve) {
             resolve(@(granted));
@@ -64,7 +56,7 @@ RCT_EXPORT_METHOD(requestDeviceCameraAuthorization:(RCTPromiseResolveBlock)resol
 RCT_EXPORT_METHOD(capture:(NSDictionary*)options
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
-    
+
     [self.camera snapStillImage:options success:^(NSDictionary *imageObject) {
         resolve(imageObject);
     } onError:^(NSString* error) {
@@ -74,7 +66,7 @@ RCT_EXPORT_METHOD(capture:(NSDictionary*)options
 
 RCT_EXPORT_METHOD(changeCamera:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
-    
+
     [self.camera changeCamera:^(BOOL success) {
         if (success) {
             resolve([NSNumber numberWithBool:success]);
@@ -87,7 +79,7 @@ RCT_EXPORT_METHOD(changeCamera:(RCTPromiseResolveBlock)resolve
 RCT_EXPORT_METHOD(setFlashMode:(CKCameraFlashMode)flashMode
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
-    
+
     [self.camera setFlashMode:flashMode callback:^(BOOL success) {
         resolve([NSNumber numberWithBool:success]);
     }];
@@ -96,7 +88,7 @@ RCT_EXPORT_METHOD(setFlashMode:(CKCameraFlashMode)flashMode
 RCT_EXPORT_METHOD(setTorchMode:(CKCameraTorchMode)torchMode
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
-    
+
     [self.camera setTorchMode:torchMode callback:^(BOOL success) {
         resolve([NSNumber numberWithBool:success]);
     }];

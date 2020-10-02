@@ -1,11 +1,3 @@
-//
-//  CKGalleryCollectionViewCell.m
-//  ReactNativeCameraKit
-//
-//  Created by Ran Greenberg on 20/06/2016.
-//  Copyright © 2016 Wix. All rights reserved.
-//
-
 #if __has_include(<React/RCTBridge.h>)
 #import <React/RCTConvert.h>
 #else
@@ -123,7 +115,7 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
         if (remoteDownloadIndicatorColor) {
             [_spinner setColor:remoteDownloadIndicatorColor];
         }
-        
+
     }
     return _spinner;
 }
@@ -142,7 +134,7 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
 }
 
 -(M13ProgressViewPie *)progressPieView {
-    
+
     if (!_progressPieView) {
         CGRect frame = CGRectMake(0, 0, self.bounds.size.width/3, self.bounds.size.height/3);
         _progressPieView = [[M13ProgressViewPie alloc] initWithFrame:frame];
@@ -151,11 +143,11 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
         _progressPieView.primaryColor = [UIColor whiteColor];
         _progressPieView.animationDuration = 0.1;
         [_progressPieView setProgress:0 animated:NO];
-        
+
         if (remoteDownloadIndicatorColor) {
             _progressPieView.secondaryColor = remoteDownloadIndicatorColor;
             _progressPieView.primaryColor = remoteDownloadIndicatorColor;
-            
+
         }
     }
     return _progressPieView;
@@ -166,9 +158,9 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
 
 -(instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
-    
+
     CGRect imageViewFrame = self.bounds;
-    
+
     if(imageStrokeColor) {
         if (imageStrokeColorWidth && imageStrokeColorWidth.floatValue > 0) {
             imageViewFrame.size.height -= imageStrokeColorWidth.floatValue;
@@ -176,35 +168,35 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
         }
         self.backgroundColor = imageStrokeColor;
     }
-    
+
     self.imageView = [[UIImageView alloc] initWithFrame:imageViewFrame];
     self.imageView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     self.imageView.center = CGPointMake(CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds));
     self.imageView.backgroundColor = [UIColor clearColor];
     self.imageView.contentMode = UIViewContentModeScaleAspectFill;
     self.imageView.clipsToBounds = YES;
-    
+
     [self addSubview:self.imageView];
-    
+
     self.imageOveray = [[UIView alloc] initWithFrame:self.imageView.bounds];
     self.imageOveray.opaque = NO;
     self.imageOveray.backgroundColor = [UIColor clearColor];
-    
+
     [self.imageView addSubview:self.imageOveray];
-    
+
     self.badgeImageView = [[UIImageView alloc] init];
     [self addSubview:self.badgeImageView];
-    
+
     self.isSupported = YES;
-    
-    
+
+
     self.gesture = [[SelectionGesture alloc] initWithTarget:self action:@selector(handleGesture:)];
     [self addGestureRecognizer:self.gesture];
     self.gesture.cancelsTouchesInView = NO;
     self.gesture.delegate = self;
-    
+
     [self applyStyleOnInit];
-    
+
     return self;
 }
 
@@ -213,29 +205,29 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
     if(selectedImageIconProp) {
         selectedImageIcon = [RCTConvert UIImage:selectedImageIconProp];
     }
-    
+
     id unselectedImageIconProp = selection[SELECTION_UNSELECTED_IMAGE];
     if(unselectedImageIconProp) {
         unSelectedImageIcon = [RCTConvert UIImage:unselectedImageIconProp];
     }
-    
+
     id overlayColorProp = selection[SELECTION_OVERLAY_COLOR];
     if(overlayColorProp) {
         selectionOverlayColor = [RCTConvert UIColor:overlayColorProp];
     }
-    
+
 }
 
 -(CGRect)frameforImagePosition:(NSString*)position image:(UIImage*)image {
     CGRect badgeRect;
-    
-    
+
+
     CGSize badgeImageSize = image.size;
     CGFloat aspectRatio = badgeImageSize.width/badgeImageSize.height;
     badgeImageSize.width = MIN(badgeImageSize.width, self.bounds.size.width/4);
     badgeImageSize.height = badgeImageSize.width/aspectRatio;
-    
-    
+
+
     if ([position isEqualToString:@"top-right"]) {
         badgeRect= CGRectMake(self.imageView.bounds.size.width - (badgeImageSize.width + BADGE_MARGIN), BADGE_MARGIN, badgeImageSize.width, badgeImageSize.height);
     }
@@ -254,9 +246,9 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
     else {
         badgeRect = CGRectZero;
     }
-    
+
     return badgeRect;
-    
+
 }
 
 -(void)updateBadgeImageViewFrame {
@@ -266,7 +258,7 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
     if (!CGRectIsEmpty(badgeRect)) {
         self.badgeImageView.frame = badgeRect;
     };
-    
+
 }
 
 - (void)prepareForReuse {
@@ -276,16 +268,16 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
     _isDownloading = NO;
     self.isSupported = YES;
     self.gesture.enabled = YES;
-    
+
     [self.unsupportedView removeFromSuperview];
     self.unsupportedView = nil;
-    
+
     [_spinner removeFromSuperview];
     _spinner = nil;
-    
+
     [_progressBarView removeFromSuperview];
     _progressBarView = nil;
-    
+
     [_progressPieView removeFromSuperview];
     _progressPieView = nil;
 }
@@ -298,33 +290,33 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
 
 -(void)setIsSupported:(BOOL)isSupported {
     _isSupported = isSupported;
-    
+
     if (!_isSupported) {
         if (supported) {
-            
+
             UIImageView *imageView;
             UILabel *unsupportedLabel;
-            
+
             self.unsupportedView = [[UIView alloc] initWithFrame:self.bounds];
-            
+
             UIColor *overlayColor = supported[UNSUPPORTED_OVERLAY_COLOR];
             if (overlayColor) {
                 self.unsupportedView.backgroundColor = overlayColor;
             }
-            
+
             UIImage *unsupportedImage = supported[UNSUPPORTED_IMAGE];
             if (unsupportedImage) {
                 CGRect imageViewFrame = self.unsupportedView.bounds;
                 imageViewFrame.size.height  = self.unsupportedView.bounds.size.height/4*2;
                 imageViewFrame.origin.y = self.unsupportedView.bounds.size.height/4 - (imageViewFrame.size.height/6);
-                
+
                 imageView = [[UIImageView alloc] initWithImage:unsupportedImage];
                 imageView.frame = imageViewFrame;
                 imageView.contentMode = UIViewContentModeScaleAspectFit;
                 [self.unsupportedView addSubview:imageView];
             }
-            
-            
+
+
             NSString *unsupportedText = supported[UNSUPPORTED_TEXT];
             if (unsupportedText) {
                 CGRect labelFrame = self.unsupportedView.bounds;
@@ -336,27 +328,27 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
                 unsupportedLabel = [[UILabel alloc] initWithFrame:labelFrame];
                 unsupportedLabel.text = unsupportedText;
                 unsupportedLabel.textAlignment = NSTextAlignmentCenter;
-                
+
                 UIColor *unsupportedTextColor = supported[UNSUPPORTED_TEXT_COLOR];
                 if (unsupportedTextColor) {
                     unsupportedLabel.textColor = unsupportedTextColor;
                 }
-                
+
                 [self.unsupportedView addSubview:unsupportedLabel];
             }
-            
+
             [self addSubview:self.unsupportedView];
             [self.badgeImageView removeFromSuperview];
             self.gesture.enabled = NO;
         }
     }
-    
+
     else {
         [self.unsupportedView removeFromSuperview];
         self.unsupportedView = nil;
         [self addSubview:self.badgeImageView];
         self.gesture.enabled = YES;
-        
+
     }
 }
 
@@ -365,7 +357,7 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
         self.imageOveray.backgroundColor = [[UIColor whiteColor] colorWithAlphaComponent:0.5];
         return;
     }
-    
+
     if (shouldShowOverlayColor) {
         self.imageOveray.backgroundColor = selectionOverlayColor ? selectionOverlayColor : [[UIColor whiteColor] colorWithAlphaComponent:0.5];
     }
@@ -376,13 +368,13 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
 
 
 -(void)setIsSelected:(BOOL)isSelected {
-    
+
     _isSelected = isSelected;
-    
+
     if (self.disableSelectionIcons) return;
-    
+
     [self setSelectedOverLay:isSelected forceOverlay:NO];
-    
+
     if (_isSelected) {
         if (selectedImageIcon) {
             double frameDuration = 1.0/2.0; // 4 = number of keyframes
@@ -390,13 +382,13 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
             [self updateBadgeImageViewFrame];
             self.badgeImageView.transform = CGAffineTransformMakeScale(0.5, 0.5);
             [UIView animateKeyframesWithDuration:0.2 delay:0 options:0 animations:^{
-                
+
                 [UIView addKeyframeWithRelativeStartTime:0*frameDuration relativeDuration:frameDuration animations:^{
                     self.badgeImageView.transform = CGAffineTransformIdentity;
                 }];
-                
+
             } completion:nil];
-            
+
         }
         else {
             self.badgeImageView.backgroundColor = UIColorFromRGB(BADGE_COLOR);
@@ -421,14 +413,14 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
 
 -(void)setDownloadingProgress:(CGFloat)downloadingProgress {
     _downloadingProgress = downloadingProgress;
-    
+
     if ([remoteDownloadIndicatorType isEqualToString:REMOTE_DOWNLOAD_INDICATOR_TYPE_PROGRESS_BAR]) {
         self.progressView.progress = downloadingProgress;
     }
     else if ([remoteDownloadIndicatorType isEqualToString:REMOTE_DOWNLOAD_INDICATOR_TYPE_PROGRESS_PIE]) {
         [self.progressPieView setProgress:downloadingProgress animated:YES];
     }
-    
+
     [self updateRemoteDownload];
 }
 
@@ -448,7 +440,7 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
             }
         }
     }
-    
+
     else {
         [UIView animateWithDuration:0.5 delay:1 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
             self.progressPieView.alpha = 0;
@@ -463,10 +455,10 @@ static NSString *remoteDownloadIndicatorType = REMOTE_DOWNLOAD_INDICATOR_TYPE_SP
 -(void)removeRemoteDownloadIndicator {
     [_spinner removeFromSuperview];
     _spinner = nil;
-    
+
     [_progressBarView removeFromSuperview];
     _progressBarView = nil;
-    
+
     [_progressPieView removeFromSuperview];
     _progressPieView = nil;
 }
