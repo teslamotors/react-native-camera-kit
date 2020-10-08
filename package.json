@@ -9,7 +9,6 @@
   },
   "version": "9.0.0",
   "description": "Advanced native camera control with pre-defined aspect ratio, crop, etc",
-  "author": "Ran Greenberg <rang@wix.com>",
   "nativePackage": true,
   "bugs": {
     "url": "https://github.com/wix/react-native-camera-kit/issues"

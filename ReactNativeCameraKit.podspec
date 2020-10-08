@@ -8,7 +8,7 @@ Pod::Spec.new do |s|
   s.summary      = "Advanced native camera and gallery controls and device photos API"
   s.license      = "MIT"
 
-  s.authors      = "Wix"
+  s.authors      = "CameraKit"
   s.homepage     = "https://github.com/wix/react-native-camera-kit"
   s.platform     = :ios, "9.0"
 
