@@ -6,7 +6,7 @@ import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
-import com.wix.RNCameraKit.RNCameraKitPackage;
+import com.rncamerakit.RNCameraKitPackage;
 
 import java.util.Arrays;
 import java.util.List;
