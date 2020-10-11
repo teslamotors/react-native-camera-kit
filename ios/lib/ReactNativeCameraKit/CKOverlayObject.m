@@ -1,11 +1,3 @@
-//
-//  CKOverlayObject.m
-//  ReactNativeCameraKit
-//
-//  Created by Ran Greenberg on 17/07/2016.
-//  Copyright © 2016 Wix. All rights reserved.
-//
-
 #import "CKOverlayObject.h"
 
 @interface CKOverlayObject ()
@@ -19,23 +11,23 @@
 @implementation CKOverlayObject
 
 -(instancetype)initWithString:(NSString*)str {
-    
+
     self = [super init];
-    
+
     if (self) {
         [self commonInit:str];
     }
-    
+
     return self;
 }
 
 -(void)commonInit:(NSString*)str {
-    
+
     NSArray<NSString*> *array = [str componentsSeparatedByString:@":"];
     if (array.count == 2) {
         float height = [array[0] floatValue];
         float width = [array[1] floatValue];
-        
+
         if (width != 0 && height != 0) {
             self.width = width;
             self.height = height;

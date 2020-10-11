@@ -3,7 +3,6 @@ package com.example;
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
-import com.wix.RNCameraKit.RNCameraKitPackage;
 
 import java.util.Arrays;
 import java.util.List;

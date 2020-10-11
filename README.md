@@ -46,7 +46,7 @@ Then add to your app `app/build.gradle` in the `dependencies` section:
 Then in `MainApplication.java` add:
 
 ```diff
-+ import com.wix.RNCameraKit.RNCameraKitPackage;
++ import com.rncamerakit.RNCameraKitPackage;
 ```
 
 And in the package list in the same file (e.g. `getPackages`) add:

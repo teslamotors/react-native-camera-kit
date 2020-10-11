@@ -1,11 +1,3 @@
-//
-//  GalleryData.h
-//  ReactNativeCameraKit
-//
-//  Created by Ran Greenberg on 30/06/2016.
-//  Copyright © 2016 Wix. All rights reserved.
-//
-
 #import <Foundation/Foundation.h>
 @import Photos;
 
