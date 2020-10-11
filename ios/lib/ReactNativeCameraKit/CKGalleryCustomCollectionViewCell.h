@@ -1,11 +1,3 @@
-//
-//  CKGalleryCustomCellCollectionViewCell.h
-//  ReactNativeCameraKit
-//
-//  Created by Ran Greenberg on 28/02/2017.
-//  Copyright © 2017 Wix. All rights reserved.
-//
-
 #import <UIKit/UIKit.h>
 
 #if __has_include(<React/RCTBridge.h>)

@@ -1,11 +1,3 @@
-//
-//  CKGallery.m
-//  ReactNativeCameraKit
-//
-//  Created by Ran Greenberg on 30/05/2016.
-//  Copyright © 2016 Wix. All rights reserved.
-//
-
 #if __has_include(<React/RCTBridge.h>)
 #import <React/RCTConvert.h>
 #else
@@ -69,7 +61,7 @@ RCT_EXPORT_MODULE();
      imageRequestOptions:(PHImageRequestOptions*)options
            thumbnailSize:(CGSize)thumbnailSize
                    block:(AlbumsBlock)block {
-    
+
     NSInteger collectionCount;
     if ([collection isKindOfClass:[PHAssetCollection class]]) {
         collectionCount = [PHAsset fetchAssetsInAssetCollection:collection options:nil].count;
@@ -80,34 +72,34 @@ RCT_EXPORT_MODULE();
     else {
         collectionCount = 0;
     }
-    
+
     if (collectionCount > 0){
-        
+
         NSString *albumName = ([collection isKindOfClass:[PHAssetCollection class]]) ? ((PHAssetCollection*)collection).localizedTitle : @"All photos";
         PHFetchResult *fetchResult = ([collection isKindOfClass:[PHAssetCollection class]]) ? [PHAsset fetchKeyAssetsInAssetCollection:collection options:nil] : (PHAssetCollection*)collection;
         PHAsset *thumbnail = [fetchResult firstObject];
-        
+
         NSMutableDictionary *albumInfo = [[NSMutableDictionary alloc] init];
         albumInfo[@"albumName"] = albumName;
         albumInfo[@"imagesCount"] = [NSNumber numberWithInteger:collectionCount];
-        
+
         [[PHImageManager defaultManager]
          requestImageForAsset:thumbnail
          targetSize:thumbnailSize
          contentMode:PHImageContentModeAspectFit
          options:options
          resultHandler:^(UIImage *result, NSDictionary *info) {
-             
+
              if (!albumInfo[@"image"]) {
                  albumInfo[@"image"] = [UIImageJPEGRepresentation(result, 1.0) base64Encoding];
              }
-             
+
              if (block) {
                  block(albumInfo);
              }
          }];
     }
-    
+
     else {
         if (block) {
             block(nil);
@@ -120,25 +112,25 @@ RCT_EXPORT_MODULE();
              imageRequestOptions:(PHImageRequestOptions*)options
                    thumbnailSize:(CGSize)thumbnailSize
                            block:(AlbumsBlock)block {
-    
+
     NSMutableArray *albumsArray = [[NSMutableArray alloc] init];
     NSInteger collectionCount = collections.count;
-    
+
     if (collectionCount == 0) {
         if (block) {
             block(nil);
         }
     }
-    
+
     [collections enumerateObjectsUsingBlock:^(PHAssetCollection *collection, NSUInteger idx, BOOL * _Nonnull stop) {
-        
+
         [self extractCollection:collection imageRequestOptions:options thumbnailSize:thumbnailSize block:^(NSDictionary *album) {
-            
+
             NSString *albumName = collection.localizedTitle;
             if (album) {
                 [albumsArray addObject:album];
             }
-            
+
             if (idx == collectionCount-1) {
                 if (block) {
                     block(@{@"albums" : albumsArray});
@@ -151,37 +143,37 @@ RCT_EXPORT_MODULE();
 
 RCT_EXPORT_METHOD(getAlbumsWithThumbnails:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
-    
+
     PHImageRequestOptions *imageRequestOptions = [[PHImageRequestOptions alloc] init];
     imageRequestOptions.resizeMode = PHImageRequestOptionsResizeModeExact;
     imageRequestOptions.synchronous = YES;
     NSInteger retinaScale = [UIScreen mainScreen].scale;
     CGSize retinaSquare = CGSizeMake(100*retinaScale, 100*retinaScale);
-    
+
     __block NSMutableArray *albumsArray = [[NSMutableArray alloc] init];
-    
+
     [self extractCollectionsDetails:self.topLevelUserCollections
                 imageRequestOptions:imageRequestOptions
                       thumbnailSize:retinaSquare
                               block:^(NSDictionary *albums) {
-                                  
+
                                   [self extractCollection:self.allPhotos imageRequestOptions:imageRequestOptions thumbnailSize:retinaSquare block:^(NSDictionary *allPhotosAlbum) {
-                                      
-                                      
+
+
                                       if (resolve) {
                                           NSMutableArray *albumsArrayAns = [[NSMutableArray alloc] init];;
-                                          
+
                                           if(albums[@"albums"]) {
                                               [albumsArrayAns addObjectsFromArray:albums[@"albums"]];
                                           }
                                           if(allPhotosAlbum) {
                                               [albumsArrayAns insertObject:allPhotosAlbum atIndex:0];
                                           }
-                                          
+
                                           if (!albumsArrayAns || albumsArrayAns.count == 0) {
                                               NSError *error = [[NSError alloc] initWithDomain:NSCocoaErrorDomain
                                                                                           code:-100 userInfo:nil];
-                                              
+
                                               reject(@"-100", @"no albums", error);
                                           }
                                           else {
@@ -206,7 +198,7 @@ RCT_EXPORT_METHOD(getImagesForIds:(NSArray*)imagesIdArray
                   imageQuality:(NSString*)imageQuality
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(__unused RCTPromiseRejectBlock)reject) {
-    
+
     [self imagesForIds:imagesIdArray imageQuality:imageQuality resolve:resolve reject:reject];
 }
 
@@ -214,22 +206,22 @@ RCT_EXPORT_METHOD(resizeImage:(NSDictionary*)image
                   quality:(NSString*)quality
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(__unused RCTPromiseRejectBlock)reject) {
-    
+
     NSMutableDictionary *ans = [NSMutableDictionary dictionaryWithDictionary:image];
-    
+
     NSString *imageUrlString = image[@"uri"];
     if (imageUrlString) {
-        
+
         NSURL *url = [NSURL URLWithString:imageUrlString];
         if (!url) {
             resolve(nil);
         }
         NSData *data = [NSData dataWithContentsOfURL:url];
-        
+
         UIImage *originalImage = [UIImage imageWithData:data];
         CKCompressedImage *compressedImage = [[CKCompressedImage alloc] initWithImage:originalImage imageQuality:quality];
-        
-        
+
+
         NSURL *temporaryFileURL = [CKCamera saveToTmpFolder:compressedImage.data];
         if (temporaryFileURL) {
             ans[@"uri"] = temporaryFileURL.description;
@@ -247,28 +239,28 @@ RCT_EXPORT_METHOD(resizeImage:(NSDictionary*)image
        imageQuality:(NSString*)imageQuality
             resolve:(RCTPromiseResolveBlock)resolve
              reject:(__unused RCTPromiseRejectBlock)reject {
-    
+
     if (!imagesIdArray || ![imagesIdArray isKindOfClass:[NSArray class]] || imagesIdArray.count <= 0 ) {
         resolve(@{@"images": @[]});
         return;
     }
-    
+
     NSMutableArray *assetsArray = [[NSMutableArray alloc] initWithArray:imagesIdArray];
-    
+
     PHImageRequestOptions *imageRequestOptions = [[PHImageRequestOptions alloc] init];
     imageRequestOptions.synchronous = YES;
-    
+
     PHFetchResult *assets = [PHAsset fetchAssetsWithLocalIdentifiers:imagesIdArray options:nil];
-    
+
     for (PHAsset *asset in assets) {
-        
+
         NSDictionary *assetInfoDict = [CKGalleryViewManager infoForAsset:asset imageRequestOptions:imageRequestOptions imageQuality:imageQuality];
         NSString *assetLocalId = asset.localIdentifier;
-        
+
         if (assetInfoDict && assetInfoDict[@"uri"] && assetInfoDict[@"size"] && assetInfoDict[@"name"] && assetLocalId) {
-            
+
             NSUInteger originalArrayIndex = [imagesIdArray indexOfObject:assetLocalId];
-            
+
             [assetsArray replaceObjectAtIndex:originalArrayIndex withObject:@{@"uri": assetInfoDict[@"uri"],
                                                                               @"width": assetInfoDict[@"width"],
                                                                               @"height": assetInfoDict[@"height"],
@@ -277,19 +269,19 @@ RCT_EXPORT_METHOD(resizeImage:(NSDictionary*)image
                                                                               @"id": assetLocalId}];
         }
     }
-    
+
     NSMutableArray *resolveArray = [NSMutableArray new];
     for (id obj in assetsArray) {
         if ([obj isKindOfClass:[NSDictionary class]]) {
             [resolveArray addObject:obj];
         }
     }
-    
+
     if (resolve) {
         resolve(@{@"images": resolveArray});
     }
-    
-    
+
+
 }
 
 
@@ -333,9 +325,9 @@ RCT_EXPORT_METHOD(requestDevicePhotosAuthorization:(RCTPromiseResolveBlock)resol
 }
 
 +(NSNumber*)checkDeviceGalleryAuthorizationStatus {
-    
+
     PHAuthorizationStatus authorizationStatus = [PHPhotoLibrary authorizationStatus];
-    
+
     if (authorizationStatus == PHAuthorizationStatusAuthorized) {
         return @YES;
     }
@@ -359,7 +351,7 @@ RCT_EXPORT_METHOD(deleteTempImage:(NSString*)tempImageURL
             result[@"error"] = [error description];
         }
     }
-    
+
     if(resolve) {
         resolve(result);
     }

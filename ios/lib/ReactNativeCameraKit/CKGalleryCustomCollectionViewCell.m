@@ -1,11 +1,3 @@
-//
-//  CKGalleryCustomCellCollectionViewCell.m
-//  ReactNativeCameraKit
-//
-//  Created by Ran Greenberg on 28/02/2017.
-//  Copyright © 2017 Wix. All rights reserved.
-//
-
 #import "CKGalleryCustomCollectionViewCell.h"
 
 #if __has_include(<React/RCTBridge.h>)
@@ -38,7 +30,7 @@
 
 
 -(void) applyStyle:(NSDictionary*)styleDict {
-    
+
     if (styleDict[CUSOM_BUTTON_COMPONENT]) {
         if (!_componentRootView) {
             _componentRootView = [[RCTRootView alloc] initWithBridge:self.bridge moduleName:styleDict[CUSOM_BUTTON_COMPONENT] initialProperties:nil];
@@ -51,7 +43,7 @@
             _componentRootView.frame = self.bounds;
         }
     }
-    
+
     if (_componentRootView == nil) {
         id imageProps = styleDict[CUSOM_BUTTON_IMAGE];
         if (imageProps) {
@@ -68,14 +60,14 @@
                 _imageView.image = image;
             }
         }
-        
+
         id backgroundColorProps = styleDict[CUSOM_BUTTON_BACKGROUND_COLOR];
         if (backgroundColorProps) {
             UIColor *backgroundColor = [RCTConvert UIColor:backgroundColorProps];
             self.backgroundColor = backgroundColor;
         }
     }
-    
+
     _prevStyleDict = styleDict;
 }
 

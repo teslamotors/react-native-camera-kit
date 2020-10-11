@@ -159,7 +159,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0730;
-				ORGANIZATIONNAME = Wix;
+				ORGANIZATIONNAME = "";
 				TargetAttributes = {
 					2646934D1CFB2A6B00F3A740 = {
 						CreatedOnToolsVersion = 7.3;
@@ -171,6 +171,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 			);
 			mainGroup = 264693451CFB2A6B00F3A740;
