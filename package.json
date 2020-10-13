@@ -1,7 +1,7 @@
 {
   "name": "react-native-camera-kit",
   "repository": {
-    "type": "git",
+    "type": "git"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
@@ -9,10 +9,17 @@
   "version": "9.0.0",
   "description": "Advanced native camera control with pre-defined aspect ratio, crop, etc",
   "nativePackage": true,
+  "react-native": "src/index",
+  "source": "src/index",
+  "bugs": {
+    "url": "https://github.com/wix/react-native-camera-kit/issues"
+  },
   "scripts": {
+    "test": "jest",
     "start": "watchman watch-del-all && node node_modules/react-native/local-cli/cli.js start",
-    "xcode": "open example-ios/CameraKit.xcodeproj",
-    "androidStudio": "open -a /Applications/Android\\ Studio.app ./example-android"
+    "example": "yarn --cwd example",
+    "pods": "cd example && pod-install --quiet",
+    "bootstrap": "yarn example && yarn && yarn pods"
   },
   "main": "src/index.js",
   "dependencies": {
@@ -20,13 +27,19 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "react": "16.9.x",
-    "react-native": "0.61.3",
+    "@types/jest": "^26.0.0",
+    "@types/react": "^16.9.19",
+    "@types/react-native": "0.62.13",
+    "jest": "^26.0.1",
+    "pod-install": "^0.1.0",
+    "react": "16.11.0",
+    "react-native": "0.62.2",
     "babel-jest": "22.4.1",
-    "babel-preset-react-native": "5.0.2",
-    "jest": "22.x.x",
     "react-test-renderer": "16.6.0",
-    "metro-react-native-babel-preset": "0.51.0",
-    "jsc-android": "245459.0.0"
+    "metro-react-native-babel-preset": "0.51.0"
   },
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*"
+  }
 }
