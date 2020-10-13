@@ -57,9 +57,8 @@ And in the package list in the same file (e.g. `getPackages`) add:
 
 ## Running the example project	
 
-- ```cd old-example```	
-- ```yarn``` or ```npm install``` (the ```yarn```/```npm``` should be in the example folder)	
-- ```react-native run-ios``` or ```react-native run-android``` 
+- ```yarn bootstrap```	
+- ```yarn example ios``` or ```yarn example android``` 
 
 ## APIs
 

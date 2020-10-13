@@ -211,4 +211,4 @@ buck-out/
 \.buckd/
 android/app/libs
 android/keystores/debug.keystore
-example-ios/Pods
+example/ios/Pods
