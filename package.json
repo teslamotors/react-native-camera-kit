@@ -11,9 +11,6 @@
   "nativePackage": true,
   "react-native": "src/index",
   "source": "src/index",
-  "bugs": {
-    "url": "https://github.com/wix/react-native-camera-kit/issues"
-  },
   "scripts": {
     "test": "jest",
     "start": "watchman watch-del-all && node node_modules/react-native/local-cli/cli.js start",
