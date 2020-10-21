@@ -20,6 +20,7 @@
 		269292861D3B81C800E07DDF /* CKOverlayObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 269292851D3B81C800E07DDF /* CKOverlayObject.m */; };
 		26F556721D2501C9007B1C11 /* GalleryData.m in Sources */ = {isa = PBXBuildFile; fileRef = 26F556711D2501C9007B1C11 /* GalleryData.m */; };
 		A7686BFE1EC9CFEC00959216 /* CKCompressedImage.m in Sources */ = {isa = PBXBuildFile; fileRef = A7686BFD1EC9CFEC00959216 /* CKCompressedImage.m */; };
+		FC8E10CF253F8A23006D5AD0 /* CKMockPreview.m in Sources */ = {isa = PBXBuildFile; fileRef = FC8E10CE253F8A23006D5AD0 /* CKMockPreview.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -62,6 +63,8 @@
 		26F556711D2501C9007B1C11 /* GalleryData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GalleryData.m; sourceTree = "<group>"; };
 		A7686BFC1EC9CFEC00959216 /* CKCompressedImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CKCompressedImage.h; sourceTree = "<group>"; };
 		A7686BFD1EC9CFEC00959216 /* CKCompressedImage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CKCompressedImage.m; sourceTree = "<group>"; };
+		FC8E10CD253F8A23006D5AD0 /* CKMockPreview.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CKMockPreview.h; sourceTree = "<group>"; };
+		FC8E10CE253F8A23006D5AD0 /* CKMockPreview.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CKMockPreview.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -128,6 +131,8 @@
 				269292851D3B81C800E07DDF /* CKOverlayObject.m */,
 				2625648E1E6572B300A7B90D /* CKGalleryCustomCollectionViewCell.h */,
 				2625648F1E6572B300A7B90D /* CKGalleryCustomCollectionViewCell.m */,
+				FC8E10CD253F8A23006D5AD0 /* CKMockPreview.h */,
+				FC8E10CE253F8A23006D5AD0 /* CKMockPreview.m */,
 			);
 			path = ReactNativeCameraKit;
 			sourceTree = "<group>";
@@ -201,6 +206,7 @@
 				26F556721D2501C9007B1C11 /* GalleryData.m in Sources */,
 				261F3FA01F4471FB0013E7C3 /* M13ProgressView.m in Sources */,
 				268A64B71D2BFE5A0034460B /* SelectionGesture.m in Sources */,
+				FC8E10CF253F8A23006D5AD0 /* CKMockPreview.m in Sources */,
 				262E421D1D182C1200C82B27 /* CKGalleryViewManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
