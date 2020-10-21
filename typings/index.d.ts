@@ -124,7 +124,7 @@ declare module 'react-native-camera-kit' {
 
     export interface CameraKitGalleryStatic {
         getAlbumsWithThumbnails(): Promise<{
-            albums: AlbumWithThumbnail
+            albums: AlbumWithThumbnail[]
         }>
     }
     export const CameraKitGallery: CameraKitGalleryStatic
