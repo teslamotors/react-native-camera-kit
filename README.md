@@ -1,5 +1,5 @@
 <h1 align="center">
-    React Native Camera Kit
+    🎈 React Native Camera Kit
 </h1>
 
 <p align="center">
@@ -15,16 +15,26 @@
     <img src="https://badge.fury.io/js/react-native-camera-kit.svg" alt="Current npm package version." />
   </a>
 </p>
-
-## Features
-- Cross Platform (iOS and Android)
-- Optimized for performance and high photo capture rate
-- QR / Barcode scanning support
-- Camera preview support in iOS simulator
+<table>
+  <tr>
+    <td>
+      <img src="images/screenshot.jpg"/>
+    </td>
+    <td>
+      <ul>
+        <li><h3>Cross Platform (iOS and Android)</h3></li>
+        <li><h3>Optimized for performance and high photo capture rate</h3></li>
+        <li><h3>QR / Barcode scanning support</h3></li>
+        <li><h3>Camera preview support in iOS simulator</h3></li>
+      </ul>
+    </td>
+  </tr>
+</table>
 
 ## Installation
 
 ### Mostly automatic install with autolinking (RN > 0.60)
+
 ```bash
 npm install react-native-camera-kit --save
 ```
@@ -34,6 +44,7 @@ cd ios && pod install && cd ..
 ```
 
 ### Mostly automatic install with react-native link (RN < 0.60)
+
 ```bash
 npm install react-native-camera --save
 ```
@@ -41,7 +52,6 @@ npm install react-native-camera --save
 ```bash
 react-native link react-native-camera
 ```
-
 
 #### Install using npm or yarn:
 
@@ -267,6 +277,7 @@ import { CameraKitCameraScreen } from "react-native-camera-kit";
 ```
 
 ## Contributing
+
 - Pull Requests are welcome, if you open a pull request we will do our best to get to it in a timely manner
 - Pull Request Reviews are even more welcome! we need help testing, reviewing, and updating open PRs
 - If you are interested in contributing more actively, please contact us.
