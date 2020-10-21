@@ -12,6 +12,7 @@
 #import "CKCamera.h"
 #import "CKCameraOverlayView.h"
 #import "CKGalleryManager.h"
+#import "CKMockPreview.h"
 
 static void * CapturingStillImageContext = &CapturingStillImageContext;
 static void * SessionRunningContext = &SessionRunningContext;
@@ -75,6 +76,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 @property (nonatomic, strong) AVCaptureVideoPreviewLayer *previewLayer;
 @property (nonatomic, strong) NSDictionary *cameraOptions;
+@property (nonatomic, strong) CKMockPreview *mockPreview;
 @property (nonatomic, strong) UIView *focusView;
 @property (nonatomic, strong) NSTimer *focusViewTimer;
 @property (nonatomic, strong) CKCameraOverlayView *cameraOverlayView;
@@ -183,10 +185,18 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 #if !(TARGET_IPHONE_SIMULATOR)
         [self setupCaptureSession];
+#endif
         self.previewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:self.session];
         [self.layer addSublayer:self.previewLayer];
         self.previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
+        
+#if (TARGET_IPHONE_SIMULATOR)
+        // Create mock camera layer. When a photo is taken, we capture this layer and save it in place of a
+        // hardware input.
+        self.mockPreview = [[CKMockPreview alloc] initWithFrame:CGRectZero];
+        [self addSubview:self.mockPreview];
 #endif
+        
         UIView *focusView = [[UIView alloc] initWithFrame:CGRectZero];
         focusView.backgroundColor = [UIColor clearColor];
         focusView.layer.borderColor = [UIColor yellowColor].CGColor;
@@ -196,7 +206,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
         [self addSubview:self.focusView];
 
-        // defualts
+        // defaults
         self.zoomMode = CKCameraZoomModeOn;
         self.flashMode = CKCameraFlashModeAuto;
         self.focusMode = CKCameraFocushModeOn;
@@ -355,14 +365,13 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 -(void)reactSetFrame:(CGRect)frame {
     [super reactSetFrame:frame];
-
-#if TARGET_IPHONE_SIMULATOR
-    return;
-#endif
-
+    
     self.previewLayer.frame = self.bounds;
 
-
+#if TARGET_IPHONE_SIMULATOR
+    self.mockPreview.frame = self.bounds;
+    return;
+#endif
 
     [self setOverlayRatioView];
 
@@ -492,6 +501,12 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 
 - (void)snapStillImage:(NSDictionary*)options success:(CaptureBlock)onSuccess onError:(void (^)(NSString*))onError {
+    
+    #if TARGET_IPHONE_SIMULATOR
+    [self capturePreviewLayer:options success:onSuccess onError:onError];
+    return;
+    #endif
+    
     dispatch_async( self.sessionQueue, ^{
         AVCaptureConnection *connection = [self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
 
@@ -526,86 +541,102 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
             // The sample buffer is not retained. Create image data before saving the still image to the photo library asynchronously.
             NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
-            UIImage *capturedImage = [UIImage imageWithData:imageData];
-
-            NSMutableDictionary *imageInfoDict = [[NSMutableDictionary alloc] init];
-
-            imageInfoDict[@"size"] = [NSNumber numberWithInteger:imageData.length];
-
-            if (capturedImage && [capturedImage isKindOfClass:[UIImage class]]) {
-                imageInfoDict[@"width"] = [NSNumber numberWithDouble:capturedImage.size.width];
-                imageInfoDict[@"height"] = [NSNumber numberWithDouble:capturedImage.size.height];
-            }
-
-            if (self.saveToCameraRoll) {
-                [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
-                    if (status != PHAuthorizationStatusAuthorized) {
-                        onError(@"Photo library permission is not authorized.");
-                        return;
-                    }
-
-                    // To preserve the metadata, we create an asset from the JPEG NSData representation.
-                    // Note that creating an asset from a UIImage discards the metadata.
-                    // In iOS 9, we can use -[PHAssetCreationRequest addResourceWithType:data:options].
-                    [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
-                        [[PHAssetCreationRequest creationRequestForAsset] addResourceWithType:PHAssetResourceTypePhoto data:imageData options:nil];
-                    } completionHandler:^(BOOL success, NSError *error) {
-                        if (!success) {
-                            NSLog(@"Could not save to camera roll");
-                            onError(@"Photo library asset creation failed");
-                            return;
-                        }
-
-                        // Get local identifier
-                        PHFetchResult *fetchResult = [PHAsset fetchAssetsWithMediaType:PHAssetMediaTypeImage options:self.fetchOptions];
-                        PHAsset *firstAsset = [fetchResult firstObject];
-                        NSString *localIdentifier = firstAsset.localIdentifier;
-
-                        if (localIdentifier) {
-                            imageInfoDict[@"id"] = localIdentifier;
-                        }
-
-                        // 'ph://' is a rnc/cameraroll URL scheme for loading PHAssets by localIdentifier
-                        // which are loaded via RNCAssetsLibraryRequestHandler module that conforms to RCTURLRequestHandler
-                        if (self.saveToCameraRollWithPhUrl) {
-                            imageInfoDict[@"uri"] = [NSString stringWithFormat:@"ph://%@", localIdentifier];
-                            dispatch_async(dispatch_get_main_queue(), ^{
-                                onSuccess(imageInfoDict);
-                            });
-                        } else {
-                            PHContentEditingInputRequestOptions *options = [[PHContentEditingInputRequestOptions alloc] init];
-                            [options setNetworkAccessAllowed:YES];
-                            [firstAsset requestContentEditingInputWithOptions:options completionHandler:^(PHContentEditingInput * _Nullable contentEditingInput, NSDictionary * _Nonnull info) {
-                                imageInfoDict[@"uri"] = contentEditingInput.fullSizeImageURL.absoluteString;
-
-                                dispatch_async(dispatch_get_main_queue(), ^{
-                                    onSuccess(imageInfoDict);
-                                });
-                            }];
-                        }
-
-
-                    }];
-                }];
-            } else {
-                NSURL *temporaryFileURL = [CKCamera saveToTmpFolder:imageData];
-                if (temporaryFileURL) {
-                    imageInfoDict[@"uri"] = temporaryFileURL.description;
-                    imageInfoDict[@"name"] = temporaryFileURL.lastPathComponent;
-                }
-
-                onSuccess(imageInfoDict);
-            }
-
+            
+            [self writeCapturedImageData:imageData onSuccess:onSuccess onError:onError];
             [self resetFocus];
         }];
     });
 }
 
+- (void)capturePreviewLayer:(NSDictionary*)options success:(CaptureBlock)onSuccess onError:(void (^)(NSString*))onError
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (self.mockPreview != nil) {
+            UIImage *previewSnapshot = [self.mockPreview snapshotWithTimestamp:YES]; // Generate snapshot from main UI thread
+            dispatch_async( self.sessionQueue, ^{ // write image async
+                [self writeCapturedImageData:UIImagePNGRepresentation(previewSnapshot) onSuccess:onSuccess onError:onError];
+            });
+        } else {
+            onError(@"Simulator image could not be captured from preview layer");
+        }
+    });
+}
+
+- (void)writeCapturedImageData:(NSData *)imageData onSuccess:(CaptureBlock)onSuccess onError:(void (^)(NSString*))onError {
+    NSMutableDictionary *imageInfoDict = [[NSMutableDictionary alloc] init];
+
+    NSNumber *length = [NSNumber numberWithInteger:imageData.length];
+    if (length) {
+        imageInfoDict[@"size"] = length;
+    }
+
+    if (self.saveToCameraRoll) {
+        [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
+            if (status != PHAuthorizationStatusAuthorized) {
+                onError(@"Photo library permission is not authorized.");
+                return;
+            }
+            [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
+                // To preserve the metadata, we create an asset from the JPEG NSData representation.
+                // Note that creating an asset from a UIImage discards the metadata.
+                // In iOS 9, we can use -[PHAssetCreationRequest addResourceWithType:data:options].
+                [[PHAssetCreationRequest creationRequestForAsset] addResourceWithType:PHAssetResourceTypePhoto data:imageData options:nil];
+            } completionHandler:^(BOOL success, NSError *error) {
+                if (!success) {
+                    NSLog(@"Could not save to camera roll");
+                    onError(@"Photo library asset creation failed");
+                    return;
+                }
+
+                // Get local identifier
+                PHFetchResult *fetchResult = [PHAsset fetchAssetsWithMediaType:PHAssetMediaTypeImage options:self.fetchOptions];
+                PHAsset *firstAsset = [fetchResult firstObject];
+                NSString *localIdentifier = firstAsset.localIdentifier;
+
+                if (localIdentifier) {
+                    imageInfoDict[@"id"] = localIdentifier;
+                }
+
+                // 'ph://' is a rnc/cameraroll URL scheme for loading PHAssets by localIdentifier
+                // which are loaded via RNCAssetsLibraryRequestHandler module that conforms to RCTURLRequestHandler
+                if (self.saveToCameraRollWithPhUrl) {
+                    imageInfoDict[@"uri"] = [NSString stringWithFormat:@"ph://%@", localIdentifier];
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        onSuccess(imageInfoDict);
+                    });
+                } else {
+                    PHContentEditingInputRequestOptions *options = [[PHContentEditingInputRequestOptions alloc] init];
+                    [options setNetworkAccessAllowed:YES];
+                    [firstAsset requestContentEditingInputWithOptions:options completionHandler:^(PHContentEditingInput * _Nullable contentEditingInput, NSDictionary * _Nonnull info) {
+                        imageInfoDict[@"uri"] = contentEditingInput.fullSizeImageURL.absoluteString;
+
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            onSuccess(imageInfoDict);
+                        });
+                    }];
+                }
+
+
+            }];
+        }];
+    } else {
+        NSURL *temporaryFileURL = [CKCamera saveToTmpFolder:imageData];
+        if (temporaryFileURL) {
+            imageInfoDict[@"uri"] = temporaryFileURL.description;
+            imageInfoDict[@"name"] = temporaryFileURL.lastPathComponent;
+        }
+
+        onSuccess(imageInfoDict);
+    }
+
+}
+
 -(void)changeCamera:(CallbackBlock)block
 {
 #if TARGET_IPHONE_SIMULATOR
-    NSLog(@"changeCamera isn't support on simulator");
+    dispatch_async( dispatch_get_main_queue(), ^{
+        [self.mockPreview randomize];
+    });
     return;
 #endif
 
@@ -747,7 +778,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
     [self focusWithMode:AVCaptureFocusModeContinuousAutoFocus exposeWithMode:AVCaptureExposureModeContinuousAutoExposure atDevicePoint:deviceCenter monitorSubjectAreaChange:NO];
 
     // 2. Create animation to indicate the new focus location
-    CGPoint layerCenter = [self.previewLayer pointForCaptureDevicePointOfInterest:deviceCenter];
+    CGPoint layerCenter = [(AVCaptureVideoPreviewLayer *)self.previewLayer pointForCaptureDevicePointOfInterest:deviceCenter];
 
     CGFloat halfDiagonal = 123;
     CGFloat halfDiagonalAnimation = halfDiagonal*2;
@@ -841,7 +872,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 }
 
 
-+(CGRect)cropRectForSize:(CGRect)frame overlayObject:(CKOverlayObject*)overlayObject {
++ (CGRect)cropRectForSize:(CGRect)frame overlayObject:(CKOverlayObject*)overlayObject {
 
     CGRect ans = CGRectZero;
     CGSize centerSize = CGSizeZero;
@@ -876,7 +907,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
     return ans;
 }
 
-+(CGSize)cropImageToPreviewSize:(UIImage*)image size:(CGSize)previewSize {
++ (CGSize)cropImageToPreviewSize:(UIImage*)image size:(CGSize)previewSize {
 
     float imageToPreviewWidthScale = image.size.width/previewSize.width;
     float imageToPreviewHeightScale = image.size.width/previewSize.width;
