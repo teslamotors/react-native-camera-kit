@@ -77,7 +77,7 @@ declare module 'react-native-camera-kit' {
         /**
          * Selected images (will show the selected badge)
          */
-        selectedImages?: GalleryImage[]
+        selectedImages?: string[]
         selection?: Selection
         customButtonStyle?: CustomButtom
         /**
