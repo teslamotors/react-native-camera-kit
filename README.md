@@ -31,9 +31,7 @@
   </tr>
 </table>
 
-## Installation
-
-### Mostly automatic install with autolinking (RN > 0.60)
+## Installation (RN > 0.60)
 
 ```bash
 npm install react-native-camera-kit --save
@@ -41,28 +39,6 @@ npm install react-native-camera-kit --save
 
 ```bash
 cd ios && pod install && cd ..
-```
-
-### Mostly automatic install with react-native link (RN < 0.60)
-
-```bash
-npm install react-native-camera --save
-```
-
-```bash
-react-native link react-native-camera
-```
-
-#### Install using npm or yarn:
-
-```bash
-npm install react-native-camera-kit --save
-```
-
-Or if you're using yarn:
-
-```bash
-yarn add react-native-camera-kit
 ```
 
 ## Running the example project
