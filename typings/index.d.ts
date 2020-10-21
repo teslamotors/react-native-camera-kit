@@ -115,4 +115,19 @@ declare module 'react-native-camera-kit' {
     export class CameraKitGalleryView extends React.Component<CameraKitGalleryViewProps> {
         constructor(props: CameraKitGalleryViewProps);
     }
+
+    export type AlbumWithThumbnail = {
+        albumName: string,
+        imagesCount: number
+        thumbUri: string
+    }
+
+    export interface CameraKitGalleryStatic {
+        getAlbumsWithThumbnails(): Promise<{
+            albums: AlbumWithThumbnail
+        }>
+    }
+    export const CameraKitGallery: CameraKitGalleryStatic
+    export type CameraKitGallery = CameraKitGalleryStatic
+
 }
