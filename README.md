@@ -34,7 +34,7 @@
 ## Installation (RN > 0.60)
 
 ```bash
-npm install react-native-camera-kit --save
+yarn add react-native-camera-kit
 ```
 
 ```bash
@@ -51,7 +51,7 @@ cd ios && pod install && cd ..
 ### CameraKitCamera - Camera component
 
 ```js
-import { CameraKitCamera } from "react-native-camera-kit";
+import { CameraKitCamera } from 'react-native-camera-kit';
 ```
 
 ```jsx
@@ -59,17 +59,17 @@ import { CameraKitCamera } from "react-native-camera-kit";
   ref={(cam) => (this.camera = cam)}
   style={{
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: 'white',
   }}
   cameraOptions={{
-    flashMode: "auto", // on/off/auto(default)
-    focusMode: "on", // off/on(default)
-    zoomMode: "on", // off/on(default)
-    ratioOverlay: "1:1", // optional
-    ratioOverlayColor: "#00000077", // optional
+    flashMode: 'auto', // on/off/auto(default)
+    focusMode: 'on', // off/on(default)
+    zoomMode: 'on', // off/on(default)
+    ratioOverlay: '1:1', // optional
+    ratioOverlayColor: '#00000077', // optional
   }}
   onReadCode={(
-    event // optional
+    event, // optional
   ) => console.log(event.nativeEvent.codeStringValue)}
   resetFocusTimeout={0} // optional
   resetFocusWhenMotionDetected={true} // optional
@@ -235,20 +235,20 @@ Sets `remoteDownloadIndicatorType` prop (and `remoteDownloadIndicatorColor` in o
 ## QR Code
 
 ```js
-import { CameraKitCameraScreen } from "react-native-camera-kit";
+import { CameraKitCameraScreen } from 'react-native-camera-kit';
 
 <CameraKitCameraScreen
-  actions={{ rightButtonText: "Done", leftButtonText: "Cancel" }}
+  actions={{ rightButtonText: 'Done', leftButtonText: 'Cancel' }}
   onBottomButtonPressed={(event) => this.onBottomButtonPressed(event)}
   scanBarcode={true}
-  laserColor={"blue"}
-  frameColor={"yellow"}
-  onReadCode={(event) => Alert.alert("Qr code found")} //optional
+  laserColor={'blue'}
+  frameColor={'yellow'}
+  onReadCode={(event) => Alert.alert('Qr code found')} //optional
   hideControls={false} //(default false) optional, hide buttons and additional controls on top and bottom of screen
   showFrame={true} //(default false) optional, show frame with transparent layer (qr code or barcode will be read on this area ONLY), start animation for scanner,that stoped when find any code. Frame always at center of the screen
   offsetForScannerFrame={10} //(default 30) optional, offset from left and right side of the screen
   heightForScannerFrame={300} //(default 200) optional, change height of the scanner frame
-  colorForScannerFrame={"red"} //(default white) optional, change colot of the scanner frame
+  colorForScannerFrame={'red'} //(default white) optional, change colot of the scanner frame
 />;
 ```
 
