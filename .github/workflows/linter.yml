@@ -1,4 +1,4 @@
-name: Super-Linter
+name: Eslint
 on: push
 jobs:
   build:
@@ -8,8 +8,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Run Linter
-        uses: github/super-linter@v3
-        env:
-          DEFAULT_BRANCH: main
-          TYPESCRIPT_ES_CONFIG_FILE: .eslintrc.js
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: hallee/eslint-action@1.0.3
+        with:
+          repo-token: ${{secrets.GITHUB_TOKEN}}
+          eslint-rc: .eslintrc.js
