@@ -1,0 +1,14 @@
+name: Super-Linter
+on: push
+jobs:
+  build:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Run Linter
+        uses: github/super-linter@v3
+        env:
+          DEFAULT_BRANCH: main
+          TYPESCRIPT_ES_CONFIG_FILE: .eslintrc.js
