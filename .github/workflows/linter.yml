@@ -12,3 +12,4 @@ jobs:
         env:
           DEFAULT_BRANCH: main
           TYPESCRIPT_ES_CONFIG_FILE: .eslintrc.js
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
