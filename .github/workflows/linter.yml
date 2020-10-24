@@ -1,8 +1,8 @@
 name: Linter
 on: push
 jobs:
-  super-lint:
-    name: Lint
+  eslint:
+    name: ESLint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
