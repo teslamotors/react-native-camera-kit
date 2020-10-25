@@ -5,23 +5,23 @@ jobs:
     name: build-ios
     runs-on: macos-latest
     steps:
-        - name: Checkout
+      - name: Checkout
         uses: actions/checkout@v2
-        - name: Install modules
+      - name: Install modules
         run: yarn
-        - name: Bootstrap
-        - run: yarn bootstrap
-        - name: Build
+      - name: Bootstrap
+        run: yarn bootstrap
+      - name: Build
         run: yarn example ios
-    build-android:
-        name: build-android
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout
-            uses: actions/checkout@v2
-            - name: Install modules
-            run: yarn
-            - name: Bootstrap
-            run: yarn bootstrap
-            - name: Build
-            run: yarn example android
+  build-android:
+      name: build-android
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v2
+        - name: Install modules
+          run: yarn
+        - name: Bootstrap
+          run: yarn bootstrap
+        - name: Build
+          run: yarn example android
