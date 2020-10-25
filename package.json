@@ -14,7 +14,6 @@
   "scripts": {
     "test": "jest",
     "lint": "yarn eslint -c .eslintrc.js",
-    "build:ios": "",
     "start": "watchman watch-del-all && node node_modules/react-native/local-cli/cli.js start",
     "example": "yarn --cwd example",
     "pods": "cd example && pod-install --quiet",

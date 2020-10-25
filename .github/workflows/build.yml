@@ -1,8 +1,8 @@
 name: Build
 on: push
 jobs:
-  build-ios:
-    name: build-ios
+  build-example-ios:
+    name: build-example-ios
     runs-on: macos-latest
     steps:
       - name: Checkout
@@ -12,9 +12,9 @@ jobs:
       - name: Bootstrap
         run: yarn bootstrap
       - name: Build
-        run: yarn example ios
-  build-android:
-      name: build-android
+        run: cd example/ios && xcodebuild -workspace CameraKitExample.xcworkspace -configuration Debug -scheme CameraKitExample -arch x86_64
+  build-example-android:
+      name: build-example-android
       runs-on: ubuntu-latest
       steps:
         - name: Checkout
@@ -24,4 +24,4 @@ jobs:
         - name: Bootstrap
           run: yarn bootstrap
         - name: Build
-          run: yarn example android
+          run: cd example/android && ./gradlew assembleDebug
