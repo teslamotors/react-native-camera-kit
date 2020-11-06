@@ -6,8 +6,8 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
-  "version": "9.0.0",
-  "description": "Advanced native camera control with pre-defined aspect ratio, crop, etc",
+  "version": "10.0.0",
+  "description": "A high performance, fully featured, rock solid camera library for React Native applications",
   "nativePackage": true,
   "react-native": "src/index",
   "source": "src/index",
