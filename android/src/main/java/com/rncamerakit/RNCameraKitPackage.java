@@ -10,9 +10,6 @@ import com.facebook.react.uimanager.ViewManager;
 import com.rncamerakit.camera.CameraModule;
 import com.rncamerakit.camera.CameraViewManager;
 import com.rncamerakit.camera.permission.CameraPermissionRequestCallback;
-import com.rncamerakit.gallery.GalleryViewManager;
-import com.rncamerakit.gallery.NativeGalleryModule;
-import com.rncamerakit.gallery.permission.StoragePermissionRequestCallback;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,15 +18,13 @@ import java.util.List;
 public class RNCameraKitPackage implements ReactPackage {
 
     @Nullable private CameraPermissionRequestCallback cameraPermissionRequestCallback;
-    @Nullable private StoragePermissionRequestCallback storagePermissionRequestCallback;
 
     public RNCameraKitPackage() {
 
     }
 
-    public RNCameraKitPackage(CameraPermissionRequestCallback cameraPermissionRequestCallback, StoragePermissionRequestCallback storagePermissionRequestCallback) {
+    public RNCameraKitPackage(CameraPermissionRequestCallback cameraPermissionRequestCallback) {
         this.cameraPermissionRequestCallback = cameraPermissionRequestCallback;
-        this.storagePermissionRequestCallback = storagePermissionRequestCallback;
     }
 
     @Override
@@ -42,12 +37,6 @@ public class RNCameraKitPackage implements ReactPackage {
         }
         modules.add(cameraModule);
 
-        NativeGalleryModule galleryModule = new NativeGalleryModule(reactContext);
-        if (storagePermissionRequestCallback != null) {
-            storagePermissionRequestCallback.setGalleryModule(galleryModule);
-        }
-        modules.add(galleryModule);
-
         return modules;
     }
 
@@ -59,7 +48,6 @@ public class RNCameraKitPackage implements ReactPackage {
     @Override
     public List<ViewManager> createViewManagers(ReactApplicationContext reactContext) {
         List<ViewManager> viewManagers = new ArrayList<>();
-        viewManagers.add(new GalleryViewManager());
         viewManagers.add(new CameraViewManager());
         return viewManagers;
     }
