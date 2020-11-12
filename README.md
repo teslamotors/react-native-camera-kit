@@ -152,86 +152,6 @@ Change to front/rear camera
 const success = await this.camera.changeCamera();
 ```
 
-### CameraKitGalleryView - Gallery grid component
-
-Native Gallery View (based on `UICollectionView`(iOS) and ` RecyclerView` (Android))
-
-![](img/camerakitgalleryview.png)
-
-```js
-import { CameraKitGalleryView } from 'react-native-camera-kit';
-
-<CameraKitGalleryView
-  ref={gallery => this.gallery = gallery}
-  style={{flex: 1, marginTop: 20}}
-  minimumInteritemSpacing={10}
-  minimumLineSpacing={10}
-  albumName={<ALBUM_NAME>}
-  columnCount={3}
-  onTapImage={event => {
-    // event.nativeEvent.selected - ALL selected images ids
-  }}
-  selectedImages={<MAINTAIN_SELECETED_IMAGES>}
-  selectedImageIcon={require('<IMAGE_FILE_PATH>'))}
-  unSelectedImageIcon={require('<IMAGE_FILE_PATH>')}
-/>
-```
-
-| Attribute                      | Values                                                     | Description                                                                                                 |
-| ------------------------------ | ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `minimumInteritemSpacing`      | Float                                                      | Minimum inner Item spacing                                                                                  |
-| `minimumLineSpacing`           | Float                                                      | Minimum line spacing                                                                                        |
-| `imageStrokeColor`             | Color                                                      | Image stroke color                                                                                          |
-| `imageStrokeColorWidth`        | Number > 0                                                 | Image stroke color width                                                                                    |
-| `albumName`                    | String                                                     | Album name to show                                                                                          |
-| `columnCount`                  | Integer                                                    | How many clumns in one row                                                                                  |
-| `onTapImage`                   | Function                                                   | Callback when image tapped                                                                                  |
-| `selectedImages`               | Array                                                      | Selected images (will show the selected badge)                                                              |
-| `selectedImageIcon`            | `require(_PATH_)`                                          | - _DEPRECATED_ use Selection - Selected image badge image                                                   |
-| `unSelectedImageIcon`          | `require(_PATH_)`                                          | - _DEPRECATED_ use Selection - Unselected image badge image                                                 |
-| `selection`                    | Object                                                     | See [Selection section](#selection)                                                                         |
-| `getUrlOnTapImage`             | Boolean                                                    | iOS only - On image tap return the image internal (tmp folder) uri (intead of `Photos.framework` asset id)  |
-| `customButtonStyle`            | Object                                                     | See [Custom Button](#custom-button) section                                                                 |
-| `onCustomButtonPress`          | Function                                                   | Callback when custom button tapped                                                                          |
-| `contentInset` (iOS)           | Object                                                     | The amount by which the gellery view content is inset from its edges (similar to `ScrollView` contentInset) |
-| `remoteDownloadIndicatorType`  | String (`'spinner'` / `'progress-bar'` / `'progress-pie'`) | iOS only - see [Images stored in iCloud](#images-stored-in-iCloud)                                          |
-| `remoteDownloadIndicatorColor` | Color                                                      | iOS only - Color of the remote download indicator to show                                                   |
-| `onRemoteDownloadChanged`      | Function                                                   | iOS only - Callback when the device curentlly download remote image stored in the iCloud.                   |
-
-#### Custom Button
-
-| Attribute         | Values            | Description                    |
-| ----------------- | ----------------- | ------------------------------ |
-| `image`           | `require(_PATH_)` | Custom button image            |
-| `backgroundColor` | Color             | Custom button background color |
-
-#### Selection
-
-| Attribute          | Values                             | Description                                                    |
-| ------------------ | ---------------------------------- | -------------------------------------------------------------- |
-| `selectedImage`    | `require(_PATH_)`                  | Selected image badge image                                     |
-| `unselectedImage`  | `require(_PATH_)`                  | Unselected image badge image                                   |
-| `imagePosition`    | `bottom/top-right/left` / `center` | Selected/Unselected badge image position (Default:`top-right`) |
-| `overlayColor`     | Color                              | Image selected overlay color                                   |
-| `imageSizeAndroid` | `large`/`medium`                   | Android Only - Selected badge image size                       |
-
-#### Images stored in iCloud
-
-On iOS images can be stored in iCould if the device is **low on space** which means full-resolution photos automatically replaced with optimized version and full resolution versions are stored in iCloud.
-
-In this case, we need to download the image from iCloud and _Photos Framework_ by Apple does a great job. Downloading take time and we deal with UI, so we need to show loading/progress indicator.
-In order to do so, we provide 3 types of loading/progress inidcators:
-
-Sets `remoteDownloadIndicatorType` prop (and `remoteDownloadIndicatorColor` in order to sets the Color) on CameraKitGalleryView:
-
-| Attribute        |          Values          |
-| ---------------- | :----------------------: |
-| `'spinner'`      |   ![](img/spinner.png)   |
-| `'progress-bar'` | ![](img/progressBar.png) |
-| `'progress-pie'` |     ![](img/pie.png)     |
-
-> In order to simulate this loading behaviour, since reach low on storage situation is hard, add this prop `iCloudDownloadSimulateTime={TIME_IN_SECONDS}`, just **DO NOT FORGET TO REMOVE IT**.
-
 ## QR Code
 
 ```js
@@ -257,10 +177,6 @@ import { CameraKitCameraScreen } from 'react-native-camera-kit';
 - Pull Requests are welcome, if you open a pull request we will do our best to get to it in a timely manner
 - Pull Request Reviews are even more welcome! we need help testing, reviewing, and updating open PRs
 - If you are interested in contributing more actively, please contact us.
-
-## Credits
-
-- [M13ProgressSuite](https://github.com/Marxon13/M13ProgressSuite) component by Marxon13 - A suite containing many tools to display progress information on iOS.
 
 ## License
 

@@ -7,11 +7,9 @@ import {
   Alert
 } from 'react-native';
 
-import {CameraKitGallery, CameraKitCamera} from '../../src';
+import { CameraKitCamera } from '../../src';
 
 import CameraScreen from './CameraScreen';
-import AlbumsScreen from './AlbumsScreen';
-import GalleryScreen from './GalleryScreen';
 import BarcodeScreen from './BarcodeScreen';
 
 export default class App extends Component {
@@ -31,10 +29,10 @@ export default class App extends Component {
     return (
       <View style={{ flex: 1 }}>
         <View style={styles.headerContainer}>
+          <Text style={{ fontSize: 60 }}>🎈</Text>
           <Text style={styles.headerText}>
-            Welcome to Camera Kit
+            React Native Camera Kit
           </Text>
-          <Text style={{ fontSize: 40 }}>📷</Text>
         </View>
 
 
@@ -51,27 +49,9 @@ export default class App extends Component {
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => this.setState({ example: AlbumsScreen })}>
-            <Text style={styles.buttonText}>
-              Albums Screen
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={() => this.setState({ example: GalleryScreen })}>
-            <Text style={styles.buttonText}>
-              Gallery Screen
-            </Text>
-          </TouchableOpacity>
-
           <TouchableOpacity onPress={() => this.onCheckCameraAuthoPressed()}>
             <Text style={styles.buttonText}>
-              Camera Autotization Status
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={() => this.onCheckGalleryAuthoPressed()}>
-            <Text style={styles.buttonText}>
-              Photos Autotization Status
+              Camera Permission Status
             </Text>
           </TouchableOpacity>
         </View>
@@ -83,16 +63,6 @@ export default class App extends Component {
 
   async onCheckCameraAuthoPressed() {
     const success = await CameraKitCamera.checkDeviceCameraAuthorizationStatus();
-    if (success) {
-      Alert.alert('You have permission 🤗')
-    }
-    else {
-      Alert.alert('No permission 😳')
-    }
-  }
-
-  async onCheckGalleryAuthoPressed() {
-    const success = await CameraKitGallery.checkDevicePhotosAuthorizationStatus();
     if (success) {
       Alert.alert('You have permission 🤗')
     }

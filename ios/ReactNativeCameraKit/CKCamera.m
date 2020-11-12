@@ -11,7 +11,6 @@
 
 #import "CKCamera.h"
 #import "CKCameraOverlayView.h"
-#import "CKGalleryManager.h"
 #import "CKMockPreview.h"
 
 static void * CapturingStillImageContext = &CapturingStillImageContext;
