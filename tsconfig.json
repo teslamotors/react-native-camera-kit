@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "jsx": "react",
+    "lib": ["es6"],
+    "moduleResolution": "node",
+    "noEmit": true,
+    "strict": true,
+    "target": "esnext",
+    "resolveJsonModule": true, // Required for JSON files
+    "skipLibCheck": true, // Skips *.d.ts files
+    "strictFunctionTypes": false,
+    "noImplicitAny": false,
+    "baseUrl": "app",
+    "paths": {
+      "@assets/*": ["../assets/*"],
+      "@theme/*": ["./src/*"]
+    }
+  },
+  "exclude": [
+    "node_modules",
+    "babel.config.js",
+    "metro.config.js",
+    "jest.config.js",
+    "**/*.json",
+    "**/*.spec.ts"
+  ]
+}

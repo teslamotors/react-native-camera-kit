@@ -96,7 +96,15 @@ import { CameraKitCamera } from 'react-native-camera-kit';
 
 ### CameraKitCamera API
 
-#### checkDeviceCameraAuthorizationStatus
+#### capture({ ... }) - must have the wanted camera capture reference
+
+Capture image (`{ saveToCameraRoll: boolean }`). Using the camera roll is slower than using regular files stored in your app. On an iPhone X in debug mode, on a real phone, we measured around 100-150ms processing time to save to the camera roll.
+
+```js
+const image = await this.camera.capture();
+```
+
+#### checkDeviceCameraAuthorizationStatus (iOS only)
 
 ```js
 const isCameraAuthorized = await CameraKitCamera.checkDeviceCameraAuthorizationStatus();
@@ -110,7 +118,7 @@ return values:
 
 otherwise, returns `false`
 
-#### requestDeviceCameraAuthorization
+#### requestDeviceCameraAuthorization (iOS only)
 
 ```js
 const isUserAuthorizedCamera = await CameraKitCamera.requestDeviceCameraAuthorization();
@@ -119,38 +127,6 @@ const isUserAuthorizedCamera = await CameraKitCamera.requestDeviceCameraAuthoriz
 `AVAuthorizationStatusAuthorized` returns `true`
 
 otherwise, returns `false`
-
-#### capture({ ... }) - must have the wanted camera capture reference
-
-Capture image (`{ saveToCameraRoll: boolean }`). Using the camera roll is slower than using regular files stored in your app. On an iPhone X in debug mode, on a real phone, we measured around 100-150ms processing time to save to the camera roll.
-
-```js
-const image = await this.camera.capture();
-```
-
-#### setFlashMode - must have the wanted camera capture reference
-
-Set flash mode (`auto`/`on`/`off`)
-
-```js
-const success = await this.camera.setFlashMode(newFlashData.mode);
-```
-
-#### setTorchMode - must have the wanted camera capture reference
-
-Set Torch mode (`on`/`off`)
-
-```js
-const success = await this.camera.setTorchMode(newTorchMode);
-```
-
-#### changeCamera - must have the wanted camera capture reference
-
-Change to front/rear camera
-
-```js
-const success = await this.camera.changeCamera();
-```
 
 ## QR Code
 

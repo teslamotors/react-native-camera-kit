@@ -4,10 +4,7 @@ import {
   Text,
   View,
   TouchableOpacity,
-  Alert
 } from 'react-native';
-
-import { CameraKitCamera } from '../../src';
 
 import CameraScreen from './CameraScreen';
 import BarcodeScreen from './BarcodeScreen';
@@ -34,50 +31,30 @@ export default class App extends Component {
             React Native Camera Kit
           </Text>
         </View>
-
-
         <View style={styles.container}>
-          <TouchableOpacity onPress={() => this.setState({ example: BarcodeScreen })}>
+          <TouchableOpacity style={styles.button} onPress={() => this.setState({ example: CameraScreen })}>
             <Text style={styles.buttonText}>
-              Barcode scanner Screen
+              Camera
             </Text>
           </TouchableOpacity>
-
-          <TouchableOpacity onPress={() => this.setState({ example: CameraScreen })}>
+          <TouchableOpacity style={styles.button} onPress={() => this.setState({ example: BarcodeScreen })}>
             <Text style={styles.buttonText}>
-              Camera Screen
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={() => this.onCheckCameraAuthoPressed()}>
-            <Text style={styles.buttonText}>
-              Camera Permission Status
+              Barcode Scanner
             </Text>
           </TouchableOpacity>
         </View>
-
       </View>
-
     );
-  }
-
-  async onCheckCameraAuthoPressed() {
-    const success = await CameraKitCamera.checkDeviceCameraAuthorizationStatus();
-    if (success) {
-      Alert.alert('You have permission 🤗')
-    }
-    else {
-      Alert.alert('No permission 😳')
-    }
   }
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 60,
+    paddingTop: 30,
     alignItems: 'center',
     backgroundColor: '#F5FCFF',
+    marginHorizontal: 24,
   },
   headerContainer: {
     flexDirection: 'column',
@@ -90,9 +67,16 @@ const styles = StyleSheet.create({
     color: 'black',
     fontSize: 24
   },
+  button: {
+    height: 60,
+    borderRadius: 30,
+    marginVertical: 12,
+    width: '100%',
+    backgroundColor: '#dddddd',
+    justifyContent: 'center'
+  },
   buttonText: {
-    color: 'blue',
-    marginBottom: 20,
-    fontSize: 20
+    textAlign: 'center',
+    fontSize: 20,
   }
 });

@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion 28
@@ -21,4 +22,16 @@ dependencies {
     implementation 'com.facebook.react:react-native:+'
     implementation 'com.google.zxing:core:3.3.3'
     implementation group: 'com.drewnoakes', name: 'metadata-extractor', version: '2.12.0'
+    implementation "androidx.core:core-ktx:+"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
+    implementation "androidx.camera:camera-core:1.0.0-beta08"
+    implementation "androidx.camera:camera-camera2:1.0.0-beta08"
+    implementation "androidx.camera:camera-lifecycle:1.0.0-beta08"
+    implementation "androidx.camera:camera-view:1.0.0-alpha15"
+
+    implementation 'com.google.mlkit:barcode-scanning:16.0.3'
+}
+repositories {
+    mavenCentral()
 }
