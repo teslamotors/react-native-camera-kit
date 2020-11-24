@@ -1,0 +1,13 @@
+version: 2
+updates:
+- package-ecosystem: npm
+  schedule:
+    interval: weekly
+    time: "07:00"
+  open-pull-requests-limit: 10
+- package-ecosystem: gradle
+  directory: "/android"
+  schedule:
+    interval: weekly
+    time: "07:00"
+  open-pull-requests-limit: 10
