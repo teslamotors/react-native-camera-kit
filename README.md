@@ -18,7 +18,7 @@
 <table>
   <tr>
     <td>
-      <img src="images/screenshot.jpg"/>
+      <img src="images/screenshot.jpg"/>`
     </td>
     <td>
       <ul>
@@ -48,19 +48,17 @@ cd ios && pod install && cd ..
 
 ## APIs
 
-### CameraKitCamera - Camera component
+### Camera - Base Camera component
 
 ```js
-import { CameraKitCamera } from 'react-native-camera-kit';
+import { Camera } from 'react-native-camera-kit';
 ```
 
 ```jsx
-<CameraKitCamera
-  ref={(cam) => (this.camera = cam)}
-  style={{
-    flex: 1,
-    backgroundColor: 'white',
-  }}
+<Camera
+  ref={(ref) => (this.camera = ref)}
+  type={CameraType.Back} // front/back(default)
+  style={{ flex: 1 }}
   cameraOptions={{
     flashMode: 'auto', // on/off/auto(default)
     focusMode: 'on', // off/on(default)
@@ -68,11 +66,18 @@ import { CameraKitCamera } from 'react-native-camera-kit';
     ratioOverlay: '1:1', // optional
     ratioOverlayColor: '#00000077', // optional
   }}
+  resetFocusTimeout={0} // optional
+  resetFocusWhenMotionDetected={true} // optional
+  saveToCameraRole={false} // optional
+  // Barcode Scanner Props
+  scanBarcode={false} // optional
+  showFrame={false} // Barcode only, optional
+  laserColor='red' // Barcode only, optional
+  frameColor='yellow' // Barcode only, optional
+  surfaceColor='blue' // Barcode only, optional
   onReadCode={(
     event, // optional
   ) => console.log(event.nativeEvent.codeStringValue)}
-  resetFocusTimeout={0} // optional
-  resetFocusWhenMotionDetected={true} // optional
 />
 ```
 
@@ -94,7 +99,7 @@ import { CameraKitCamera } from 'react-native-camera-kit';
 | `ratioOverlay`      | `['int':'int', ...]`    | Show a guiding overlay in the camera preview for the selected ratio. Does not crop image as of v9.0. Example: `['16:9', '1:1', '3:4']` |
 | `ratioOverlayColor` | Color                   | Any color with alpha (default is `'#ffffff77'`)                                                                                        |
 
-### CameraKitCamera API
+### Camera API
 
 #### capture({ ... }) - must have the wanted camera capture reference
 
@@ -107,7 +112,7 @@ const image = await this.camera.capture();
 #### checkDeviceCameraAuthorizationStatus (iOS only)
 
 ```js
-const isCameraAuthorized = await CameraKitCamera.checkDeviceCameraAuthorizationStatus();
+const isCameraAuthorized = await Camera.checkDeviceCameraAuthorizationStatus();
 ```
 
 return values:
@@ -121,7 +126,7 @@ otherwise, returns `false`
 #### requestDeviceCameraAuthorization (iOS only)
 
 ```js
-const isUserAuthorizedCamera = await CameraKitCamera.requestDeviceCameraAuthorization();
+const isUserAuthorizedCamera = await Camera.requestDeviceCameraAuthorization();
 ```
 
 `AVAuthorizationStatusAuthorized` returns `true`
@@ -131,9 +136,9 @@ otherwise, returns `false`
 ## QR Code
 
 ```js
-import { CameraKitCameraScreen } from 'react-native-camera-kit';
+import { CameraScreen } from 'react-native-camera-kit';
 
-<CameraKitCameraScreen
+<CameraScreen
   actions={{ rightButtonText: 'Done', leftButtonText: 'Cancel' }}
   onBottomButtonPressed={(event) => this.onBottomButtonPressed(event)}
   scanBarcode={true}
