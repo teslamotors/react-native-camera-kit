@@ -5,7 +5,7 @@ import { requireNativeComponent, NativeModules, processColor } from 'react-nativ
 const { CKCameraManager } = NativeModules;
 const NativeCamera = requireNativeComponent('CKCamera');
 
-function CameraKitCamera(props, ref) {
+function Camera(props, ref) {
   const nativeRef = React.useRef();
 
   useEffect(() => {
@@ -34,7 +34,7 @@ function CameraKitCamera(props, ref) {
     },
     setTorchMode: async (torchMode = '') => {
       return await CKCameraManager.setTorchMode(torchMode);
-    }
+    },
   }));
 
   const transformedProps = _.cloneDeep(props);
@@ -43,10 +43,10 @@ function CameraKitCamera(props, ref) {
   return <NativeCamera ref={nativeRef} {...transformedProps} />;
 }
 
-CameraKitCamera.defaultProps = {
+Camera.defaultProps = {
   resetFocusTimeout: 0,
   resetFocusWhenMotionDetected: true,
   saveToCameraRoll: true,
 };
 
-export default React.forwardRef(CameraKitCamera);
+export default React.forwardRef(Camera);

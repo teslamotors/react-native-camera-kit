@@ -5,7 +5,7 @@ import { requireNativeComponent, findNodeHandle, NativeModules, processColor } f
 const { RNCameraKitModule } = NativeModules;
 const NativeCamera = requireNativeComponent('CKCameraManager');
 
-function CameraKitCamera(props, ref) {
+function Camera(props, ref) {
   const nativeRef = React.useRef();
 
   React.useImperativeHandle(ref, () => ({
@@ -25,8 +25,6 @@ function CameraKitCamera(props, ref) {
   _.update(transformedProps, 'laserColor', (c) => processColor(c));
   _.update(transformedProps, 'surfaceColor', (c) => processColor(c));
 
-  console.log(props.flashMode);
-
   return <NativeCamera flashMode={props.flashMode} ref={nativeRef} {...props} />;
 }
 
@@ -38,4 +36,4 @@ const { PORTRAIT, PORTRAIT_UPSIDE_DOWN, LANDSCAPE_LEFT, LANDSCAPE_RIGHT } = RNCa
 
 export { PORTRAIT, PORTRAIT_UPSIDE_DOWN, LANDSCAPE_LEFT, LANDSCAPE_RIGHT };
 
-export default React.forwardRef(CameraKitCamera);
+export default React.forwardRef(Camera);

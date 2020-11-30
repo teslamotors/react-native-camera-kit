@@ -1,6 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
-import CameraScreenBase from './CameraKitCameraScreenBase';
+import CameraScreenBase from './CameraScreenBase';
 
 export default class CameraScreen extends CameraScreenBase {
   render() {

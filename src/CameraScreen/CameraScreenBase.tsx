@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import React, { Component, Ref } from 'react';
+import React, { Component } from 'react';
 import {
   StyleSheet,
   Text,
@@ -12,10 +12,10 @@ import {
   processColor,
 } from 'react-native';
 import _ from 'lodash';
-import CameraKitCamera from '../CameraKitCamera';
+import Camera from '../Camera';
 
-const IsIOS = Platform.OS === 'ios';
-const GalleryManager = IsIOS ? NativeModules.CKGalleryManager : NativeModules.NativeGalleryModule;
+const GalleryManager = Platform.OS === 'ios' ? NativeModules.CKGalleryManager : NativeModules.NativeGalleryModule;
+
 const FLASH_MODE_AUTO = 'auto';
 const FLASH_MODE_ON = 'on';
 const FLASH_MODE_OFF = 'off';
@@ -176,7 +176,7 @@ export default class CameraScreenBase extends Component<Props, State> {
           <Image
             style={{ flex: 1, justifyContent: 'center' }}
             source={this.state.flashData.image}
-            resizeMode='contain'
+            resizeMode="contain"
           />
         </TouchableOpacity>
       )
@@ -191,7 +191,7 @@ export default class CameraScreenBase extends Component<Props, State> {
           <Image
             style={{ flex: 1, justifyContent: 'center' }}
             source={this.props.cameraFlipImage}
-            resizeMode='contain'
+            resizeMode="contain"
           />
         </TouchableOpacity>
       )
@@ -215,7 +215,7 @@ export default class CameraScreenBase extends Component<Props, State> {
         {this.isCaptureRetakeMode() ? (
           <Image style={{ flex: 1, justifyContent: 'flex-end' }} source={{ uri: this.state.imageCaptured.uri }} />
         ) : (
-            <CameraKitCamera
+            <Camera
               ref={(cam) => (this.camera = cam)}
               type={this.state.type}
               style={{ flex: 1, justifyContent: 'flex-end' }}
@@ -252,7 +252,7 @@ export default class CameraScreenBase extends Component<Props, State> {
       !this.isCaptureRetakeMode() && (
         <View style={styles.captureButtonContainer}>
           <TouchableOpacity onPress={() => this.onCaptureImagePressed()}>
-            <Image source={this.props.captureButtonImage} resizeMode='contain' />
+            <Image source={this.props.captureButtonImage} resizeMode="contain" />
             <View style={styles.textNumberContainer}>
               <Text>{this.numberOfImagesTaken()}</Text>
             </View>
@@ -330,15 +330,14 @@ export default class CameraScreenBase extends Component<Props, State> {
 
   onSwitchCameraPressed() {
     const direction = this.state.type === CameraType.Back ? CameraType.Front : CameraType.Back;
-    console.log("SWITCH: " + direction)
-    this.setState({ type: direction })
+    console.log('SWITCH: ' + direction);
+    this.setState({ type: direction });
   }
 
   async onSetFlash() {
     this.currentFlashArrayPosition = (this.currentFlashArrayPosition + 1) % 3;
     const newFlashData = this.flashArray[this.currentFlashArrayPosition];
     this.setState({ flashData: newFlashData });
-    //await this.camera.setFlashMode(newFlashData.mode);
   }
 
   onSetTorch() {
@@ -375,11 +374,11 @@ export default class CameraScreenBase extends Component<Props, State> {
   }
 
   render() {
-    throw 'Implemented in CameraKitCameraScreen!';
+    throw 'Implemented in CameraScreen!';
   }
 }
 
-import styleObject from './CameraKitCameraScreenStyleObject';
+import styleObject from './CameraScreenStyleObject';
 const styles = StyleSheet.create(
   _.merge(styleObject, {
     textStyle: {

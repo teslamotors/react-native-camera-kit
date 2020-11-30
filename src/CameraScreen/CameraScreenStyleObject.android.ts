@@ -6,7 +6,8 @@ const styleObject = {
     position: 'absolute',
     top: 0,
     left: 0,
-    width, height,
+    width,
+    height,
   },
   bottomButtons: {
     flex: 2,

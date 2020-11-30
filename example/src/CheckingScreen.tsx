@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
-import BarcodeScreen from './BarcodeScreen';
+import BarcodeScreen from './BarcodeScreenExample';
 
-export default class ExampleScreen extends Component {
+export default class CheckingScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -12,8 +12,8 @@ export default class ExampleScreen extends Component {
 
   render() {
     if (this.state.example) {
-      const ExampleScreen = this.state.example;
-      return <ExampleScreen />;
+      const CheckingScreen = this.state.example;
+      return <CheckingScreen />;
     }
     return (
       <View style={styles.container}>

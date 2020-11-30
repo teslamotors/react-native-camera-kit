@@ -4,17 +4,21 @@ import {
   Text,
   View,
   TouchableOpacity,
+  Image,
 } from 'react-native';
 
-import CameraScreen from './CameraScreen';
-import BarcodeScreen from './BarcodeScreen';
+import CameraScreenExample from './CameraScreenExample';
+import BarcodeScreenExample from './BarcodeScreenExample';
+import CameraExample from './CameraExample';
+
+const hugging = require('../images/hugging.png');
 
 export default class App extends Component {
 
   constructor(props) {
     super(props);
     this.state = {
-      example: undefined
+      example: undefined,
     };
   }
 
@@ -32,12 +36,17 @@ export default class App extends Component {
           </Text>
         </View>
         <View style={styles.container}>
-          <TouchableOpacity style={styles.button} onPress={() => this.setState({ example: CameraScreen })}>
+          <TouchableOpacity style={styles.button} onPress={() => this.setState({ example: CameraExample })}>
             <Text style={styles.buttonText}>
               Camera
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={() => this.setState({ example: BarcodeScreen })}>
+          <TouchableOpacity style={styles.button} onPress={() => this.setState({ example: CameraScreenExample })}>
+            <Text style={styles.buttonText}>
+              Camera Screen
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={() => this.setState({ example: BarcodeScreenExample })}>
             <Text style={styles.buttonText}>
               Barcode Scanner
             </Text>
@@ -61,11 +70,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5FCFF',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: 100
+    paddingTop: 100,
   },
   headerText: {
     color: 'black',
-    fontSize: 24
+    fontSize: 24,
+    fontWeight: 'bold',
   },
   button: {
     height: 60,
@@ -73,10 +83,10 @@ const styles = StyleSheet.create({
     marginVertical: 12,
     width: '100%',
     backgroundColor: '#dddddd',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   buttonText: {
     textAlign: 'center',
     fontSize: 20,
-  }
+  },
 });

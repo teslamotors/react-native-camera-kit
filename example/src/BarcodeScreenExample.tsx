@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { Alert } from 'react-native';
-import CameraKitCameraScreen from '../../src/CameraScreen/CameraKitCameraScreen';
+import CameraScreen from '../../src/CameraScreen';
 import CheckingScreen from './CheckingScreen';
 
-export default class CameraScreen extends Component {
+export default class BarcodeScreenExample extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -27,7 +27,7 @@ export default class CameraScreen extends Component {
       return <CameraScreen />;
     }
     return (
-      <CameraKitCameraScreen
+      <CameraScreen
         actions={{ rightButtonText: 'Done', leftButtonText: 'Cancel' }}
         onBottomButtonPressed={(event) => this.onBottomButtonPressed(event)}
         flashImages={{

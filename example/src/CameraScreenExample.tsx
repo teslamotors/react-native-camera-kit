@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { Alert } from 'react-native';
-import CameraKitCameraScreen from '../../src/CameraScreen/CameraKitCameraScreen';
-import { CameraOptions } from '../../src/CameraScreen/CameraKitCameraScreenBase';
+import CameraScreen from '../../src/CameraScreen';
+import { CameraOptions } from '../../src/CameraScreen/CameraScreenBase';
 
-export default class CameraScreen extends Component {
+export default class CameraScreenExample extends Component {
   onBottomButtonPressed(event) {
     const captureImages = JSON.stringify(event.captureImages);
     Alert.alert(
@@ -15,16 +15,16 @@ export default class CameraScreen extends Component {
   }
 
   render() {
-    const options: CameraOptions = { flashMode: 'auto', focusMode: 'on', zoomMode: 'on' }
+    const options: CameraOptions = { flashMode: 'auto', focusMode: 'on', zoomMode: 'on' };
     return (
-      <CameraKitCameraScreen
+      <CameraScreen
         actions={{ rightButtonText: 'Done', leftButtonText: 'Cancel' }}
         onBottomButtonPressed={(event) => this.onBottomButtonPressed(event)}
         cameraOptions={options}
         flashImages={{
           on: require('../images/flashOn.png'),
-          off: require('./../images/flashOff.png'),
-          auto: require('./../images/flashAuto.png'),
+          off: require('../images/flashOff.png'),
+          auto: require('../images/flashAuto.png'),
         }}
         cameraFlipImage={require('../images/cameraFlipIcon.png')}
         captureButtonImage={require('../images/cameraButton.png')}

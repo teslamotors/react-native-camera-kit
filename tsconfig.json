@@ -13,18 +13,11 @@
     "skipLibCheck": true, // Skips *.d.ts files
     "strictFunctionTypes": false,
     "noImplicitAny": false,
+    "outDir": "./lib",
     "baseUrl": "app",
     "paths": {
-      "@assets/*": ["../assets/*"],
-      "@theme/*": ["./src/*"]
+      "*": ["*", "*.ios", "*.android"]
     }
   },
-  "exclude": [
-    "node_modules",
-    "babel.config.js",
-    "metro.config.js",
-    "jest.config.js",
-    "**/*.json",
-    "**/*.spec.ts"
-  ]
+  "exclude": ["node_modules", "babel.config.js", "metro.config.js", "jest.config.js", "**/*.json", "**/*.spec.ts"]
 }
