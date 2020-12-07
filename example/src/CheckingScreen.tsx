@@ -28,7 +28,6 @@ export default class CheckingScreen extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // justifyContent: 'center',
     paddingTop: 60,
     alignItems: 'center',
     backgroundColor: '#F5FCFF',
