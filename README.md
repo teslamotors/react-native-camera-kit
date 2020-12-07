@@ -18,7 +18,7 @@
 <table>
   <tr>
     <td>
-      <img src="images/screenshot.jpg"/>`
+      <img src="images/screenshot.jpg"/>
     </td>
     <td>
       <ul>
