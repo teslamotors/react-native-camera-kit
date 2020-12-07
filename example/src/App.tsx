@@ -11,7 +11,6 @@ import CameraScreenExample from './CameraScreenExample';
 import BarcodeScreenExample from './BarcodeScreenExample';
 import CameraExample from './CameraExample';
 
-const hugging = require('../images/hugging.png');
 
 export default class App extends Component {
 
