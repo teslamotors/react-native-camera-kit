@@ -48,19 +48,17 @@ cd ios && pod install && cd ..
 
 ## APIs
 
-### CameraKitCamera - Camera component
+### Camera - Base Camera component
 
 ```js
-import { CameraKitCamera } from 'react-native-camera-kit';
+import { Camera } from 'react-native-camera-kit';
 ```
 
 ```jsx
-<CameraKitCamera
-  ref={(cam) => (this.camera = cam)}
-  style={{
-    flex: 1,
-    backgroundColor: 'white',
-  }}
+<Camera
+  ref={(ref) => this.camera = ref}
+  type={CameraType.Back} // front/back(default)
+  style={{ flex: 1 }}
   cameraOptions={{
     flashMode: 'auto', // on/off/auto(default)
     focusMode: 'on', // off/on(default)
@@ -68,11 +66,18 @@ import { CameraKitCamera } from 'react-native-camera-kit';
     ratioOverlay: '1:1', // optional
     ratioOverlayColor: '#00000077', // optional
   }}
+  resetFocusTimeout={0} // optional
+  resetFocusWhenMotionDetected={true} // optional
+  saveToCameraRole={false} // optional
+  // Barcode Scanner Props
+  scanBarcode={false} // optional
+  showFrame={false} // Barcode only, optional
+  laserColor='red' // Barcode only, optional
+  frameColor='yellow' // Barcode only, optional
+  surfaceColor='blue' // Barcode only, optional
   onReadCode={(
     event, // optional
   ) => console.log(event.nativeEvent.codeStringValue)}
-  resetFocusTimeout={0} // optional
-  resetFocusWhenMotionDetected={true} // optional
 />
 ```
 
@@ -94,12 +99,20 @@ import { CameraKitCamera } from 'react-native-camera-kit';
 | `ratioOverlay`      | `['int':'int', ...]`    | Show a guiding overlay in the camera preview for the selected ratio. Does not crop image as of v9.0. Example: `['16:9', '1:1', '3:4']` |
 | `ratioOverlayColor` | Color                   | Any color with alpha (default is `'#ffffff77'`)                                                                                        |
 
-### CameraKitCamera API
+### Camera API
 
-#### checkDeviceCameraAuthorizationStatus
+#### capture({ ... }) - must have the wanted camera capture reference
+
+Capture image (`{ saveToCameraRoll: boolean }`). Using the camera roll is slower than using regular files stored in your app. On an iPhone X in debug mode, on a real phone, we measured around 100-150ms processing time to save to the camera roll.
 
 ```js
-const isCameraAuthorized = await CameraKitCamera.checkDeviceCameraAuthorizationStatus();
+const image = await this.camera.capture();
+```
+
+#### checkDeviceCameraAuthorizationStatus (iOS only)
+
+```js
+const isCameraAuthorized = await Camera.checkDeviceCameraAuthorizationStatus();
 ```
 
 return values:
@@ -110,54 +123,22 @@ return values:
 
 otherwise, returns `false`
 
-#### requestDeviceCameraAuthorization
+#### requestDeviceCameraAuthorization (iOS only)
 
 ```js
-const isUserAuthorizedCamera = await CameraKitCamera.requestDeviceCameraAuthorization();
+const isUserAuthorizedCamera = await Camera.requestDeviceCameraAuthorization();
 ```
 
 `AVAuthorizationStatusAuthorized` returns `true`
 
 otherwise, returns `false`
 
-#### capture({ ... }) - must have the wanted camera capture reference
-
-Capture image (`{ saveToCameraRoll: boolean }`). Using the camera roll is slower than using regular files stored in your app. On an iPhone X in debug mode, on a real phone, we measured around 100-150ms processing time to save to the camera roll.
-
-```js
-const image = await this.camera.capture();
-```
-
-#### setFlashMode - must have the wanted camera capture reference
-
-Set flash mode (`auto`/`on`/`off`)
-
-```js
-const success = await this.camera.setFlashMode(newFlashData.mode);
-```
-
-#### setTorchMode - must have the wanted camera capture reference
-
-Set Torch mode (`on`/`off`)
-
-```js
-const success = await this.camera.setTorchMode(newTorchMode);
-```
-
-#### changeCamera - must have the wanted camera capture reference
-
-Change to front/rear camera
-
-```js
-const success = await this.camera.changeCamera();
-```
-
 ## QR Code
 
 ```js
-import { CameraKitCameraScreen } from 'react-native-camera-kit';
+import { CameraScreen } from 'react-native-camera-kit';
 
-<CameraKitCameraScreen
+<CameraScreen
   actions={{ rightButtonText: 'Done', leftButtonText: 'Cancel' }}
   onBottomButtonPressed={(event) => this.onBottomButtonPressed(event)}
   scanBarcode={true}

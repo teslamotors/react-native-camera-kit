@@ -4,20 +4,20 @@ import {
   Text,
   View,
   TouchableOpacity,
-  Alert
+  Image,
 } from 'react-native';
 
-import { CameraKitCamera } from '../../src';
+import CameraScreenExample from './CameraScreenExample';
+import BarcodeScreenExample from './BarcodeScreenExample';
+import CameraExample from './CameraExample';
 
-import CameraScreen from './CameraScreen';
-import BarcodeScreen from './BarcodeScreen';
 
 export default class App extends Component {
 
   constructor(props) {
     super(props);
     this.state = {
-      example: undefined
+      example: undefined,
     };
   }
 
@@ -34,65 +34,58 @@ export default class App extends Component {
             React Native Camera Kit
           </Text>
         </View>
-
-
         <View style={styles.container}>
-          <TouchableOpacity onPress={() => this.setState({ example: BarcodeScreen })}>
+          <TouchableOpacity style={styles.button} onPress={() => this.setState({ example: CameraExample })}>
             <Text style={styles.buttonText}>
-              Barcode scanner Screen
+              Camera
             </Text>
           </TouchableOpacity>
-
-          <TouchableOpacity onPress={() => this.setState({ example: CameraScreen })}>
+          <TouchableOpacity style={styles.button} onPress={() => this.setState({ example: CameraScreenExample })}>
             <Text style={styles.buttonText}>
               Camera Screen
             </Text>
           </TouchableOpacity>
-
-          <TouchableOpacity onPress={() => this.onCheckCameraAuthoPressed()}>
+          <TouchableOpacity style={styles.button} onPress={() => this.setState({ example: BarcodeScreenExample })}>
             <Text style={styles.buttonText}>
-              Camera Permission Status
+              Barcode Scanner
             </Text>
           </TouchableOpacity>
         </View>
-
       </View>
-
     );
-  }
-
-  async onCheckCameraAuthoPressed() {
-    const success = await CameraKitCamera.checkDeviceCameraAuthorizationStatus();
-    if (success) {
-      Alert.alert('You have permission 🤗')
-    }
-    else {
-      Alert.alert('No permission 😳')
-    }
   }
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 60,
+    paddingTop: 30,
     alignItems: 'center',
     backgroundColor: '#F5FCFF',
+    marginHorizontal: 24,
   },
   headerContainer: {
     flexDirection: 'column',
     backgroundColor: '#F5FCFF',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: 100
+    paddingTop: 100,
   },
   headerText: {
     color: 'black',
-    fontSize: 24
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  button: {
+    height: 60,
+    borderRadius: 30,
+    marginVertical: 12,
+    width: '100%',
+    backgroundColor: '#dddddd',
+    justifyContent: 'center',
   },
   buttonText: {
-    color: 'blue',
-    marginBottom: 20,
-    fontSize: 20
-  }
+    textAlign: 'center',
+    fontSize: 20,
+  },
 });
