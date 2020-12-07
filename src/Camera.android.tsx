@@ -28,10 +28,6 @@ function Camera(props, ref) {
   return <NativeCamera flashMode={props.flashMode} ref={nativeRef} {...props} />;
 }
 
-export function showLongToast(message) {
-  RNCameraKitModule.showLongToast(message);
-}
-
 const { PORTRAIT, PORTRAIT_UPSIDE_DOWN, LANDSCAPE_LEFT, LANDSCAPE_RIGHT } = RNCameraKitModule.getConstants();
 
 export { PORTRAIT, PORTRAIT_UPSIDE_DOWN, LANDSCAPE_LEFT, LANDSCAPE_RIGHT };
