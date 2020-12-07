@@ -27,9 +27,7 @@ export default class CameraExample extends Component {
           laserColor="red" // Barcode only, optional
           frameColor="yellow" // Barcode only, optional
           surfaceColor="blue" // Barcode only, optional
-          onReadCode={(  // optional
-            event,
-          ) => console.log(event.nativeEvent.codeStringValue)}
+          onReadCode={(event) => console.log(event.nativeEvent.codeStringValue)}
         />
       </View>
     );
