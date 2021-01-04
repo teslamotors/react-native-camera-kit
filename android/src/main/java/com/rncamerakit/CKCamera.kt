@@ -150,7 +150,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
 
             cameraSelector = CameraSelector.Builder().requireLensFacing(lensType).build()
             preview = Preview.Builder().build().also {
-                it.setSurfaceProvider(viewFinder.createSurfaceProvider())
+                it.setSurfaceProvider(viewFinder.surfaceProvider)
             }
             imageCapture = ImageCapture.Builder().build()
 
@@ -212,7 +212,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
                         cameraSelector,
                         *useCases.toTypedArray()
                 )
-                preview!!.setSurfaceProvider(viewFinder.createSurfaceProvider())
+                preview!!.setSurfaceProvider(viewFinder.surfaceProvider)
                 Log.d(TAG, "CameraView: Use cases bound")
             } catch (exc: Exception) {
                 Log.e(TAG, "CameraView: Use cases binding failed", exc)
