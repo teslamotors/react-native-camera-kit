@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 30
 
     defaultConfig {
         minSdkVersion 23
@@ -10,7 +10,7 @@ android {
         versionCode 1
         versionName "1.0"
         ndk {
-            abiFilters "armeabi-v7a", "x86"
+            abiFilters "arm64-v8a", "x86"
         }
     }
     lintOptions {
@@ -25,10 +25,10 @@ dependencies {
     implementation "androidx.core:core-ktx:+"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
-    implementation "androidx.camera:camera-core:1.0.0-beta08"
-    implementation "androidx.camera:camera-camera2:1.0.0-beta08"
-    implementation "androidx.camera:camera-lifecycle:1.0.0-beta08"
-    implementation "androidx.camera:camera-view:1.0.0-alpha15"
+    implementation "androidx.camera:camera-core:1.0.0-rc01"
+    implementation "androidx.camera:camera-camera2:1.0.0-rc01"
+    implementation "androidx.camera:camera-lifecycle:1.0.0-rc01"
+    implementation "androidx.camera:camera-view:1.0.0-alpha20"
 
     implementation 'com.google.mlkit:barcode-scanning:16.0.3'
 }
