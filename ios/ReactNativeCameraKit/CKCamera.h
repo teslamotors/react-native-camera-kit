@@ -36,14 +36,14 @@ typedef NS_ENUM(NSInteger, CKCameraFlashMode) {
 @end
 
 
-typedef NS_ENUM(NSInteger, CKCameraFocushMode) {
-    CKCameraFocushModeOn,
-    CKCameraFocushModeOff,
+typedef NS_ENUM(NSInteger, CKCameraFocusMode) {
+    CKCameraFocusModeOn,
+    CKCameraFocusModeOff,
 };
 
-@interface RCTConvert(CKCameraFocushMode)
+@interface RCTConvert(CKCameraFocusMode)
 
-+ (CKCameraFocushMode)CKCameraFocushMode:(id)json;
++ (CKCameraFocusMode)CKCameraFocusMode:(id)json;
 
 @end
 
@@ -69,7 +69,7 @@ typedef NS_ENUM(NSInteger, CKCameraZoomMode) {
 - (void)changeCamera:(CallbackBlock)block;
 - (void)setFlashMode:(AVCaptureFlashMode)flashMode callback:(CallbackBlock)block;
 - (void)setTorchMode:(AVCaptureTorchMode)torchMode callback:(CallbackBlock)block;
-- (void)setRatio:(NSString*)ratioString;
+- (void)setRatio:(NSString*)ratio;
 
 + (NSURL*)saveToTmpFolder:(NSData*)data;
 

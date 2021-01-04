@@ -56,48 +56,36 @@ import { Camera } from 'react-native-camera-kit';
 
 ```jsx
 <Camera
-  ref={(ref) => this.camera = ref}
+  ref={this.cameraRef}
   type={CameraType.Back} // front/back(default)
   style={{ flex: 1 }}
-  cameraOptions={{
-    flashMode: 'auto', // on/off/auto(default)
-    focusMode: 'on', // off/on(default)
-    zoomMode: 'on', // off/on(default)
-    ratioOverlay: '1:1', // optional
-    ratioOverlayColor: '#00000077', // optional
-  }}
-  resetFocusTimeout={0} // optional
-  resetFocusWhenMotionDetected={true} // optional
-  saveToCameraRole={false} // optional
-  // Barcode Scanner Props
-  scanBarcode={false} // optional
-  showFrame={false} // Barcode only, optional
-  laserColor='red' // Barcode only, optional
-  frameColor='yellow' // Barcode only, optional
-  surfaceColor='blue' // Barcode only, optional
-  onReadCode={(
-    event, // optional
-  ) => console.log(event.nativeEvent.codeStringValue)}
 />
 ```
 
-| Prop                           | Type    | Description                                                                                                                                                                                                                                                                                                                                   |
-| ------------------------------ | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `resetFocusTimeout`            | Number  | iOS only. Dismiss tap to focus after this many milliseconds. Default `0` (disabled). Example: `5000` is 5 seconds.                                                                                                                                                                                                                            |
-| `resetFocusWhenMotionDetected` | Boolean | iOS only. Dismiss tap to focus when focus area content changes. Native iOS feature, see documentation: https://developer.apple.com/documentation/avfoundation/avcapturedevice/1624644-subjectareachangemonitoringenabl?language=objc). Default `true`.                                                                                        |
-| `saveToCameraRoll`             | Boolean | Using the camera roll is slower than using regular files stored in your app. On an iPhone X in debug mode, on a real phone, we measured around 100-150ms processing time to save to the camera roll. _<span style="color: red">**Note:**</span> This only work on real devices. It will hang indefinitly on simulators._                      |
-| `saveToCameraRollWithPhUrl`    | Boolean | iOS only. If true, speeds up photo taking by about 5-50ms (measured on iPhone X) by only returning a [rn-cameraroll-compatible](https://github.com/react-native-community/react-native-cameraroll/blob/a09af08f0a46a98b29f6ad470e59d3dc627864a2/ios/RNCAssetsLibraryRequestHandler.m#L36) `ph://..` URL instead of a regular `file://..` URL. |
-| `cameraOptions`                | Object  | See `cameraOptions` below                                                                                                                                                                                                                                                                                                                     |
+### Camera Props (Optional)
 
-### cameraOptions
+| Props                          | Type                    | Description                                                                                                                                                                                                                                                                                                                                   |
+| ------------------------------ | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `flashMode`                    | `'on'`/`'off'`/`'auto'` | Camera flash mode. Default: `auto`                                                                                                                                                                                                                                                                                                            |
+| `focusMode`                    | `'on'`/`'off'`          | Camera focus mode. Default: `on`                                                                                                                                                                                                                                                                                                              |
+| `zoomMode`                     | `'on'`/`'off'`          | Camera zoom mode. Default: `on`                                                                                                                                                                                                                                                                                                               |
+| `ratioOverlay`                 | `['int':'int', ...]`    | Show a guiding overlay in the camera preview for the selected ratio. Does not crop image as of v9.0. Example: `['16:9', '1:1', '3:4']`                                                                                                                                                                                                        |
+| `ratioOverlayColor`            | Color                   | Any color with alpha. Default: `'#ffffff77'`                                                                                                                                                                                                                                                                                                  |
+| `resetFocusTimeout`            | Number                  | iOS only. Dismiss tap to focus after this many milliseconds. Default `0` (disabled). Example: `5000` is 5 seconds.                                                                                                                                                                                                                            |
+| `resetFocusWhenMotionDetected` | Boolean                 | iOS only. Dismiss tap to focus when focus area content changes. Native iOS feature, see documentation: https://developer.apple.com/documentation/avfoundation/avcapturedevice/1624644-subjectareachangemonitoringenabl?language=objc). Default `true`.                                                                                        |
+| `saveToCameraRoll`             | Boolean                 | Using the camera roll is slower than using regular files stored in your app. On an iPhone X in debug mode, on a real phone, we measured around 100-150ms processing time to save to the camera roll. _<span style="color: red">**Note:**</span> This only work on real devices. It will hang indefinitly on simulators._                      |
+| `saveToCameraRollWithPhUrl`    | Boolean                 | iOS only. If true, speeds up photo taking by about 5-50ms (measured on iPhone X) by only returning a [rn-cameraroll-compatible](https://github.com/react-native-community/react-native-cameraroll/blob/a09af08f0a46a98b29f6ad470e59d3dc627864a2/ios/RNCAssetsLibraryRequestHandler.m#L36) `ph://..` URL instead of a regular `file://..` URL. |  |
 
-| Attribute           | Values                  | Description                                                                                                                            |
-| ------------------- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `flashMode`         | `'on'`/`'off'`/`'auto'` | Camera flash mode (default is `auto`)                                                                                                  |
-| `focusMode`         | `'on'`/`'off'`          | Camera focus mode (default is `on`)                                                                                                    |
-| `zoomMode`          | `'on'`/`'off'`          | Camera zoom mode                                                                                                                       |
-| `ratioOverlay`      | `['int':'int', ...]`    | Show a guiding overlay in the camera preview for the selected ratio. Does not crop image as of v9.0. Example: `['16:9', '1:1', '3:4']` |
-| `ratioOverlayColor` | Color                   | Any color with alpha (default is `'#ffffff77'`)                                                                                        |
+### Barcode Props (Optional)
+
+| Props          | Type     | Description                                                                                                                                                                                |
+| -------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `scanBarcode`  | Boolean  | Enable barcode scanner. Default: `false`                                                                                                                                                   |
+| `showFrame`    | Boolean  | Show frame in barcode scanner. Default: `false`                                                                                                                                            |
+| `laserColor`   | Color    | Color of barcode scanner laser visualization. Default: `red`                                                                                                                               |
+| `frameColor`   | Color    | Color of barcode scanner frame visualization. Default: `yellow`                                                                                                                            |
+| `surfaceColor` | Color    | Color of barcode scanner surface visualization. Default: `blue`                                                                                                                            |
+| `onReadCode`   | Function | Callback when scanner successfully reads barcode. Returned event contains `codeStringValue`. Default: `null`. Ex: `onReadCode={(event) => console.log(event.nativeEvent.codeStringValue)}` |
 
 ### Camera API
 

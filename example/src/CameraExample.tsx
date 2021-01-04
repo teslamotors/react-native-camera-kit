@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Alert, View, Text, SafeAreaView, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import Camera from '../../src/Camera';
 import { CameraType } from '../../src/CameraScreen/CameraScreenBase';
 
@@ -8,17 +8,14 @@ export default class CameraExample extends Component {
     return (
       <View style={styles.cameraContainer}>
         <Camera
-          ref={(ref) => (this.camera = ref)}
+          ref={this.camera}
           type={CameraType.Back} // optional
           style={{ flex: 1 }}
-          flashMode="auto"
-          cameraOptions={{
-            flashMode: 'auto', // on/off/auto(default)
-            focusMode: 'on', // off/on(default)
-            zoomMode: 'on', // off/on(default)
-            ratioOverlay: '1:1', // optional
-            ratioOverlayColor: '#00000077', // optional
-          }}
+          flashMode="auto" // on/off/auto(default)
+          focusMode="on" // off/on(default)
+          zoomMode="on" // off/on(default)
+          ratioOverlay="1:1" // optional
+          ratioOverlayColor="#00000077" // optional
           resetFocusTimeout={0}
           resetFocusWhenMotionDetected={false}
           saveToCameraRole={false} // iOS only

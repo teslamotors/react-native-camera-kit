@@ -11,8 +11,6 @@
 
 -(instancetype)initWithFrame:(CGRect)frame ratioString:(NSString*)ratioString overlayColor:(UIColor*)overlayColor;
 
--(void)setRatio:(NSString*)ratioString;
-
-
+-(void)setRatio:(NSString*)ratio;
 
 @end

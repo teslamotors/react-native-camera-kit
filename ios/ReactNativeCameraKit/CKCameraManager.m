@@ -17,7 +17,12 @@ RCT_EXPORT_MODULE()
     return self.camera;
 }
 
-RCT_EXPORT_VIEW_PROPERTY(cameraOptions, NSDictionary)
+RCT_EXPORT_VIEW_PROPERTY(flashMode, CKCameraFlashMode)
+RCT_EXPORT_VIEW_PROPERTY(focusMode, CKCameraFocusMode)
+RCT_EXPORT_VIEW_PROPERTY(zoomMode, CKCameraZoomMode)
+RCT_EXPORT_VIEW_PROPERTY(ratioOverlay, NSString)
+RCT_EXPORT_VIEW_PROPERTY(ratioOverlayColor, UIColor)
+
 RCT_EXPORT_VIEW_PROPERTY(onReadCode, RCTDirectEventBlock)
 
 RCT_EXPORT_VIEW_PROPERTY(scannerOptions, NSDictionary)
@@ -93,6 +98,5 @@ RCT_EXPORT_METHOD(setTorchMode:(CKCameraTorchMode)torchMode
         resolve([NSNumber numberWithBool:success]);
     }];
 }
-
 
 @end
