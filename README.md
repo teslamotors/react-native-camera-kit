@@ -56,7 +56,7 @@ import { Camera } from 'react-native-camera-kit';
 
 ```jsx
 <Camera
-  ref={(ref) => this.camera = ref}
+  ref={(ref) => (this.camera = ref)}
   type={CameraType.Back} // front/back(default)
   style={{ flex: 1 }}
 />
@@ -68,7 +68,7 @@ import { Camera } from 'react-native-camera-kit';
 | ------------------------------ | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `flashMode`                    | `'on'`/`'off'`/`'auto'` | Camera flash mode. Default: `auto`                                                                                                                                                                                                                                                                                                            |
 | `focusMode`                    | `'on'`/`'off'`          | Camera focus mode. Default: `on`                                                                                                                                                                                                                                                                                                              |
-| `zoomMode`                     | `'on'`/`'off'`          | iOS only. Enable pinch to zoom camera. Default: `on`                                                                                                                                                                                                                                                                                          |
+| `zoomMode`                     | `'on'`/`'off'`          | Enable pinch to zoom camera. Default: `on`                                                                                                                                                                                                                                                                                                    |
 | `ratioOverlay`                 | `['int':'int', ...]`    | Show a guiding overlay in the camera preview for the selected ratio. Does not crop image as of v9.0. Example: `['16:9', '1:1', '3:4']`                                                                                                                                                                                                        |
 | `ratioOverlayColor`            | Color                   | Any color with alpha. Default: `'#ffffff77'`                                                                                                                                                                                                                                                                                                  |
 | `resetFocusTimeout`            | Number                  | iOS only. Dismiss tap to focus after this many milliseconds. Default `0` (disabled). Example: `5000` is 5 seconds.                                                                                                                                                                                                                            |
