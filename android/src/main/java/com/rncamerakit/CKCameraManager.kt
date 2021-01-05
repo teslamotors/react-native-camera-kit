@@ -52,6 +52,11 @@ class CKCameraManager : SimpleViewManager<CKCamera>() {
         view.setFlashMode(mode)
     }
 
+    @ReactProp(name = "focusMode")
+    fun setFocusMode(view: CKCamera, mode: String) {
+        view.setAutoFocus(mode)
+    }
+
     @ReactProp(name = "scanBarcode")
     fun setScanBarcode(view: CKCamera, enabled: Boolean) {
         view.setScanBarcode(enabled)
@@ -60,11 +65,6 @@ class CKCameraManager : SimpleViewManager<CKCamera>() {
     @ReactProp(name = "type")
     fun setType(view: CKCamera, type: String) {
         view.setType(type)
-    }
-
-    @ReactProp(name = "autoFocus")
-    fun setAutoFocus(view: CKCamera, mode: String) {
-        view.setAutoFocus(mode)
     }
 
     @ReactProp(name = "outputPath")
