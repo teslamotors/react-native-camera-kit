@@ -57,6 +57,11 @@ class CKCameraManager : SimpleViewManager<CKCamera>() {
         view.setAutoFocus(mode)
     }
 
+    @ReactProp(name = "zoomMode")
+    fun setZoomMode(view: CKCamera, mode: String) {
+        view.setZoomMode(mode)
+    }
+
     @ReactProp(name = "scanBarcode")
     fun setScanBarcode(view: CKCamera, enabled: Boolean) {
         view.setScanBarcode(enabled)
