@@ -229,9 +229,9 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 + (void)setFlashMode:(AVCaptureFlashMode)flashMode forDevice:(AVCaptureDevice *)device
 {
-    if ( device.hasFlash && [device isFlashModeSupported:flashMode] ) {
+    if (device.hasFlash && [device isFlashModeSupported:flashMode] ) {
         NSError *error = nil;
-        if ( [device lockForConfiguration:&error] ) {
+        if ([device lockForConfiguration:&error] ) {
             device.flashMode = flashMode;
             [device unlockForConfiguration];
         } else {
