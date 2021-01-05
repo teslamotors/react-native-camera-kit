@@ -32,6 +32,17 @@ RCT_EXPORT_VIEW_PROPERTY(resetFocusWhenMotionDetected, BOOL)
 RCT_EXPORT_VIEW_PROPERTY(saveToCameraRoll, BOOL)
 RCT_EXPORT_VIEW_PROPERTY(saveToCameraRollWithPhUrl, BOOL)
 
+RCT_EXPORT_METHOD(capture:(NSDictionary*)options
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject) {
+
+    [self.camera snapStillImage:options success:^(NSDictionary *imageObject) {
+        resolve(imageObject);
+    } onError:^(NSString* error) {
+        reject(@"capture_error", error, nil);
+    }];
+}
+
 RCT_EXPORT_METHOD(checkDeviceCameraAuthorizationStatus:(RCTPromiseResolveBlock)resolve
                   reject:(__unused RCTPromiseRejectBlock)reject) {
 
@@ -54,48 +65,6 @@ RCT_EXPORT_METHOD(requestDeviceCameraAuthorization:(RCTPromiseResolveBlock)resol
         if (resolve) {
             resolve(@(granted));
         }
-    }];
-}
-
-
-RCT_EXPORT_METHOD(capture:(NSDictionary*)options
-                  resolve:(RCTPromiseResolveBlock)resolve
-                  reject:(RCTPromiseRejectBlock)reject) {
-
-    [self.camera snapStillImage:options success:^(NSDictionary *imageObject) {
-        resolve(imageObject);
-    } onError:^(NSString* error) {
-        reject(@"capture_error", error, nil);
-    }];
-}
-
-RCT_EXPORT_METHOD(changeCamera:(RCTPromiseResolveBlock)resolve
-                  reject:(RCTPromiseRejectBlock)reject) {
-
-    [self.camera changeCamera:^(BOOL success) {
-        if (success) {
-            resolve([NSNumber numberWithBool:success]);
-        } else {
-            reject(@"change_camera_error", @"Unable to change camera", nil);
-        }
-    }];
-}
-
-RCT_EXPORT_METHOD(setFlashMode:(CKCameraFlashMode)flashMode
-                  resolve:(RCTPromiseResolveBlock)resolve
-                  reject:(RCTPromiseRejectBlock)reject) {
-
-    [self.camera setFlashMode:flashMode callback:^(BOOL success) {
-        resolve([NSNumber numberWithBool:success]);
-    }];
-}
-
-RCT_EXPORT_METHOD(setTorchMode:(CKCameraTorchMode)torchMode
-                  resolve:(RCTPromiseResolveBlock)resolve
-                  reject:(RCTPromiseRejectBlock)reject) {
-
-    [self.camera setTorchMode:torchMode callback:^(BOOL success) {
-        resolve([NSNumber numberWithBool:success]);
     }];
 }
 
