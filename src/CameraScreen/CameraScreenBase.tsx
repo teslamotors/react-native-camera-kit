@@ -21,7 +21,6 @@ const FLASH_MODE_ON = 'on';
 const FLASH_MODE_OFF = 'off';
 const TORCH_MODE_ON = 'on';
 const TORCH_MODE_OFF = 'off';
-const OVERLAY_DEFAULT_COLOR = '#ffffff77';
 const OFFSET_FRAME = 30;
 const FRAME_HEIGHT = 200;
 
@@ -30,18 +29,14 @@ export enum CameraType {
   Back = 'back'
 }
 
-export type CameraOptions = {
-  flashMode: 'on' | 'off' | 'auto'
-  focusMode: 'on' | 'off'
-  zoomMode: 'on'
-  ratioOverlay?: string
-  ratioOverlayColor?: string
-}
-
 export type Props = {
+  flashMode?: 'on' | 'off' | 'auto'
+  focusMode?: 'on' | 'off'
+  zoomMode?: 'on',
+  ratioOverlay?: string,
+  ratioOverlayColor?: string,
   allowCaptureRetake: boolean,
   cameraRatioOverlay: any,
-  cameraOptions: CameraOptions
   scannerOptions: any,
   offsetForScannerFrame: any,
   heightForScannerFrame: any,
@@ -63,7 +58,6 @@ type State = {
   flashData: any,
   torchData: boolean,
   ratios: any[],
-  cameraOptions: any,
   ratioArrayPosition: number,
   imageCaptured: any,
   captured: boolean,
@@ -107,7 +101,6 @@ export default class CameraScreenBase extends Component<Props, State> {
       flashData: this.flashArray[this.currentFlashArrayPosition],
       torchData: false,
       ratios: [],
-      cameraOptions: this.props.cameraOptions,
       ratioArrayPosition: -1,
       imageCaptured: false,
       captured: false,
@@ -121,14 +114,12 @@ export default class CameraScreenBase extends Component<Props, State> {
   }
 
   componentDidMount() {
-    const cameraOptions = this.getCameraOptions();
     const scannerOptions = this.getScannerOptions();
     let ratios = [];
     if (this.props.cameraRatioOverlay) {
       ratios = this.props.cameraRatioOverlay.ratios || [];
     }
     this.setState({
-      cameraOptions,
       scannerOptions,
       ratios: ratios || [],
       ratioArrayPosition: ratios.length > 0 ? 0 : -1,
@@ -137,24 +128,6 @@ export default class CameraScreenBase extends Component<Props, State> {
 
   isCaptureRetakeMode() {
     return !!(this.props.allowCaptureRetake && !_.isUndefined(this.state.imageCaptured));
-  }
-
-  getCameraOptions() {
-    const cameraOptions = this.props.cameraOptions || {
-      flashMode: 'auto',
-      focusMode: 'on',
-      zoomMode: 'on',
-    };
-    if (this.props.cameraRatioOverlay) {
-      const overlay = this.props.cameraRatioOverlay;
-      cameraOptions.ratioOverlayColor = overlay.color || OVERLAY_DEFAULT_COLOR;
-
-      if (overlay.ratios && overlay.ratios.length > 0) {
-        cameraOptions.ratioOverlay = overlay.ratios[0];
-      }
-    }
-
-    return cameraOptions;
   }
 
   getScannerOptions() {
@@ -215,22 +188,24 @@ export default class CameraScreenBase extends Component<Props, State> {
         {this.isCaptureRetakeMode() ? (
           <Image style={{ flex: 1, justifyContent: 'flex-end' }} source={{ uri: this.state.imageCaptured.uri }} />
         ) : (
-            <Camera
-              ref={(cam) => (this.camera = cam)}
-              type={this.state.type}
-              style={{ flex: 1, justifyContent: 'flex-end' }}
-              flashMode={this.state.flashData.mode}
-              cameraOptions={this.state.cameraOptions}
-              saveToCameraRoll={!this.props.allowCaptureRetake}
-              showFrame={this.props.showFrame}
-              scanBarcode={this.props.scanBarcode}
-              laserColor={this.props.laserColor}
-              frameColor={this.props.frameColor}
-              surfaceColor={this.props.surfaceColor}
-              onReadCode={this.props.onReadCode}
-              scannerOptions={this.state.scannerOptions}
-            />
-          )}
+          <Camera
+            ref={(cam) => (this.camera = cam)}
+            type={this.state.type}
+            style={{ flex: 1, justifyContent: 'flex-end' }}
+            flashMode={this.state.flashData.mode}
+            focusMode={this.props.focusMode}
+            zoomMode={this.props.zoomMode}
+            ratioOverlay={this.state.ratios[this.state.ratioArrayPosition]}
+            saveToCameraRoll={!this.props.allowCaptureRetake}
+            showFrame={this.props.showFrame}
+            scanBarcode={this.props.scanBarcode}
+            laserColor={this.props.laserColor}
+            frameColor={this.props.frameColor}
+            surfaceColor={this.props.surfaceColor}
+            onReadCode={this.props.onReadCode}
+            scannerOptions={this.state.scannerOptions}
+          />
+        )}
       </View>
     );
   }
@@ -274,7 +249,7 @@ export default class CameraScreenBase extends Component<Props, State> {
             style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', padding: 8 }}
             onPress={() => this.onRatioButtonPressed()}
           >
-            <Text style={styles.ratioText}>{this.state.cameraOptions.ratioOverlay}</Text>
+            <Text style={styles.ratioText}>{this.state.ratioOverlay}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -365,12 +340,7 @@ export default class CameraScreenBase extends Component<Props, State> {
 
   onRatioButtonPressed() {
     const newRatiosArrayPosition = (this.state.ratioArrayPosition + 1) % this.state.ratios.length;
-    const newCameraOptions = _.update(
-      this.state.cameraOptions,
-      'ratioOverlay',
-      (val) => this.state.ratios[newRatiosArrayPosition],
-    );
-    this.setState({ ratioArrayPosition: newRatiosArrayPosition, cameraOptions: newCameraOptions });
+    this.setState({ ratioArrayPosition: newRatiosArrayPosition });
   }
 
   render() {

@@ -50,6 +50,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
     private var scanBarcode: Boolean = false
     private var lensType = CameraSelector.LENS_FACING_BACK
     private var autoFocus = "on"
+    private var zoomMode = "on"
     private var cameraProvider: ProcessCameraProvider? = null
     private var outputPath: String? = null
     private var shutterAnimationDuration: Int = 50
@@ -380,6 +381,18 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
             // "cancel" clear AF points and engages continuous auto-focus
             "on" -> camera?.cameraControl?.cancelFocusAndMetering()
             // 'off': Handled when you tap to focus
+        }
+    }
+
+    fun setZoomMode(mode: String = "on") {
+        zoomMode = mode
+        when(mode) {
+            "on" -> {
+                // TODO: Add gesture detector
+            }
+            "off" -> {
+                // TODO: Remove gesture detector
+            }
         }
     }
 

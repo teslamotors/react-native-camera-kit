@@ -86,8 +86,8 @@
 }
 
 
--(void)setRatio:(NSString*)ratioString {
-    self.overlayObject = [[CKOverlayObject alloc] initWithString:ratioString];
+-(void)setRatio:(NSString*)ratio {
+    self.overlayObject = [[CKOverlayObject alloc] initWithString:ratio];
 
 //    self.alpha =0;
     [UIView animateWithDuration:0.2 animations:^{

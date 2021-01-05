@@ -43,12 +43,12 @@ RCT_ENUM_CONVERTER(CKCameraFlashMode, (@{
 
 @end
 
-@implementation RCTConvert(CKCameraFocushMode)
+@implementation RCTConvert(CKCameraFocusMode)
 
-RCT_ENUM_CONVERTER(CKCameraFocushMode, (@{
-                                          @"on": @(CKCameraFocushModeOn),
-                                          @"off": @(CKCameraFocushModeOff)
-                                          }), CKCameraFocushModeOn, integerValue)
+RCT_ENUM_CONVERTER(CKCameraFocusMode, (@{
+                                          @"on": @(CKCameraFocusModeOn),
+                                          @"off": @(CKCameraFocusModeOff)
+                                          }), CKCameraFocusModeOn, integerValue)
 
 @end
 
@@ -61,20 +61,10 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 @end
 
-
-
-#define CAMERA_OPTION_FLASH_MODE                    @"flashMode"
-#define CAMERA_OPTION_FOCUS_MODE                    @"focusMode"
-#define CAMERA_OPTION_ZOOM_MODE                     @"zoomMode"
-#define CAMERA_OPTION_CAMERA_RATIO_OVERLAY          @"ratioOverlay"
-#define CAMERA_OPTION_CAMERA_RATIO_OVERLAY_COLOR    @"ratioOverlayColor"
-#define CAMERA_OPTION_ON_READ_QR_CODE               @"onReadQRCode"
-
 @interface CKCamera () <AVCaptureMetadataOutputObjectsDelegate>
 
 
 @property (nonatomic, strong) AVCaptureVideoPreviewLayer *previewLayer;
-@property (nonatomic, strong) NSDictionary *cameraOptions;
 @property (nonatomic, strong) CKMockPreview *mockPreview;
 @property (nonatomic, strong) UIView *focusView;
 @property (nonatomic, strong) NSTimer *focusViewTimer;
@@ -103,24 +93,24 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 @property (nonatomic, getter=isSessionRunning) BOOL sessionRunning;
 @property (nonatomic) UIBackgroundTaskIdentifier backgroundRecordingID;
 
-// frame for Scanner
+// scanner options
 @property (nonatomic, strong) NSDictionary *scannerOptions;
 @property (nonatomic) BOOL showFrame;
 @property (nonatomic) UIView *greenScanner;
+@property (nonatomic, strong) RCTDirectEventBlock onReadCode;
 
 @property (nonatomic) CGFloat frameOffset;
 @property (nonatomic) CGFloat heightFrame;
 @property (nonatomic, strong) UIColor *frameColor;
 @property (nonatomic) UIView * dataReadingFrame;
 
-// cameraOptions props
+// camera options
 @property (nonatomic) AVCaptureTorchMode torchMode;
 @property (nonatomic) AVCaptureFlashMode flashMode;
-@property (nonatomic) CKCameraFocushMode focusMode;
+@property (nonatomic) CKCameraFocusMode focusMode;
 @property (nonatomic) CKCameraZoomMode zoomMode;
-@property (nonatomic, strong) NSString* ratioOverlayString;
+@property (nonatomic, strong) NSString* ratioOverlay;
 @property (nonatomic, strong) UIColor *ratioOverlayColor;
-@property (nonatomic, strong) RCTDirectEventBlock onReadCode;
 
 @property (nonatomic) BOOL isAddedOberver;
 
@@ -208,61 +198,82 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         // defaults
         self.zoomMode = CKCameraZoomModeOn;
         self.flashMode = CKCameraFlashModeAuto;
-        self.focusMode = CKCameraFocushModeOn;
+        self.focusMode = CKCameraFocusModeOn;
     }
 
     return self;
 }
 
--(void)setCameraOptions:(NSDictionary *)cameraOptions {
-    _cameraOptions = cameraOptions;
-
-    // CAMERA_OPTION_FLASH_MODE
-    id flashMode = self.cameraOptions[CAMERA_OPTION_FLASH_MODE];
-    if (flashMode) {
-        self.flashMode = [RCTConvert CKCameraFlashMode:flashMode];
-    }
-
-    // CAMERA_OPTION_FOCUS_MODE
-    id focusMode = self.cameraOptions[CAMERA_OPTION_FOCUS_MODE];
-    if (focusMode) {
-        self.focusMode = [RCTConvert CKCameraFocushMode:focusMode];
-
-        if (self.focusMode == CKCameraFocushModeOn) {
-            UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(focusAndExposeTap:)];
-            [self addGestureRecognizer:tapGesture];
+-(void)setTorchMode:(AVCaptureTorchMode)torchMode callback:(CallbackBlock)block {
+    _torchMode = torchMode;
+    if (self.videoDeviceInput && [self.videoDeviceInput.device isTorchModeSupported:torchMode] && self.videoDeviceInput.device.hasTorch) {
+        NSError* err = nil;
+        if ( [self.videoDeviceInput.device lockForConfiguration:&err] ) {
+            [self.videoDeviceInput.device setTorchMode:torchMode];
+            [self.videoDeviceInput.device unlockForConfiguration];
         }
     }
+    if (block) {
+        block(self.videoDeviceInput.device.torchMode == torchMode);
+    }
+}
 
-    // CAMERA_OPTION_FOCUS_MODE
-    id zoomMode = self.cameraOptions[CAMERA_OPTION_ZOOM_MODE];
-    if (zoomMode) {
-        self.zoomMode = [RCTConvert CKCameraZoomMode:zoomMode];
+- (void)setFlashMode:(AVCaptureFlashMode)flashMode callback:(CallbackBlock)block {
+    _flashMode = flashMode;
+    [CKCamera setFlashMode:flashMode forDevice:self.videoDeviceInput.device];
+    if (block) {
+        block(self.videoDeviceInput.device.flashMode == flashMode);
+    }
+}
 
-        if (self.zoomMode == CKCameraZoomModeOn) {
-            UIPinchGestureRecognizer *pinchGesture = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(handlePinchToZoomRecognizer:)];
-            [self addGestureRecognizer:pinchGesture];
+
++ (void)setFlashMode:(AVCaptureFlashMode)flashMode forDevice:(AVCaptureDevice *)device
+{
+    if (device.hasFlash && [device isFlashModeSupported:flashMode] ) {
+        NSError *error = nil;
+        if ([device lockForConfiguration:&error] ) {
+            device.flashMode = flashMode;
+            [device unlockForConfiguration];
+        } else {
+            NSLog(@"Could not lock device for configuration: %@", error);
         }
     }
+}
 
-    // CAMERA_OPTION_CAMERA_RATIO_OVERLAY_COLOR
-    id ratioOverlayColor = self.cameraOptions[CAMERA_OPTION_CAMERA_RATIO_OVERLAY_COLOR];
-    if (ratioOverlayColor) {
-        self.ratioOverlayColor = [RCTConvert UIColor:ratioOverlayColor];
+- (void)setFocusMode:(CKCameraFocusMode)focusMode {
+    _focusMode = focusMode;
+    if (self.focusMode == CKCameraFocusModeOn) {
+        UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(focusAndExposeTap:)];
+        [self addGestureRecognizer:tapGesture];
+    } else {
+        NSArray *gestures = [self gestureRecognizers];
+        for (id object in gestures) {
+            if ([object class] == UITapGestureRecognizer.class) {
+                [self removeGestureRecognizer:object];
+            }
+        }
     }
+}
 
-    // CAMERA_OPTION_CAMERA_RATIO_OVERLAY
-    id ratioOverlay = self.cameraOptions[CAMERA_OPTION_CAMERA_RATIO_OVERLAY];
-    if (ratioOverlay) {
-        self.ratioOverlayString = [RCTConvert NSString:ratioOverlay];
-        [self setRatio:self.ratioOverlayString];
+- (void)setZoomMode:(CKCameraZoomMode)zoomMode {
+    _zoomMode = zoomMode;
+    if (zoomMode == CKCameraZoomModeOn) {
+        UIPinchGestureRecognizer *pinchGesture = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(handlePinchToZoomRecognizer:)];
+        [self addGestureRecognizer:pinchGesture];
+    } else {
+        NSArray *gestures = [self gestureRecognizers];
+        for (id object in gestures) {
+            if ([object class] == UIPinchGestureRecognizer.class) {
+                [self removeGestureRecognizer:object];
+            }
+        }
     }
-    //
-    //    // CAMERA_OPTION_CAMERA_RATIO_OVERLAY
-    //    id onReadQRCode = self.cameraOptions[CAMERA_OPTION_ON_READ_QR_CODE];
-    //    if (onReadQRCode) {
-    //        self.onReadQRCode = onReadQRCode;
-    //    }
+}
+
+- (void)setRatio:(NSString*)ratio {
+    if (ratio && ![ratio isEqualToString:@""]) {
+        self.ratioOverlay = ratio;
+    }
 }
 
 -(void)setupCaptureSession {
@@ -421,15 +432,15 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
     } );
 }
 
--(void)setRatioOverlayString:(NSString *)ratioOverlayString {
-    _ratioOverlayString = ratioOverlayString;
-    [self.cameraOverlayView setRatio:self.ratioOverlayString];
+-(void)setRatioOverlay:(NSString *)ratioOverlay {
+    _ratioOverlay = ratioOverlay;
+    [self.cameraOverlayView setRatio:self.ratioOverlay];
 }
 
 -(void)setOverlayRatioView {
-    if (self.ratioOverlayString) {
+    if (self.ratioOverlay) {
         [self.cameraOverlayView removeFromSuperview];
-        self.cameraOverlayView = [[CKCameraOverlayView alloc] initWithFrame:self.bounds ratioString:self.ratioOverlayString overlayColor:self.ratioOverlayColor];
+        self.cameraOverlayView = [[CKCameraOverlayView alloc] initWithFrame:self.bounds ratioString:self.ratioOverlay overlayColor:self.ratioOverlayColor];
         [self addSubview:self.cameraOverlayView];
     }
 }
@@ -450,48 +461,6 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
     }
 
     return captureDevice;
-}
-
--(void)setTorchMode:(AVCaptureTorchMode)torchMode callback:(CallbackBlock)block {
-    _torchMode = torchMode;
-    if (self.videoDeviceInput && [self.videoDeviceInput.device isTorchModeSupported:torchMode] && self.videoDeviceInput.device.hasTorch) {
-        NSError* err = nil;
-        if ( [self.videoDeviceInput.device lockForConfiguration:&err] ) {
-            [self.videoDeviceInput.device setTorchMode:torchMode];
-            [self.videoDeviceInput.device unlockForConfiguration];
-        }
-    }
-    if (block) {
-        block(self.videoDeviceInput.device.torchMode == torchMode);
-    }
-}
-
-- (void)setFlashMode:(AVCaptureFlashMode)flashMode callback:(CallbackBlock)block {
-    _flashMode = flashMode;
-    [CKCamera setFlashMode:flashMode forDevice:self.videoDeviceInput.device];
-    if (block) {
-        block(self.videoDeviceInput.device.flashMode == flashMode);
-    }
-}
-
-
-+ (void)setFlashMode:(AVCaptureFlashMode)flashMode forDevice:(AVCaptureDevice *)device
-{
-    if ( device.hasFlash && [device isFlashModeSupported:flashMode] ) {
-        NSError *error = nil;
-        if ( [device lockForConfiguration:&error] ) {
-            device.flashMode = flashMode;
-            [device unlockForConfiguration];
-        } else {
-            NSLog(@"Could not lock device for configuration: %@", error);
-        }
-    }
-}
-
-- (void)setRatio:(NSString*)ratioString {
-    if (ratioString && ![ratioString isEqualToString:@""]) {
-        self.ratioOverlayString = ratioString;
-    }
 }
 
 
