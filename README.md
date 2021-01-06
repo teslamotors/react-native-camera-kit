@@ -68,6 +68,7 @@ import { CameraScreen } from 'react-native-camera-kit';
   }}
   cameraFlipImage={require('path/to/image')}
   captureButtonImage={require('path/to/image')}
+  showCapturedImageCount={false} // (default false) optional, show count for photos taken during that capture session
 />
 ```
 

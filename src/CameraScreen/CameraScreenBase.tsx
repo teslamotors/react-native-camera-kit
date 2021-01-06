@@ -37,6 +37,7 @@ export type Props = {
   ratioOverlayColor?: string,
   allowCaptureRetake: boolean,
   cameraRatioOverlay: any,
+  showCapturedImageCount?: boolean,
   scannerOptions: any,
   offsetForScannerFrame: any,
   heightForScannerFrame: any,
@@ -228,9 +229,11 @@ export default class CameraScreenBase extends Component<Props, State> {
         <View style={styles.captureButtonContainer}>
           <TouchableOpacity onPress={() => this.onCaptureImagePressed()}>
             <Image source={this.props.captureButtonImage} resizeMode="contain" />
-            <View style={styles.textNumberContainer}>
-              <Text>{this.numberOfImagesTaken()}</Text>
-            </View>
+            {this.props.showCapturedImageCount && (
+              <View style={styles.textNumberContainer}>
+                <Text>{this.numberOfImagesTaken()}</Text>
+              </View>
+            )}
           </TouchableOpacity>
         </View>
       )
