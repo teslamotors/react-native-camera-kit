@@ -134,6 +134,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
 
         val onScaleGestureListener = object: ScaleGestureDetector.SimpleOnScaleGestureListener() {
             override fun onScale(detector: ScaleGestureDetector?): Boolean {
+                if (zoomMode == "off") return true
                 val cameraControl = camera?.cameraControl ?: return true
                 val zoom = camera?.cameraInfo?.zoomState?.value?.zoomRatio ?: return true
                 val scaleFactor = detector?.scaleFactor ?: return true
@@ -386,14 +387,6 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
 
     fun setZoomMode(mode: String = "on") {
         zoomMode = mode
-        when(mode) {
-            "on" -> {
-                // TODO: Add gesture detector
-            }
-            "off" -> {
-                // TODO: Remove gesture detector
-            }
-        }
     }
 
     fun setScanBarcode(enabled: Boolean) {
