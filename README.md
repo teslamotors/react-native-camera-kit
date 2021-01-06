@@ -46,9 +46,54 @@ cd ios && pod install && cd ..
 - `yarn bootstrap`
 - `yarn example ios` or `yarn example android`
 
-## APIs
+## Components
 
-### Camera - Base Camera component
+### CameraScreen
+
+Full screen camera component that holds camera state and provides camera controls
+
+```js
+import { CameraScreen } from 'react-native-camera-kit';
+```
+
+```jsx
+<CameraScreen
+  actions={{ rightButtonText: 'Done', leftButtonText: 'Cancel' }}
+  onBottomButtonPressed={(event) => this.onBottomButtonPressed(event)}
+  cameraOptions={{ flashMode: 'auto', focusMode: 'on', zoomMode: 'on' }}
+  flashImages={{
+    on: require('path/to/image'),
+    off: require('path/to/image'),
+    auto: require('path/to/image'),
+  }}
+  cameraFlipImage={require('path/to/image')}
+  captureButtonImage={require('path/to/image')}
+/>
+```
+
+#### Barcode / QR Code Scanning
+
+Additionally, the camera screen can be used for barcode scanning
+
+```js
+<CameraScreen
+  ...
+  // Barcode props
+  scanBarcode={true}
+  laserColor={'blue'}
+  frameColor={'yellow'}
+  onReadCode={(event) => Alert.alert('Qr code found')} //optional
+  hideControls={false} //(default false) optional, hide buttons and additional controls on top and bottom of screen
+  showFrame={true} //(default false) optional, show frame with transparent layer (qr code or barcode will be read on this area ONLY), start animation for scanner,that stoped when find any code. Frame always at center of the screen
+  offsetForScannerFrame={10} //(default 30) optional, offset from left and right side of the screen
+  heightForScannerFrame={300} //(default 200) optional, change height of the scanner frame
+  colorForScannerFrame={'red'} //(default white) optional, change colot of the scanner frame
+/>
+```
+
+### Camera
+
+Barebones camera component
 
 ```js
 import { Camera } from 'react-native-camera-kit';
@@ -87,9 +132,11 @@ import { Camera } from 'react-native-camera-kit';
 | `surfaceColor` | Color    | Color of barcode scanner surface visualization. Default: `blue`                                                                                                                            |
 | `onReadCode`   | Function | Callback when scanner successfully reads barcode. Returned event contains `codeStringValue`. Default: `null`. Ex: `onReadCode={(event) => console.log(event.nativeEvent.codeStringValue)}` |
 
-### Camera API
+### Imperative API
 
-#### capture({ ... }) - must have the wanted camera capture reference
+_Note: Must be called on a valid camera ref_
+
+#### capture({ ... })
 
 Capture image (`{ saveToCameraRoll: boolean }`). Using the camera roll is slower than using regular files stored in your app. On an iPhone X in debug mode, on a real phone, we measured around 100-150ms processing time to save to the camera roll.
 
@@ -120,26 +167,6 @@ const isUserAuthorizedCamera = await Camera.requestDeviceCameraAuthorization();
 `AVAuthorizationStatusAuthorized` returns `true`
 
 otherwise, returns `false`
-
-## QR Code
-
-```js
-import { CameraScreen } from 'react-native-camera-kit';
-
-<CameraScreen
-  actions={{ rightButtonText: 'Done', leftButtonText: 'Cancel' }}
-  onBottomButtonPressed={(event) => this.onBottomButtonPressed(event)}
-  scanBarcode={true}
-  laserColor={'blue'}
-  frameColor={'yellow'}
-  onReadCode={(event) => Alert.alert('Qr code found')} //optional
-  hideControls={false} //(default false) optional, hide buttons and additional controls on top and bottom of screen
-  showFrame={true} //(default false) optional, show frame with transparent layer (qr code or barcode will be read on this area ONLY), start animation for scanner,that stoped when find any code. Frame always at center of the screen
-  offsetForScannerFrame={10} //(default 30) optional, offset from left and right side of the screen
-  heightForScannerFrame={300} //(default 200) optional, change height of the scanner frame
-  colorForScannerFrame={'red'} //(default white) optional, change colot of the scanner frame
-/>;
-```
 
 ## Contributing
 
