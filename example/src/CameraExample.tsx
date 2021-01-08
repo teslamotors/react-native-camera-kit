@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { View, StyleSheet } from 'react-native';
 import Camera from '../../src/Camera';
-import { CameraType } from '../../src/CameraScreen/CameraScreenBase';
+import { CameraType } from '../../src/CameraScreen';
 
 export default class CameraExample extends Component {
   render() {
@@ -9,7 +9,7 @@ export default class CameraExample extends Component {
       <View style={styles.cameraContainer}>
         <Camera
           ref={this.camera}
-          type={CameraType.Back} // optional
+          cameraType={CameraType.Back} // optional
           style={{ flex: 1 }}
           flashMode="auto" // on/off/auto(default)
           focusMode="on" // off/on(default)

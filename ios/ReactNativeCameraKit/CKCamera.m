@@ -22,6 +22,14 @@ typedef NS_ENUM( NSInteger, CKSetupResult ) {
     CKSetupResultSessionConfigurationFailed
 };
 
+@implementation RCTConvert(CKCameraType)
+
+RCT_ENUM_CONVERTER(CKCameraType, (@{
+                                         @"back": @(AVCaptureDevicePositionBack),
+                                         @"front": @(AVCaptureDevicePositionFront),
+                                         }), AVCaptureDevicePositionBack, integerValue)
+@end
+
 @implementation RCTConvert(CKCameraTorchMode)
 
 RCT_ENUM_CONVERTER(CKCameraTorchMode, (@{
@@ -105,8 +113,9 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 @property (nonatomic) UIView * dataReadingFrame;
 
 // camera options
-@property (nonatomic) AVCaptureTorchMode torchMode;
+@property (nonatomic) AVCaptureDevicePosition cameraType;
 @property (nonatomic) AVCaptureFlashMode flashMode;
+@property (nonatomic) AVCaptureTorchMode torchMode;
 @property (nonatomic) CKCameraFocusMode focusMode;
 @property (nonatomic) CKCameraZoomMode zoomMode;
 @property (nonatomic, strong) NSString* ratioOverlay;
@@ -204,7 +213,21 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
     return self;
 }
 
--(void)setTorchMode:(AVCaptureTorchMode)torchMode callback:(CallbackBlock)block {
+- (void)setCameraType:(AVCaptureDevicePosition)cameraType {
+    if (cameraType != _cameraType) {
+        _cameraType = cameraType;
+        [self changeCamera:cameraType];
+    }
+}
+
+- (void)setFlashMode:(AVCaptureFlashMode)flashMode {
+    if (flashMode != _flashMode) {
+        _flashMode = flashMode;
+        [CKCamera setFlashMode:flashMode forDevice:self.videoDeviceInput.device];
+    }
+}
+
+-(void)setTorchMode:(AVCaptureTorchMode)torchMode {
     _torchMode = torchMode;
     if (self.videoDeviceInput && [self.videoDeviceInput.device isTorchModeSupported:torchMode] && self.videoDeviceInput.device.hasTorch) {
         NSError* err = nil;
@@ -212,17 +235,6 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
             [self.videoDeviceInput.device setTorchMode:torchMode];
             [self.videoDeviceInput.device unlockForConfiguration];
         }
-    }
-    if (block) {
-        block(self.videoDeviceInput.device.torchMode == torchMode);
-    }
-}
-
-- (void)setFlashMode:(AVCaptureFlashMode)flashMode callback:(CallbackBlock)block {
-    _flashMode = flashMode;
-    [CKCamera setFlashMode:flashMode forDevice:self.videoDeviceInput.device];
-    if (block) {
-        block(self.videoDeviceInput.device.flashMode == flashMode);
     }
 }
 
@@ -599,7 +611,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 }
 
--(void)changeCamera:(CallbackBlock)block
+- (void)changeCamera:(AVCaptureDevicePosition)preferredPosition
 {
 #if TARGET_IPHONE_SIMULATOR
     dispatch_async( dispatch_get_main_queue(), ^{
@@ -610,20 +622,6 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
     dispatch_async( self.sessionQueue, ^{
         AVCaptureDevice *currentVideoDevice = self.videoDeviceInput.device;
-        AVCaptureDevicePosition preferredPosition = AVCaptureDevicePositionUnspecified;
-        AVCaptureDevicePosition currentPosition = currentVideoDevice.position;
-
-        switch ( currentPosition )
-        {
-            case AVCaptureDevicePositionUnspecified:
-            case AVCaptureDevicePositionFront:
-                preferredPosition = AVCaptureDevicePositionBack;
-                break;
-            case AVCaptureDevicePositionBack:
-                preferredPosition = AVCaptureDevicePositionFront;
-                break;
-        }
-
         AVCaptureDevice *videoDevice = [CKCamera deviceWithMediaType:AVMediaTypeVideo preferringPosition:preferredPosition];
         AVCaptureDeviceInput *videoDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:nil];
 
@@ -652,14 +650,6 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
         [self.session commitConfiguration];
         [self addObservers];
-
-        dispatch_async( dispatch_get_main_queue(), ^{
-
-            if (block) {
-                block(YES);
-            }
-
-        } );
     } );
 }
 

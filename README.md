@@ -60,7 +60,6 @@ import { CameraScreen } from 'react-native-camera-kit';
 <CameraScreen
   actions={{ rightButtonText: 'Done', leftButtonText: 'Cancel' }}
   onBottomButtonPressed={(event) => this.onBottomButtonPressed(event)}
-  cameraOptions={{ flashMode: 'auto', focusMode: 'on', zoomMode: 'on' }}
   flashImages={{
     on: require('path/to/image'),
     off: require('path/to/image'),
@@ -103,8 +102,8 @@ import { Camera } from 'react-native-camera-kit';
 ```jsx
 <Camera
   ref={(ref) => (this.camera = ref)}
-  type={CameraType.Back} // front/back(default)
   style={{ flex: 1 }}
+  cameraType={CameraType.Back} // front/back(default)
 />
 ```
 

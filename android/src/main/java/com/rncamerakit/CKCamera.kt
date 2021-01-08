@@ -395,7 +395,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
         if (restartCamera) startCamera()
     }
 
-    fun setType(type: String = "back") {
+    fun setCameraType(type: String = "back") {
         val newLensType = when (type) {
             "front" -> CameraSelector.LENS_FACING_FRONT
             else -> CameraSelector.LENS_FACING_BACK

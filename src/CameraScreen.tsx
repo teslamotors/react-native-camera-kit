@@ -6,15 +6,13 @@ import {
   View,
   TouchableOpacity,
   Image,
-  NativeModules,
+  Dimensions,
   Platform,
   SafeAreaView,
   processColor,
 } from 'react-native';
 import _ from 'lodash';
-import Camera from '../Camera';
-
-const GalleryManager = Platform.OS === 'ios' ? NativeModules.CKGalleryManager : NativeModules.NativeGalleryModule;
+import Camera from './Camera';
 
 const FLASH_MODE_AUTO = 'auto';
 const FLASH_MODE_ON = 'on';
@@ -24,15 +22,14 @@ const TORCH_MODE_OFF = 'off';
 const OFFSET_FRAME = 30;
 const FRAME_HEIGHT = 200;
 
+const { width, height } = Dimensions.get('window');
+
 export enum CameraType {
   Front = 'front',
   Back = 'back'
 }
 
 export type Props = {
-  flashMode?: 'on' | 'off' | 'auto'
-  focusMode?: 'on' | 'off'
-  zoomMode?: 'on',
   ratioOverlay?: string,
   ratioOverlayColor?: string,
   allowCaptureRetake: boolean,
@@ -50,7 +47,7 @@ export type Props = {
   laserColor: any,
   frameColor: any,
   surfaceColor: any,
-  onReadCode: () => void;
+  onReadCode: (any) => void;
   onBottomButtonPressed: (any) => void;
 }
 
@@ -63,10 +60,10 @@ type State = {
   imageCaptured: any,
   captured: boolean,
   scannerOptions: any,
-  type: CameraType,
+  cameraType: CameraType,
 }
 
-export default class CameraScreenBase extends Component<Props, State> {
+export default class CameraScreen extends Component<Props, State> {
   static propTypes = {
     allowCaptureRetake: PropTypes.bool,
   };
@@ -106,7 +103,7 @@ export default class CameraScreenBase extends Component<Props, State> {
       imageCaptured: false,
       captured: false,
       scannerOptions: {},
-      type: CameraType.Back,
+      cameraType: CameraType.Back,
     };
 
     this.onSetFlash = this.onSetFlash.bind(this);
@@ -191,8 +188,8 @@ export default class CameraScreenBase extends Component<Props, State> {
         ) : (
           <Camera
             ref={(cam) => (this.camera = cam)}
-            type={this.state.type}
             style={{ flex: 1, justifyContent: 'flex-end' }}
+            cameraType={this.state.cameraType}
             flashMode={this.state.flashData.mode}
             focusMode={this.props.focusMode}
             zoomMode={this.props.zoomMode}
@@ -269,7 +266,6 @@ export default class CameraScreenBase extends Component<Props, State> {
     const captureRetakeMode = this.isCaptureRetakeMode();
     if (captureRetakeMode) {
       if (type === 'left') {
-        GalleryManager.deleteTempImage(this.state.imageCaptured.uri);
         this.setState({ imageCaptured: undefined });
       }
     } else {
@@ -308,7 +304,6 @@ export default class CameraScreenBase extends Component<Props, State> {
 
   onSwitchCameraPressed() {
     const direction = this.state.type === CameraType.Back ? CameraType.Front : CameraType.Back;
-    console.log('SWITCH: ' + direction);
     this.setState({ type: direction });
   }
 
@@ -347,13 +342,27 @@ export default class CameraScreenBase extends Component<Props, State> {
   }
 
   render() {
-    throw 'Implemented in CameraScreen!';
+    return (
+      <View style={{ flex: 1, backgroundColor: 'black' }} {...this.props}>
+        {Platform.OS === 'android' && this.renderCamera()}
+        {this.renderTopButtons()}
+        {Platform.OS !== 'android' && this.renderCamera()}
+        {this.renderRatioStrip()}
+        {Platform.OS === 'android' && <View style={styles.gap} />}
+        {this.renderBottomButtons()}
+      </View>
+    );
   }
 }
 
-import styleObject from './CameraScreenStyleObject';
 const styles = StyleSheet.create(
-  _.merge(styleObject, {
+  {
+    bottomButtons: {
+      flex: 2,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      padding: 14,
+    },
     textStyle: {
       color: 'white',
       fontSize: 20,
@@ -374,8 +383,19 @@ const styles = StyleSheet.create(
       paddingBottom: 0,
     },
     cameraContainer: {
-      flex: 10,
-      flexDirection: 'column',
+      ...Platform.select({
+        android: {
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width,
+          height,
+        },
+        default: {
+          flex: 10,
+          flexDirection: 'column',
+        },
+      }),
     },
     captureButtonContainer: {
       flex: 1,
@@ -404,5 +424,8 @@ const styles = StyleSheet.create(
       alignItems: 'center',
       padding: 10,
     },
-  }),
-);
+    gap: {
+      flex: 10,
+      flexDirection: 'column',
+    },
+  });
