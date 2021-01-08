@@ -11,6 +11,17 @@
 typedef void (^CaptureBlock)(NSDictionary *imageObject);
 typedef void (^CallbackBlock)(BOOL success);
 
+typedef NS_ENUM(NSInteger, CKCameraType) {
+    CKCameraTypeBack,
+    CKCameraTypeFront,
+};
+
+@interface RCTConvert(CKCameraType)
+
++ (CKCameraType)CKCameraType:(id)json;
+
+@end
+
 typedef NS_ENUM(NSInteger, CKCameraTorchMode) {
     CKCameraTorchModeAuto,
     CKCameraTorchModeOn,
@@ -66,12 +77,7 @@ typedef NS_ENUM(NSInteger, CKCameraZoomMode) {
 
 // api
 - (void)snapStillImage:(NSDictionary*)options success:(CaptureBlock)block onError:(void (^)(NSString*))onError;
-- (void)changeCamera:(CallbackBlock)block;
-- (void)setFlashMode:(AVCaptureFlashMode)flashMode callback:(CallbackBlock)block;
-- (void)setTorchMode:(AVCaptureTorchMode)torchMode callback:(CallbackBlock)block;
-- (void)setRatio:(NSString*)ratio;
 
 + (NSURL*)saveToTmpFolder:(NSData*)data;
-
 
 @end

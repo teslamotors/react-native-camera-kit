@@ -14,7 +14,7 @@ export default class BarcodeScreenExample extends Component {
   onBottomButtonPressed(event) {
     const captureImages = JSON.stringify(event.captureImages);
     Alert.alert(
-      `${event.type} button pressed`,
+      `"${event.type}" Button Pressed`,
       `${captureImages}`,
       [{ text: 'OK', onPress: () => console.log('OK Pressed') }],
       { cancelable: false },
@@ -40,7 +40,10 @@ export default class BarcodeScreenExample extends Component {
         laserColor={'blue'}
         surfaceColor={'black'}
         frameColor={'yellow'}
-        onReadCode={(event) => this.setState({ example: CheckingScreen })}
+        onReadCode={(event) => {
+          console.log(event);
+          this.setState({ example: CheckingScreen });
+        }}
         hideControls
         // offsetForScannerFrame = {10}
         // heightForScannerFrame = {300}

@@ -50,7 +50,7 @@ module.exports = {
     'import/ignore': ['node_modules/react-native/index\\.js$'], // https://github.com/facebook/react-native/issues/28549
     'import/resolver': {
       node: {
-        extensions: ['.js', '.ts', '.android.js', '.ios.js', '.android.tsx', '.ios.tsx'],
+        extensions: ['.js', '.ts', '.tsx', '.android.js', '.ios.js', '.android.tsx', '.ios.tsx'],
       },
     },
   },

@@ -17,6 +17,7 @@ RCT_EXPORT_MODULE()
     return self.camera;
 }
 
+RCT_EXPORT_VIEW_PROPERTY(cameraType, CKCameraType)
 RCT_EXPORT_VIEW_PROPERTY(flashMode, CKCameraFlashMode)
 RCT_EXPORT_VIEW_PROPERTY(focusMode, CKCameraFocusMode)
 RCT_EXPORT_VIEW_PROPERTY(zoomMode, CKCameraZoomMode)

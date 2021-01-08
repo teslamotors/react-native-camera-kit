@@ -4,13 +4,11 @@ import {
   Text,
   View,
   TouchableOpacity,
-  Image,
 } from 'react-native';
 
 import CameraScreenExample from './CameraScreenExample';
 import BarcodeScreenExample from './BarcodeScreenExample';
 import CameraExample from './CameraExample';
-
 
 export default class App extends Component {
 
