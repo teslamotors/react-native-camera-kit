@@ -9,6 +9,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.graphics.Rect
 import android.hardware.SensorManager
 import android.media.AudioManager
 import android.media.MediaActionSound
@@ -17,6 +18,7 @@ import android.util.Log
 import android.view.*
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -32,6 +34,7 @@ import com.facebook.react.bridge.WritableMap
 import com.facebook.react.common.ReactConstants.TAG
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.events.RCTEventEmitter
+import com.rncamerakit.barcode.BarcodeFrame
 import java.io.File
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -39,23 +42,33 @@ import java.util.concurrent.Executors
 @SuppressLint("ViewConstructor") // Extra constructors unused. Not using visual layout tools
 class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObserver {
     private val currentContext: ThemedReactContext = context
+
+    private var camera: Camera? = null
     private var preview: Preview? = null
     private var imageCapture: ImageCapture? = null
     private var qrCodeAnalyzer: ImageAnalysis? = null
     private var cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-    private var camera: Camera? = null
     private var orientationListener: OrientationEventListener? = null
     private var viewFinder: PreviewView = PreviewView(context)
+    private var barcodeFrame: BarcodeFrame? = null
     private var cameraExecutor: ExecutorService = Executors.newSingleThreadExecutor()
-    private var scanBarcode: Boolean = false
-    private var lensType = CameraSelector.LENS_FACING_BACK
-    private var autoFocus = "on"
-    private var zoomMode = "on"
     private var cameraProvider: ProcessCameraProvider? = null
     private var outputPath: String? = null
     private var shutterAnimationDuration: Int = 50
     private var effectLayer = View(context)
     private var counter = 0
+
+    // Camera Props
+    private var lensType = CameraSelector.LENS_FACING_BACK
+    private var autoFocus = "on"
+    private var zoomMode = "on"
+
+    // Barcode Props
+    private var scanBarcode: Boolean = false
+    private var showFrame = false
+    private var frameRect: Rect? = null
+    private var frameColor = Color.GREEN
+    private var laserColor = Color.RED
 
     private fun getActivity() : Activity {
         return currentContext.currentActivity!!
@@ -194,15 +207,17 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
                     .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                     .build()
 
-            val analyzer = QRCodeAnalyzer { barcodes ->
-                if (barcodes.isNotEmpty()) {
-                    onBarcodeRead(barcodes)
-                }
-            }
-            qrCodeAnalyzer!!.setAnalyzer(cameraExecutor, analyzer)
-
             val useCases = mutableListOf(preview, imageCapture)
-            if (scanBarcode) useCases.add(qrCodeAnalyzer!!)
+
+            if (scanBarcode) {
+                val analyzer = QRCodeAnalyzer { barcodes ->
+                    if (barcodes.isNotEmpty()) {
+                        onBarcodeRead(barcodes)
+                    }
+                }
+                qrCodeAnalyzer!!.setAnalyzer(cameraExecutor, analyzer)
+                useCases.add(qrCodeAnalyzer!!)
+            }
 
             try {
                 // Unbind use cases before rebinding
@@ -317,10 +332,10 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
 
     private fun onBarcodeRead(barcodes: List<String>) {
         val event: WritableMap = Arguments.createMap()
-        event.putArray("barcodes", Arguments.makeNativeArray(barcodes))
+        event.putString("codeStringValue", barcodes.first())
         currentContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(
                 id,
-                "onBarcodeRead",
+                "onReadCode",
                 event
         )
     }
@@ -407,6 +422,41 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
 
     fun setOutputPath(path: String) {
         outputPath = path
+    }
+
+    fun setShowFrame(enabled: Boolean) {
+        if (enabled) {
+            barcodeFrame = BarcodeFrame(context)
+            val actualPreviewWidth = resources.displayMetrics.widthPixels
+            val actualPreviewHeight = resources.displayMetrics.heightPixels
+            val height: Int = convertDeviceHeightToSupportedAspectRatio(actualPreviewWidth, actualPreviewHeight)
+            barcodeFrame!!.setFrameColor(frameColor)
+            barcodeFrame!!.setLaserColor(laserColor)
+            (barcodeFrame as View).layout(0, 0, actualPreviewWidth, height)
+            addView(barcodeFrame)
+        } else if (barcodeFrame != null) {
+            removeView(barcodeFrame)
+            barcodeFrame = null
+        }
+    }
+
+    fun setLaserColor(@ColorInt color: Int) {
+        laserColor = color
+        if (barcodeFrame != null) {
+            barcodeFrame!!.setLaserColor(laserColor)
+        }
+    }
+
+    fun setFrameColor(@ColorInt color: Int) {
+        frameColor = color
+        if (barcodeFrame != null) {
+            barcodeFrame!!.setFrameColor(color)
+        }
+    }
+
+    private fun convertDeviceHeightToSupportedAspectRatio(actualWidth: Int, actualHeight: Int): Int {
+        val maxScreenRatio = 16 / 9f
+        return (if (actualHeight / actualWidth > maxScreenRatio) actualWidth * maxScreenRatio else actualHeight).toInt()
     }
 
     private fun hasPermissions(): Boolean {

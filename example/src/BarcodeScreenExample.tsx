@@ -8,6 +8,7 @@ export default class BarcodeScreenExample extends Component {
     super(props);
     this.state = {
       example: undefined,
+      value: undefined,
     };
   }
 
@@ -23,8 +24,8 @@ export default class BarcodeScreenExample extends Component {
 
   render() {
     if (this.state.example) {
-      const CameraScreen = this.state.example;
-      return <CameraScreen />;
+      const Screen = this.state.example;
+      return <Screen value={this.state.value} />;
     }
     return (
       <CameraScreen
@@ -35,14 +36,13 @@ export default class BarcodeScreenExample extends Component {
           off: require('../images/flashOff.png'),
           auto: require('../images/flashAuto.png'),
         }}
-        showFrame
         scanBarcode
-        laserColor={'blue'}
-        surfaceColor={'black'}
+        showFrame
+        laserColor={'yellow'}
         frameColor={'yellow'}
+        surfaceColor={'black'}
         onReadCode={(event) => {
-          console.log(event);
-          this.setState({ example: CheckingScreen });
+          this.setState({ example: CheckingScreen, value: event.nativeEvent.codeStringValue });
         }}
         hideControls
         // offsetForScannerFrame = {10}

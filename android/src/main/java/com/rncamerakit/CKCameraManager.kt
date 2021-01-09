@@ -1,6 +1,9 @@
 package com.rncamerakit
 
+import android.graphics.Color
 import android.util.Log
+import androidx.annotation.ColorInt
+import androidx.camera.view.CameraView
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableType
 import com.facebook.react.common.MapBuilder
@@ -8,6 +11,7 @@ import com.facebook.react.common.ReactConstants.TAG
 import com.facebook.react.uimanager.SimpleViewManager
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.annotations.ReactProp
+
 
 class CKCameraManager : SimpleViewManager<CKCamera>() {
 
@@ -42,7 +46,7 @@ class CKCameraManager : SimpleViewManager<CKCamera>() {
     override fun getExportedCustomDirectEventTypeConstants(): Map<String, Any> {
         return MapBuilder.of(
                 "onOrientationChange", MapBuilder.of("registrationName", "onOrientationChange"),
-                "onBarcodeRead", MapBuilder.of("registrationName", "onBarcodeRead"),
+                "onReadCode", MapBuilder.of("registrationName", "onReadCode"),
                 "onPictureTaken", MapBuilder.of("registrationName", "onPictureTaken")
         )
     }
@@ -70,6 +74,21 @@ class CKCameraManager : SimpleViewManager<CKCamera>() {
     @ReactProp(name = "scanBarcode")
     fun setScanBarcode(view: CKCamera, enabled: Boolean) {
         view.setScanBarcode(enabled)
+    }
+
+    @ReactProp(name = "showFrame")
+    fun setShowFrame(view: CKCamera, enabled: Boolean) {
+        view.setShowFrame(enabled)
+    }
+
+    @ReactProp(name = "laserColor", defaultInt = Color.RED)
+    fun setLaserColor(view: CKCamera, @ColorInt color: Int) {
+        view.setLaserColor(color)
+    }
+
+    @ReactProp(name = "frameColor", defaultInt = Color.GREEN)
+    fun setFrameColor(view: CKCamera, @ColorInt color: Int) {
+        view.setFrameColor(color)
     }
 
     @ReactProp(name = "outputPath")
