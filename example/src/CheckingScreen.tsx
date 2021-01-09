@@ -13,10 +13,12 @@ export default class CheckingScreen extends Component {
   render() {
     if (this.state.example) {
       const CheckingScreen = this.state.example;
-      return <CheckingScreen />;
+      const value = this.state.value;
+      return <CheckingScreen value={value} />;
     }
     return (
       <View style={styles.container}>
+        <Text style={styles.valueText}>{this.props.value}</Text>
         <TouchableOpacity onPress={() => this.setState({ example: BarcodeScreen })}>
           <Text style={styles.buttonText}>Back button</Text>
         </TouchableOpacity>
@@ -31,6 +33,10 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     alignItems: 'center',
     backgroundColor: '#F5FCFF',
+  },
+  valueText: {
+    marginBottom: 20,
+    fontSize: 40,
   },
   buttonText: {
     color: 'blue',
