@@ -33,12 +33,9 @@ RCT_ENUM_CONVERTER(CKCameraType, (@{
 @implementation RCTConvert(CKCameraTorchMode)
 
 RCT_ENUM_CONVERTER(CKCameraTorchMode, (@{
-                                         @"auto": @(AVCaptureTorchModeAuto),
                                          @"on": @(AVCaptureTorchModeOn),
                                          @"off": @(AVCaptureTorchModeOff)
                                          }), AVCaptureTorchModeAuto, integerValue)
-
-
 @end
 
 @implementation RCTConvert(CKCameraFlashMode)

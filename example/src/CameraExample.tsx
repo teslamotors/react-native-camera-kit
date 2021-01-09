@@ -14,6 +14,7 @@ export default class CameraExample extends Component {
           flashMode="auto" // on/off/auto(default)
           focusMode="on" // off/on(default)
           zoomMode="on" // off/on(default)
+          torchMode="off" // on/off(default)
           ratioOverlay="1:1" // optional
           ratioOverlayColor="#00000077" // optional
           resetFocusTimeout={0}

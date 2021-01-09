@@ -22,18 +22,6 @@ typedef NS_ENUM(NSInteger, CKCameraType) {
 
 @end
 
-typedef NS_ENUM(NSInteger, CKCameraTorchMode) {
-    CKCameraTorchModeAuto,
-    CKCameraTorchModeOn,
-    CKCameraTorchModeOff
-};
-
-@interface RCTConvert(CKCameraTorchMode)
-
-+ (CKCameraTorchMode)CKCameraTorchMode:(id)json;
-
-@end
-
 typedef NS_ENUM(NSInteger, CKCameraFlashMode) {
     CKCameraFlashModeAuto,
     CKCameraFlashModeOn,
@@ -46,6 +34,16 @@ typedef NS_ENUM(NSInteger, CKCameraFlashMode) {
 
 @end
 
+typedef NS_ENUM(NSInteger, CKCameraTorchMode) {
+    CKCameraTorchModeOn,
+    CKCameraTorchModeOff
+};
+
+@interface RCTConvert(CKCameraTorchMode)
+
++ (CKCameraTorchMode)CKCameraTorchMode:(id)json;
+
+@end
 
 typedef NS_ENUM(NSInteger, CKCameraFocusMode) {
     CKCameraFocusModeOn,

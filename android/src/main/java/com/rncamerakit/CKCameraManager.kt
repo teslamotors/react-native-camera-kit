@@ -61,6 +61,11 @@ class CKCameraManager : SimpleViewManager<CKCamera>() {
         view.setFlashMode(mode)
     }
 
+    @ReactProp(name = "torchMode")
+    fun setTorchMode(view: CKCamera, mode: String?) {
+        view.setTorchMode(mode)
+    }
+
     @ReactProp(name = "focusMode")
     fun setFocusMode(view: CKCamera, mode: String) {
         view.setAutoFocus(mode)

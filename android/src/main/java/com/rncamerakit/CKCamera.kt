@@ -375,7 +375,6 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
         val imageCapture = imageCapture ?: return
         val camera = camera ?: return
         when (mode) {
-            "torch" -> camera.cameraControl.enableTorch(true)
             "on" -> {
                 camera.cameraControl.enableTorch(false)
                 imageCapture.flashMode = ImageCapture.FLASH_MODE_ON
@@ -386,6 +385,21 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
             }
             else -> { // 'auto' and any wrong values
                 imageCapture.flashMode = ImageCapture.FLASH_MODE_AUTO
+                camera.cameraControl.enableTorch(false)
+            }
+        }
+    }
+
+    fun setTorchMode(mode: String?) {
+        val camera = camera ?: return
+        when (mode) {
+            "on" -> {
+                camera.cameraControl.enableTorch(true)
+            }
+            "off" -> {
+                camera.cameraControl.enableTorch(false)
+            }
+            else -> { // 'auto' and any wrong values
                 camera.cameraControl.enableTorch(false)
             }
         }

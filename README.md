@@ -67,6 +67,8 @@ import { CameraScreen } from 'react-native-camera-kit';
   }}
   cameraFlipImage={require('path/to/image')}
   captureButtonImage={require('path/to/image')}
+  torchOnImage={require('path/to/image')}
+  torchOffImage={require('path/to/image')}
   showCapturedImageCount={false} // (default false) optional, show count for photos taken during that capture session
 />
 ```
@@ -114,6 +116,7 @@ import { Camera } from 'react-native-camera-kit';
 | `flashMode`                    | `'on'`/`'off'`/`'auto'` | Camera flash mode. Default: `auto`                                                                                                                                                                                                                                                                                                            |
 | `focusMode`                    | `'on'`/`'off'`          | Camera focus mode. Default: `on`                                                                                                                                                                                                                                                                                                              |
 | `zoomMode`                     | `'on'`/`'off'`          | Enable pinch to zoom camera. Default: `on`                                                                                                                                                                                                                                                                                                    |
+| `torchMode`                    | `'on'`/`'off'`          | Toggle flash light when camera is active. Default: `off`                                                                                                                                                                                                                                                                                      |
 | `ratioOverlay`                 | `['int':'int', ...]`    | Show a guiding overlay in the camera preview for the selected ratio. Does not crop image as of v9.0. Example: `['16:9', '1:1', '3:4']`                                                                                                                                                                                                        |
 | `ratioOverlayColor`            | Color                   | Any color with alpha. Default: `'#ffffff77'`                                                                                                                                                                                                                                                                                                  |
 | `resetFocusTimeout`            | Number                  | iOS only. Dismiss tap to focus after this many milliseconds. Default `0` (disabled). Example: `5000` is 5 seconds.                                                                                                                                                                                                                            |

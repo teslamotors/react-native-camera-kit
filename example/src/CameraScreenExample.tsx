@@ -25,6 +25,8 @@ export default class CameraScreenExample extends Component {
         }}
         cameraFlipImage={require('../images/cameraFlipIcon.png')}
         captureButtonImage={require('../images/cameraButton.png')}
+        torchOnImage={require('../images/torchOn.png')}
+        torchOffImage={require('../images/torchOff.png')}
         showCapturedImageCount
       />
     );

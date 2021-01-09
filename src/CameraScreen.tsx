@@ -17,8 +17,6 @@ import Camera from './Camera';
 const FLASH_MODE_AUTO = 'auto';
 const FLASH_MODE_ON = 'on';
 const FLASH_MODE_OFF = 'off';
-const TORCH_MODE_ON = 'on';
-const TORCH_MODE_OFF = 'off';
 const OFFSET_FRAME = 30;
 const FRAME_HEIGHT = 200;
 
@@ -47,6 +45,8 @@ export type Props = {
   laserColor: any,
   frameColor: any,
   surfaceColor: any,
+  torchOnImage: any,
+  torchOffImage: any,
   onReadCode: (any) => void;
   onBottomButtonPressed: (any) => void;
 }
@@ -54,7 +54,7 @@ export type Props = {
 type State = {
   captureImages: any[],
   flashData: any,
-  torchData: boolean,
+  torchMode: boolean,
   ratios: any[],
   ratioArrayPosition: number,
   imageCaptured: any,
@@ -97,7 +97,7 @@ export default class CameraScreen extends Component<Props, State> {
     this.state = {
       captureImages: [],
       flashData: this.flashArray[this.currentFlashArrayPosition],
-      torchData: false,
+      torchMode: false,
       ratios: [],
       ratioArrayPosition: -1,
       imageCaptured: false,
@@ -105,10 +105,6 @@ export default class CameraScreen extends Component<Props, State> {
       scannerOptions: {},
       cameraType: CameraType.Back,
     };
-
-    this.onSetFlash = this.onSetFlash.bind(this);
-    this.onSetTorch = this.onSetTorch.bind(this);
-    this.onSwitchCameraPressed = this.onSwitchCameraPressed.bind(this);
   }
 
   componentDidMount() {
@@ -154,11 +150,25 @@ export default class CameraScreen extends Component<Props, State> {
     );
   }
 
+  renderTorchButton() {
+    return (
+      !this.isCaptureRetakeMode() && (
+        <TouchableOpacity style={{ paddingHorizontal: 15 }} onPress={() => this.onSetTorch()}>
+          <Image
+            style={{ flex: 1, justifyContent: 'center' }}
+            source={this.state.torchMode ? this.props.torchOnImage : this.props.torchOffImage}
+            resizeMode="contain"
+          />
+        </TouchableOpacity>
+      )
+    );
+  }
+
   renderSwitchCameraButton() {
     return (
       this.props.cameraFlipImage &&
       !this.isCaptureRetakeMode() && (
-        <TouchableOpacity style={{ paddingHorizontal: 15 }} onPress={this.onSwitchCameraPressed}>
+        <TouchableOpacity style={{ paddingHorizontal: 15 }} onPress={() => this.onSwitchCameraPressed()}>
           <Image
             style={{ flex: 1, justifyContent: 'center' }}
             source={this.props.cameraFlipImage}
@@ -175,6 +185,7 @@ export default class CameraScreen extends Component<Props, State> {
         <SafeAreaView style={styles.topButtons}>
           {this.renderFlashButton()}
           {this.renderSwitchCameraButton()}
+          {this.renderTorchButton()}
         </SafeAreaView>
       )
     );
@@ -191,6 +202,7 @@ export default class CameraScreen extends Component<Props, State> {
             style={{ flex: 1, justifyContent: 'flex-end' }}
             cameraType={this.state.cameraType}
             flashMode={this.state.flashData.mode}
+            torchMode={this.state.torchMode ? 'on' : 'off'}
             focusMode={this.props.focusMode}
             zoomMode={this.props.zoomMode}
             ratioOverlay={this.state.ratios[this.state.ratioArrayPosition]}
@@ -303,20 +315,18 @@ export default class CameraScreen extends Component<Props, State> {
   }
 
   onSwitchCameraPressed() {
-    const direction = this.state.type === CameraType.Back ? CameraType.Front : CameraType.Back;
-    this.setState({ type: direction });
+    const direction = this.state.cameraType === CameraType.Back ? CameraType.Front : CameraType.Back;
+    this.setState({ cameraType: direction });
   }
 
-  async onSetFlash() {
+  onSetFlash() {
     this.currentFlashArrayPosition = (this.currentFlashArrayPosition + 1) % 3;
     const newFlashData = this.flashArray[this.currentFlashArrayPosition];
     this.setState({ flashData: newFlashData });
   }
 
   onSetTorch() {
-    const newTorchData = !this.state.torchData;
-    this.setState({ torchData: newTorchData });
-    newTorchData ? this.camera.setTorchMode(TORCH_MODE_ON) : this.camera.setTorchMode(TORCH_MODE_OFF);
+    this.setState({ torchMode: !this.state.torchMode });
   }
 
   async onCaptureImagePressed() {
