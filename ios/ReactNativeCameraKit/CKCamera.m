@@ -33,12 +33,9 @@ RCT_ENUM_CONVERTER(CKCameraType, (@{
 @implementation RCTConvert(CKCameraTorchMode)
 
 RCT_ENUM_CONVERTER(CKCameraTorchMode, (@{
-                                         @"auto": @(AVCaptureTorchModeAuto),
                                          @"on": @(AVCaptureTorchModeOn),
                                          @"off": @(AVCaptureTorchModeOff)
                                          }), AVCaptureTorchModeAuto, integerValue)
-
-
 @end
 
 @implementation RCTConvert(CKCameraFlashMode)
@@ -102,13 +99,12 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 @property (nonatomic) UIBackgroundTaskIdentifier backgroundRecordingID;
 
 // scanner options
-@property (nonatomic, strong) NSDictionary *scannerOptions;
 @property (nonatomic) BOOL showFrame;
-@property (nonatomic) UIView *greenScanner;
+@property (nonatomic) UIView *scannerView;
 @property (nonatomic, strong) RCTDirectEventBlock onReadCode;
-
 @property (nonatomic) CGFloat frameOffset;
-@property (nonatomic) CGFloat heightFrame;
+@property (nonatomic) CGFloat frameHeight;
+@property (nonatomic, strong) UIColor *laserColor;
 @property (nonatomic, strong) UIColor *frameColor;
 @property (nonatomic) UIView * dataReadingFrame;
 
@@ -208,6 +204,11 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         self.zoomMode = CKCameraZoomModeOn;
         self.flashMode = CKCameraFlashModeAuto;
         self.focusMode = CKCameraFocusModeOn;
+        
+        self.frameColor = [UIColor whiteColor];
+        self.laserColor = [UIColor redColor];
+        self.frameOffset = 30;
+        self.frameHeight = 200;
     }
 
     return self;
@@ -285,6 +286,18 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 - (void)setRatio:(NSString*)ratio {
     if (ratio && ![ratio isEqualToString:@""]) {
         self.ratioOverlay = ratio;
+    }
+}
+
+- (void)setLaserColor:(UIColor *)color {
+    if (color != nil) {
+        _laserColor = color;
+    }
+}
+
+- (void)setFrameColor:(UIColor *)color {
+    if (color != nil) {
+        _frameColor = color;
     }
 }
 
@@ -884,28 +897,14 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
     }
 }
 
-- (void)setScannerOptions:(NSDictionary *)scannerOptions {
-    if (scannerOptions[offsetForScannerFrame]) {
-        self.frameOffset = [scannerOptions[offsetForScannerFrame] floatValue];
-    }
-    if (scannerOptions[heightForScannerFrame]) {
-        self.heightFrame = [scannerOptions[heightForScannerFrame] floatValue];
-    }
-    if (scannerOptions[colorForFrame]) {
-        UIColor *acolor = [RCTConvert UIColor:scannerOptions[colorForFrame]];
-        self.frameColor = (acolor) ? acolor : [UIColor whiteColor];
-    }
-}
-
 - (void)addFrameForScanner {
     CGFloat frameWidth = self.bounds.size.width - 2 * self.frameOffset;
     if (!self.dataReadingFrame) {
-        self.dataReadingFrame = [[UIView alloc] initWithFrame:CGRectMake(0, 0, frameWidth, self.heightFrame)]; //
+        self.dataReadingFrame = [[UIView alloc] initWithFrame:CGRectMake(0, 0, frameWidth, self.frameHeight)]; //
         self.dataReadingFrame.center = self.center;
         self.dataReadingFrame.backgroundColor = [UIColor clearColor];
         [self createCustomFramesForView:self.dataReadingFrame];
         [self addSubview:self.dataReadingFrame];
-
 
         [self startAnimatingScanner:self.dataReadingFrame];
 
@@ -955,7 +954,6 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         UIView * cornerView = [[UIView alloc] initWithFrame:CGRectMake(x, y, width, height)];
         cornerView.backgroundColor = self.frameColor;
         [frameView addSubview:cornerView];
-
     }
 }
 
@@ -964,38 +962,37 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
     topView.backgroundColor = [UIColor colorWithRed:0.0/255.0 green:0.0/255.0 blue:0.0/255.0 alpha:0.4];
     [self addSubview:topView];
 
-    UIView *leftSideView = [[UIView alloc] initWithFrame:CGRectMake(0, inputRect.origin.y, self.frameOffset, self.heightFrame)]; //paddingForScanner scannerHeight
+    UIView *leftSideView = [[UIView alloc] initWithFrame:CGRectMake(0, inputRect.origin.y, self.frameOffset, self.frameHeight)]; //paddingForScanner scannerHeight
     leftSideView.backgroundColor = [UIColor colorWithRed:0.0/255.0 green:0.0/255.0 blue:0.0/255.0 alpha:0.4];
     [self addSubview:leftSideView];
 
-    UIView *rightSideView = [[UIView alloc] initWithFrame:CGRectMake(inputRect.size.width + self.frameOffset, inputRect.origin.y, self.frameOffset, self.heightFrame)];
+    UIView *rightSideView = [[UIView alloc] initWithFrame:CGRectMake(inputRect.size.width + self.frameOffset, inputRect.origin.y, self.frameOffset, self.frameHeight)];
     rightSideView.backgroundColor = [UIColor colorWithRed:0.0/255.0 green:0.0/255.0 blue:0.0/255.0 alpha:0.4];
     [self addSubview:rightSideView];
 
-    UIView *bottomView = [[UIView alloc] initWithFrame:CGRectMake(0, inputRect.origin.y + self.heightFrame, self.frame.size.width,
-                                                                  self.frame.size.height - inputRect.origin.y - self.heightFrame)];
+    UIView *bottomView = [[UIView alloc] initWithFrame:CGRectMake(0, inputRect.origin.y + self.frameHeight, self.frame.size.width,
+                                                                  self.frame.size.height - inputRect.origin.y - self.frameHeight)];
     bottomView.backgroundColor = [UIColor colorWithRed:0.0/255.0 green:0.0/255.0 blue:0.0/255.0 alpha:0.4];
     [self addSubview:bottomView];
-
 }
 
 - (void)startAnimatingScanner:(UIView *)inputView {
-    if (!self.greenScanner) {
-        self.greenScanner = [[UIView alloc] initWithFrame:CGRectMake(2, 0, inputView.frame.size.width - 4, 2)];
-        self.greenScanner.backgroundColor = [UIColor whiteColor];
+    if (!self.scannerView) {
+        self.scannerView = [[UIView alloc] initWithFrame:CGRectMake(2, 0, inputView.frame.size.width - 4, 2)];
+        self.scannerView.backgroundColor = self.laserColor;
     }
-    if (self.greenScanner.frame.origin.y != 0) {
-        [self.greenScanner setFrame:CGRectMake(2, 0, inputView.frame.size.width - 4, 2)];
+    if (self.scannerView.frame.origin.y != 0) {
+        [self.scannerView setFrame:CGRectMake(2, 0, inputView.frame.size.width - 4, 2)];
     }
-    [inputView addSubview:self.greenScanner];
+    [inputView addSubview:self.scannerView];
     [UIView animateWithDuration:3 delay:0 options:(UIViewAnimationOptionAutoreverse | UIViewAnimationOptionRepeat) animations:^{
         CGFloat middleX = inputView.frame.size.width / 2;
-        self.greenScanner.center = CGPointMake(middleX, inputView.frame.size.height - 1);
+        self.scannerView.center = CGPointMake(middleX, inputView.frame.size.height - 1);
     } completion:^(BOOL finished) {}];
 }
 
 - (void)stopAnimatingScanner {
-    [self.greenScanner removeFromSuperview];
+    [self.scannerView removeFromSuperview];
 }
 
 //Observer actions

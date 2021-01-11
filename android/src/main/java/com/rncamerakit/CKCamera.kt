@@ -192,7 +192,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
             orientationListener!!.enable()
 
             // Contain camera feed image within component bounds, centered
-            viewFinder.scaleType = PreviewView.ScaleType.FIT_CENTER
+            viewFinder.scaleType = PreviewView.ScaleType.FILL_CENTER
 
             // Tap to focus
             viewFinder.setOnTouchListener { _, event ->
@@ -375,7 +375,6 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
         val imageCapture = imageCapture ?: return
         val camera = camera ?: return
         when (mode) {
-            "torch" -> camera.cameraControl.enableTorch(true)
             "on" -> {
                 camera.cameraControl.enableTorch(false)
                 imageCapture.flashMode = ImageCapture.FLASH_MODE_ON
@@ -386,6 +385,22 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
             }
             else -> { // 'auto' and any wrong values
                 imageCapture.flashMode = ImageCapture.FLASH_MODE_AUTO
+                camera.cameraControl.enableTorch(false)
+            }
+        }
+    }
+
+    fun setTorchMode(mode: String?) {
+        val imageCapture = imageCapture ?: return
+        val camera = camera ?: return
+        when (mode) {
+            "on" -> {
+                camera.cameraControl.enableTorch(true)
+            }
+            "off" -> {
+                camera.cameraControl.enableTorch(false)
+            }
+            else -> { // 'auto' and any wrong values
                 camera.cameraControl.enableTorch(false)
             }
         }

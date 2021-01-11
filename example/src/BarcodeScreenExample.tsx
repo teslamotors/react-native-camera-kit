@@ -38,16 +38,12 @@ export default class BarcodeScreenExample extends Component {
         }}
         scanBarcode
         showFrame
-        laserColor={'yellow'}
-        frameColor={'yellow'}
-        surfaceColor={'black'}
+        laserColor="red"
+        frameColor="white"
         onReadCode={(event) => {
           this.setState({ example: CheckingScreen, value: event.nativeEvent.codeStringValue });
         }}
         hideControls
-        // offsetForScannerFrame = {10}
-        // heightForScannerFrame = {300}
-        colorForScannerFrame={'blue'}
       />
     );
   }

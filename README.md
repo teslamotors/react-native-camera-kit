@@ -67,6 +67,9 @@ import { CameraScreen } from 'react-native-camera-kit';
   }}
   cameraFlipImage={require('path/to/image')}
   captureButtonImage={require('path/to/image')}
+  torchOnImage={require('path/to/image')}
+  torchOffImage={require('path/to/image')}
+  hideControls={false} // (default false) optional, hides camera controls
   showCapturedImageCount={false} // (default false) optional, show count for photos taken during that capture session
 />
 ```
@@ -80,14 +83,10 @@ Additionally, the camera screen can be used for barcode scanning
   ...
   // Barcode props
   scanBarcode={true}
-  laserColor={'blue'}
-  frameColor={'yellow'}
   onReadCode={(event) => Alert.alert('Qr code found')} //optional
-  hideControls={false} //(default false) optional, hide buttons and additional controls on top and bottom of screen
   showFrame={true} //(default false) optional, show frame with transparent layer (qr code or barcode will be read on this area ONLY), start animation for scanner,that stoped when find any code. Frame always at center of the screen
-  offsetForScannerFrame={10} //(default 30) optional, offset from left and right side of the screen
-  heightForScannerFrame={300} //(default 200) optional, change height of the scanner frame
-  colorForScannerFrame={'red'} //(default white) optional, change colot of the scanner frame
+  laserColor='red' // (default red) optional, color of laser in scanner frame
+  frameColor='white' // (default white) optional, color of border of scanner frame
 />
 ```
 
@@ -114,6 +113,7 @@ import { Camera } from 'react-native-camera-kit';
 | `flashMode`                    | `'on'`/`'off'`/`'auto'` | Camera flash mode. Default: `auto`                                                                                                                                                                                                                                                                                                            |
 | `focusMode`                    | `'on'`/`'off'`          | Camera focus mode. Default: `on`                                                                                                                                                                                                                                                                                                              |
 | `zoomMode`                     | `'on'`/`'off'`          | Enable pinch to zoom camera. Default: `on`                                                                                                                                                                                                                                                                                                    |
+| `torchMode`                    | `'on'`/`'off'`          | Toggle flash light when camera is active. Default: `off`                                                                                                                                                                                                                                                                                      |
 | `ratioOverlay`                 | `['int':'int', ...]`    | Show a guiding overlay in the camera preview for the selected ratio. Does not crop image as of v9.0. Example: `['16:9', '1:1', '3:4']`                                                                                                                                                                                                        |
 | `ratioOverlayColor`            | Color                   | Any color with alpha. Default: `'#ffffff77'`                                                                                                                                                                                                                                                                                                  |
 | `resetFocusTimeout`            | Number                  | iOS only. Dismiss tap to focus after this many milliseconds. Default `0` (disabled). Example: `5000` is 5 seconds.                                                                                                                                                                                                                            |
