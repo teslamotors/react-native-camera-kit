@@ -26,9 +26,9 @@ RCT_EXPORT_VIEW_PROPERTY(ratioOverlay, NSString)
 RCT_EXPORT_VIEW_PROPERTY(ratioOverlayColor, UIColor)
 
 RCT_EXPORT_VIEW_PROPERTY(onReadCode, RCTDirectEventBlock)
-
-RCT_EXPORT_VIEW_PROPERTY(scannerOptions, NSDictionary)
 RCT_EXPORT_VIEW_PROPERTY(showFrame, BOOL)
+RCT_EXPORT_VIEW_PROPERTY(laserColor, UIColor)
+RCT_EXPORT_VIEW_PROPERTY(frameColor, UIColor)
 RCT_EXPORT_VIEW_PROPERTY(resetFocusTimeout, NSInteger)
 RCT_EXPORT_VIEW_PROPERTY(resetFocusWhenMotionDetected, BOOL)
 RCT_EXPORT_VIEW_PROPERTY(saveToCameraRoll, BOOL)

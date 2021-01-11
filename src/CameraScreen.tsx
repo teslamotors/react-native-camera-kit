@@ -9,7 +9,6 @@ import {
   Dimensions,
   Platform,
   SafeAreaView,
-  processColor,
 } from 'react-native';
 import _ from 'lodash';
 import Camera from './Camera';
@@ -17,8 +16,6 @@ import Camera from './Camera';
 const FLASH_MODE_AUTO = 'auto';
 const FLASH_MODE_ON = 'on';
 const FLASH_MODE_OFF = 'off';
-const OFFSET_FRAME = 30;
-const FRAME_HEIGHT = 200;
 
 const { width, height } = Dimensions.get('window');
 
@@ -33,18 +30,13 @@ export type Props = {
   allowCaptureRetake: boolean,
   cameraRatioOverlay: any,
   showCapturedImageCount?: boolean,
-  scannerOptions: any,
-  offsetForScannerFrame: any,
-  heightForScannerFrame: any,
-  colorForScannerFrame: any,
+  captureButtonImage: any,
   cameraFlipImage: any,
   hideControls: any,
   showFrame: any,
-  captureButtonImage: any,
   scanBarcode: any,
   laserColor: any,
   frameColor: any,
-  surfaceColor: any,
   torchOnImage: any,
   torchOffImage: any,
   onReadCode: (any) => void;
@@ -59,7 +51,6 @@ type State = {
   ratioArrayPosition: number,
   imageCaptured: any,
   captured: boolean,
-  scannerOptions: any,
   cameraType: CameraType,
 }
 
@@ -102,19 +93,16 @@ export default class CameraScreen extends Component<Props, State> {
       ratioArrayPosition: -1,
       imageCaptured: false,
       captured: false,
-      scannerOptions: {},
       cameraType: CameraType.Back,
     };
   }
 
   componentDidMount() {
-    const scannerOptions = this.getScannerOptions();
     let ratios = [];
     if (this.props.cameraRatioOverlay) {
       ratios = this.props.cameraRatioOverlay.ratios || [];
     }
     this.setState({
-      scannerOptions,
       ratios: ratios || [],
       ratioArrayPosition: ratios.length > 0 ? 0 : -1,
     });
@@ -122,18 +110,6 @@ export default class CameraScreen extends Component<Props, State> {
 
   isCaptureRetakeMode() {
     return !!(this.props.allowCaptureRetake && !_.isUndefined(this.state.imageCaptured));
-  }
-
-  getScannerOptions() {
-    const scannerOptions = this.props.scannerOptions || {};
-    scannerOptions.offsetFrame = this.props.offsetForScannerFrame || OFFSET_FRAME;
-    scannerOptions.frameHeight = this.props.heightForScannerFrame || FRAME_HEIGHT;
-    if (this.props.colorForScannerFrame) {
-      scannerOptions.colorForFrame = processColor(this.props.colorForScannerFrame);
-    } else {
-      scannerOptions.colorForFrame = processColor('white');
-    }
-    return scannerOptions;
   }
 
   renderFlashButton() {
@@ -211,9 +187,7 @@ export default class CameraScreen extends Component<Props, State> {
             scanBarcode={this.props.scanBarcode}
             laserColor={this.props.laserColor}
             frameColor={this.props.frameColor}
-            surfaceColor={this.props.surfaceColor}
             onReadCode={this.props.onReadCode}
-            scannerOptions={this.state.scannerOptions}
           />
         )}
       </View>
