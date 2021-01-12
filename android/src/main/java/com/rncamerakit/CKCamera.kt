@@ -191,9 +191,6 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
             }
             orientationListener!!.enable()
 
-            // Contain camera feed image within component bounds, centered
-            viewFinder.scaleType = PreviewView.ScaleType.FILL_CENTER
-
             // Tap to focus
             viewFinder.setOnTouchListener { _, event ->
                 if (event.action != MotionEvent.ACTION_UP) {
