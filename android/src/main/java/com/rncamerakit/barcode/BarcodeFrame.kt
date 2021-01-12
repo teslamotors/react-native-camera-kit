@@ -8,9 +8,6 @@ import androidx.annotation.ColorInt
 import com.rncamerakit.R
 
 class BarcodeFrame(context: Context) : View(context) {
-
-    private var dimPaint: Paint = Paint()
-    private var framePaint: Paint = Paint()
     private var borderPaint: Paint = Paint()
     private var laserPaint: Paint = Paint()
     var frameRect: Rect = Rect()
@@ -22,9 +19,6 @@ class BarcodeFrame(context: Context) : View(context) {
     private var laserY = 0
 
     private fun init(context: Context) {
-        framePaint.xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
-        dimPaint.style = Paint.Style.FILL
-        dimPaint.color = context.resources.getColor(R.color.bg_dark)
         borderPaint = Paint()
         borderPaint.style = Paint.Style.STROKE
         borderPaint.strokeWidth = STROKE_WIDTH.toFloat()
@@ -48,8 +42,6 @@ class BarcodeFrame(context: Context) : View(context) {
     override fun onDraw(canvas: Canvas) {
         val timeElapsed = System.currentTimeMillis() - previousFrameTime
         super.onDraw(canvas)
-        canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), dimPaint)
-        canvas.drawRect(frameRect, framePaint)
         drawBorder(canvas)
         drawLaser(canvas, timeElapsed)
         previousFrameTime = System.currentTimeMillis()
