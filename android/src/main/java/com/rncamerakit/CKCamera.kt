@@ -203,36 +203,38 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
                 return@setOnTouchListener true
             }
 
-            qrCodeAnalyzer = ImageAnalysis.Builder()
-                    .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                    .build()
+            if (scanBarcode && qrCodeAnalyzer == null) {
+                val useCases = mutableListOf(preview, imageCapture)
 
-            val useCases = mutableListOf(preview, imageCapture)
+                qrCodeAnalyzer = ImageAnalysis.Builder()
+                        .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                        .build()
 
-            if (scanBarcode) {
                 val analyzer = QRCodeAnalyzer { barcodes ->
                     if (barcodes.isNotEmpty()) {
                         onBarcodeRead(barcodes)
                     }
                 }
+
                 qrCodeAnalyzer!!.setAnalyzer(cameraExecutor, analyzer)
+
                 useCases.add(qrCodeAnalyzer!!)
-            }
 
-            try {
-                // Unbind use cases before rebinding
-                cameraProvider!!.unbindAll()
+                try {
+                    // Unbind use cases before rebinding
+                    cameraProvider!!.unbindAll()
 
-                // Bind use cases to camera
-                camera = cameraProvider!!.bindToLifecycle(
-                        getActivity() as AppCompatActivity,
-                        cameraSelector,
-                        *useCases.toTypedArray()
-                )
-                preview!!.setSurfaceProvider(viewFinder.surfaceProvider)
-                Log.d(TAG, "CameraView: Use cases bound")
-            } catch (exc: Exception) {
-                Log.e(TAG, "CameraView: Use cases binding failed", exc)
+                    // Bind use cases to camera
+                    camera = cameraProvider!!.bindToLifecycle(
+                            getActivity() as AppCompatActivity,
+                            cameraSelector,
+                            *useCases.toTypedArray()
+                    )
+                    preview!!.setSurfaceProvider(viewFinder.surfaceProvider)
+                    Log.d(TAG, "CameraView: Use cases bound")
+                } catch (exc: Exception) {
+                    Log.e(TAG, "CameraView: Use cases binding failed", exc)
+                }
             }
         }, ContextCompat.getMainExecutor(getActivity()))
     }
