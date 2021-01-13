@@ -14,6 +14,7 @@ import android.hardware.SensorManager
 import android.media.AudioManager
 import android.media.MediaActionSound
 import android.provider.MediaStore
+import android.util.DisplayMetrics
 import android.util.Log
 import android.view.*
 import android.widget.FrameLayout
@@ -31,13 +32,16 @@ import androidx.lifecycle.OnLifecycleEvent
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.WritableMap
-import com.facebook.react.common.ReactConstants.TAG
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.events.RCTEventEmitter
 import com.rncamerakit.barcode.BarcodeFrame
 import java.io.File
+import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.min
 
 @SuppressLint("ViewConstructor") // Extra constructors unused. Not using visual layout tools
 class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObserver {
@@ -46,9 +50,9 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
     private var camera: Camera? = null
     private var preview: Preview? = null
     private var imageCapture: ImageCapture? = null
-    private var qrCodeAnalyzer: ImageAnalysis? = null
-    private var cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+    private var imageAnalyzer: ImageAnalysis? = null
     private var orientationListener: OrientationEventListener? = null
+    private var scaleDetector: ScaleGestureDetector? = null
     private var viewFinder: PreviewView = PreviewView(context)
     private var barcodeFrame: BarcodeFrame? = null
     private var cameraExecutor: ExecutorService = Executors.newSingleThreadExecutor()
@@ -56,7 +60,6 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
     private var outputPath: String? = null
     private var shutterAnimationDuration: Int = 50
     private var effectLayer = View(context)
-    private var counter = 0
 
     // Camera Props
     private var lensType = CameraSelector.LENS_FACING_BACK
@@ -65,8 +68,6 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
 
     // Barcode Props
     private var scanBarcode: Boolean = false
-    private var showFrame = false
-    private var frameRect: Rect? = null
     private var frameColor = Color.GREEN
     private var laserColor = Color.RED
 
@@ -86,37 +87,19 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
         effectLayer.setBackgroundColor(Color.BLACK)
         addView(effectLayer)
 
-        if (hasPermissions()) {
-            viewFinder.post { startCamera() }
-        }
-
         (getActivity() as AppCompatActivity).lifecycle.addObserver(this)
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-    fun onResume() {
-        Log.d(TAG, "onResume")
-        viewFinder.post { startCamera() }
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-    fun onPause() {
-        Log.d(TAG, "onPause")
-        stopCamera()
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    fun onDestroy() {
-        Log.d(TAG, "onDestroy")
-        stopCamera()
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        if (hasPermissions()) {
+            viewFinder.post { setupCamera() }
+        }
     }
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        stopCamera()
-    }
 
-    private fun stopCamera() {
         cameraExecutor.shutdown()
         orientationListener?.disable()
         cameraProvider?.unbindAll()
@@ -141,33 +124,13 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
         }
     }
 
+    /** Initialize CameraX, and prepare to bind the camera use cases  */
     @SuppressLint("ClickableViewAccessibility")
-    private fun startCamera() {
+    private fun setupCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(getActivity())
-
-        val onScaleGestureListener = object: ScaleGestureDetector.SimpleOnScaleGestureListener() {
-            override fun onScale(detector: ScaleGestureDetector?): Boolean {
-                if (zoomMode == "off") return true
-                val cameraControl = camera?.cameraControl ?: return true
-                val zoom = camera?.cameraInfo?.zoomState?.value?.zoomRatio ?: return true
-                val scaleFactor = detector?.scaleFactor ?: return true
-                val scale = zoom * scaleFactor
-
-                cameraControl.setZoomRatio(scale)
-                return true
-            }
-        }
-
         cameraProviderFuture.addListener(Runnable {
             // Used to bind the lifecycle of cameras to the lifecycle owner
             cameraProvider = cameraProviderFuture.get()
-            val scaleDetector = ScaleGestureDetector(context, onScaleGestureListener)
-
-            cameraSelector = CameraSelector.Builder().requireLensFacing(lensType).build()
-            preview = Preview.Builder().build().also {
-                it.setSurfaceProvider(viewFinder.surfaceProvider)
-            }
-            imageCapture = ImageCapture.Builder().build()
 
             // Rotate the image according to device orientation, even when UI orientation is locked
             orientationListener = object : OrientationEventListener(context, SensorManager.SENSOR_DELAY_UI) {
@@ -191,47 +154,117 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
             }
             orientationListener!!.enable()
 
+            scaleDetector =  ScaleGestureDetector(context, object: ScaleGestureDetector.SimpleOnScaleGestureListener() {
+                override fun onScale(detector: ScaleGestureDetector?): Boolean {
+                    if (zoomMode == "off") return true
+                    val cameraControl = camera?.cameraControl ?: return true
+                    val zoom = camera?.cameraInfo?.zoomState?.value?.zoomRatio ?: return true
+                    val scaleFactor = detector?.scaleFactor ?: return true
+                    val scale = zoom * scaleFactor
+                    cameraControl.setZoomRatio(scale)
+                    return true
+                }
+            })
+
             // Tap to focus
             viewFinder.setOnTouchListener { _, event ->
                 if (event.action != MotionEvent.ACTION_UP) {
-                    return@setOnTouchListener scaleDetector.onTouchEvent(event)
+                    return@setOnTouchListener scaleDetector!!.onTouchEvent(event)
                 }
                 focusOnPoint(event.x, event.y)
                 return@setOnTouchListener true
             }
 
-            qrCodeAnalyzer = ImageAnalysis.Builder()
-                    .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                    .build()
-
-            val useCases = mutableListOf(preview, imageCapture)
-
-            if (scanBarcode) {
-                val analyzer = QRCodeAnalyzer { barcodes ->
-                    if (barcodes.isNotEmpty()) {
-                        onBarcodeRead(barcodes)
-                    }
-                }
-                qrCodeAnalyzer!!.setAnalyzer(cameraExecutor, analyzer)
-                useCases.add(qrCodeAnalyzer!!)
-            }
-
-            try {
-                // Unbind use cases before rebinding
-                cameraProvider!!.unbindAll()
-
-                // Bind use cases to camera
-                camera = cameraProvider!!.bindToLifecycle(
-                        getActivity() as AppCompatActivity,
-                        cameraSelector,
-                        *useCases.toTypedArray()
-                )
-                preview!!.setSurfaceProvider(viewFinder.surfaceProvider)
-                Log.d(TAG, "CameraView: Use cases bound")
-            } catch (exc: Exception) {
-                Log.e(TAG, "CameraView: Use cases binding failed", exc)
-            }
+            bindCameraUseCases()
         }, ContextCompat.getMainExecutor(getActivity()))
+    }
+
+    private fun bindCameraUseCases() {
+        if (viewFinder.display == null) return
+        // Get screen metrics used to setup camera for full screen resolution
+        val metrics = DisplayMetrics().also { viewFinder.display.getRealMetrics(it) }
+        Log.d(TAG, "Screen metrics: ${metrics.widthPixels} x ${metrics.heightPixels}")
+
+        val screenAspectRatio = aspectRatio(metrics.widthPixels, metrics.heightPixels)
+        Log.d(TAG, "Preview aspect ratio: $screenAspectRatio")
+
+        val rotation = viewFinder.display.rotation
+
+        // CameraProvider
+        val cameraProvider = cameraProvider
+                ?: throw IllegalStateException("Camera initialization failed.")
+
+        // CameraSelector
+        val cameraSelector = CameraSelector.Builder().requireLensFacing(lensType).build()
+
+        // Preview
+        preview = Preview.Builder()
+                // We request aspect ratio but no resolution
+                .setTargetAspectRatio(screenAspectRatio)
+                // Set initial target rotation
+                .setTargetRotation(rotation)
+                .build()
+
+        // ImageCapture
+        imageCapture = ImageCapture.Builder()
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+                // We request aspect ratio but no resolution to match preview config, but letting
+                // CameraX optimize for whatever specific resolution best fits our use cases
+                .setTargetAspectRatio(screenAspectRatio)
+                // Set initial target rotation, we will have to call this again if rotation changes
+                // during the lifecycle of this use case
+                .setTargetRotation(rotation)
+                .build()
+
+        // ImageAnalysis
+        imageAnalyzer = ImageAnalysis.Builder()
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                .build()
+
+        val useCases = mutableListOf(preview, imageCapture)
+
+        if (scanBarcode) {
+            val analyzer = QRCodeAnalyzer { barcodes ->
+                if (barcodes.isNotEmpty()) {
+                    onBarcodeRead(barcodes)
+                }
+            }
+            imageAnalyzer!!.setAnalyzer(cameraExecutor, analyzer)
+            useCases.add(imageAnalyzer)
+        }
+
+        // Must unbind the use-cases before rebinding them
+        cameraProvider.unbindAll()
+
+        try {
+            // A variable number of use-cases can be passed here -
+            // camera provides access to CameraControl & CameraInfo
+            camera = cameraProvider.bindToLifecycle(getActivity() as AppCompatActivity, cameraSelector, *useCases.toTypedArray())
+
+            // Attach the viewfinder's surface provider to preview use case
+            preview?.setSurfaceProvider(viewFinder.surfaceProvider)
+        } catch (exc: Exception) {
+            Log.e(TAG, "Use case binding failed", exc)
+        }
+    }
+
+    /**
+     *  [androidx.camera.core.ImageAnalysisConfig] requires enum value of
+     *  [androidx.camera.core.AspectRatio]. Currently it has values of 4:3 & 16:9.
+     *
+     *  Detecting the most suitable ratio for dimensions provided in @params by counting absolute
+     *  of preview ratio to one of the provided values.
+     *
+     *  @param width - preview width
+     *  @param height - preview height
+     *  @return suitable aspect ratio
+     */
+    private fun aspectRatio(width: Int, height: Int): Int {
+        val previewRatio = max(width, height).toDouble() / min(width, height)
+        if (abs(previewRatio - RATIO_4_3_VALUE) <= abs(previewRatio - RATIO_16_9_VALUE)) {
+            return AspectRatio.RATIO_4_3
+        }
+        return AspectRatio.RATIO_16_9
     }
 
     private fun flashViewFinder() {
@@ -299,7 +332,6 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
                     imageInfo.putString("uri", savedUri)
                     imageInfo.putString("id", output.savedUri?.path)
                     imageInfo.putString("name", output.savedUri?.lastPathSegment)
-                    // imageInfo.putInt("size", null)
                     imageInfo.putInt("width", width)
                     imageInfo.putInt("height", height)
                     imageInfo.putString("path", output.savedUri?.path)
@@ -419,7 +451,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
     fun setScanBarcode(enabled: Boolean) {
         val restartCamera = enabled != scanBarcode
         scanBarcode = enabled
-        if (restartCamera) startCamera()
+        if (restartCamera) bindCameraUseCases()
     }
 
     fun setCameraType(type: String = "back") {
@@ -429,7 +461,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
         }
         val restartCamera = lensType != newLensType
         lensType = newLensType
-        if (restartCamera) startCamera()
+        if (restartCamera) bindCameraUseCases()
     }
 
     fun setOutputPath(path: String) {
@@ -484,5 +516,12 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
                 42 // random callback identifier
         )
         return false
+    }
+
+    companion object {
+
+        private const val TAG = "CameraKit"
+        private const val RATIO_4_3_VALUE = 4.0 / 3.0
+        private const val RATIO_16_9_VALUE = 16.0 / 9.0
     }
 }
