@@ -9,7 +9,6 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Color
-import android.graphics.Rect
 import android.hardware.SensorManager
 import android.media.AudioManager
 import android.media.MediaActionSound
@@ -26,9 +25,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.WritableMap
@@ -52,7 +49,6 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
     private var imageCapture: ImageCapture? = null
     private var imageAnalyzer: ImageAnalysis? = null
     private var orientationListener: OrientationEventListener? = null
-    private var scaleDetector: ScaleGestureDetector? = null
     private var viewFinder: PreviewView = PreviewView(context)
     private var barcodeFrame: BarcodeFrame? = null
     private var cameraExecutor: ExecutorService = Executors.newSingleThreadExecutor()
@@ -86,8 +82,6 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
         effectLayer.alpha = 0F
         effectLayer.setBackgroundColor(Color.BLACK)
         addView(effectLayer)
-
-        (getActivity() as AppCompatActivity).lifecycle.addObserver(this)
     }
 
     override fun onAttachedToWindow() {
@@ -154,7 +148,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
             }
             orientationListener!!.enable()
 
-            scaleDetector =  ScaleGestureDetector(context, object: ScaleGestureDetector.SimpleOnScaleGestureListener() {
+            val scaleDetector =  ScaleGestureDetector(context, object: ScaleGestureDetector.SimpleOnScaleGestureListener() {
                 override fun onScale(detector: ScaleGestureDetector?): Boolean {
                     if (zoomMode == "off") return true
                     val cameraControl = camera?.cameraControl ?: return true
@@ -169,7 +163,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
             // Tap to focus
             viewFinder.setOnTouchListener { _, event ->
                 if (event.action != MotionEvent.ACTION_UP) {
-                    return@setOnTouchListener scaleDetector!!.onTouchEvent(event)
+                    return@setOnTouchListener scaleDetector.onTouchEvent(event)
                 }
                 focusOnPoint(event.x, event.y)
                 return@setOnTouchListener true
