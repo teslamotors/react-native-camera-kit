@@ -23,7 +23,7 @@ function Camera(props, ref) {
   const transformedProps = _.cloneDeep(props);
   _.update(transformedProps, 'cameraOptions.ratioOverlayColor', (c) => processColor(c));
 
-  return <NativeCamera ref={nativeRef} {...transformedProps} />;
+  return <NativeCamera style={{flex: 1}} ref={nativeRef} {...transformedProps} />;
 }
 
 Camera.defaultProps = {

@@ -121,7 +121,6 @@ import { Camera, CameraType } from 'react-native-camera-kit';
 ```tsx
 <Camera
   ref={(ref) => (this.camera = ref)}
-  style={{ flex: 1 }}
   cameraType={CameraType.Back} // front/back(default)
 />
 ```

@@ -10,7 +10,6 @@ export default class CameraExample extends Component {
         <Camera
           ref={this.camera}
           cameraType={CameraType.Back} // optional
-          style={{ flex: 1 }}
           flashMode="auto" // on/off/auto(default)
           focusMode="on" // off/on(default)
           zoomMode="on" // off/on(default)
