@@ -52,11 +52,11 @@ cd ios && pod install && cd ..
 
 Full screen camera component that holds camera state and provides camera controls
 
-```js
+```ts
 import { CameraScreen } from 'react-native-camera-kit';
 ```
 
-```jsx
+```tsx
 <CameraScreen
   actions={{ rightButtonText: 'Done', leftButtonText: 'Cancel' }}
   onBottomButtonPressed={(event) => this.onBottomButtonPressed(event)}
@@ -78,7 +78,7 @@ import { CameraScreen } from 'react-native-camera-kit';
 
 Additionally, the camera screen can be used for barcode scanning
 
-```js
+```tsx
 <CameraScreen
   ...
   // Barcode props
@@ -94,11 +94,11 @@ Additionally, the camera screen can be used for barcode scanning
 
 Barebones camera component
 
-```js
-import { Camera } from 'react-native-camera-kit';
+```ts
+import { Camera, CameraType } from 'react-native-camera-kit';
 ```
 
-```jsx
+```tsx
 <Camera
   ref={(ref) => (this.camera = ref)}
   style={{ flex: 1 }}
@@ -140,13 +140,13 @@ _Note: Must be called on a valid camera ref_
 
 Capture image (`{ saveToCameraRoll: boolean }`). Using the camera roll is slower than using regular files stored in your app. On an iPhone X in debug mode, on a real phone, we measured around 100-150ms processing time to save to the camera roll.
 
-```js
+```ts
 const image = await this.camera.capture();
 ```
 
 #### checkDeviceCameraAuthorizationStatus (iOS only)
 
-```js
+```ts
 const isCameraAuthorized = await Camera.checkDeviceCameraAuthorizationStatus();
 ```
 
@@ -160,7 +160,7 @@ otherwise, returns `false`
 
 #### requestDeviceCameraAuthorization (iOS only)
 
-```js
+```ts
 const isUserAuthorizedCamera = await Camera.requestDeviceCameraAuthorization();
 ```
 
