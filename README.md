@@ -41,6 +41,26 @@ yarn add react-native-camera-kit
 cd ios && pod install && cd ..
 ```
 
+## Permissions
+
+#### Android
+
+Add the following uses-permission to your `AndroidManifest.xml` (usually found at: `android/src/main/`)
+
+```java
+<uses-permission android:name="android.permission.CAMERA" />
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+```
+
+#### iOS
+
+Add the following usage description to your `Info.plist` (usually found at: `ios/PROJECT_NAME/`)
+
+```xml
+<key>NSCameraUsageDescription</key>
+<string>For taking photos</string>
+```
+
 ## Running the example project
 
 - `yarn bootstrap`
@@ -52,11 +72,11 @@ cd ios && pod install && cd ..
 
 Full screen camera component that holds camera state and provides camera controls
 
-```js
+```ts
 import { CameraScreen } from 'react-native-camera-kit';
 ```
 
-```jsx
+```tsx
 <CameraScreen
   actions={{ rightButtonText: 'Done', leftButtonText: 'Cancel' }}
   onBottomButtonPressed={(event) => this.onBottomButtonPressed(event)}
@@ -78,13 +98,13 @@ import { CameraScreen } from 'react-native-camera-kit';
 
 Additionally, the camera screen can be used for barcode scanning
 
-```js
+```tsx
 <CameraScreen
   ...
   // Barcode props
   scanBarcode={true}
-  onReadCode={(event) => Alert.alert('Qr code found')} //optional
-  showFrame={true} //(default false) optional, show frame with transparent layer (qr code or barcode will be read on this area ONLY), start animation for scanner,that stoped when find any code. Frame always at center of the screen
+  onReadCode={(event) => Alert.alert('QR code found')} // optional
+  showFrame={true} // (default false) optional, show frame with transparent layer (qr code or barcode will be read on this area ONLY), start animation for scanner,that stoped when find any code. Frame always at center of the screen
   laserColor='red' // (default red) optional, color of laser in scanner frame
   frameColor='white' // (default white) optional, color of border of scanner frame
 />
@@ -94,14 +114,13 @@ Additionally, the camera screen can be used for barcode scanning
 
 Barebones camera component
 
-```js
-import { Camera } from 'react-native-camera-kit';
+```ts
+import { Camera, CameraType } from 'react-native-camera-kit';
 ```
 
-```jsx
+```tsx
 <Camera
   ref={(ref) => (this.camera = ref)}
-  style={{ flex: 1 }}
   cameraType={CameraType.Back} // front/back(default)
 />
 ```
@@ -140,13 +159,13 @@ _Note: Must be called on a valid camera ref_
 
 Capture image (`{ saveToCameraRoll: boolean }`). Using the camera roll is slower than using regular files stored in your app. On an iPhone X in debug mode, on a real phone, we measured around 100-150ms processing time to save to the camera roll.
 
-```js
+```ts
 const image = await this.camera.capture();
 ```
 
 #### checkDeviceCameraAuthorizationStatus (iOS only)
 
-```js
+```ts
 const isCameraAuthorized = await Camera.checkDeviceCameraAuthorizationStatus();
 ```
 
@@ -160,7 +179,7 @@ otherwise, returns `false`
 
 #### requestDeviceCameraAuthorization (iOS only)
 
-```js
+```ts
 const isUserAuthorizedCamera = await Camera.requestDeviceCameraAuthorization();
 ```
 
