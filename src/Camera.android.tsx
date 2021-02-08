@@ -27,7 +27,7 @@ function Camera(props, ref) {
 
   return (
     <NativeCamera
-      style={{minWidth: 100, minHeight: 100}}
+      style={{ minWidth: 100, minHeight: 100 }}
       flashMode={props.flashMode}
       ref={nativeRef}
       {...transformedProps}
