@@ -54,11 +54,14 @@ Add the following uses-permission to your `AndroidManifest.xml` (usually found a
 
 #### iOS
 
-Add the following usage description to your `Info.plist` (usually found at: `ios/PROJECT_NAME/`)
+Add the following usage descriptions to your `Info.plist` (usually found at: `ios/PROJECT_NAME/`)
 
 ```xml
 <key>NSCameraUsageDescription</key>
 <string>For taking photos</string>
+
+<key>NSPhotoLibraryUsageDescription</key>
+<string>For saving photos</string>
 ```
 
 ## Running the example project
@@ -81,14 +84,15 @@ import { CameraScreen } from 'react-native-camera-kit';
   actions={{ rightButtonText: 'Done', leftButtonText: 'Cancel' }}
   onBottomButtonPressed={(event) => this.onBottomButtonPressed(event)}
   flashImages={{
+    // optional, images for flash state
     on: require('path/to/image'),
     off: require('path/to/image'),
     auto: require('path/to/image'),
   }}
-  cameraFlipImage={require('path/to/image')}
-  captureButtonImage={require('path/to/image')}
-  torchOnImage={require('path/to/image')}
-  torchOffImage={require('path/to/image')}
+  cameraFlipImage={require('path/to/image')} // optional, image for flipping camera button
+  captureButtonImage={require('path/to/image')} // optional, image capture button
+  torchOnImage={require('path/to/image')} // optional, image for toggling on flash light
+  torchOffImage={require('path/to/image')} // optional, image for toggling off flash light
   hideControls={false} // (default false) optional, hides camera controls
   showCapturedImageCount={false} // (default false) optional, show count for photos taken during that capture session
 />
