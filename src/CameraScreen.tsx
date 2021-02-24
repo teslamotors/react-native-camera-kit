@@ -281,7 +281,7 @@ export default class CameraScreen extends Component<Props, State> {
     return (
       !this.props.hideControls && (
         <SafeAreaView style={[styles.bottomButtons, { backgroundColor: '#ffffff00' }]}>
-          {/*this.renderBottomButton('left')*/}
+          {this.renderBottomButton('left')}
           {this.renderCaptureButton()}
         </SafeAreaView>
       )
