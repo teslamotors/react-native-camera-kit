@@ -41,6 +41,9 @@ yarn add react-native-camera-kit
 cd ios && pod install && cd ..
 ```
 
+Android:
+[Add Kotlin to your project](./docs/kotlin.md)
+
 ## Permissions
 
 #### Android
