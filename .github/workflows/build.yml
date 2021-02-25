@@ -26,4 +26,4 @@ jobs:
         - name: Bootstrap
           run: yarn bootstrap
         - name: Build
-          run: cd example/android && ./gradlew assembleDebug
+          run: cd example/android && ./gradlew assembleDebug --warning-mode=fail
