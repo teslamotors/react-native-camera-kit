@@ -3,8 +3,8 @@
 </h1>
 
 <p align="center">
-  A <strong>high performance, fully featured, rock solid</strong><br>
-  camera library for React Native applications
+  A <strong>high performance, easy to use, rock solid</strong><br>
+  camera library for React Native apps.
 </p>
 
 <p align="center">
