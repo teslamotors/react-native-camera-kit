@@ -41,10 +41,10 @@ module.exports = {
       },
     ],
     'import/no-unresolved': ['error', { commonjs: true, amd: true }],
-    'import/named': 'error',
-    'import/namespace': 'error',
-    'import/default': 'error',
-    'import/export': 'error',
+    //'import/named': 'error',
+    //'import/namespace': 'error',
+    //'import/default': 'error',
+    //'import/export': 'error',
   },
   settings: {
     'import/ignore': ['node_modules/react-native/index\\.js$'], // https://github.com/facebook/react-native/issues/28549

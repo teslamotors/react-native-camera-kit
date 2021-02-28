@@ -11,6 +11,7 @@ module.exports = {
           [pak.name]: path.join(__dirname, '..', pak.source),
         },
       },
+      'optional-require',
     ],
   ],
 };

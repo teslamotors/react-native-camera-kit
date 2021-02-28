@@ -9,6 +9,7 @@ import {
 import CameraScreenExample from './CameraScreenExample';
 import BarcodeScreenExample from './BarcodeScreenExample';
 import CameraExample from './CameraExample';
+import CameraScreenExampleWithCustomComponentAsIcon from './CameraScreenExampleWithCustomComponentAsIcon';
 
 export default class App extends Component {
 
@@ -46,6 +47,13 @@ export default class App extends Component {
           <TouchableOpacity style={styles.button} onPress={() => this.setState({ example: BarcodeScreenExample })}>
             <Text style={styles.buttonText}>
               Barcode Scanner
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button}
+            onPress={() => this.setState({ example: CameraScreenExampleWithCustomComponentAsIcon })}
+          >
+            <Text style={styles.buttonText}>
+              Camera Screen with custom icons
             </Text>
           </TouchableOpacity>
         </View>

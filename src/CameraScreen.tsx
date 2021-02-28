@@ -9,6 +9,8 @@ import {
   Dimensions,
   Platform,
   SafeAreaView,
+  ImageSourcePropType,
+  ColorPropType,
 } from 'react-native';
 import _ from 'lodash';
 import Camera from './Camera';
@@ -24,28 +26,33 @@ export enum CameraType {
   Back = 'back'
 }
 
+export type FlashMode = typeof FLASH_MODE_AUTO | typeof FLASH_MODE_ON | typeof FLASH_MODE_OFF;
+export type IconType = ImageSourcePropType | React.ReactElement;
+export type FlashDataType = {
+  [key in FlashMode]: IconType;
+};
 export type Props = {
   ratioOverlay?: string,
   ratioOverlayColor?: string,
   allowCaptureRetake: boolean,
   cameraRatioOverlay: any,
   showCapturedImageCount?: boolean,
-  captureButtonImage: any,
-  cameraFlipImage: any,
+  captureButtonImage: IconType,
+  cameraFlipImage: IconType,
   hideControls: any,
   showFrame: any,
   scanBarcode: any,
   laserColor: any,
   frameColor: any,
-  torchOnImage: any,
-  torchOffImage: any,
+  torchOnImage: IconType,
+  torchOffImage: IconType,
+  flashData: FlashDataType,
   onReadCode: (any) => void;
   onBottomButtonPressed: (any) => void;
 }
 
 type State = {
   captureImages: any[],
-  flashData: any,
   torchMode: boolean,
   ratios: any[],
   ratioArrayPosition: number,
@@ -64,30 +71,14 @@ export default class CameraScreen extends Component<Props, State> {
   };
 
   currentFlashArrayPosition: number;
-  flashArray: any[];
   camera: any;
 
   constructor(props) {
     super(props);
     this.currentFlashArrayPosition = 0;
-    this.flashArray = [
-      {
-        mode: FLASH_MODE_AUTO,
-        image: _.get(this.props, 'flashImages.auto'),
-      },
-      {
-        mode: FLASH_MODE_ON,
-        image: _.get(this.props, 'flashImages.on'),
-      },
-      {
-        mode: FLASH_MODE_OFF,
-        image: _.get(this.props, 'flashImages.off'),
-      },
-    ];
 
     this.state = {
       captureImages: [],
-      flashData: this.flashArray[this.currentFlashArrayPosition],
       torchMode: false,
       ratios: [],
       ratioArrayPosition: -1,
@@ -113,28 +104,45 @@ export default class CameraScreen extends Component<Props, State> {
   }
 
   renderFlashButton() {
+    const _component = this.currentFlashArrayPosition === 0 ?
+      this.props.flashData.auto : this.currentFlashArrayPosition === 1 ?
+        this.props.flashData.on : this.props.flashData.off;
+
     return (
       !this.isCaptureRetakeMode() && (
         <TouchableOpacity style={{ paddingHorizontal: 15 }} onPress={() => this.onSetFlash()}>
-          <Image
-            style={{ flex: 1, justifyContent: 'center' }}
-            source={this.state.flashData.image}
-            resizeMode="contain"
-          />
+          {React.isValidElement(_component) ?
+            <View style={{flex: 1, justifyContent: 'center'}}>
+              {_component}
+            </View>
+            :
+            <Image
+              style={{ flex: 1, justifyContent: 'center' }}
+              source={_component}
+              resizeMode="contain"
+            />
+          }
         </TouchableOpacity>
       )
     );
   }
 
   renderTorchButton() {
+    const _component = this.state.torchMode ? this.props.torchOnImage : this.props.torchOffImage;
     return (
       !this.isCaptureRetakeMode() && (
         <TouchableOpacity style={{ paddingHorizontal: 15 }} onPress={() => this.onSetTorch()}>
-          <Image
-            style={{ flex: 1, justifyContent: 'center' }}
-            source={this.state.torchMode ? this.props.torchOnImage : this.props.torchOffImage}
-            resizeMode="contain"
-          />
+          {React.isValidElement(_component) ?
+            <View style={{flex: 1, justifyContent: 'center'}}>
+              {_component}
+            </View>
+            :
+            <Image
+              style={{ flex: 1, justifyContent: 'center' }}
+              source={_component}
+              resizeMode="contain"
+            />
+          }
         </TouchableOpacity>
       )
     );
@@ -145,11 +153,17 @@ export default class CameraScreen extends Component<Props, State> {
       this.props.cameraFlipImage &&
       !this.isCaptureRetakeMode() && (
         <TouchableOpacity style={{ paddingHorizontal: 15 }} onPress={() => this.onSwitchCameraPressed()}>
-          <Image
-            style={{ flex: 1, justifyContent: 'center' }}
-            source={this.props.cameraFlipImage}
-            resizeMode="contain"
-          />
+          {React.isValidElement(this.props.cameraFlipImage) ?
+            <View style={{flex: 1, justifyContent: 'center'}}>
+              {this.props.cameraFlipImage}
+            </View>
+            :
+            <Image
+              style={{ flex: 1, justifyContent: 'center' }}
+              source={this.props.cameraFlipImage}
+              resizeMode="contain"
+            />
+          }
         </TouchableOpacity>
       )
     );
@@ -177,7 +191,8 @@ export default class CameraScreen extends Component<Props, State> {
             ref={(cam) => (this.camera = cam)}
             style={{ flex: 1, justifyContent: 'flex-end' }}
             cameraType={this.state.cameraType}
-            flashMode={this.state.flashData.mode}
+            flashMode={this.currentFlashArrayPosition === 0 ? FLASH_MODE_AUTO :
+              this.currentFlashArrayPosition === 1 ? FLASH_MODE_ON : FLASH_MODE_OFF}
             torchMode={this.state.torchMode ? 'on' : 'off'}
             focusMode={this.props.focusMode}
             zoomMode={this.props.zoomMode}
@@ -211,12 +226,22 @@ export default class CameraScreen extends Component<Props, State> {
       !this.isCaptureRetakeMode() && (
         <View style={styles.captureButtonContainer}>
           <TouchableOpacity onPress={() => this.onCaptureImagePressed()}>
-            <Image source={this.props.captureButtonImage} resizeMode="contain" />
+            {React.isValidElement(this.props.captureButtonImage) ?
+              <View style={{flex: 1, justifyContent: 'center'}}>
+                {this.props.captureButtonImage}
+              </View>
+              :
+              <Image
+                source={this.props.captureButtonImage}
+                resizeMode="contain"
+              />
+            }
             {this.props.showCapturedImageCount && (
               <View style={styles.textNumberContainer}>
                 <Text>{this.numberOfImagesTaken()}</Text>
               </View>
             )}
+
           </TouchableOpacity>
         </View>
       )
@@ -295,8 +320,7 @@ export default class CameraScreen extends Component<Props, State> {
 
   onSetFlash() {
     this.currentFlashArrayPosition = (this.currentFlashArrayPosition + 1) % 3;
-    const newFlashData = this.flashArray[this.currentFlashArrayPosition];
-    this.setState({ flashData: newFlashData });
+    this.setState({}); // forces a rerender
   }
 
   onSetTorch() {
