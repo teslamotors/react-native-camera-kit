@@ -3,10 +3,22 @@ import _ from 'lodash';
 import { requireNativeComponent, findNodeHandle, NativeModules, processColor } from 'react-native';
 
 const { RNCameraKitModule } = NativeModules;
-const NativeCamera = requireNativeComponent('CKCameraManager');
 
-function Camera(props, ref) {
-  const nativeRef = React.useRef();
+type AndroidFlashMode = 'on' | 'off' | 'auto';
+
+interface NativeCameraProps {
+  style: any;
+  flashMode: AndroidFlashMode;
+}
+
+const NativeCamera = requireNativeComponent<NativeCameraProps>('CKCameraManager');
+
+interface Props {
+  flashMode: AndroidFlashMode;
+}
+
+const Camera: React.ForwardRefRenderFunction<{}, Props> = ({flashMode, ...props}, ref) => {
+  const nativeRef = React.useRef<any>();
 
   React.useImperativeHandle(ref, () => ({
     capture: async (options = {}) => {
@@ -28,11 +40,11 @@ function Camera(props, ref) {
   return (
     <NativeCamera
       style={{ minWidth: 100, minHeight: 100 }}
-      flashMode={props.flashMode}
+      flashMode={flashMode}
       ref={nativeRef}
       {...transformedProps}
     />);
-}
+};
 
 const { PORTRAIT, PORTRAIT_UPSIDE_DOWN, LANDSCAPE_LEFT, LANDSCAPE_RIGHT } = RNCameraKitModule.getConstants();
 

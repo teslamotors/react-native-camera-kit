@@ -10,10 +10,9 @@ import {
   Platform,
   SafeAreaView,
   ImageSourcePropType,
-  ColorPropType,
 } from 'react-native';
 import _ from 'lodash';
-import Camera from './Camera';
+import Camera from './PlatformCamera';
 
 const FLASH_MODE_AUTO = 'auto';
 const FLASH_MODE_ON = 'on';
