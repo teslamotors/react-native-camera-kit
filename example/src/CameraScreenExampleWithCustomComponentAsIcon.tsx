@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Alert } from 'react-native';
-import CameraScreen from '../../src/CameraScreen';
+import CameraScreen from '../../src/FCCCameraScreen';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const CameraScreenExampleWithCustomComponentAsIcon: React.FC<{}> = () => {
@@ -13,6 +13,7 @@ const CameraScreenExampleWithCustomComponentAsIcon: React.FC<{}> = () => {
       { cancelable: false },
     );
   };
+
   return (
     <CameraScreen
       actions={{ rightButtonText: 'Done', leftButtonText: 'Cancel' }}

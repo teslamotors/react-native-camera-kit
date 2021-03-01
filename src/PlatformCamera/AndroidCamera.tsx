@@ -1,6 +1,7 @@
-import React from 'react';
 import _ from 'lodash';
-import { requireNativeComponent, findNodeHandle, NativeModules, processColor } from 'react-native';
+import React from 'react';
+import { findNodeHandle, NativeModules, processColor, requireNativeComponent } from 'react-native';
+import { CommonCameraProps } from './common-types';
 
 const { RNCameraKitModule } = NativeModules;
 
@@ -13,11 +14,13 @@ interface NativeCameraProps {
 
 const NativeCamera = requireNativeComponent<NativeCameraProps>('CKCameraManager');
 
-interface Props {
-  flashMode: AndroidFlashMode;
+interface AndroidCameraProps {
 }
 
-const Camera: React.ForwardRefRenderFunction<{}, Props> = ({flashMode, ...props}, ref) => {
+const Camera: React.ForwardRefRenderFunction<{}, AndroidCameraProps & CommonCameraProps> = ({
+  flashMode,
+  ...props
+}, ref) => {
   const nativeRef = React.useRef<any>();
 
   React.useImperativeHandle(ref, () => ({

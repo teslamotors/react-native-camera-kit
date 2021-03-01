@@ -1,17 +1,18 @@
 import * as _ from 'lodash';
 import React from 'react';
-import { requireNativeComponent, NativeModules, processColor } from 'react-native';
+import { NativeModules, processColor, requireNativeComponent } from 'react-native';
+import { CommonCameraProps } from './common-types';
 
 const { CKCameraManager } = NativeModules;
-const NativeCamera = requireNativeComponent('CKCamera');
+const NativeCamera = requireNativeComponent<{style: any}>('CKCamera');
 
-interface Props {
+interface IOSCameraProps {
   resetFocusTimeout?: number;
   resetFocusWhenMotionDetected?: boolean;
   saveToCameraRoll?: boolean;
 }
 
-const Camera: React.ForwardRefRenderFunction<{}, Props> = ({
+const Camera: React.ForwardRefRenderFunction<{}, IOSCameraProps & CommonCameraProps> = ({
   resetFocusTimeout = 0,
   resetFocusWhenMotionDetected = true,
   saveToCameraRoll = true,

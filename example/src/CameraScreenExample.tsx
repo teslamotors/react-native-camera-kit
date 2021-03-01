@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Alert } from 'react-native';
-import CameraScreen from '../../src/CameraScreen';
+import CameraScreen from '../../src/FCCCameraScreen';
 
 export default class CameraScreenExample extends Component {
   onBottomButtonPressed(event) {

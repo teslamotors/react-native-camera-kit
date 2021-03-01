@@ -1,297 +1,265 @@
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  Image,
-  Dimensions,
-  Platform,
-  SafeAreaView,
-  ImageSourcePropType,
-} from 'react-native';
 import _ from 'lodash';
-import Camera from './PlatformCamera';
+import React from 'react';
+import {
+  Dimensions, Image,
 
-const FLASH_MODE_AUTO = 'auto';
-const FLASH_MODE_ON = 'on';
-const FLASH_MODE_OFF = 'off';
+
+  ImageSourcePropType, Platform,
+  SafeAreaView, StyleSheet,
+  Text,
+
+  TouchableOpacity, View,
+} from 'react-native';
+import Camera from './PlatformCamera';
+import { FlashMode } from './PlatformCamera/common-types';
 
 const { width, height } = Dimensions.get('window');
 
 export enum CameraType {
   Front = 'front',
-  Back = 'back'
+  Back = 'back',
 }
 
-export type FlashMode = typeof FLASH_MODE_AUTO | typeof FLASH_MODE_ON | typeof FLASH_MODE_OFF;
 export type IconType = ImageSourcePropType | React.ReactElement;
 export type FlashDataType = {
   [key in FlashMode]: IconType;
 };
-export type Props = {
-  ratioOverlay?: string,
-  ratioOverlayColor?: string,
-  allowCaptureRetake: boolean,
-  cameraRatioOverlay: any,
-  showCapturedImageCount?: boolean,
-  captureButtonImage: IconType,
-  cameraFlipImage: IconType,
-  hideControls: any,
-  showFrame: any,
-  scanBarcode: any,
-  laserColor: any,
-  frameColor: any,
-  torchOnImage: IconType,
-  torchOffImage: IconType,
-  flashData: FlashDataType,
-  onReadCode: (any) => void;
-  onBottomButtonPressed: (any) => void;
+export interface CameraScreenProps {
+  actions?: { rightButtonText: string; leftButtonText: string };
+  ratioOverlay?: string;
+  ratioOverlayColor?: string;
+  allowCaptureRetake?: boolean;
+  cameraRatioOverlay?: any;
+  showCapturedImageCount?: boolean;
+  captureButtonImage?: IconType;
+  cameraFlipImage?: IconType;
+  hideControls?: boolean;
+  showFrame?: boolean;
+  scanBarcode?: boolean;
+  laserColor?: string;
+  frameColor?: string;
+  surfaceColor?: string;
+  torchOnImage?: IconType;
+  torchOffImage?: IconType;
+  flashData?: FlashDataType;
+  focusMode?: 'on' | 'off';
+  zoomMode?: 'on' | 'off';
+  onReadCode?: (data: { codeStringValue: string }) => void;
+  onBottomButtonPressed?: (any) => void;
 }
 
-type State = {
-  captureImages: any[],
-  torchMode: boolean,
-  ratios: any[],
-  ratioArrayPosition: number,
-  imageCaptured: any,
-  captured: boolean,
-  cameraType: CameraType,
-}
+let currentFlashArrayPosition = 0;
+let cameraRef: any;
 
-export default class CameraScreen extends Component<Props, State> {
-  static propTypes = {
-    allowCaptureRetake: PropTypes.bool,
+const CameraScreen: React.FC<CameraScreenProps> = ({
+  showFrame,
+  focusMode = 'on',
+  zoomMode = 'on',
+  flashData,
+  scanBarcode = false,
+  laserColor = 'red',
+  frameColor = 'yellow',
+  surfaceColor = 'blue',
+  captureButtonImage,
+  showCapturedImageCount,
+  allowCaptureRetake = false,
+  cameraRatioOverlay,
+  torchOnImage,
+  torchOffImage,
+  hideControls,
+  cameraFlipImage,
+  onBottomButtonPressed,
+  onReadCode,
+  ...props}) => {
+  const [imageCaptured, setImageCaptured] = React.useState<any>(false);
+  const [torchMode, setTorchMode] = React.useState<boolean>(false);
+  const [cameraType, setCameraType] = React.useState<CameraType>(CameraType.Back);
+  const [captureImages, setCaptureImages] = React.useState<any[]>([]);
+  const [captured, setCaptured] = React.useState<boolean>(false);
+  const [ratios, setRatios] = React.useState<string[]>(cameraRatioOverlay?.ratios ?? []);
+  const [ratioArrayPosition, setRatioArrayPosition] = React.useState(
+    (cameraRatioOverlay?.ratios ?? 0) > 0 ? 0 : -1,
+  );
+
+  const isCaptureRetakeMode = () => !!(allowCaptureRetake && !_.isUndefined(imageCaptured));
+
+  const renderTorchButton = () => {
+    const _component = torchMode ? torchOnImage : torchOffImage;
+    return (
+      !isCaptureRetakeMode() && (
+        <TouchableOpacity style={{ paddingHorizontal: 15 }} onPress={() => setTorchMode(!torchMode)}>
+          {React.isValidElement(_component) ? (
+            <View style={{ flex: 1, justifyContent: 'center' }}>{_component}</View>
+          ) : (
+            <Image style={{ flex: 1, justifyContent: 'center' }} source={_component} resizeMode="contain" />
+          )}
+        </TouchableOpacity>
+      )
+    );
   };
 
-  static defaultProps = {
-    allowCaptureRetake: false,
-  };
-
-  currentFlashArrayPosition: number;
-  camera: any;
-
-  constructor(props) {
-    super(props);
-    this.currentFlashArrayPosition = 0;
-
-    this.state = {
-      captureImages: [],
-      torchMode: false,
-      ratios: [],
-      ratioArrayPosition: -1,
-      imageCaptured: false,
-      captured: false,
-      cameraType: CameraType.Back,
-    };
-  }
-
-  componentDidMount() {
-    let ratios = [];
-    if (this.props.cameraRatioOverlay) {
-      ratios = this.props.cameraRatioOverlay.ratios || [];
+  const renderFlashButton = () => {
+    if (!flashData) {
+      return undefined;
     }
-    this.setState({
-      ratios: ratios || [],
-      ratioArrayPosition: ratios.length > 0 ? 0 : -1,
-    });
-  }
 
-  isCaptureRetakeMode() {
-    return !!(this.props.allowCaptureRetake && !_.isUndefined(this.state.imageCaptured));
-  }
+    const _component =
+      currentFlashArrayPosition === 0
+        ? flashData?.auto
+        : currentFlashArrayPosition === 1
+          ? flashData?.on
+          : flashData?.off;
 
-  renderFlashButton() {
-    const _component = this.currentFlashArrayPosition === 0 ?
-      this.props.flashData.auto : this.currentFlashArrayPosition === 1 ?
-        this.props.flashData.on : this.props.flashData.off;
+    if (!_component) return undefined;
 
     return (
-      !this.isCaptureRetakeMode() && (
-        <TouchableOpacity style={{ paddingHorizontal: 15 }} onPress={() => this.onSetFlash()}>
-          {React.isValidElement(_component) ?
-            <View style={{flex: 1, justifyContent: 'center'}}>
-              {_component}
-            </View>
-            :
-            <Image
-              style={{ flex: 1, justifyContent: 'center' }}
-              source={_component}
-              resizeMode="contain"
-            />
-          }
+      !isCaptureRetakeMode() && (
+        <TouchableOpacity
+          style={{ paddingHorizontal: 15 }}
+          onPress={() => {
+            currentFlashArrayPosition = (currentFlashArrayPosition + 1) % 3;
+          }}
+        >
+          {React.isValidElement(_component) ? (
+            <View style={{ flex: 1, justifyContent: 'center' }}>{_component}</View>
+          ) : (
+            <Image style={{ flex: 1, justifyContent: 'center' }} source={_component} resizeMode="contain" />
+          )}
         </TouchableOpacity>
       )
     );
-  }
+  };
 
-  renderTorchButton() {
-    const _component = this.state.torchMode ? this.props.torchOnImage : this.props.torchOffImage;
-    return (
-      !this.isCaptureRetakeMode() && (
-        <TouchableOpacity style={{ paddingHorizontal: 15 }} onPress={() => this.onSetTorch()}>
-          {React.isValidElement(_component) ?
-            <View style={{flex: 1, justifyContent: 'center'}}>
-              {_component}
-            </View>
-            :
-            <Image
-              style={{ flex: 1, justifyContent: 'center' }}
-              source={_component}
-              resizeMode="contain"
-            />
-          }
-        </TouchableOpacity>
-      )
-    );
-  }
-
-  renderSwitchCameraButton() {
-    return (
-      this.props.cameraFlipImage &&
-      !this.isCaptureRetakeMode() && (
-        <TouchableOpacity style={{ paddingHorizontal: 15 }} onPress={() => this.onSwitchCameraPressed()}>
-          {React.isValidElement(this.props.cameraFlipImage) ?
-            <View style={{flex: 1, justifyContent: 'center'}}>
-              {this.props.cameraFlipImage}
-            </View>
-            :
-            <Image
-              style={{ flex: 1, justifyContent: 'center' }}
-              source={this.props.cameraFlipImage}
-              resizeMode="contain"
-            />
-          }
-        </TouchableOpacity>
-      )
-    );
-  }
-
-  renderTopButtons() {
-    return (
-      !this.props.hideControls && (
-        <SafeAreaView style={styles.topButtons}>
-          {this.renderFlashButton()}
-          {this.renderSwitchCameraButton()}
-          {this.renderTorchButton()}
-        </SafeAreaView>
-      )
-    );
-  }
-
-  renderCamera() {
-    return (
-      <View style={styles.cameraContainer}>
-        {this.isCaptureRetakeMode() ? (
-          <Image style={{ flex: 1, justifyContent: 'flex-end' }} source={{ uri: this.state.imageCaptured.uri }} />
+  const renderSwitchCameraButton = () =>
+    cameraFlipImage &&
+    !isCaptureRetakeMode() && (
+      <TouchableOpacity style={{ paddingHorizontal: 15 }} onPress={onSwitchCameraPressed}>
+        {React.isValidElement(cameraFlipImage) ? (
+          <View style={{ flex: 1, justifyContent: 'center' }}>{cameraFlipImage}</View>
         ) : (
-          <Camera
-            ref={(cam) => (this.camera = cam)}
-            style={{ flex: 1, justifyContent: 'flex-end' }}
-            cameraType={this.state.cameraType}
-            flashMode={this.currentFlashArrayPosition === 0 ? FLASH_MODE_AUTO :
-              this.currentFlashArrayPosition === 1 ? FLASH_MODE_ON : FLASH_MODE_OFF}
-            torchMode={this.state.torchMode ? 'on' : 'off'}
-            focusMode={this.props.focusMode}
-            zoomMode={this.props.zoomMode}
-            ratioOverlay={this.state.ratios[this.state.ratioArrayPosition]}
-            saveToCameraRoll={!this.props.allowCaptureRetake}
-            showFrame={this.props.showFrame}
-            scanBarcode={this.props.scanBarcode}
-            laserColor={this.props.laserColor}
-            frameColor={this.props.frameColor}
-            onReadCode={this.props.onReadCode}
-          />
+          <Image style={{ flex: 1, justifyContent: 'center' }} source={cameraFlipImage} resizeMode="contain" />
         )}
-      </View>
+      </TouchableOpacity>
     );
-  }
 
-  numberOfImagesTaken() {
-    const numberTook = this.state.captureImages.length;
+  const renderTopButtons = () =>
+    !hideControls && (
+      <SafeAreaView style={styles.topButtons}>
+        {renderFlashButton()}
+        {renderSwitchCameraButton()}
+        {renderTorchButton()}
+      </SafeAreaView>
+    );
+
+  const renderCamera = () => (
+    <View style={styles.cameraContainer}>
+      {isCaptureRetakeMode() ? (
+        <Image style={{ flex: 1, justifyContent: 'flex-end' }} source={{ uri: imageCaptured.uri }} />
+      ) : (
+        Camera &&
+        <Camera
+          ref={cameraRef}
+          style={{ flex: 1, justifyContent: 'flex-end' }}
+          cameraType={cameraType}
+          flashMode={
+            currentFlashArrayPosition === 0
+              ? FlashMode.auto
+              : currentFlashArrayPosition === 1
+                ? FlashMode.on
+                : FlashMode.off
+          }
+          torchMode={torchMode ? 'on' : 'off'}
+          focusMode={focusMode}
+          zoomMode={zoomMode}
+          ratioOverlay={ratios[ratioArrayPosition]}
+          saveToCameraRoll={!allowCaptureRetake}
+          showFrame={showFrame}
+          scanBarcode={scanBarcode}
+          laserColor={laserColor}
+          frameColor={frameColor}
+          surfaceColor={surfaceColor}
+          onReadCode={onReadCode}
+        />
+      )}
+    </View>
+  );
+
+  const numberOfImagesTaken = () => {
+    const numberTook = captureImages.length;
     if (numberTook >= 2) {
       return numberTook;
-    } else if (this.state.captured) {
+    } else if (captured) {
       return '1';
     } else {
       return '';
     }
-  }
+  };
 
-  renderCaptureButton() {
+  const renderCaptureButton = () => {
     return (
-      this.props.captureButtonImage &&
-      !this.isCaptureRetakeMode() && (
+      captureButtonImage &&
+      !isCaptureRetakeMode() && (
         <View style={styles.captureButtonContainer}>
-          <TouchableOpacity onPress={() => this.onCaptureImagePressed()}>
-            {React.isValidElement(this.props.captureButtonImage) ?
-              <View style={{flex: 1, justifyContent: 'center'}}>
-                {this.props.captureButtonImage}
-              </View>
-              :
-              <Image
-                source={this.props.captureButtonImage}
-                resizeMode="contain"
-              />
-            }
-            {this.props.showCapturedImageCount && (
+          <TouchableOpacity onPress={onCaptureImagePressed}>
+            {React.isValidElement(captureButtonImage) ? (
+              <View style={{ flex: 1, justifyContent: 'center' }}>{captureButtonImage}</View>
+            ) : (
+              <Image source={captureButtonImage} resizeMode="contain" />
+            )}
+            {showCapturedImageCount && (
               <View style={styles.textNumberContainer}>
-                <Text>{this.numberOfImagesTaken()}</Text>
+                <Text>{numberOfImagesTaken()}</Text>
               </View>
             )}
-
           </TouchableOpacity>
         </View>
       )
     );
-  }
+  };
 
-  renderRatioStrip() {
-    if (this.state.ratios.length === 0 || this.props.hideControls) {
-      return null;
+  const renderRatioStrip = () => {
+    if (ratios.length === 0 || hideControls) {
+      return undefined;
     }
     return (
       <View style={{ flex: 1, flexDirection: 'column', justifyContent: 'flex-end' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', paddingRight: 10, paddingLeft: 20 }}>
-          <Text style={styles.ratioBestText}>Your images look best at a {this.state.ratios[0] || ''} ratio</Text>
+          <Text style={styles.ratioBestText}>Your images look best at a {ratios[0] || ''} ratio</Text>
           <TouchableOpacity
             style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', padding: 8 }}
-            onPress={() => this.onRatioButtonPressed()}
+            onPress={() => onRatioButtonPressed()}
           >
-            <Text style={styles.ratioText}>{this.state.ratioOverlay}</Text>
+            <Text style={styles.ratioText}>{cameraRatioOverlay}</Text>
           </TouchableOpacity>
         </View>
       </View>
     );
-  }
+  };
 
-  sendBottomButtonPressedAction(type, captureRetakeMode, image) {
-    if (this.props.onBottomButtonPressed) {
-      this.props.onBottomButtonPressed({ type, captureImages: this.state.captureImages, captureRetakeMode, image });
-    }
-  }
+  const sendBottomButtonPressedAction = (type, captureRetakeMode, image) => {
+    onBottomButtonPressed?.({ type, captureImages: captureImages, captureRetakeMode, image });
+  };
 
-  onButtonPressed(type) {
-    const captureRetakeMode = this.isCaptureRetakeMode();
+  const onButtonPressed = (type) => {
+    const captureRetakeMode = isCaptureRetakeMode();
     if (captureRetakeMode) {
       if (type === 'left') {
-        this.setState({ imageCaptured: undefined });
+        setImageCaptured(undefined);
       }
     } else {
-      this.sendBottomButtonPressedAction(type, captureRetakeMode, null);
+      sendBottomButtonPressedAction(type, captureRetakeMode, null);
     }
-  }
+  };
 
-  renderBottomButton(type) {
+  const renderBottomButton = (type) => {
     const showButton = true;
     if (showButton) {
-      const buttonNameSuffix = this.isCaptureRetakeMode() ? 'CaptureRetakeButtonText' : 'ButtonText';
-      const buttonText = _(this.props).get(`actions.${type}${buttonNameSuffix}`);
+      const buttonNameSuffix = isCaptureRetakeMode() ? 'CaptureRetakeButtonText' : 'ButtonText';
+      const buttonText = _(props).get(`actions.${type}${buttonNameSuffix}`);
       return (
         <TouchableOpacity
           style={[styles.bottomButton, { justifyContent: type === 'left' ? 'flex-start' : 'flex-end' }]}
-          onPress={() => this.onButtonPressed(type)}
+          onPress={() => onButtonPressed(type)}
         >
           <Text style={styles.textStyle}>{buttonText}</Text>
         </TouchableOpacity>
@@ -299,140 +267,128 @@ export default class CameraScreen extends Component<Props, State> {
     } else {
       return <View style={styles.bottomContainerGap} />;
     }
-  }
+  };
 
-  renderBottomButtons() {
+  const renderBottomButtons = () => {
     return (
-      !this.props.hideControls && (
+      !hideControls && (
         <SafeAreaView style={[styles.bottomButtons, { backgroundColor: '#ffffff00' }]}>
-          {this.renderBottomButton('left')}
-          {this.renderCaptureButton()}
+          {renderBottomButton('left')}
+          {renderCaptureButton()}
         </SafeAreaView>
       )
     );
-  }
+  };
 
-  onSwitchCameraPressed() {
-    const direction = this.state.cameraType === CameraType.Back ? CameraType.Front : CameraType.Back;
-    this.setState({ cameraType: direction });
-  }
+  const onSwitchCameraPressed = () => {
+    const direction = cameraType === CameraType.Back ? CameraType.Front : CameraType.Back;
+    setCameraType(direction);
+  };
 
-  onSetFlash() {
-    this.currentFlashArrayPosition = (this.currentFlashArrayPosition + 1) % 3;
-    this.setState({}); // forces a rerender
-  }
+  const onCaptureImagePressed = async () => {
+    const image = await cameraRef.current?.capture();
 
-  onSetTorch() {
-    this.setState({ torchMode: !this.state.torchMode });
-  }
-
-  async onCaptureImagePressed() {
-    const image = await this.camera.capture();
-
-    if (this.props.allowCaptureRetake) {
-      this.setState({ imageCaptured: image });
+    if (allowCaptureRetake) {
+      setImageCaptured(image);
     } else {
       if (image) {
-        this.setState({
-          captured: true,
-          imageCaptured: image,
-          captureImages: _.concat(this.state.captureImages, image),
-        });
+        setCaptured(true);
+        setImageCaptured(image);
+        setCaptureImages(_.concat(captureImages, image));
       }
-      this.sendBottomButtonPressedAction('capture', false, image);
+      sendBottomButtonPressedAction('capture', false, image);
     }
-  }
+  };
 
-  onRatioButtonPressed() {
-    const newRatiosArrayPosition = (this.state.ratioArrayPosition + 1) % this.state.ratios.length;
-    this.setState({ ratioArrayPosition: newRatiosArrayPosition });
-  }
+  const onRatioButtonPressed = () => {
+    const newRatiosArrayPosition = (ratioArrayPosition + 1) % ratios.length;
+    setRatioArrayPosition(newRatiosArrayPosition);
+  };
 
-  render() {
-    return (
-      <View style={{ flex: 1, backgroundColor: 'black' }} {...this.props}>
-        {Platform.OS === 'android' && this.renderCamera()}
-        {this.renderTopButtons()}
-        {Platform.OS !== 'android' && this.renderCamera()}
-        {this.renderRatioStrip()}
-        {Platform.OS === 'android' && <View style={styles.gap} />}
-        {this.renderBottomButtons()}
-      </View>
-    );
-  }
-}
+  return (
+    <View style={{ flex: 1, backgroundColor: 'black' }} {...props}>
+      {Platform.OS === 'android' && renderCamera()}
+      {renderTopButtons()}
+      {Platform.OS !== 'android' && renderCamera()}
+      {renderRatioStrip()}
+      {Platform.OS === 'android' && <View style={styles.gap} />}
+      {renderBottomButtons()}
+    </View>
+  );
+};
 
-const styles = StyleSheet.create(
-  {
-    bottomButtons: {
-      flex: 2,
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      padding: 14,
-    },
-    textStyle: {
-      color: 'white',
-      fontSize: 20,
-    },
-    ratioBestText: {
-      color: 'white',
-      fontSize: 18,
-    },
-    ratioText: {
-      color: '#ffc233',
-      fontSize: 18,
-    },
-    topButtons: {
-      flex: 1,
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      paddingTop: 8,
-      paddingBottom: 0,
-    },
-    cameraContainer: {
-      ...Platform.select({
-        android: {
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width,
-          height,
-        },
-        default: {
-          flex: 10,
-          flexDirection: 'column',
-        },
-      }),
-    },
-    captureButtonContainer: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    textNumberContainer: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      bottom: 0,
-      right: 0,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    bottomButton: {
-      flex: 1,
-      flexDirection: 'row',
-      alignItems: 'center',
-      padding: 10,
-    },
-    bottomContainerGap: {
-      flex: 1,
-      flexDirection: 'row',
-      justifyContent: 'flex-end',
-      alignItems: 'center',
-      padding: 10,
-    },
-    gap: {
-      flex: 10,
-      flexDirection: 'column',
-    },
-  });
+const styles = StyleSheet.create({
+  bottomButtons: {
+    flex: 2,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 14,
+  },
+  textStyle: {
+    color: 'white',
+    fontSize: 20,
+  },
+  ratioBestText: {
+    color: 'white',
+    fontSize: 18,
+  },
+  ratioText: {
+    color: '#ffc233',
+    fontSize: 18,
+  },
+  topButtons: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingTop: 8,
+    paddingBottom: 0,
+  },
+  cameraContainer: {
+    ...Platform.select({
+      android: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width,
+        height,
+      },
+      default: {
+        flex: 10,
+        flexDirection: 'column',
+      },
+    }),
+  },
+  captureButtonContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  textNumberContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bottomButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+  },
+  bottomContainerGap: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    padding: 10,
+  },
+  gap: {
+    flex: 10,
+    flexDirection: 'column',
+  },
+});
+
+export default CameraScreen;
