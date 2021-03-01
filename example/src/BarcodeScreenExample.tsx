@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Alert } from 'react-native';
-import CameraScreen from '../../src/FCCCameraScreen';
+import CameraScreen from '../../src/CameraScreen';
 import CheckingScreen from './CheckingScreen';
 
 export default class BarcodeScreenExample extends Component {

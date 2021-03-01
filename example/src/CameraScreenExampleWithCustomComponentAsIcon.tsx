@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Alert } from 'react-native';
-import CameraScreen from '../../src/FCCCameraScreen';
+import CameraScreen from '../../src/CameraScreen';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const CameraScreenExampleWithCustomComponentAsIcon: React.FC<{}> = () => {

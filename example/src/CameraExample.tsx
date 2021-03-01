@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { View, StyleSheet } from 'react-native';
 import Camera from '../../src/PlatformCamera';
-import { CameraType } from '../../src/FCCCameraScreen';
+import { CameraType } from '../../src/CameraScreen';
 
 export default class CameraExample extends Component {
   render() {
