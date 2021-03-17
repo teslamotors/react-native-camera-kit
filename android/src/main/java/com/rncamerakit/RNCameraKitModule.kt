@@ -33,7 +33,7 @@ class RNCameraKitModule(private val reactContext: ReactApplicationContext) : Rea
         val context = reactContext
         val uiManager = context.getNativeModule(UIManagerModule::class.java)
         context.runOnUiQueueThread {
-            val view = uiManager.resolveView(viewTag) as CKCamera
+            val view = uiManager?.resolveView(viewTag) as CKCamera
             view.capture(options.toHashMap(), promise)
         }
     }
