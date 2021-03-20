@@ -11,7 +11,7 @@ import {
   TouchableOpacity, View,
 } from 'react-native';
 import Camera from './PlatformCamera';
-import { FlashMode } from './PlatformCamera/common-types';
+import { BarcodeReadEvent, FlashMode } from './PlatformCamera/common-types';
 
 const { width, height } = Dimensions.get('window');
 
@@ -46,7 +46,7 @@ export interface CameraScreenProps {
   flashData?: FlashDataType;
   focusMode?: 'on' | 'off';
   zoomMode?: 'on' | 'off';
-  onReadCode?: (data: { codeStringValue: string }) => void;
+  onReadCode?: BarcodeReadEvent;
   onBottomButtonPressed?: (any) => void;
 }
 

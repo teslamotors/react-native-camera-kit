@@ -22,5 +22,7 @@ export interface CommonCameraProps {
   laserColor?: string;
   frameColor?: string;
   surfaceColor?: string;
-  onReadCode?: (data: { codeStringValue: string }) => void;
+  onReadCode?: BarcodeReadEvent;
 }
+
+export type BarcodeReadEvent = (data: { nativeEvent: { codeStringValue: string } } ) => void;

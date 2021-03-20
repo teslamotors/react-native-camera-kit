@@ -18,12 +18,12 @@ const CameraExample: React.FC<{}> = () => {
         resetFocusTimeout={0}
         resetFocusWhenMotionDetected={false}
         saveToCameraRole={false} // iOS only
-        scanBarcode={false} // optional
+        scanBarcode // optional
         showFrame={false} // Barcode only, optional
         laserColor="red" // Barcode only, optional
         frameColor="yellow" // Barcode only, optional
         surfaceColor="blue" // Barcode only, optional
-        onReadCode={(event) => console.log(event.codeStringValue)}
+        onReadCode={(event) => console.log(event.nativeEvent.codeStringValue)}
       />
     </View>
   );

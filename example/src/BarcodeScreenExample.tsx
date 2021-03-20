@@ -38,7 +38,7 @@ const BarcodeScreenExample: React.FC<{value?: any}> = (props) => {
       frameColor="white"
       onReadCode={(event) => {
         setExample(CheckingScreen);
-        setValueState(event.codeStringValue);
+        setValueState(event.nativeEvent.codeStringValue);
       }}
       hideControls
     />
