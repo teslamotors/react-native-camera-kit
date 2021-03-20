@@ -21,9 +21,11 @@ export enum CameraType {
 }
 
 export type IconType = ImageSourcePropType | React.ReactElement;
+
 export type FlashDataType = {
   [key in FlashMode]: IconType;
 };
+
 export interface CameraScreenProps {
   actions?: { rightButtonText: string; leftButtonText: string };
   ratioOverlay?: string;
@@ -71,7 +73,7 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
   onBottomButtonPressed,
   onReadCode,
   ...props}) => {
-  const [imageCaptured, setImageCaptured] = React.useState<any>(false);
+  const [imageCaptured, setImageCaptured] = React.useState<any>(undefined);
   const [torchMode, setTorchMode] = React.useState<boolean>(false);
   const [cameraType, setCameraType] = React.useState<CameraType>(CameraType.Back);
   const [captureImages, setCaptureImages] = React.useState<any[]>([]);

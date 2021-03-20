@@ -1,18 +1,13 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Alert } from 'react-native';
 import CameraScreen from '../../src/CameraScreen';
 import CheckingScreen from './CheckingScreen';
 
-export default class BarcodeScreenExample extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      example: undefined,
-      value: undefined,
-    };
-  }
+const BarcodeScreenExample: React.FC<{value?: any}> = (props) => {
+  const [example, setExample] = React.useState<any>(undefined);
+  const [valueState, setValueState] = React.useState<any>(undefined);
 
-  onBottomButtonPressed(event) {
+  const onBottomButtonPressed = (event) => {
     const captureImages = JSON.stringify(event.captureImages);
     Alert.alert(
       `"${event.type}" Button Pressed`,
@@ -20,31 +15,34 @@ export default class BarcodeScreenExample extends Component {
       [{ text: 'OK', onPress: () => console.log('OK Pressed') }],
       { cancelable: false },
     );
+  };
+
+  if (example) {
+    const Screen = example;
+    return <Screen value={valueState} />;
   }
 
-  render() {
-    if (this.state.example) {
-      const Screen = this.state.example;
-      return <Screen value={this.state.value} />;
-    }
-    return (
-      <CameraScreen
-        actions={{ rightButtonText: 'Done', leftButtonText: 'Cancel' }}
-        onBottomButtonPressed={(event) => this.onBottomButtonPressed(event)}
-        flashImages={{
-          on: require('../images/flashOn.png'),
-          off: require('../images/flashOff.png'),
-          auto: require('../images/flashAuto.png'),
-        }}
-        scanBarcode
-        showFrame
-        laserColor="red"
-        frameColor="white"
-        onReadCode={(event) => {
-          this.setState({ example: CheckingScreen, value: event.nativeEvent.codeStringValue });
-        }}
-        hideControls
-      />
-    );
-  }
-}
+
+  return (
+    <CameraScreen
+      actions={{ rightButtonText: 'Done', leftButtonText: 'Cancel' }}
+      onBottomButtonPressed={(event) => onBottomButtonPressed(event)}
+      flashData={{
+        on: require('../images/flashOn.png'),
+        off: require('../images/flashOff.png'),
+        auto: require('../images/flashAuto.png'),
+      }}
+      scanBarcode
+      showFrame
+      laserColor="red"
+      frameColor="white"
+      onReadCode={(event) => {
+        setExample(CheckingScreen);
+        setValueState(event.codeStringValue);
+      }}
+      hideControls
+    />
+  );
+};
+
+export default BarcodeScreenExample;

@@ -1,7 +1,7 @@
 import { NativeModules } from 'react-native';
 
 import Camera from './PlatformCamera';
-import CameraScreen, { CameraType } from './FCCCameraScreen';
+import CameraScreen, { CameraType } from './CameraScreen';
 
 const { CameraKit } = NativeModules;
 
