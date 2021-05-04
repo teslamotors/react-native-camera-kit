@@ -5,7 +5,7 @@ import { requireNativeComponent, findNodeHandle, NativeModules, processColor } f
 const { RNCameraKitModule } = NativeModules;
 const NativeCamera = requireNativeComponent('CKCameraManager');
 
-function Camera(props, ref) {
+const Camera = React.forwardRef((props, ref) => {
   const nativeRef = React.useRef();
 
   React.useImperativeHandle(ref, () => ({
@@ -32,10 +32,10 @@ function Camera(props, ref) {
       ref={nativeRef}
       {...transformedProps}
     />);
-}
+});
 
 const { PORTRAIT, PORTRAIT_UPSIDE_DOWN, LANDSCAPE_LEFT, LANDSCAPE_RIGHT } = RNCameraKitModule.getConstants();
 
 export { PORTRAIT, PORTRAIT_UPSIDE_DOWN, LANDSCAPE_LEFT, LANDSCAPE_RIGHT };
 
-export default React.forwardRef(Camera);
+export default Camera;

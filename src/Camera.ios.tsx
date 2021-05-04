@@ -5,7 +5,7 @@ import { requireNativeComponent, NativeModules, processColor } from 'react-nativ
 const { CKCameraManager } = NativeModules;
 const NativeCamera = requireNativeComponent('CKCamera');
 
-function Camera(props, ref) {
+const Camera = React.forwardRef((props, ref) => {
   const nativeRef = React.useRef();
 
   React.useImperativeHandle(ref, () => ({
@@ -24,7 +24,7 @@ function Camera(props, ref) {
   _.update(transformedProps, 'cameraOptions.ratioOverlayColor', (c) => processColor(c));
 
   return <NativeCamera style={{ minWidth: 100, minHeight: 100 }} ref={nativeRef} {...transformedProps} />;
-}
+});
 
 Camera.defaultProps = {
   resetFocusTimeout: 0,
@@ -32,4 +32,4 @@ Camera.defaultProps = {
   saveToCameraRoll: true,
 };
 
-export default React.forwardRef(Camera);
+export default Camera;
