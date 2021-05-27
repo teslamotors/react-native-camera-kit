@@ -116,6 +116,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 @property (nonatomic) CKCameraZoomMode zoomMode;
 @property (nonatomic, strong) NSString* ratioOverlay;
 @property (nonatomic, strong) UIColor *ratioOverlayColor;
+@property (nonatomic, strong) RCTDirectEventBlock onOrientationChange;
 
 @property (nonatomic) BOOL isAddedOberver;
 
@@ -151,7 +152,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 - (void)removeFromSuperview
 {
-
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceOrientationDidChangeNotification object:[UIDevice currentDevice]];
     dispatch_async( self.sessionQueue, ^{
         if ( self.setupResult == CKSetupResultSuccess ) {
             [self.session stopRunning];
@@ -168,6 +169,13 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
     if (self){
         // Create the AVCaptureSession.
         self.session = [[AVCaptureSession alloc] init];
+
+        // Listen to orientation changes
+        [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
+        [[NSNotificationCenter defaultCenter]
+         addObserver:self selector:@selector(orientationChanged:)
+         name:UIDeviceOrientationDidChangeNotification
+         object:[UIDevice currentDevice]];
 
         // Fit camera preview inside of viewport
         self.session.sessionPreset = AVCaptureSessionPresetPhoto;
@@ -301,7 +309,31 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
     }
 }
 
--(void)setupCaptureSession {
+- (void) orientationChanged:(NSNotification *)notification
+{
+    if (!self.onOrientationChange) {
+        return;
+    }
+
+    // PORTRAIT: 0, // ⬆️
+    // LANDSCAPE_LEFT: 1, // ⬅️
+    // PORTRAIT_UPSIDE_DOWN: 2, // ⬇️
+    // LANDSCAPE_RIGHT: 3, // ➡️
+    
+    UIDevice * device = notification.object;
+    UIDeviceOrientation orientation = device.orientation;
+    if (orientation == UIDeviceOrientationPortrait) {
+        self.onOrientationChange(@{@"orientation": @0});
+    } else if (orientation == UIDeviceOrientationLandscapeLeft) {
+        self.onOrientationChange(@{@"orientation": @1});
+    } else if (orientation ==  UIDeviceOrientationPortraitUpsideDown) {
+        self.onOrientationChange(@{@"orientation": @2});
+    } else if (orientation == UIDeviceOrientationLandscapeRight) {
+        self.onOrientationChange(@{@"orientation": @3});
+    }
+}
+
+- (void) setupCaptureSession {
     // Setup the capture session.
     // In general it is not safe to mutate an AVCaptureSession or any of its inputs, outputs, or connections from multiple threads at the same time.
     // Why not do all of this on the main queue?
