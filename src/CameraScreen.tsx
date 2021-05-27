@@ -39,6 +39,8 @@ export type Props = {
   frameColor: any,
   torchOnImage: any,
   torchOffImage: any,
+  focusMode?: any,
+  zoomMode?: any,
   onReadCode: (any) => void;
   onBottomButtonPressed: (any) => void;
 }
@@ -235,7 +237,7 @@ export default class CameraScreen extends Component<Props, State> {
             style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', padding: 8 }}
             onPress={() => this.onRatioButtonPressed()}
           >
-            <Text style={styles.ratioText}>{this.state.ratioOverlay}</Text>
+            <Text style={styles.ratioText}>{this.props.ratioOverlay}</Text>
           </TouchableOpacity>
         </View>
       </View>

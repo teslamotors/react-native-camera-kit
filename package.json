@@ -12,6 +12,7 @@
   "react-native": "src/index",
   "source": "src/index",
   "scripts": {
+    "build": "tsc -p tsconfig.json",
     "test": "jest",
     "lint": "yarn eslint -c .eslintrc.js",
     "start": "watchman watch-del-all && node node_modules/react-native/local-cli/cli.js start",
