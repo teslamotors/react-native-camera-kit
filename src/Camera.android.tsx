@@ -34,8 +34,4 @@ const Camera = React.forwardRef((props, ref) => {
     />);
 });
 
-const { PORTRAIT, PORTRAIT_UPSIDE_DOWN, LANDSCAPE_LEFT, LANDSCAPE_RIGHT } = RNCameraKitModule.getConstants();
-
-export { PORTRAIT, PORTRAIT_UPSIDE_DOWN, LANDSCAPE_LEFT, LANDSCAPE_RIGHT };
-
 export default Camera;
