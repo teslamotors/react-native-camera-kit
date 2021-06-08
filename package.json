@@ -6,15 +6,11 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
-  "version": "12.0.0-beta2",
+  "version": "12.0.0-beta3",
   "description": "A high performance, fully featured, rock solid camera library for React Native applications",
   "nativePackage": true,
   "react-native": "src/index",
   "source": "src/index",
-  "files": [
-    "dist/",
-    "src/"
-  ],
   "scripts": {
     "build": "tsc --project tsconfig.json",
     "clean": "rm -rf dist/",
