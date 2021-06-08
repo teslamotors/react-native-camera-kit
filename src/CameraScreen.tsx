@@ -105,6 +105,7 @@ export default class CameraScreen extends Component<Props, State> {
     if (this.props.cameraRatioOverlay) {
       ratios = this.props.cameraRatioOverlay.ratios || [];
     }
+    // eslint-disable-next-line react/no-did-mount-set-state
     this.setState({
       ratios: ratios || [],
       ratioArrayPosition: ratios.length > 0 ? 0 : -1,
@@ -245,13 +246,13 @@ export default class CameraScreen extends Component<Props, State> {
     );
   }
 
-  sendBottomButtonPressedAction(type, captureRetakeMode, image) {
+  sendBottomButtonPressedAction(type: string, captureRetakeMode: boolean, image: null) {
     if (this.props.onBottomButtonPressed) {
       this.props.onBottomButtonPressed({ type, captureImages: this.state.captureImages, captureRetakeMode, image });
     }
   }
 
-  onButtonPressed(type) {
+  onButtonPressed(type: string) {
     const captureRetakeMode = this.isCaptureRetakeMode();
     if (captureRetakeMode) {
       if (type === 'left') {
@@ -262,7 +263,7 @@ export default class CameraScreen extends Component<Props, State> {
     }
   }
 
-  renderBottomButton(type) {
+  renderBottomButton(type: string) {
     const showButton = true;
     if (showButton) {
       const buttonNameSuffix = this.isCaptureRetakeMode() ? 'CaptureRetakeButtonText' : 'ButtonText';
