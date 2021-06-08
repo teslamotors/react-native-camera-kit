@@ -142,10 +142,10 @@ import { Camera, CameraType } from 'react-native-camera-kit';
 | `torchMode`                    | `'on'`/`'off'`          | Toggle flash light when camera is active. Default: `off`                                                                                                                                                                                                                                                                                      |
 | `ratioOverlay`                 | `['int':'int', ...]`    | Show a guiding overlay in the camera preview for the selected ratio. Does not crop image as of v9.0. Example: `['16:9', '1:1', '3:4']`                                                                                                                                                                                                        |
 | `ratioOverlayColor`            | Color                   | Any color with alpha. Default: `'#ffffff77'`                                                                                                                                                                                                                                                                                                  |
-| `resetFocusTimeout`            | Number                  | iOS only. Dismiss tap to focus after this many milliseconds. Default `0` (disabled). Example: `5000` is 5 seconds.                                                                                                                                                                                                                            |
-| `resetFocusWhenMotionDetected` | Boolean                 | iOS only. Dismiss tap to focus when focus area content changes. Native iOS feature, see documentation: https://developer.apple.com/documentation/avfoundation/avcapturedevice/1624644-subjectareachangemonitoringenabl?language=objc). Default `true`.                                                                                        |
-| `saveToCameraRoll`             | Boolean                 | Using the camera roll is slower than using regular files stored in your app. On an iPhone X in debug mode, on a real phone, we measured around 100-150ms processing time to save to the camera roll. _<span style="color: red">**Note:**</span> This only work on real devices. It will hang indefinitly on simulators._                      |
-| `saveToCameraRollWithPhUrl`    | Boolean                 | iOS only. If true, speeds up photo taking by about 5-50ms (measured on iPhone X) by only returning a [rn-cameraroll-compatible](https://github.com/react-native-community/react-native-cameraroll/blob/a09af08f0a46a98b29f6ad470e59d3dc627864a2/ios/RNCAssetsLibraryRequestHandler.m#L36) `ph://..` URL instead of a regular `file://..` URL. |  |
+| `resetFocusTimeout`            | Number                  | **iOS only.** Dismiss tap to focus after this many milliseconds. Default `0` (disabled). Example: `5000` is 5 seconds.                                                                                                                                                                                                                            |
+| `resetFocusWhenMotionDetected` | Boolean                 | **iOS only.** Dismiss tap to focus when focus area content changes. Native iOS feature, see documentation: https://developer.apple.com/documentation/avfoundation/avcapturedevice/1624644-subjectareachangemonitoringenabl?language=objc). Default `true`.                                                                                        |
+| `saveToCameraRoll`             | Boolean                 | Using the camera roll is slower than using regular files stored in your app. On an iPhone X in debug mode, on a real phone, we measured around 100-150ms processing time to save to the camera roll. _<span style="color: red">**Note:**</span> This only work on real devices. It will hang indefinitly on simulators._ Default `true`                         |
+| `saveToCameraRollWithPhUrl`    | Boolean                 | **iOS only.** If true, speeds up photo taking by about 5-50ms (measured on iPhone X) by only returning a [rn-cameraroll-compatible](https://github.com/react-native-community/react-native-cameraroll/blob/a09af08f0a46a98b29f6ad470e59d3dc627864a2/ios/RNCAssetsLibraryRequestHandler.m#L36) `ph://..` URL instead of a regular `file://..` URL. |  |
 | `onOrientationChange`          | Function                | Callback when physical device orientation changes. Returned event contains `orientation`. Ex: `onOrientationChange={(event) => console.log(event.nativeEvent.orientation)}`. Use `import { Orientation } from 'react-native-camera-kit'; if (event.nativeEvent.orientation === Orientation.PORTRAIT) { ... }` to understand the new value |
 
 ### Barcode Props (Optional)
@@ -163,15 +163,41 @@ import { Camera, CameraType } from 'react-native-camera-kit';
 
 _Note: Must be called on a valid camera ref_
 
-#### capture({ ... })
+#### capture()
 
-Capture image (`{ saveToCameraRoll: boolean }`). Using the camera roll is slower than using regular files stored in your app. On an iPhone X in debug mode, on a real phone, we measured around 100-150ms processing time to save to the camera roll.
+Capture image as JPEG.
+
+If you are not using `saveToCameraRoll` then a temporary file is created. You *must* move this file to a permanent location (e.g. the app's 'Documents' folder) if you need it beyond the current session of the app as it may be deleted when the user leaves the app. You can move files by using a file system library such as [react-native-fs](https://github.com/itinance/react-native-fs) or [expo-filesystem](https://docs.expo.io/versions/latest/sdk/filesystem/).
+(On Android we currently have an unsupported `outputPath` prop but it's subject to change at any time).
+
+Note that the reason you're getting a URL despite it being a file is because Android 10+ encourages URIs. To keep things consistent regardless of settings or platform we always send back a URI.
 
 ```ts
-const image = await this.camera.capture();
+const { uri } = await this.camera.capture();
+// uri = 'file:///data/user/0/com.myorg.myapp/cache/ckcap123123123123.jpg'
 ```
 
-#### checkDeviceCameraAuthorizationStatus (iOS only)
+If you want to store it permanently, here's an example using [react-native-fs](https://github.com/itinance/react-native-fs):
+```ts
+import RNFS from 'react-native-fs';
+// [...]
+let { uri } = await this.camera.capture();
+if (uri.startsWith('file://')) {
+  // Platform dependent, iOS & Android uses '/'
+  const pathSplitter = '/';
+  // file:///foo/bar.jpg => /foo/bar.jpg
+  const filePath = uri.replace('file://', '');
+  // /foo/bar.jpg => [foo, bar.jpg]
+  const pathSegments = filePath.split(pathSplitter);
+  // [foo, bar.jpg] => bar.jpg
+  const fileName = pathSegments[pathSegments.length - 1];
+
+  await RNFS.moveFile(filePath, `${RNFS.DocumentDirectoryPath}/${fileName}`);
+  uri = `file://${destFilePath}`;
+}
+```
+
+#### checkDeviceCameraAuthorizationStatus (**iOS only**)
 
 ```ts
 const isCameraAuthorized = await Camera.checkDeviceCameraAuthorizationStatus();
@@ -185,7 +211,7 @@ return values:
 
 otherwise, returns `false`
 
-#### requestDeviceCameraAuthorization (iOS only)
+#### requestDeviceCameraAuthorization (**iOS only**)
 
 ```ts
 const isUserAuthorizedCamera = await Camera.requestDeviceCameraAuthorization();
