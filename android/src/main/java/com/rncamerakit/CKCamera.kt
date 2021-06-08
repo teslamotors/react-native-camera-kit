@@ -12,6 +12,7 @@ import android.graphics.Color
 import android.hardware.SensorManager
 import android.media.AudioManager
 import android.media.MediaActionSound
+import android.net.Uri
 import android.provider.MediaStore
 import android.util.DisplayMetrics
 import android.util.Log
@@ -56,6 +57,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
     private var outputPath: String? = null
     private var shutterAnimationDuration: Int = 50
     private var effectLayer = View(context)
+    private var saveToCameraRoll = true
 
     // Camera Props
     private var lensType = CameraSelector.LENS_FACING_BACK
@@ -287,16 +289,29 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
         }
 
         // Create the output file option to store the captured image in MediaStore
-        val outputOptions = when (outputPath) {
-            null -> ImageCapture.OutputFileOptions
+        val outputPath = when {
+            saveToCameraRoll -> null
+            outputPath != null -> outputPath
+            else -> {
+                val out = File.createTempFile("ckcap", ".jpg", context.cacheDir)
+                out.deleteOnExit();
+                out.canonicalPath
+            }
+        }
+
+        var outputFile: File? = null
+        val outputOptions = if (saveToCameraRoll) {
+            ImageCapture.OutputFileOptions
                     .Builder(
                             context.contentResolver,
                             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                             contentValues
                     )
                     .build()
-            else -> ImageCapture.OutputFileOptions
-                    .Builder(File(outputPath))
+        } else {
+            outputFile = File(outputPath)
+            ImageCapture.OutputFileOptions
+                    .Builder(outputFile)
                     .build()
         }
 
@@ -318,17 +333,22 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
 
             override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                 try {
-                    val savedUri = output.savedUri.toString()
+                    val uri = output.savedUri ?: Uri.fromFile(outputFile)
+                    val id = uri?.path
+                    val name = uri?.lastPathSegment
+                    val path = uri?.path
+
+                    val savedUri = (output.savedUri ?: outputPath).toString()
                     onPictureTaken(savedUri)
                     Log.d(TAG, "CameraView: Photo capture succeeded: $savedUri")
 
                     val imageInfo = Arguments.createMap()
-                    imageInfo.putString("uri", savedUri)
-                    imageInfo.putString("id", output.savedUri?.path)
-                    imageInfo.putString("name", output.savedUri?.lastPathSegment)
+                    imageInfo.putString("uri", uri.toString())
+                    imageInfo.putString("id", id)
+                    imageInfo.putString("name", name)
                     imageInfo.putInt("width", width)
                     imageInfo.putInt("height", height)
-                    imageInfo.putString("path", output.savedUri?.path)
+                    imageInfo.putString("path", path)
 
                     promise.resolve(imageInfo)
                 } catch (ex: Exception) {
@@ -440,6 +460,10 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
 
     fun setZoomMode(mode: String = "on") {
         zoomMode = mode
+    }
+
+    fun setSaveToCameraRoll(enabled: Boolean = true) {
+        saveToCameraRoll = enabled
     }
 
     fun setScanBarcode(enabled: Boolean) {
