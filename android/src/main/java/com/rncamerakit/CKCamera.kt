@@ -283,7 +283,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
         // Create output options object which contains file + metadata
         val contentValues = ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, "IMG_" + System.currentTimeMillis())
-            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg")
+            put(MediaStore.MediaColumns.MIME_TYPE, MimeTypeMap.getSingleton().getMimeTypeFromExtension("jpg"))
         }
 
         // Create the output file option to store the captured image in MediaStore
