@@ -1,14 +1,16 @@
-import * as _ from 'lodash';
+import _update from 'lodash/update';
+import _cloneDeep from 'lodash/cloneDeep';
 import React from 'react';
 import { requireNativeComponent, NativeModules, processColor } from 'react-native';
+import { CameraApi } from './types';
 
 const { CKCameraManager } = NativeModules;
 const NativeCamera = requireNativeComponent('CKCamera');
 
-const Camera = React.forwardRef((props, ref) => {
+const Camera = React.forwardRef((props: any, ref: any) => {
   const nativeRef = React.useRef();
 
-  React.useImperativeHandle(ref, () => ({
+  React.useImperativeHandle<any, CameraApi>(ref, () => ({
     capture: async () => {
       return await CKCameraManager.capture({});
     },
@@ -20,10 +22,16 @@ const Camera = React.forwardRef((props, ref) => {
     },
   }));
 
-  const transformedProps = _.cloneDeep(props);
-  _.update(transformedProps, 'cameraOptions.ratioOverlayColor', (c) => processColor(c));
+  const transformedProps = _cloneDeep(props);
+  _update(transformedProps, 'cameraOptions.ratioOverlayColor', (c: any) => processColor(c));
 
-  return <NativeCamera style={{ minWidth: 100, minHeight: 100 }} ref={nativeRef} {...transformedProps} />;
+  return (
+    <NativeCamera
+      style={{ minWidth: 100, minHeight: 100 }}
+      ref={nativeRef}
+      {...transformedProps}
+    />
+  );
 });
 
 Camera.defaultProps = {
