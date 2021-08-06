@@ -42,6 +42,7 @@ export type Props = {
   torchOffImage: any,
   onReadCode: (any) => void;
   onBottomButtonPressed: (any) => void;
+  onError: (any) => void;
 }
 
 type State = {
@@ -308,19 +309,30 @@ export default class CameraScreen extends Component<Props, State> {
   }
 
   async onCaptureImagePressed() {
-    const image = await this.camera.capture();
+    try {
+      const image = await this.camera.capture();
 
-    if (this.props.allowCaptureRetake) {
-      this.setState({ imageCaptured: image });
-    } else {
-      if (image) {
-        this.setState({
-          captured: true,
-          imageCaptured: image,
-          captureImages: _.concat(this.state.captureImages, image),
-        });
+      if (this.props.allowCaptureRetake) {
+        this.setState({imageCaptured: image});
+      } else {
+        if (image) {
+          this.setState({
+            captured: true,
+            imageCaptured: image,
+            captureImages: _.concat(this.state.captureImages, image),
+          });
+        }
+        this.sendBottomButtonPressedAction('capture', false, image);
       }
-      this.sendBottomButtonPressedAction('capture', false, image);
+    } catch (err: any) {
+      const { onError } = this.props;
+
+      if (onError != null) {
+        onError?.(err);
+      } else {
+        // eslint-disable-next-line no-console
+        console.warn('Camera error:', err.message);
+      }
     }
   }
 
