@@ -100,7 +100,7 @@ import { CameraScreen } from 'react-native-camera-kit';
   torchOffImage={require('path/to/image')} // optional, image for toggling off flash light
   hideControls={false} // (default false) optional, hides camera controls
   showCapturedImageCount={false} // (default false) optional, show count for photos taken during that capture session
-  saveToInternalStorage={false} // (default false) optional, save fales to internal storage
+  saveToInternalStorage={false} // (default false) optional, save files to internal storage
   onError={(err) => console.error(err)}
 />
 ```
