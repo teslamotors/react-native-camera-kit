@@ -105,4 +105,9 @@ class CKCameraManager : SimpleViewManager<CKCamera>() {
     fun setShutterAnimationDuration(view: CKCamera, duration: Int) {
         view.setShutterAnimationDuration(duration)
     }
+
+    @ReactProp(name = "saveToInternalStorage")
+    fun setSaveToInternalStorage(view: CKCamera, save: Boolean) {
+        view.setSaveToInternalStorage(save)
+    }
 }

@@ -5,6 +5,7 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.os.Environment
 import android.content.ContentValues
 import android.content.Context
 import android.content.pm.PackageManager
@@ -13,6 +14,7 @@ import android.hardware.SensorManager
 import android.media.AudioManager
 import android.media.MediaActionSound
 import android.provider.MediaStore
+import android.net.Uri
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.*
@@ -55,6 +57,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
     private var cameraProvider: ProcessCameraProvider? = null
     private var outputPath: String? = null
     private var shutterAnimationDuration: Int = 50
+    private var saveToInternalStorage: Boolean = false
     private var effectLayer = View(context)
 
     // Camera Props
@@ -279,30 +282,32 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
         shutterAnimationDuration = duration
     }
 
+    fun setSaveToInternalStorage(save: Boolean) {
+        saveToInternalStorage = save
+    }
+
     fun capture(options: Map<String, Any>, promise: Promise) {
         // Create output options object which contains file + metadata
+        val activity = getActivity()
         val contentValues = ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, "IMG_" + System.currentTimeMillis())
             put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg")
         }
 
-        // Create the output file option to store the captured image in MediaStore
-        val outputOptions = when (outputPath) {
-            null -> ImageCapture.OutputFileOptions
-                    .Builder(
-                            context.contentResolver,
-                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                            contentValues
-                    )
-                    .build()
-            else -> ImageCapture.OutputFileOptions
-                    .Builder(File(outputPath))
-                    .build()
+        if (saveToInternalStorage) {
+          outputPath = outputPath ?: "${activity.getFilesDir()}/${System.currentTimeMillis()}.jpg"
+        } else {
+          outputPath = outputPath ?: "${activity.getExternalFilesDir(Environment.DIRECTORY_DCIM)}/${System.currentTimeMillis()}.jpg"
         }
+
+        val outputFile = File(outputPath)
+
+        // Create the output file option to store the captured image in MediaStore
+        val outputOptions = ImageCapture.OutputFileOptions.Builder(outputFile).build()
 
         flashViewFinder()
 
-        val audio = getActivity().getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        val audio = activity.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         if (audio.ringerMode == AudioManager.RINGER_MODE_NORMAL) {
             MediaActionSound().play(MediaActionSound.SHUTTER_CLICK);
         }
@@ -318,17 +323,17 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
 
             override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                 try {
-                    val savedUri = output.savedUri.toString()
+                    val savedUri = Uri.fromFile(outputFile).toString()
                     onPictureTaken(savedUri)
                     Log.d(TAG, "CameraView: Photo capture succeeded: $savedUri")
 
                     val imageInfo = Arguments.createMap()
                     imageInfo.putString("uri", savedUri)
-                    imageInfo.putString("id", output.savedUri?.path)
-                    imageInfo.putString("name", output.savedUri?.lastPathSegment)
+                    imageInfo.putString("id", outputPath)
+                    imageInfo.putString("name", outputPath?.substringAfterLast("/"))
                     imageInfo.putInt("width", width)
                     imageInfo.putInt("height", height)
-                    imageInfo.putString("path", output.savedUri?.path)
+                    imageInfo.putString("path", outputPath)
 
                     promise.resolve(imageInfo)
                 } catch (ex: Exception) {

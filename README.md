@@ -55,6 +55,8 @@ Add the following uses-permission to your `AndroidManifest.xml` (usually found a
 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 ```
 
+The second is only needed if you are not using internal storage
+
 #### iOS
 
 Add the following usage descriptions to your `Info.plist` (usually found at: `ios/PROJECT_NAME/`)
@@ -98,6 +100,7 @@ import { CameraScreen } from 'react-native-camera-kit';
   torchOffImage={require('path/to/image')} // optional, image for toggling off flash light
   hideControls={false} // (default false) optional, hides camera controls
   showCapturedImageCount={false} // (default false) optional, show count for photos taken during that capture session
+  saveToInternalStorage={false} // (default false) optional, save fales to internal storage
 />
 ```
 
@@ -145,6 +148,7 @@ import { Camera, CameraType } from 'react-native-camera-kit';
 | `resetFocusTimeout`            | Number                  | iOS only. Dismiss tap to focus after this many milliseconds. Default `0` (disabled). Example: `5000` is 5 seconds.                                                                                                                                                                                                                            |
 | `resetFocusWhenMotionDetected` | Boolean                 | iOS only. Dismiss tap to focus when focus area content changes. Native iOS feature, see documentation: https://developer.apple.com/documentation/avfoundation/avcapturedevice/1624644-subjectareachangemonitoringenabl?language=objc). Default `true`.                                                                                        |
 | `saveToCameraRoll`             | Boolean                 | Using the camera roll is slower than using regular files stored in your app. On an iPhone X in debug mode, on a real phone, we measured around 100-150ms processing time to save to the camera roll. _<span style="color: red">**Note:**</span> This only work on real devices. It will hang indefinitly on simulators._                      |
+| `saveToInternalStorage`        | Boolean                 | Save files to internal storage (Android only)                                                                                                                                                                                                                                                                                                 |
 | `saveToCameraRollWithPhUrl`    | Boolean                 | iOS only. If true, speeds up photo taking by about 5-50ms (measured on iPhone X) by only returning a [rn-cameraroll-compatible](https://github.com/react-native-community/react-native-cameraroll/blob/a09af08f0a46a98b29f6ad470e59d3dc627864a2/ios/RNCAssetsLibraryRequestHandler.m#L36) `ph://..` URL instead of a regular `file://..` URL. |  |
 | `onOrientationChange`          | Function                | Callback when physical device orientation changes. Returned event contains `orientation`. Ex: `onOrientationChange={(event) => console.log(event.nativeEvent.orientation)}`. Use `import { Orientation } from 'react-native-camera-kit'; if (event.nativeEvent.orientation === Orientation.PORTRAIT) { ... }` to understand the new value |
 

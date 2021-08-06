@@ -20,6 +20,7 @@ export default class CameraExample extends Component {
           resetFocusTimeout={0}
           resetFocusWhenMotionDetected={false}
           saveToCameraRole={false} // iOS only
+          saveToInternalStorage={false} // Android only
           scanBarcode={false} // optional
           showFrame={false} // Barcode only, optional
           laserColor="red" // Barcode only, optional

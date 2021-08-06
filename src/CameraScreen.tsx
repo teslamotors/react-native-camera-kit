@@ -28,6 +28,7 @@ export type Props = {
   ratioOverlay?: string,
   ratioOverlayColor?: string,
   allowCaptureRetake: boolean,
+  saveToInternalStorage: boolean,
   cameraRatioOverlay: any,
   showCapturedImageCount?: boolean,
   captureButtonImage: any,
@@ -57,10 +58,12 @@ type State = {
 export default class CameraScreen extends Component<Props, State> {
   static propTypes = {
     allowCaptureRetake: PropTypes.bool,
+    saveToInternalStorage: PropTypes.bool,
   };
 
   static defaultProps = {
     allowCaptureRetake: false,
+    saveToInternalStorage: false,
   };
 
   currentFlashArrayPosition: number;
@@ -188,6 +191,7 @@ export default class CameraScreen extends Component<Props, State> {
             laserColor={this.props.laserColor}
             frameColor={this.props.frameColor}
             onReadCode={this.props.onReadCode}
+            saveToInternalStorage={this.props.saveToInternalStorage}
           />
         )}
       </View>
