@@ -26,6 +26,7 @@ RCT_EXPORT_VIEW_PROPERTY(ratioOverlay, NSString)
 RCT_EXPORT_VIEW_PROPERTY(ratioOverlayColor, UIColor)
 
 RCT_EXPORT_VIEW_PROPERTY(onReadCode, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onOrientationChange, RCTDirectEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(showFrame, BOOL)
 RCT_EXPORT_VIEW_PROPERTY(laserColor, UIColor)
 RCT_EXPORT_VIEW_PROPERTY(frameColor, UIColor)
