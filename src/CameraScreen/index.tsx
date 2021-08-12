@@ -43,7 +43,7 @@ interface IProps {
     ratios: IRatio[];
   };
 
-  flashImages: IFlashImageData;
+  flashImages?: IFlashImageData;
   torchImages?: ITorchImageData;
 
   ratioOverlay?: string;
@@ -71,7 +71,6 @@ interface IProps {
 const CameraScreen: React.FC<IProps> = ({
   cameraRatioOverlay,
   allowCaptureRetake,
-  flashImages: flashData,
   hideControls = false,
   showFrame = false,
   scanBarcode = false,
@@ -79,6 +78,7 @@ const CameraScreen: React.FC<IProps> = ({
   frameColor = 'white',
   focusMode = 'on',
   zoomMode = 'on',
+  flashImages,
   torchImages,
   ...props
 }) => {
@@ -117,7 +117,7 @@ const CameraScreen: React.FC<IProps> = ({
       <SafeAreaView style={styles.topButtons}>
         {!isCaptureRetakeMode() && (
           <>
-            <FlashButton index={flashArrayPosition} flashImages={flashData} onPress={onSetFlash} />
+            <FlashButton index={flashArrayPosition} flashImages={flashImages} onPress={onSetFlash} />
             <SwitchCameraButton cameraFlipImage={props.cameraFlipImage} onPress={onSwitchCameraPressed} />
             <TorchButton torchMode={torchMode} data={torchImages} onPress={onSetTorch} />
           </>

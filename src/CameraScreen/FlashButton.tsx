@@ -4,12 +4,13 @@ import { IFlashImageData } from '../CameraScreen';
 
 interface IProps {
   index: number;
-  flashImages: IFlashImageData;
+  flashImages?: IFlashImageData;
   onPress: () => void;
 }
 
 const FlashButton: React.FC<IProps> = ({ index, flashImages, onPress }) => {
   const component = useMemo(() => {
+    if (!flashImages) return;
     let _result;
     switch (index) {
       case 0:
@@ -20,7 +21,7 @@ const FlashButton: React.FC<IProps> = ({ index, flashImages, onPress }) => {
         _result = flashImages.off;
     }
     return _result;
-  }, [flashImages.auto, flashImages.off, flashImages.on, index]);
+  }, [flashImages, index]);
 
   return (
     <TouchableOpacity style={{ paddingHorizontal: 15 }} onPress={onPress}>
