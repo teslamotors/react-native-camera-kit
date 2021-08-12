@@ -1,9 +1,12 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Alert } from 'react-native';
 import CameraScreen from '../../src/CameraScreen';
+import media from './media';
 
-export default class CameraScreenExample extends Component {
-  onBottomButtonPressed(event) {
+interface IProps {}
+
+const CameraScreenExample: React.FC<IProps> = () => {
+  const onBottomButtonPressed = (event) => {
     const captureImages = JSON.stringify(event.captureImages);
     Alert.alert(
       `"${event.type}" Button Pressed`,
@@ -11,24 +14,21 @@ export default class CameraScreenExample extends Component {
       [{ text: 'OK', onPress: () => console.log('OK Pressed') }],
       { cancelable: false },
     );
-  }
+  };
+  return (
+    <CameraScreen
+      actions={{ rightButtonText: 'Done', leftButtonText: 'Cancel' }}
+      onBottomButtonPressed={onBottomButtonPressed}
+      cameraFlipImage={media.images.flip}
+      captureButtonImage={media.images.camera}
+      torchImages={{
+        on: media.images.torch.on,
+        off: media.images.torch.off,
+      }}
+      showCapturedImageCount
+      flashImages={media.images.flash}
+    />
+  );
+};
 
-  render() {
-    return (
-      <CameraScreen
-        actions={{ rightButtonText: 'Done', leftButtonText: 'Cancel' }}
-        onBottomButtonPressed={(event) => this.onBottomButtonPressed(event)}
-        flashImages={{
-          on: require('../images/flashOn.png'),
-          off: require('../images/flashOff.png'),
-          auto: require('../images/flashAuto.png'),
-        }}
-        cameraFlipImage={require('../images/cameraFlipIcon.png')}
-        captureButtonImage={require('../images/cameraButton.png')}
-        torchOnImage={require('../images/torchOn.png')}
-        torchOffImage={require('../images/torchOff.png')}
-        showCapturedImageCount
-      />
-    );
-  }
-}
+export default CameraScreenExample;

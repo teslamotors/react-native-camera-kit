@@ -1,66 +1,45 @@
-import React, { Component } from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-} from 'react-native';
-
-import CameraScreenExample from './CameraScreenExample';
+import React, { useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import BarcodeScreenExample from './BarcodeScreenExample';
 import CameraExample from './CameraExample';
-import CameraScreenExampleWithCustomComponentAsIcon from './CameraScreenExampleWithCustomComponentAsIcon';
+import CameraScreenExample from './CameraScreenExample';
+import CustomIconScreenExample from './CustomIconScreenExample';
 
-export default class App extends Component {
+interface IProps {}
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      example: undefined,
-    };
+const App: React.FC<IProps> = () => {
+  const [example, setExample] = useState<React.FunctionComponent>();
+
+  if (example) {
+    const Example = example;
+    return <Example />;
   }
 
-  render() {
-    if (this.state.example) {
-      const Example = this.state.example;
-      return <Example />;
-    }
-    return (
-      <View style={{ flex: 1 }}>
-        <View style={styles.headerContainer}>
-          <Text style={{ fontSize: 60 }}>🎈</Text>
-          <Text style={styles.headerText}>
-            React Native Camera Kit
-          </Text>
-        </View>
-        <View style={styles.container}>
-          <TouchableOpacity style={styles.button} onPress={() => this.setState({ example: CameraExample })}>
-            <Text style={styles.buttonText}>
-              Camera
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={() => this.setState({ example: CameraScreenExample })}>
-            <Text style={styles.buttonText}>
-              Camera Screen
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={() => this.setState({ example: BarcodeScreenExample })}>
-            <Text style={styles.buttonText}>
-              Barcode Scanner
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button}
-            onPress={() => this.setState({ example: CameraScreenExampleWithCustomComponentAsIcon })}
-          >
-            <Text style={styles.buttonText}>
-              Camera Screen with custom icons
-            </Text>
-          </TouchableOpacity>
-        </View>
+  return (
+    <View style={{ flex: 1 }}>
+      <View style={styles.headerContainer}>
+        <Text style={{ fontSize: 60 }}>🎈</Text>
+        <Text style={styles.headerText}>React Native Camera Kit</Text>
       </View>
-    );
-  }
-}
+      <View style={styles.container}>
+        <TouchableOpacity style={styles.button} onPress={() => setExample(() => CameraExample)}>
+          <Text style={styles.buttonText}>Camera</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={() => setExample(() => CameraScreenExample)}>
+          <Text style={styles.buttonText}>Camera Screen</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={() => setExample(() => BarcodeScreenExample)}>
+          <Text style={styles.buttonText}>Barcode Scanner</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={() => setExample(() => CustomIconScreenExample)}>
+          <Text style={styles.buttonText}>Camera Screen with custom icons</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+};
+
+export default App;
 
 const styles = StyleSheet.create({
   container: {

@@ -1,15 +1,17 @@
-import React from 'react';
+import React, { forwardRef, useRef } from 'react';
 import _ from 'lodash';
 import { requireNativeComponent, findNodeHandle, NativeModules, processColor } from 'react-native';
+import { ICameraProps } from '../types/camera';
 
 const { RNCameraKitModule } = NativeModules;
 const NativeCamera = requireNativeComponent('CKCameraManager');
 
-const Camera = React.forwardRef((props, ref) => {
-  const nativeRef = React.useRef();
+const Camera = forwardRef<any, ICameraProps>((props, ref) => {
+  const nativeRef = useRef<any>();
 
   React.useImperativeHandle(ref, () => ({
     capture: async (options = {}) => {
+      if (!nativeRef || !nativeRef.current) return;
       // Because RN doesn't support return types for ViewManager methods
       // we must use the general module and tell it what View it's supposed to be using
       return await RNCameraKitModule.capture(options, findNodeHandle(nativeRef.current));
@@ -25,13 +27,7 @@ const Camera = React.forwardRef((props, ref) => {
   _.update(transformedProps, 'laserColor', (c) => processColor(c));
   _.update(transformedProps, 'surfaceColor', (c) => processColor(c));
 
-  return (
-    <NativeCamera
-      style={{ minWidth: 100, minHeight: 100 }}
-      flashMode={props.flashMode}
-      ref={nativeRef}
-      {...transformedProps}
-    />);
+  return <NativeCamera ref={nativeRef} {...transformedProps} />;
 });
 
 export default Camera;

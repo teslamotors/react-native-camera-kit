@@ -1,12 +1,13 @@
 import * as _ from 'lodash';
 import React from 'react';
 import { requireNativeComponent, NativeModules, processColor } from 'react-native';
+import { ICameraProps } from '..';
 
 const { CKCameraManager } = NativeModules;
 const NativeCamera = requireNativeComponent('CKCamera');
 
-const Camera = React.forwardRef((props, ref) => {
-  const nativeRef = React.useRef();
+const Camera = React.forwardRef<any, ICameraProps>((props, ref) => {
+  const nativeRef = React.useRef<any>();
 
   React.useImperativeHandle(ref, () => ({
     capture: async () => {
@@ -23,7 +24,7 @@ const Camera = React.forwardRef((props, ref) => {
   const transformedProps = _.cloneDeep(props);
   _.update(transformedProps, 'cameraOptions.ratioOverlayColor', (c) => processColor(c));
 
-  return <NativeCamera style={{ minWidth: 100, minHeight: 100 }} ref={nativeRef} {...transformedProps} />;
+  return <NativeCamera ref={nativeRef} {...transformedProps} />;
 });
 
 Camera.defaultProps = {

@@ -1,7 +1,8 @@
 import { NativeModules } from 'react-native';
 
 import Camera from './Camera';
-import CameraScreen, { CameraType } from './CameraScreen';
+import CameraScreen from './CameraScreen';
+import { CameraType, ICameraProps, IFlashMode, IFocusMode, IImage, ITorchMode, IZoomMode } from './types/camera';
 
 const { CameraKit } = NativeModules;
 
@@ -15,4 +16,4 @@ export const Orientation = {
 
 export default CameraKit;
 
-export { Camera, CameraScreen, CameraType };
+export { Camera, CameraScreen, CameraType, IFlashMode, ITorchMode, IFocusMode, IZoomMode, ICameraProps, IImage };

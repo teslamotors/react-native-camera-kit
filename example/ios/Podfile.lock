@@ -296,7 +296,9 @@ PODS:
     - React-Core (= 0.63.4)
     - React-cxxreact (= 0.63.4)
     - React-jsi (= 0.63.4)
-  - ReactNativeCameraKit (11.0.1):
+  - ReactNativeCameraKit (11.2.0):
+    - React-Core
+  - RNVectorIcons (8.1.0):
     - React-Core
   - Yoga (1.14.0)
   - YogaKit (1.18.1):
@@ -350,6 +352,7 @@ DEPENDENCIES:
   - React-RCTVibration (from `../node_modules/react-native/Libraries/Vibration`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - ReactNativeCameraKit (from `../..`)
+  - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -420,6 +423,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   ReactNativeCameraKit:
     :path: "../.."
+  RNVectorIcons:
+    :path: "../node_modules/react-native-vector-icons"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -460,10 +465,11 @@ SPEC CHECKSUMS:
   React-RCTText: 5c51df3f08cb9dedc6e790161195d12bac06101c
   React-RCTVibration: ae4f914cfe8de7d4de95ae1ea6cc8f6315d73d9d
   ReactCommon: 73d79c7039f473b76db6ff7c6b159c478acbbb3b
-  ReactNativeCameraKit: 209f6cad3045ba40422580cd7be930a16fdf268d
+  ReactNativeCameraKit: c25ef4c32abd8918578a9ece01c90233f478c97c
+  RNVectorIcons: 31cebfcf94e8cf8686eb5303ae0357da64d7a5a4
   Yoga: 4bd86afe9883422a7c4028c00e34790f560923d6
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
 PODFILE CHECKSUM: 8f5f0289f3aa6dfb96378415fe374a6a428d9999
 
-COCOAPODS: 1.9.3
+COCOAPODS: 1.10.2

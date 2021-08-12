@@ -1,31 +1,29 @@
-import React, { Component } from 'react';
-import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import BarcodeScreen from './BarcodeScreenExample';
 
-export default class CheckingScreen extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      example: undefined,
-    };
-  }
-
-  render() {
-    if (this.state.example) {
-      const CheckingScreen = this.state.example;
-      const value = this.state.value;
-      return <CheckingScreen value={value} />;
-    }
-    return (
-      <View style={styles.container}>
-        <Text style={styles.valueText}>{this.props.value}</Text>
-        <TouchableOpacity onPress={() => this.setState({ example: BarcodeScreen })}>
-          <Text style={styles.buttonText}>Back button</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
+interface IProps {
+  value: string;
 }
+
+const CheckingScreen: React.FC<IProps> = ({ value }) => {
+  const [example, setExample] = useState<React.FunctionComponent>();
+
+  if (example) {
+    const Screen = example;
+    return <Screen />;
+  }
+  return (
+    <View style={styles.container}>
+      <Text style={styles.valueText}>{value}</Text>
+      <TouchableOpacity onPress={() => setExample(() => BarcodeScreen)}>
+        <Text style={styles.buttonText}>Back button</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+export default CheckingScreen;
 
 const styles = StyleSheet.create({
   container: {
