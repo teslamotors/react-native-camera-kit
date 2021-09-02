@@ -11,7 +11,6 @@ import {
   SafeAreaView,
 } from 'react-native';
 import _ from 'lodash';
-// @ts-expect-error - TypeScript doesn't support platform-specific files
 import Camera from './Camera';
 
 const FLASH_MODE_AUTO = 'auto';

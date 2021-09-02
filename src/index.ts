@@ -1,6 +1,5 @@
 import { NativeModules } from 'react-native';
 
-// @ts-expect-error - TypeScript doesn't support platform-specific files
 import Camera from './Camera';
 import CameraScreen, { CameraType } from './CameraScreen';
 import type { CameraApi } from './types';
