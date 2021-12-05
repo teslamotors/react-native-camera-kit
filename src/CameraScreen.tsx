@@ -31,7 +31,9 @@ export type Props = {
   cameraRatioOverlay: any,
   showCapturedImageCount?: boolean,
   captureButtonImage: any,
+  captureButtonImageStyle: any,
   cameraFlipImage: any,
+  cameraFlipImageStyle: any,
   hideControls: any,
   showFrame: any,
   scanBarcode: any,
@@ -39,6 +41,7 @@ export type Props = {
   frameColor: any,
   torchOnImage: any,
   torchOffImage: any,
+  torchImageStyle: any,
   onReadCode: (any) => void;
   onBottomButtonPressed: (any) => void;
 }
@@ -117,7 +120,7 @@ export default class CameraScreen extends Component<Props, State> {
       !this.isCaptureRetakeMode() && (
         <TouchableOpacity style={{ paddingHorizontal: 15 }} onPress={() => this.onSetFlash()}>
           <Image
-            style={{ flex: 1, justifyContent: 'center' }}
+            style={[{ flex: 1, justifyContent: 'center' }, this.props.torchImageStyle]}
             source={this.state.flashData.image}
             resizeMode="contain"
           />
@@ -131,7 +134,7 @@ export default class CameraScreen extends Component<Props, State> {
       !this.isCaptureRetakeMode() && (
         <TouchableOpacity style={{ paddingHorizontal: 15 }} onPress={() => this.onSetTorch()}>
           <Image
-            style={{ flex: 1, justifyContent: 'center' }}
+            style={[{ flex: 1, justifyContent: 'center' }, this.props.torchImageStyle]}
             source={this.state.torchMode ? this.props.torchOnImage : this.props.torchOffImage}
             resizeMode="contain"
           />
@@ -146,7 +149,7 @@ export default class CameraScreen extends Component<Props, State> {
       !this.isCaptureRetakeMode() && (
         <TouchableOpacity style={{ paddingHorizontal: 15 }} onPress={() => this.onSwitchCameraPressed()}>
           <Image
-            style={{ flex: 1, justifyContent: 'center' }}
+            style={[{ flex: 1, justifyContent: 'center' }, this.props.cameraImageStyle]}
             source={this.props.cameraFlipImage}
             resizeMode="contain"
           />
@@ -211,7 +214,7 @@ export default class CameraScreen extends Component<Props, State> {
       !this.isCaptureRetakeMode() && (
         <View style={styles.captureButtonContainer}>
           <TouchableOpacity onPress={() => this.onCaptureImagePressed()}>
-            <Image source={this.props.captureButtonImage} resizeMode="contain" />
+            <Image source={this.props.captureButtonImage} style={this.props.captureButtonImageStyle} resizeMode="contain" />
             {this.props.showCapturedImageCount && (
               <View style={styles.textNumberContainer}>
                 <Text>{this.numberOfImagesTaken()}</Text>
