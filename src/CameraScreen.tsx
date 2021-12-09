@@ -9,6 +9,7 @@ import {
   Dimensions,
   Platform,
   SafeAreaView,
+  ImageStyle
 } from 'react-native';
 import _ from 'lodash';
 import Camera from './Camera';
@@ -31,9 +32,9 @@ export type Props = {
   cameraRatioOverlay: any,
   showCapturedImageCount?: boolean,
   captureButtonImage: any,
-  captureButtonImageStyle: any,
+  captureButtonImageStyle: ImageStyle,
   cameraFlipImage: any,
-  cameraFlipImageStyle: any,
+  cameraFlipImageStyle: ImageStyle,
   hideControls: any,
   showFrame: any,
   scanBarcode: any,
@@ -41,7 +42,7 @@ export type Props = {
   frameColor: any,
   torchOnImage: any,
   torchOffImage: any,
-  torchImageStyle: any,
+  torchImageStyle: ImageStyle,
   onReadCode: (any) => void;
   onBottomButtonPressed: (any) => void;
 }
