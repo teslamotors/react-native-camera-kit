@@ -8,7 +8,7 @@ Add the `kotlin_version` to `buildscript.ext`
 buildscript {
   ext {
         ...
-        kotlin_version = '1.4.10'
+        kotlin_version = '1.5.10'
   }
 ```
 
@@ -35,6 +35,7 @@ Add the Kotlin classpath to `buildscript.dependencies`
 ```
 dependencies {
     ...
+    classpath("com.android.tools.build:gradle:7.0.2") // or recent
     classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
 }
 ```
@@ -46,4 +47,10 @@ Add Kotlin imports
 ```
 apply plugin: "kotlin-android"
 apply plugin: "kotlin-android-extensions"
+```
+
+3, Open AndroidManifest.xml and add the following line activity:
+
+```
+android:exported="true"
 ```
