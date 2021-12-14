@@ -7,20 +7,24 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
-  "version": "11.2.0",
+  "version": "12.0.0",
   "description": "A high performance, fully featured, rock solid camera library for React Native applications",
   "nativePackage": true,
-  "react-native": "src/index",
-  "source": "src/index",
   "scripts": {
+    "build": "tsc --project tsconfig.json",
+    "clean": "rm -rf dist/",
     "test": "jest",
     "lint": "yarn eslint -c .eslintrc.js",
+    "release": "yarn clean && yarn build && yarn publish --verbose",
+    "release:beta": "yarn clean && yarn build && yarn publish --tag beta --verbose",
+    "release:local": "yarn clean && yarn build && tmp=$(mktemp) && yarn pack --filename $tmp.tar.gz && open -R $tmp.tar.gz",
     "start": "watchman watch-del-all && node node_modules/react-native/local-cli/cli.js start",
     "example": "yarn --cwd example",
     "pods": "cd example && pod-install --quiet",
     "bootstrap": "yarn example && yarn && yarn pods"
   },
-  "main": "src/index.js",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
   "dependencies": {
     "lodash": "^4.14.2"
   },
@@ -41,7 +45,7 @@
     "react": "16.11.0",
     "react-native": "0.62.3",
     "react-test-renderer": "16.6.0",
-    "typescript": "^4.1.2"
+    "typescript": "^4.2.3"
   },
   "peerDependencies": {
     "react": "*",
