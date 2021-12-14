@@ -26,7 +26,7 @@ export enum CameraType {
 
 export type Props = {
   focusMode: string|undefined,
-  zoomMode: string|undefined,
+  zoomMode?: string,
   ratioOverlay?: string,
   ratioOverlayColor?: string,
   allowCaptureRetake: boolean,
