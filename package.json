@@ -1,7 +1,8 @@
 {
   "name": "react-native-camera-kit",
   "repository": {
-    "type": "git"
+    "type": "git",
+    "url": "https://github.com/teslamotors/react-native-camera-kit.git"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
@@ -42,7 +43,7 @@
     "pod-install": "^0.1.0",
     "prettier": "^2.1.2",
     "react": "16.11.0",
-    "react-native": "0.62.2",
+    "react-native": "0.62.3",
     "react-test-renderer": "16.6.0",
     "typescript": "^4.2.3"
   },
