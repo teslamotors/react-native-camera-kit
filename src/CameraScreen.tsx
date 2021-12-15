@@ -26,6 +26,8 @@ export enum CameraType {
 }
 
 export type Props = {
+  focusMode?: string,
+  zoomMode?: string,
   ratioOverlay?: string,
   ratioOverlayColor?: string,
   allowCaptureRetake: boolean,
@@ -42,9 +44,10 @@ export type Props = {
   frameColor: any,
   torchOnImage: any,
   torchOffImage: any,
+
   torchImageStyle: ImageStyle,
-  onReadCode: (any) => void;
-  onBottomButtonPressed: (any) => void;
+  onReadCode: (event: any) => void;
+  onBottomButtonPressed: (event: any) => void;
 }
 
 type State = {
@@ -71,21 +74,21 @@ export default class CameraScreen extends Component<Props, State> {
   flashArray: any[];
   camera: any;
 
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
     this.currentFlashArrayPosition = 0;
     this.flashArray = [
       {
         mode: FLASH_MODE_AUTO,
-        image: _.get(this.props, 'flashImages.auto'),
+        image: _.get(props, 'flashImages.auto'),
       },
       {
         mode: FLASH_MODE_ON,
-        image: _.get(this.props, 'flashImages.on'),
+        image: _.get(props, 'flashImages.on'),
       },
       {
         mode: FLASH_MODE_OFF,
-        image: _.get(this.props, 'flashImages.off'),
+        image: _.get(props, 'flashImages.off'),
       },
     ];
 
@@ -106,6 +109,7 @@ export default class CameraScreen extends Component<Props, State> {
     if (this.props.cameraRatioOverlay) {
       ratios = this.props.cameraRatioOverlay.ratios || [];
     }
+    // eslint-disable-next-line react/no-did-mount-set-state
     this.setState({
       ratios: ratios || [],
       ratioArrayPosition: ratios.length > 0 ? 0 : -1,
@@ -178,7 +182,7 @@ export default class CameraScreen extends Component<Props, State> {
           <Image style={{ flex: 1, justifyContent: 'flex-end' }} source={{ uri: this.state.imageCaptured.uri }} />
         ) : (
           <Camera
-            ref={(cam) => (this.camera = cam)}
+            ref={(cam: any) => (this.camera = cam)}
             style={{ flex: 1, justifyContent: 'flex-end' }}
             cameraType={this.state.cameraType}
             flashMode={this.state.flashData.mode}
@@ -239,20 +243,20 @@ export default class CameraScreen extends Component<Props, State> {
             style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', padding: 8 }}
             onPress={() => this.onRatioButtonPressed()}
           >
-            <Text style={styles.ratioText}>{this.state.ratioOverlay}</Text>
+            <Text style={styles.ratioText}>{this.props.ratioOverlay}</Text>
           </TouchableOpacity>
         </View>
       </View>
     );
   }
 
-  sendBottomButtonPressedAction(type, captureRetakeMode, image) {
+  sendBottomButtonPressedAction(type: string, captureRetakeMode: boolean, image: null) {
     if (this.props.onBottomButtonPressed) {
       this.props.onBottomButtonPressed({ type, captureImages: this.state.captureImages, captureRetakeMode, image });
     }
   }
 
-  onButtonPressed(type) {
+  onButtonPressed(type: string) {
     const captureRetakeMode = this.isCaptureRetakeMode();
     if (captureRetakeMode) {
       if (type === 'left') {
@@ -263,7 +267,7 @@ export default class CameraScreen extends Component<Props, State> {
     }
   }
 
-  renderBottomButton(type) {
+  renderBottomButton(type: string) {
     const showButton = true;
     if (showButton) {
       const buttonNameSuffix = this.isCaptureRetakeMode() ? 'CaptureRetakeButtonText' : 'ButtonText';

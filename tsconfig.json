@@ -1,23 +1,26 @@
 {
   "compilerOptions": {
-    "allowJs": true,
-    "allowSyntheticDefaultImports": true,
+    "declaration": true,
+    "declarationDir": "./dist/",
     "esModuleInterop": true,
-    "jsx": "react",
-    "lib": ["es6"],
+    "forceConsistentCasingInFileNames": true,
+    "importHelpers": true,
+    "jsx": "react-native",
+    "lib": ["ES6"],
+    "module": "ES6",
     "moduleResolution": "node",
-    "noEmit": true,
-    "strict": true,
-    "target": "esnext",
-    "resolveJsonModule": true, // Required for JSON files
-    "skipLibCheck": true, // Skips *.d.ts files
-    "strictFunctionTypes": false,
-    "noImplicitAny": false,
-    "outDir": "./lib",
-    "baseUrl": "app",
-    "paths": {
-      "*": ["*", "*.ios", "*.android"]
-    }
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": false,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "sourceMap": true,
+    "removeComments": true,
+    "strictNullChecks": true,
+    "target": "ES6",
+    "skipLibCheck": true
   },
-  "exclude": ["node_modules", "babel.config.js", "metro.config.js", "jest.config.js", "**/*.json", "**/*.spec.ts"]
+  "include": ["./src/**/*.ts", "./src/**/*.tsx"],
+  "exclude": ["**/__tests__/*", "*.test.tsx"]
 }

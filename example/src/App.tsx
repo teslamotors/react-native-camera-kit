@@ -10,7 +10,12 @@ import CameraScreenExample from './CameraScreenExample';
 import BarcodeScreenExample from './BarcodeScreenExample';
 import CameraExample from './CameraExample';
 
+type State = {
+  example?: CameraExample | CameraScreenExample | BarcodeScreenExample;
+}
+
 export default class App extends Component {
+  state: State;
 
   constructor(props) {
     super(props);
