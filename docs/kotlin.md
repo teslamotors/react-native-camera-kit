@@ -48,9 +48,3 @@ Add Kotlin imports
 apply plugin: "kotlin-android"
 apply plugin: "kotlin-android-extensions"
 ```
-
-3. Open AndroidManifest.xml and add the following line activity:
-
-```
-android:exported="true"
-```
