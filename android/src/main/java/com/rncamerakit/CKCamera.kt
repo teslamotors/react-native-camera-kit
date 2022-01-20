@@ -40,6 +40,37 @@ import java.util.concurrent.Executors
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
+import android.util.AttributeSet
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.RectF
+
+class RectOverlay constructor(context: Context) :
+        View(context) {
+
+    private val rectBounds: MutableList<RectF> = mutableListOf()
+    private val paint = Paint().apply {
+        style = Paint.Style.STROKE
+        color = ContextCompat.getColor(context!!, android.R.color.holo_green_light)
+        strokeWidth = 5f
+    }
+
+    override fun onDraw(canvas: Canvas) {
+        super.onDraw(canvas)
+        // Pass it a list of RectF (rectBounds)
+        rectBounds.forEach { canvas.drawRect(it, paint) }
+    }
+
+    fun drawRectBounds(rectBounds: List<RectF>) {
+        this.rectBounds.clear()
+        this.rectBounds.addAll(rectBounds)
+        invalidate()
+        postDelayed({
+          this.rectBounds.clear()
+          invalidate()
+        }, 1000)
+    }
+}
 
 @SuppressLint("ViewConstructor") // Extra constructors unused. Not using visual layout tools
 class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObserver {
@@ -51,6 +82,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
     private var imageAnalyzer: ImageAnalysis? = null
     private var orientationListener: OrientationEventListener? = null
     private var viewFinder: PreviewView = PreviewView(context)
+    private var rectOverlay: RectOverlay = RectOverlay(context)
     private var barcodeFrame: BarcodeFrame? = null
     private var cameraExecutor: ExecutorService = Executors.newSingleThreadExecutor()
     private var cameraProvider: ProcessCameraProvider? = null
@@ -84,6 +116,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
         effectLayer.alpha = 0F
         effectLayer.setBackgroundColor(Color.BLACK)
         addView(effectLayer)
+        addView(rectOverlay)
     }
 
     override fun onAttachedToWindow() {
@@ -371,6 +404,8 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
         if (autoFocus == "off") builder.disableAutoCancel()
 
         camera?.cameraControl?.startFocusAndMetering(builder.build())
+        val focusRects = listOf(RectF(x-75, y-75, x+75, y+75))
+        rectOverlay.drawRectBounds(focusRects)
     }
 
     private fun onBarcodeRead(barcodes: List<String>) {
