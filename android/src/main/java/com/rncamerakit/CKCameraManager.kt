@@ -3,7 +3,6 @@ package com.rncamerakit
 import android.graphics.Color
 import android.util.Log
 import androidx.annotation.ColorInt
-import androidx.camera.view.CameraView
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableType
 import com.facebook.react.common.MapBuilder

@@ -154,7 +154,7 @@ export default class CameraScreen extends Component<Props, State> {
       !this.isCaptureRetakeMode() && (
         <TouchableOpacity style={{ paddingHorizontal: 15 }} onPress={() => this.onSwitchCameraPressed()}>
           <Image
-            style={[{ flex: 1, justifyContent: 'center' }, this.props.cameraImageStyle]}
+            style={{ flex: 1, justifyContent: 'center' }}
             source={this.props.cameraFlipImage}
             resizeMode="contain"
           />
