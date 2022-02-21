@@ -44,7 +44,7 @@ export type Props = {
   frameColor: any,
   torchOnImage: any,
   torchOffImage: any,
-  saveToCameraRoll: boolean,
+  saveToCameraRoll?: boolean,
 
   torchImageStyle: ImageStyle,
   onReadCode: (event: any) => void;
@@ -347,6 +347,11 @@ export default class CameraScreen extends Component<Props, State> {
       </View>
     );
   }
+}
+
+
+CameraScreen.defaultProps = {
+  saveToCameraRoll: true
 }
 
 const styles = StyleSheet.create(
