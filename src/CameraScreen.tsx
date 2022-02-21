@@ -349,6 +349,11 @@ export default class CameraScreen extends Component<Props, State> {
   }
 }
 
+
+CameraScreen.defaultProps = {
+  saveToCameraRoll: true
+}
+
 const styles = StyleSheet.create(
   {
     bottomButtons: {
