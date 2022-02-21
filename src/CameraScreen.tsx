@@ -44,7 +44,7 @@ export type Props = {
   frameColor: any,
   torchOnImage: any,
   torchOffImage: any,
-  saveToCameraRoll: boolean,
+  saveToCameraRoll?: boolean,
 
   torchImageStyle: ImageStyle,
   onReadCode: (event: any) => void;
