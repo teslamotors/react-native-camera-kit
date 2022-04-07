@@ -658,7 +658,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 - (void)changeCamera:(AVCaptureDevicePosition)preferredPosition
 {
-    // Avoid chaning device inputs when camera input is denied by the user, since both front and rear vido input devices will be nill
+    // Avoid chaning device inputs when camera input is denied by the user, since both front and rear vido input devices will be nil
     if ( self.setupResult != CKSetupResultSuccess ) {
         return;
     }
