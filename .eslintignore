@@ -1,0 +1,10 @@
+example/
+dist/
+images/
+ios/
+android/
+assets/
+.vscode/
+.github/
+/.eslintrc.js
+/metro.config.js
