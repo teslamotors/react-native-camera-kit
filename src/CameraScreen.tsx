@@ -9,7 +9,7 @@ import {
   Dimensions,
   Platform,
   SafeAreaView,
-  ImageStyle
+  ImageStyle,
 } from 'react-native';
 import _ from 'lodash';
 import Camera from './Camera';
@@ -69,6 +69,7 @@ export default class CameraScreen extends Component<Props, State> {
 
   static defaultProps = {
     allowCaptureRetake: false,
+    saveToCameraRoll: true,
   };
 
   currentFlashArrayPosition: number;
@@ -197,7 +198,7 @@ export default class CameraScreen extends Component<Props, State> {
             laserColor={this.props.laserColor}
             frameColor={this.props.frameColor}
             onReadCode={this.props.onReadCode}
-            
+
           />
         )}
       </View>
@@ -221,7 +222,11 @@ export default class CameraScreen extends Component<Props, State> {
       !this.isCaptureRetakeMode() && (
         <View style={styles.captureButtonContainer}>
           <TouchableOpacity onPress={() => this.onCaptureImagePressed()}>
-            <Image source={this.props.captureButtonImage} style={this.props.captureButtonImageStyle} resizeMode="contain" />
+            <Image
+              source={this.props.captureButtonImage}
+              style={this.props.captureButtonImageStyle}
+              resizeMode="contain"
+            />
             {this.props.showCapturedImageCount && (
               <View style={styles.textNumberContainer}>
                 <Text>{this.numberOfImagesTaken()}</Text>
@@ -347,11 +352,6 @@ export default class CameraScreen extends Component<Props, State> {
       </View>
     );
   }
-}
-
-
-CameraScreen.defaultProps = {
-  saveToCameraRoll: true
 }
 
 const styles = StyleSheet.create(
