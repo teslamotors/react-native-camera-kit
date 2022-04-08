@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0D37AE2827FFDA6800FC4EB4 /* CKScannerOverlay.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D37AE2727FFDA6800FC4EB4 /* CKScannerOverlay.m */; };
 		26550AF61CFC7086007FF2DF /* CKCameraManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 26550AF51CFC7086007FF2DF /* CKCameraManager.m */; };
 		2685AA241CFD89A300E4A446 /* CKCamera.m in Sources */ = {isa = PBXBuildFile; fileRef = 2685AA231CFD89A300E4A446 /* CKCamera.m */; };
 		269292831D3B7D6000E07DDF /* CKCameraOverlayView.m in Sources */ = {isa = PBXBuildFile; fileRef = 269292821D3B7D6000E07DDF /* CKCameraOverlayView.m */; };
@@ -28,6 +29,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0D37AE2627FFDA6800FC4EB4 /* CKScannerOverlay.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CKScannerOverlay.h; sourceTree = "<group>"; };
+		0D37AE2727FFDA6800FC4EB4 /* CKScannerOverlay.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CKScannerOverlay.m; sourceTree = "<group>"; };
 		2646934E1CFB2A6B00F3A740 /* libReactNativeCameraKit.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libReactNativeCameraKit.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		26550AF41CFC7086007FF2DF /* CKCameraManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CKCameraManager.h; sourceTree = "<group>"; };
 		26550AF51CFC7086007FF2DF /* CKCameraManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CKCameraManager.m; sourceTree = "<group>"; };
@@ -85,6 +88,8 @@
 				269292851D3B81C800E07DDF /* CKOverlayObject.m */,
 				FC8E10CD253F8A23006D5AD0 /* CKMockPreview.h */,
 				FC8E10CE253F8A23006D5AD0 /* CKMockPreview.m */,
+				0D37AE2627FFDA6800FC4EB4 /* CKScannerOverlay.h */,
+				0D37AE2727FFDA6800FC4EB4 /* CKScannerOverlay.m */,
 			);
 			path = ReactNativeCameraKit;
 			sourceTree = "<group>";
@@ -151,6 +156,7 @@
 				A7686BFE1EC9CFEC00959216 /* CKCompressedImage.m in Sources */,
 				269292861D3B81C800E07DDF /* CKOverlayObject.m in Sources */,
 				2685AA241CFD89A300E4A446 /* CKCamera.m in Sources */,
+				0D37AE2827FFDA6800FC4EB4 /* CKScannerOverlay.m in Sources */,
 				269292831D3B7D6000E07DDF /* CKCameraOverlayView.m in Sources */,
 				FC8E10CF253F8A23006D5AD0 /* CKMockPreview.m in Sources */,
 			);
