@@ -99,6 +99,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 @property (nonatomic) UIBackgroundTaskIdentifier backgroundRecordingID;
 
 // scanner options
+@property (nonatomic) BOOL scanBarcode;
 @property (nonatomic) BOOL showFrame;
 @property (nonatomic) UIView *scannerView;
 @property (nonatomic, strong) RCTDirectEventBlock onReadCode;
@@ -307,6 +308,12 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
     if (color != nil) {
         _frameColor = color;
     }
+}
+
+- (void)setScanBarcode:(BOOL)scanBarcode {
+   if (_scanBarcode != scanBarcode) {
+       _scanBarcode = scanBarcode;
+   }
 }
 
 - (void) orientationChanged:(NSNotification *)notification
@@ -1131,7 +1138,9 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 - (void)captureOutput:(AVCaptureOutput *)output
 didOutputMetadataObjects:(NSArray<__kindof AVMetadataObject *> *)metadataObjects
        fromConnection:(AVCaptureConnection *)connection {
-
+    if (!self.scanBarcode) {
+        return;
+    }
     for(AVMetadataObject *metadataObject in metadataObjects)
     {
         if ([metadataObject isKindOfClass:[AVMetadataMachineReadableCodeObject class]] && [self isSupportedBarCodeType:metadataObject.type]) {
