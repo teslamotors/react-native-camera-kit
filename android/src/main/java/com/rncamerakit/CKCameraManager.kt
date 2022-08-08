@@ -100,11 +100,6 @@ class CKCameraManager : SimpleViewManager<CKCamera>() {
         view.setOutputPath(path)
     }
 
-    @ReactProp(name = "saveToCameraRoll")
-    fun saveToCameraRoll(view: CKCamera, enabled: Boolean) {
-        view.setSaveToCameraRoll(enabled);
-    }
-
     @ReactProp(name = "shutterAnimationDuration")
     fun setShutterAnimationDuration(view: CKCamera, duration: Int) {
         view.setShutterAnimationDuration(duration)

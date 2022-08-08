@@ -5,7 +5,6 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.ContentValues
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Color
@@ -13,7 +12,6 @@ import android.hardware.SensorManager
 import android.media.AudioManager
 import android.media.MediaActionSound
 import android.net.Uri
-import android.provider.MediaStore
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.*
@@ -40,7 +38,6 @@ import java.util.concurrent.Executors
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
-import android.util.AttributeSet
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
@@ -51,7 +48,7 @@ class RectOverlay constructor(context: Context) :
     private val rectBounds: MutableList<RectF> = mutableListOf()
     private val paint = Paint().apply {
         style = Paint.Style.STROKE
-        color = ContextCompat.getColor(context!!, android.R.color.holo_green_light)
+        color = ContextCompat.getColor(context, android.R.color.holo_green_light)
         strokeWidth = 5f
     }
 
@@ -89,7 +86,6 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
     private var outputPath: String? = null
     private var shutterAnimationDuration: Int = 50
     private var effectLayer = View(context)
-    private var saveToCameraRoll = true
 
     // Camera Props
     private var lensType = CameraSelector.LENS_FACING_BACK
@@ -157,7 +153,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
     @SuppressLint("ClickableViewAccessibility")
     private fun setupCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(getActivity())
-        cameraProviderFuture.addListener(Runnable {
+        cameraProviderFuture.addListener({
             // Used to bind the lifecycle of cameras to the lifecycle owner
             cameraProvider = cameraProviderFuture.get()
 
@@ -315,48 +311,29 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
     }
 
     fun capture(options: Map<String, Any>, promise: Promise) {
-        // Create output options object which contains file + metadata
-        val contentValues = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, "IMG_" + System.currentTimeMillis())
-            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-        }
-
         // Create the output file option to store the captured image in MediaStore
-        val outputPath = when {
-            saveToCameraRoll -> null
-            outputPath != null -> outputPath
+        val outputPath: String = when {
+            outputPath != null -> outputPath!!
             else -> {
                 val out = File.createTempFile("ckcap", ".jpg", context.cacheDir)
-                out.deleteOnExit();
+                out.deleteOnExit()
                 out.canonicalPath
             }
         }
 
-        var outputFile: File? = null
-        val outputOptions = if (saveToCameraRoll) {
-            ImageCapture.OutputFileOptions
-                    .Builder(
-                            context.contentResolver,
-                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                            contentValues
-                    )
-                    .build()
-        } else {
-            outputFile = File(outputPath)
-            ImageCapture.OutputFileOptions
+        val outputFile = File(outputPath)
+        val outputOptions = ImageCapture.OutputFileOptions
                     .Builder(outputFile)
                     .build()
-        }
 
         flashViewFinder()
 
         val audio = getActivity().getSystemService(Context.AUDIO_SERVICE) as AudioManager
         if (audio.ringerMode == AudioManager.RINGER_MODE_NORMAL) {
-            MediaActionSound().play(MediaActionSound.SHUTTER_CLICK);
+            MediaActionSound().play(MediaActionSound.SHUTTER_CLICK)
         }
 
-        // Setup image capture listener which is triggered after photo has
-        // been taken
+        // Setup image capture listener which is triggered after photo has been taken
         imageCapture?.takePicture(
                 outputOptions, ContextCompat.getMainExecutor(getActivity()), object : ImageCapture.OnImageSavedCallback {
             override fun onError(ex: ImageCaptureException) {
@@ -469,7 +446,6 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
     }
 
     fun setTorchMode(mode: String?) {
-        val imageCapture = imageCapture ?: return
         val camera = camera ?: return
         when (mode) {
             "on" -> {
@@ -495,10 +471,6 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
 
     fun setZoomMode(mode: String = "on") {
         zoomMode = mode
-    }
-
-    fun setSaveToCameraRoll(enabled: Boolean = true) {
-        saveToCameraRoll = enabled
     }
 
     fun setScanBarcode(enabled: Boolean) {
