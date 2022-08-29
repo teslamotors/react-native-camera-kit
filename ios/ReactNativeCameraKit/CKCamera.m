@@ -80,8 +80,6 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 @property (nonatomic) NSInteger resetFocusTimeout;
 @property (nonatomic) BOOL resetFocusWhenMotionDetected;
 @property (nonatomic) BOOL tapToFocusEngaged;
-@property (nonatomic) BOOL saveToCameraRoll;
-@property (nonatomic) BOOL saveToCameraRollWithPhUrl;
 
 // session management
 @property (nonatomic) dispatch_queue_t sessionQueue;
@@ -595,65 +593,13 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         imageInfoDict[@"size"] = length;
     }
 
-    if (self.saveToCameraRoll) {
-        [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
-            if (status != PHAuthorizationStatusAuthorized) {
-                onError(@"Photo library permission is not authorized.");
-                return;
-            }
-            [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
-                // To preserve the metadata, we create an asset from the JPEG NSData representation.
-                // Note that creating an asset from a UIImage discards the metadata.
-                // In iOS 9, we can use -[PHAssetCreationRequest addResourceWithType:data:options].
-                [[PHAssetCreationRequest creationRequestForAsset] addResourceWithType:PHAssetResourceTypePhoto data:imageData options:nil];
-            } completionHandler:^(BOOL success, NSError *error) {
-                if (!success) {
-                    NSLog(@"Could not save to camera roll");
-                    onError(@"Photo library asset creation failed");
-                    return;
-                }
-
-                // Get local identifier
-                PHFetchResult *fetchResult = [PHAsset fetchAssetsWithMediaType:PHAssetMediaTypeImage options:self.fetchOptions];
-                PHAsset *firstAsset = [fetchResult firstObject];
-                NSString *localIdentifier = firstAsset.localIdentifier;
-
-                if (localIdentifier) {
-                    imageInfoDict[@"id"] = localIdentifier;
-                }
-
-                // 'ph://' is a rnc/cameraroll URL scheme for loading PHAssets by localIdentifier
-                // which are loaded via RNCAssetsLibraryRequestHandler module that conforms to RCTURLRequestHandler
-                if (self.saveToCameraRollWithPhUrl) {
-                    imageInfoDict[@"uri"] = [NSString stringWithFormat:@"ph://%@", localIdentifier];
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        onSuccess(imageInfoDict);
-                    });
-                } else {
-                    PHContentEditingInputRequestOptions *options = [[PHContentEditingInputRequestOptions alloc] init];
-                    [options setNetworkAccessAllowed:YES];
-                    [firstAsset requestContentEditingInputWithOptions:options completionHandler:^(PHContentEditingInput * _Nullable contentEditingInput, NSDictionary * _Nonnull info) {
-                        imageInfoDict[@"uri"] = contentEditingInput.fullSizeImageURL.absoluteString;
-
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            onSuccess(imageInfoDict);
-                        });
-                    }];
-                }
-
-
-            }];
-        }];
-    } else {
-        NSURL *temporaryFileURL = [CKCamera saveToTmpFolder:imageData];
-        if (temporaryFileURL) {
-            imageInfoDict[@"uri"] = temporaryFileURL.description;
-            imageInfoDict[@"name"] = temporaryFileURL.lastPathComponent;
-        }
-
-        onSuccess(imageInfoDict);
+    NSURL *temporaryFileURL = [CKCamera saveToTmpFolder:imageData];
+    if (temporaryFileURL) {
+        imageInfoDict[@"uri"] = temporaryFileURL.description;
+        imageInfoDict[@"name"] = temporaryFileURL.lastPathComponent;
     }
 
+    onSuccess(imageInfoDict);
 }
 
 - (void)changeCamera:(AVCaptureDevicePosition)preferredPosition

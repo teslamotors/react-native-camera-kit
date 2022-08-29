@@ -32,8 +32,6 @@ RCT_EXPORT_VIEW_PROPERTY(laserColor, UIColor)
 RCT_EXPORT_VIEW_PROPERTY(frameColor, UIColor)
 RCT_EXPORT_VIEW_PROPERTY(resetFocusTimeout, NSInteger)
 RCT_EXPORT_VIEW_PROPERTY(resetFocusWhenMotionDetected, BOOL)
-RCT_EXPORT_VIEW_PROPERTY(saveToCameraRoll, BOOL)
-RCT_EXPORT_VIEW_PROPERTY(saveToCameraRollWithPhUrl, BOOL)
 
 RCT_EXPORT_METHOD(capture:(NSDictionary*)options
                   resolve:(RCTPromiseResolveBlock)resolve

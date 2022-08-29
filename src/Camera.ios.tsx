@@ -37,7 +37,6 @@ const Camera = React.forwardRef((props: any, ref: any) => {
 Camera.defaultProps = {
   resetFocusTimeout: 0,
   resetFocusWhenMotionDetected: true,
-  saveToCameraRoll: true,
 };
 
 export default Camera;

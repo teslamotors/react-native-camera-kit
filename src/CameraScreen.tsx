@@ -44,7 +44,6 @@ export type Props = {
   frameColor: any,
   torchOnImage: any,
   torchOffImage: any,
-  saveToCameraRoll?: boolean,
 
   torchImageStyle: ImageStyle,
   onReadCode: (event: any) => void;
@@ -69,7 +68,6 @@ export default class CameraScreen extends Component<Props, State> {
 
   static defaultProps = {
     allowCaptureRetake: false,
-    saveToCameraRoll: true,
   };
 
   currentFlashArrayPosition: number;
@@ -192,7 +190,6 @@ export default class CameraScreen extends Component<Props, State> {
             focusMode={this.props.focusMode}
             zoomMode={this.props.zoomMode}
             ratioOverlay={this.state.ratios[this.state.ratioArrayPosition]}
-            saveToCameraRoll={this.props.saveToCameraRoll}
             showFrame={this.props.showFrame}
             scanBarcode={this.props.scanBarcode}
             laserColor={this.props.laserColor}
