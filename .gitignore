@@ -77,7 +77,7 @@ fabric.properties
 ## Build generated
 ios/build/
 ios/DerivedData/
-dist/
+# dist/
 
 ## Various settings
 *.pbxuser
