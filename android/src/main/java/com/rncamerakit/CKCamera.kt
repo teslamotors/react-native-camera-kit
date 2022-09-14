@@ -117,9 +117,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        if (hasPermissions()) {
-            viewFinder.post { setupCamera() }
-        }
+        viewFinder.post { setupCamera() }
     }
 
     override fun onDetachedFromWindow() {
@@ -526,21 +524,6 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
     private fun convertDeviceHeightToSupportedAspectRatio(actualWidth: Int, actualHeight: Int): Int {
         val maxScreenRatio = 16 / 9f
         return (if (actualHeight / actualWidth > maxScreenRatio) actualWidth * maxScreenRatio else actualHeight).toInt()
-    }
-
-    private fun hasPermissions(): Boolean {
-        val requiredPermissions = arrayOf(Manifest.permission.CAMERA)
-        if (requiredPermissions.all {
-                    ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
-                }) {
-            return true
-        }
-        ActivityCompat.requestPermissions(
-                getActivity(),
-                requiredPermissions,
-                42 // random callback identifier
-        )
-        return false
     }
 
     companion object {
