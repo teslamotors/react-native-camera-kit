@@ -181,8 +181,6 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         // Communicate with the session and other session objects on this queue.
         self.sessionQueue = dispatch_queue_create( "session queue", DISPATCH_QUEUE_SERIAL );
 
-        [self handleCameraPermission];
-
 #if !(TARGET_IPHONE_SIMULATOR)
         [self setupCaptureSession];
 #endif
@@ -395,39 +393,6 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
     } );
 }
 
--(void)handleCameraPermission {
-
-    switch ( [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo] )
-    {
-        case AVAuthorizationStatusAuthorized:
-        {
-            // The user has previously granted access to the camera.
-            break;
-        }
-        case AVAuthorizationStatusNotDetermined:
-        {
-            // The user has not yet been presented with the option to grant video access.
-            // We suspend the session queue to delay session setup until the access request has completed to avoid
-            // asking the user for audio access if video access is denied.
-            // Note that audio access will be implicitly requested when we create an AVCaptureDeviceInput for audio during session setup.
-            dispatch_suspend( self.sessionQueue );
-            [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^( BOOL granted ) {
-                if ( ! granted ) {
-                    self.setupResult = CKSetupResultCameraNotAuthorized;
-                }
-                dispatch_resume( self.sessionQueue );
-            }];
-            break;
-        }
-        default:
-        {
-            // The user has previously denied access.
-            self.setupResult = CKSetupResultCameraNotAuthorized;
-            break;
-        }
-    }
-}
-
 -(void)reactSetFrame:(CGRect)frame {
     [super reactSetFrame:frame];
     
@@ -441,50 +406,18 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
     [self setOverlayRatioView];
 
     dispatch_async( self.sessionQueue, ^{
-        switch ( self.setupResult )
-        {
-            case CKSetupResultSuccess:
-            {
-                // Only setup observers and start the session running if setup succeeded.
-                [self addObservers];
-                [self.session startRunning];
-                self.sessionRunning = self.session.isRunning;
-                if (self.showFrame) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [self addFrameForScanner];
-                    });
-                }
-                break;
-            }
-            case CKSetupResultCameraNotAuthorized:
-            {
-                //                dispatch_async( dispatch_get_main_queue(), ^{
-                //                    NSString *message = NSLocalizedString( @"AVCam doesn't have permission to use the camera, please change privacy settings", @"Alert message when the user has denied access to the camera" );
-                //                    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"AVCam" message:message preferredStyle:UIAlertControllerStyleAlert];
-                //                    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString( @"OK", @"Alert OK button" ) style:UIAlertActionStyleCancel handler:nil];
-                //                    [alertController addAction:cancelAction];
-                //                    // Provide quick access to Settings.
-                //                    UIAlertAction *settingsAction = [UIAlertAction actionWithTitle:NSLocalizedString( @"Settings", @"Alert button to open Settings" ) style:UIAlertActionStyleDefault handler:^( UIAlertAction *action ) {
-                //                        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
-                //                    }];
-                //                    [alertController addAction:settingsAction];
-                //                    [self presentViewController:alertController animated:YES completion:nil];
-                //                } );
-                break;
-            }
-            case CKSetupResultSessionConfigurationFailed:
-            {
-                //                dispatch_async( dispatch_get_main_queue(), ^{
-                //                    NSString *message = NSLocalizedString( @"Unable to capture media", @"Alert message when something goes wrong during capture session configuration" );
-                //                    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"AVCam" message:message preferredStyle:UIAlertControllerStyleAlert];
-                //                    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString( @"OK", @"Alert OK button" ) style:UIAlertActionStyleCancel handler:nil];
-                //                    [alertController addAction:cancelAction];
-                //                    [self presentViewController:alertController animated:YES completion:nil];
-                //                } );
-                break;
+        if (self.setupResult == CKSetupResultSuccess) {
+            // Only setup observers and start the session running if setup succeeded.
+            [self addObservers];
+            [self.session startRunning];
+            self.sessionRunning = self.session.isRunning;
+            if (self.showFrame) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self addFrameForScanner];
+                });
             }
         }
-    } );
+    });
 }
 
 -(void)setRatioOverlay:(NSString *)ratioOverlay {
@@ -573,7 +506,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 - (void)capturePreviewLayer:(NSDictionary*)options success:(CaptureBlock)onSuccess onError:(void (^)(NSString*))onError
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
+    dispatch_async( self.sessionQueue, ^{
         if (self.mockPreview != nil) {
             UIImage *previewSnapshot = [self.mockPreview snapshotWithTimestamp:YES]; // Generate snapshot from main UI thread
             dispatch_async( self.sessionQueue, ^{ // write image async
