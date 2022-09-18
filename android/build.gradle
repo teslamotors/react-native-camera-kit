@@ -19,7 +19,7 @@ android {
 
 dependencies {
     implementation 'com.facebook.react:react-native:+'
-    implementation group: 'com.drewnoakes', name: 'metadata-extractor', version: '2.12.0'
+    implementation group: 'com.drewnoakes', name: 'metadata-extractor', version: '2.18.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     // CameraX core library using the camera2 implementation
