@@ -5,8 +5,8 @@
 #import <React/UIView+React.h>
 #import <React/RCTConvert.h>
 #else
-#import "UIView+React.h"
-#import "RCTConvert.h"
+#import <React/UIView+React.h>
+#import <React/RCTConvert.h>
 #endif
 
 #import "CKCamera.h"
@@ -582,9 +582,16 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 }
 
 +(NSURL*)saveToTmpFolder:(NSData*)data {
+    NSFileManager *fs = [NSFileManager defaultManager];
+    NSString *bundleIdentifier = [[NSBundle mainBundle] bundleIdentifier];
+    NSURL *cacheDir = [[fs URLsForDirectory:NSCachesDirectory inDomains:NSUserDomainMask] firstObject];
+    NSURL *appCacheDir = [[cacheDir URLByAppendingPathComponent:bundleIdentifier isDirectory:YES] URLByAppendingPathComponent:@"com.rncamerakit" isDirectory:YES];
+    NSError *createErr = nil;
+    if (![fs createDirectoryAtURL:appCacheDir withIntermediateDirectories:YES attributes:nil error:&createErr]) {
+        NSLog(@"Error occured while creating a temporary directory for images: %@", createErr);
+    }
     NSString *temporaryFileName = [NSProcessInfo processInfo].globallyUniqueString;
-    NSString *temporaryFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[temporaryFileName stringByAppendingPathExtension:@"jpg"]];
-    NSURL *temporaryFileURL = [NSURL fileURLWithPath:temporaryFilePath];
+    NSURL *temporaryFileURL = [appCacheDir URLByAppendingPathComponent:[temporaryFileName stringByAppendingPathExtension:@"jpg"] isDirectory:NO];
 
     NSError *error = nil;
     [data writeToURL:temporaryFileURL options:NSDataWritingAtomic error:&error];
