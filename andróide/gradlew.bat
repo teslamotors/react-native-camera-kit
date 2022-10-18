@@ -60,8 +60,8 @@ set _SKIP=2
 if "x%~1" == "x" goto execute
 
 set CMD_LINE_ARGS=%*
-goto execute
-
+goto xecute
+@
 :4NT_args
 @rem Get arguments from the 4NT Shell from JP Software
 set CMD_LINE_ARGS=%$
