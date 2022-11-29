@@ -294,7 +294,7 @@ PODS:
     - React-Core (= 0.63.4)
     - React-cxxreact (= 0.63.4)
     - React-jsi (= 0.63.4)
-  - ReactNativeCameraKit (11.2.0):
+  - ReactNativeCameraKit (13.0.0):
     - React-Core
   - Yoga (1.14.0)
   - YogaKit (1.18.1):
@@ -458,10 +458,10 @@ SPEC CHECKSUMS:
   React-RCTText: 5c51df3f08cb9dedc6e790161195d12bac06101c
   React-RCTVibration: ae4f914cfe8de7d4de95ae1ea6cc8f6315d73d9d
   ReactCommon: 73d79c7039f473b76db6ff7c6b159c478acbbb3b
-  ReactNativeCameraKit: c25ef4c32abd8918578a9ece01c90233f478c97c
+  ReactNativeCameraKit: 9d46a5d7dd544ca64aa9c03c150d2348faf437eb
   Yoga: 4bd86afe9883422a7c4028c00e34790f560923d6
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
 PODFILE CHECKSUM: f9ef8a8a0dbf13b0a1ceaa5b4c54937559d74e9e
 
-COCOAPODS: 1.10.1
+COCOAPODS: 1.11.3
