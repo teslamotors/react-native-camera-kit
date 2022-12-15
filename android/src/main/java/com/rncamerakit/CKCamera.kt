@@ -114,15 +114,6 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
         addView(effectLayer)
         addView(rectOverlay)
 
-        barcodeFrame = BarcodeFrame(context)
-        getActivity().addContentView(
-            barcodeFrame,
-            ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-            )
-        )
-
     }
 
     override fun onAttachedToWindow() {
