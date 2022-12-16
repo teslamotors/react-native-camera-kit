@@ -41,7 +41,7 @@
     "eslint-plugin-import": "^2.22.1",
     "jest": "^26.0.1",
     "metro-react-native-babel-preset": "0.51.0",
-    "pod-install": "^0.1.0",
+    "pod-yarn": "^0.1.0",
     "prettier": "^2.1.2",
     "react": "16.11.0",
     "react-native": "0.62.3",
