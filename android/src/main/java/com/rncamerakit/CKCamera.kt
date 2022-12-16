@@ -254,7 +254,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
 
         if (scanBarcode) {
             val analyzer = QRCodeAnalyzer(
-                barcodeFrame!!,
+                barcodeFrame,
                 metrics.widthPixels.toFloat(),
                 metrics.heightPixels.toFloat()
             ) { barcodes ->
@@ -512,9 +512,9 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
 
     fun setShowFrame(enabled: Boolean) {
         if (enabled) {
-            barcodeFrame = BarcodeFrame(context)
             val actualPreviewWidth = resources.displayMetrics.widthPixels
             val actualPreviewHeight = resources.displayMetrics.heightPixels
+            barcodeFrame = BarcodeFrame(context)
             val height: Int =
                 convertDeviceHeightToSupportedAspectRatio(actualPreviewWidth, actualPreviewHeight)
             barcodeFrame!!.setFrameColor(frameColor)

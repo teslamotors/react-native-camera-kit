@@ -3,9 +3,12 @@ package com.rncamerakit.barcode
 import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.Drawable
+import android.util.DisplayMetrics
+import android.util.Log
 import android.view.View
 import androidx.annotation.ColorInt
 import com.rncamerakit.R
+import kotlin.math.roundToInt
 
 class BarcodeFrame(context: Context) : View(context) {
     private var borderPaint: Paint = Paint()
@@ -17,8 +20,8 @@ class BarcodeFrame(context: Context) : View(context) {
     private var mDefaultFrame = RectF()
     private var mRectFrame = Rect()
     private var mCanvas = Canvas()
-    private var mDrawable: Drawable? = null;
-    
+    private var mDrawable: Drawable? = null
+
     private fun init(context: Context) {
         borderPaint = Paint()
         borderPaint.style = Paint.Style.STROKE
@@ -27,15 +30,13 @@ class BarcodeFrame(context: Context) : View(context) {
         laserPaint.strokeWidth = STROKE_WIDTH.toFloat()
         overlayPaint = Paint()
         overlayPaint.color = Color.parseColor("#80000000")
-        mDrawable =  resources.getDrawable(R.drawable.qr_scanner, null)
-
+        mDrawable = resources.getDrawable(R.drawable.qr_scanner, null)
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         val centerX = width / 2f
-
-        val centerY = (height / 2f) - (RECTANGLE_HEIGHT / 2) - 50 
+        val centerY = height / 2.25f
 
         mDefaultFrame.left = centerX - RECTANGLE_WIDTH
         mDefaultFrame.top = centerY - RECTANGLE_HEIGHT
@@ -46,6 +47,7 @@ class BarcodeFrame(context: Context) : View(context) {
         mRectFrame.top = (centerY - RECTANGLE_HEIGHT).toInt()
         mRectFrame.right = (centerX + RECTANGLE_WIDTH).toInt()
         mRectFrame.bottom = (centerY + RECTANGLE_HEIGHT).toInt()
+
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -77,24 +79,26 @@ class BarcodeFrame(context: Context) : View(context) {
                 mDefaultFrame.bottom.toInt()
             ), overlayPaint
         )
-        canvas.drawRect(Rect(0, mDefaultFrame.bottom.toInt(), width, height), overlayPaint)     //Bottom
+        canvas.drawRect(
+            Rect(0, mDefaultFrame.bottom.toInt(), width, height),
+            overlayPaint
+        )     //Bottom
     }
 
     private fun drawBorder(canvas: Canvas) {
-//        canvas.drawRect(mDefaultFrame, borderPaint)
         val drawable = resources.getDrawable(R.drawable.qr_scanner, null)
         drawable.bounds = mRectFrame
         drawable.draw(canvas)
     }
 
     private fun drawLaser(canvas: Canvas, timeElapsed: Long) {
-        if (laserY > mDefaultFrame.bottom || laserY < mDefaultFrame.top ) laserY =
+        if (laserY > mDefaultFrame.bottom || laserY < mDefaultFrame.top) laserY =
             mDefaultFrame.top.toInt()
         canvas.drawLine(
             mDefaultFrame.left + STROKE_WIDTH + 30,
             laserY.toFloat(),
             mDefaultFrame.right - STROKE_WIDTH - 30,
-            laserY.toFloat() ,
+            laserY.toFloat(),
             laserPaint
         )
         laserY += (timeElapsed / ANIMATION_SPEED).toInt()

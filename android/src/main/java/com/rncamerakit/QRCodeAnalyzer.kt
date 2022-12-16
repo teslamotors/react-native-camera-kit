@@ -11,7 +11,7 @@ import com.google.mlkit.vision.common.InputImage
 import com.rncamerakit.barcode.BarcodeFrame
 
 class QRCodeAnalyzer(
-    private val barcodeFrame: BarcodeFrame,
+    private val barcodeFrame: BarcodeFrame?,
     private val previewViewWidth: Float,
     private val previewViewHeight: Float,
     private val onQRCodesDetected: (qrCodes: List<String>) -> Unit
@@ -44,8 +44,14 @@ class QRCodeAnalyzer(
                     val strBarcodes = mutableListOf<String>()
                     barcodes.forEach { barcode ->
                         barcode.boundingBox?.let { rect ->
-                            if (barcodeFrame.isQRInsideFrame(adjustBoundingRect(rect))) {
+                            if (barcodeFrame != null && barcodeFrame.isQRInsideFrame(
+                                    adjustBoundingRect(rect)
+                                )
+                            ) {
                                 strBarcodes.add(barcode.rawValue ?: return@forEach)
+                            } else {
+                                strBarcodes.add(barcode.rawValue ?: return@forEach)
+
                             }
                         }
                     }
