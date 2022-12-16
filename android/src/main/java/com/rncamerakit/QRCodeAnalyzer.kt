@@ -49,9 +49,6 @@ class QRCodeAnalyzer(
                                 )
                             ) {
                                 strBarcodes.add(barcode.rawValue ?: return@forEach)
-                            } else {
-                                strBarcodes.add(barcode.rawValue ?: return@forEach)
-
                             }
                         }
                     }
