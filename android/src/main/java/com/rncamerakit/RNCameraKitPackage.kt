@@ -15,8 +15,6 @@ class RNCameraKitPackage : ReactPackage {
     }
 
     override fun createViewManagers(reactContext: ReactApplicationContext): List<ViewManager<*, *>> {
-        val viewManagers: MutableList<ViewManager<*, *>> = ArrayList()
-        viewManagers.add(CKCameraManager())
-        return viewManagers
+        return listOf(CKCameraManager())
     }
 }

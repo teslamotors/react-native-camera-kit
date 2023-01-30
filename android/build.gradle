@@ -1,45 +1,102 @@
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
+buildscript {
+  // Buildscript is evaluated before everything else so we can't use getExtOrDefault
+  def kotlin_version = rootProject.ext.has("kotlinVersion") ? rootProject.ext.get("kotlinVersion") : project.properties["ReactNativeCameraKit_kotlinVersion"]
+
+  repositories {
+    google()
+    mavenCentral()
+  }
+
+  dependencies {
+    classpath "com.android.tools.build:gradle:7.2.1"
+    // noinspection DifferentKotlinGradleVersion
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+  }
+}
+
+def isNewArchitectureEnabled() {
+  return rootProject.hasProperty("newArchEnabled") && rootProject.getProperty("newArchEnabled") == "true"
+}
+
+apply plugin: "com.android.library"
+apply plugin: "kotlin-android"
+
+if (isNewArchitectureEnabled()) {
+  apply plugin: "com.facebook.react"
+}
+
+def getExtOrDefault(name) {
+  return rootProject.ext.has(name) ? rootProject.ext.get(name) : project.properties["ReactNativeCameraKit_" + name]
+}
+
+def getExtOrIntegerDefault(name) {
+  return rootProject.ext.has(name) ? rootProject.ext.get(name) : (project.properties["ReactNativeCameraKit_" + name]).toInteger()
+}
 
 android {
-    compileSdkVersion 31
-    defaultConfig {
-        minSdkVersion 23
-        targetSdkVersion 30
-        versionCode 1
-        versionName "1.0"
-        ndk {
-            abiFilters "arm64-v8a", "x86"
-        }
+  compileSdkVersion getExtOrIntegerDefault("compileSdkVersion")
+
+  defaultConfig {
+    minSdkVersion getExtOrIntegerDefault("minSdkVersion")
+    targetSdkVersion getExtOrIntegerDefault("targetSdkVersion")
+    buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
+  }
+  buildTypes {
+    release {
+      minifyEnabled false
     }
-    lintOptions {
-        warning 'InvalidPackage'
-    }
+  }
+
+  lintOptions {
+    disable "GradleCompatible"
+  }
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+  }
+
 }
+
+repositories {
+  mavenCentral()
+  google()
+}
+
+def kotlin_version = getExtOrDefault("kotlinVersion")
 
 dependencies {
-    implementation 'com.facebook.react:react-native:+'
-    implementation group: 'com.drewnoakes', name: 'metadata-extractor', version: '2.18.0'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+  // For < 0.71, this will be from the local maven repo
+  // For > 0.71, this will be replaced by `com.facebook.react:react-android:$version` by react gradle plugin
+  //noinspection GradleDynamicVersion
+  implementation "com.facebook.react:react-native"
+  implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
-    // CameraX core library using the camera2 implementation
-    def camerax_version = "1.1.0"
-    // The following line is optional, as the core library is included indirectly by camera-camera2
-    implementation "androidx.camera:camera-core:${camerax_version}"
-    implementation "androidx.camera:camera-camera2:${camerax_version}"
-    // If you want to additionally use the CameraX Lifecycle library
-    implementation "androidx.camera:camera-lifecycle:${camerax_version}"
-    // If you want to additionally use the CameraX VideoCapture library
-    // implementation "androidx.camera:camera-video:${camerax_version}"
-    // If you want to additionally use the CameraX View class
-    implementation "androidx.camera:camera-view:${camerax_version}"
-    // If you want to additionally add CameraX ML Kit Vision Integration
-    // implementation "androidx.camera:camera-mlkit-vision:${camerax_version}"
-    // If you want to additionally use the CameraX Extensions library
-    // implementation "androidx.camera:camera-extensions:${camerax_version}"
+  implementation group: 'com.drewnoakes', name: 'metadata-extractor', version: '2.18.0'
 
-    implementation 'com.google.mlkit:barcode-scanning:17.0.2'
+  // CameraX core library using the camera2 implementation
+  def camerax_version = "1.1.0"
+  // The following line is optional, as the core library is included indirectly by camera-camera2
+  implementation "androidx.camera:camera-core:${camerax_version}"
+  implementation "androidx.camera:camera-camera2:${camerax_version}"
+  // If you want to additionally use the CameraX Lifecycle library
+  implementation "androidx.camera:camera-lifecycle:${camerax_version}"
+  // If you want to additionally use the CameraX VideoCapture library
+  // implementation "androidx.camera:camera-video:${camerax_version}"
+  // If you want to additionally use the CameraX View class
+  implementation "androidx.camera:camera-view:${camerax_version}"
+  // If you want to additionally add CameraX ML Kit Vision Integration
+  // implementation "androidx.camera:camera-mlkit-vision:${camerax_version}"
+  // If you want to additionally use the CameraX Extensions library
+  // implementation "androidx.camera:camera-extensions:${camerax_version}"
+
+  implementation 'com.google.mlkit:barcode-scanning:17.0.2'
 }
-repositories {
-    mavenCentral()
+
+if (isNewArchitectureEnabled()) {
+  react {
+    jsRootDir = file("../src/")
+    libraryName = "CKCameraManager"
+    codegenJavaPackageName = "com.rncamerakit"
+  }
 }

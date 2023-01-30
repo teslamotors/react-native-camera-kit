@@ -24,7 +24,7 @@ class BarcodeFrame(context: Context) : View(context) {
         borderPaint.strokeWidth = STROKE_WIDTH.toFloat()
         laserPaint.style = Paint.Style.STROKE
         laserPaint.strokeWidth = STROKE_WIDTH.toFloat()
-        borderMargin = context.resources.getDimensionPixelSize(R.dimen.border_length)
+        borderMargin = 0
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {

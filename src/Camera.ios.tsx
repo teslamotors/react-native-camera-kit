@@ -1,8 +1,12 @@
 import _update from 'lodash/update';
 import _cloneDeep from 'lodash/cloneDeep';
 import React from 'react';
-import { requireNativeComponent, NativeModules, processColor } from 'react-native';
-import { CameraApi } from './types';
+import {
+  requireNativeComponent,
+  NativeModules,
+  processColor,
+} from 'react-native';
+import type { CameraApi } from './types';
 
 const { CKCameraManager } = NativeModules;
 const NativeCamera = requireNativeComponent('CKCamera');
@@ -23,7 +27,9 @@ const Camera = React.forwardRef((props: any, ref: any) => {
   }));
 
   const transformedProps = _cloneDeep(props);
-  _update(transformedProps, 'cameraOptions.ratioOverlayColor', (c: any) => processColor(c));
+  _update(transformedProps, 'cameraOptions.ratioOverlayColor', (c: any) =>
+    processColor(c)
+  );
 
   return (
     <NativeCamera
