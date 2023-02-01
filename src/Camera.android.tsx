@@ -16,6 +16,9 @@ const Camera = React.forwardRef((props: any, ref) => {
       // we must use the general module and tell it what View it's supposed to be using
       return await RNCameraKitModule.capture(options, findNodeHandle(nativeRef.current ?? null));
     },
+    setTorchMode: (mode = "off") => {
+      RNCameraKitModule.setTorchMode(mode, findNodeHandle(nativeRef.current ?? null));
+    },
     requestDeviceCameraAuthorization: () => {
       throw new Error('Not implemented');
     },
