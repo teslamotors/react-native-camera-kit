@@ -37,4 +37,15 @@ class RNCameraKitModule(private val reactContext: ReactApplicationContext) : Rea
             view.capture(options.toHashMap(), promise)
         }
     }
+
+    @ReactMethod
+    fun setTorchMode( mode: String, viewTag: Int) {
+        val context = reactContext
+        val uiManager = context.getNativeModule(UIManagerModule::class.java)
+        context.runOnUiQueueThread {
+            val view = uiManager?.resolveView(viewTag) as CKCamera
+            view.setTorchMode(mode)
+        }
+
+    }
 }

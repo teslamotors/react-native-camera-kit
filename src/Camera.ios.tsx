@@ -14,6 +14,9 @@ const Camera = React.forwardRef((props: any, ref: any) => {
     capture: async () => {
       return await CKCameraManager.capture({});
     },
+    setTorchMode: (mode = "off") => {
+      CKCameraManager.setTorchMode(mode);
+    },
     requestDeviceCameraAuthorization: async () => {
       return await CKCameraManager.checkDeviceCameraAuthorizationStatus();
     },

@@ -44,6 +44,17 @@ RCT_EXPORT_METHOD(capture:(NSDictionary*)options
     }];
 }
 
+RCT_EXPORT_METHOD(setTorchMode:(NSString*)mode) {
+    AVCaptureTorchMode torchMode;
+    if([mode isEqualToString:@"on"]) {
+        torchMode = AVCaptureTorchModeOn;
+    } else {
+        torchMode = AVCaptureTorchModeOff;
+    }
+    
+    [self.camera setTorchMode:torchMode ];
+}
+
 RCT_EXPORT_METHOD(checkDeviceCameraAuthorizationStatus:(RCTPromiseResolveBlock)resolve
                   reject:(__unused RCTPromiseRejectBlock)reject) {
 

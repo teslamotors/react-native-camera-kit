@@ -76,6 +76,8 @@ typedef NS_ENUM(NSInteger, CKCameraZoomMode) {
 // api
 - (void)snapStillImage:(NSDictionary*)options success:(CaptureBlock)block onError:(void (^)(NSString*))onError;
 
+- (void)setTorchMode:(AVCaptureTorchMode)torchMode;
+
 + (NSURL*)saveToTmpFolder:(NSData*)data;
 
 @end
