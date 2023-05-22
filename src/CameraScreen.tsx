@@ -10,6 +10,7 @@ import {
   Platform,
   SafeAreaView,
   ImageStyle,
+  ImageSourcePropType,
 } from 'react-native';
 import _ from 'lodash';
 import Camera from './Camera';
@@ -22,44 +23,61 @@ const { width, height } = Dimensions.get('window');
 
 export enum CameraType {
   Front = 'front',
-  Back = 'back'
+  Back = 'back',
 }
+
+export type ActionsT = {
+  leftButtonText?: string;
+  rightButtonText?: string;
+};
+
+export type CameraRatioOverlayT = {
+  ratios: string[];
+};
+
+export type FlashImagesT = {
+  on: number | string;
+  off: number | string;
+  auto: number | string;
+};
 
 export type Props = {
-  focusMode?: string,
-  zoomMode?: string,
-  ratioOverlay?: string,
-  ratioOverlayColor?: string,
-  allowCaptureRetake: boolean,
-  cameraRatioOverlay: any,
-  showCapturedImageCount?: boolean,
-  captureButtonImage: any,
-  captureButtonImageStyle: ImageStyle,
-  cameraFlipImage: any,
-  cameraFlipImageStyle: ImageStyle,
-  hideControls: any,
-  showFrame: any,
-  scanBarcode: any,
-  laserColor: any,
-  frameColor: any,
-  torchOnImage: any,
-  torchOffImage: any,
-
-  torchImageStyle: ImageStyle,
-  onReadCode: (event: any) => void;
-  onBottomButtonPressed: (event: any) => void;
-}
+  actions?: ActionsT;
+  flashImages?: FlashImagesT;
+  focusMode?: string;
+  zoomMode?: string;
+  ratioOverlay?: string;
+  ratioOverlayColor?: string;
+  allowCaptureRetake?: boolean;
+  cameraRatioOverlay?: CameraRatioOverlayT;
+  showCapturedImageCount?: boolean;
+  captureButtonImage?: ImageSourcePropType;
+  captureButtonImageStyle?: ImageStyle;
+  cameraFlipImage?: ImageSourcePropType;
+  cameraFlipImageStyle?: ImageStyle;
+  hideControls?: boolean;
+  showFrame?: boolean;
+  scanBarcode?: boolean;
+  laserColor?: string;
+  frameColor?: string;
+  torchOnImage?: any;
+  torchOffImage?: any;
+  cameraType?: CameraType;
+  torchImageStyle?: ImageStyle;
+  onReadCode?: (event: any) => void;
+  onBottomButtonPressed?: (event: any) => void;
+};
 
 type State = {
-  captureImages: any[],
-  flashData: any,
-  torchMode: boolean,
-  ratios: any[],
-  ratioArrayPosition: number,
-  imageCaptured: any,
-  captured: boolean,
-  cameraType: CameraType,
-}
+  captureImages: any[];
+  flashData: any;
+  torchMode: boolean;
+  ratios: any[];
+  ratioArrayPosition: number;
+  imageCaptured: any;
+  captured: boolean;
+  cameraType: CameraType;
+};
 
 export default class CameraScreen extends Component<Props, State> {
   static propTypes = {
@@ -105,7 +123,7 @@ export default class CameraScreen extends Component<Props, State> {
   }
 
   componentDidMount() {
-    let ratios = [];
+    let ratios: string | any[] = [];
     if (this.props.cameraRatioOverlay) {
       ratios = this.props.cameraRatioOverlay.ratios || [];
     }
@@ -127,7 +145,7 @@ export default class CameraScreen extends Component<Props, State> {
           <Image
             style={[{ flex: 1, justifyContent: 'center' }, this.props.torchImageStyle]}
             source={this.state.flashData.image}
-            resizeMode="contain"
+            resizeMode='contain'
           />
         </TouchableOpacity>
       )
@@ -141,7 +159,7 @@ export default class CameraScreen extends Component<Props, State> {
           <Image
             style={[{ flex: 1, justifyContent: 'center' }, this.props.torchImageStyle]}
             source={this.state.torchMode ? this.props.torchOnImage : this.props.torchOffImage}
-            resizeMode="contain"
+            resizeMode='contain'
           />
         </TouchableOpacity>
       )
@@ -156,7 +174,7 @@ export default class CameraScreen extends Component<Props, State> {
           <Image
             style={{ flex: 1, justifyContent: 'center' }}
             source={this.props.cameraFlipImage}
-            resizeMode="contain"
+            resizeMode='contain'
           />
         </TouchableOpacity>
       )
@@ -195,7 +213,6 @@ export default class CameraScreen extends Component<Props, State> {
             laserColor={this.props.laserColor}
             frameColor={this.props.frameColor}
             onReadCode={this.props.onReadCode}
-
           />
         )}
       </View>
@@ -222,7 +239,7 @@ export default class CameraScreen extends Component<Props, State> {
             <Image
               source={this.props.captureButtonImage}
               style={this.props.captureButtonImageStyle}
-              resizeMode="contain"
+              resizeMode='contain'
             />
             {this.props.showCapturedImageCount && (
               <View style={styles.textNumberContainer}>
@@ -351,77 +368,76 @@ export default class CameraScreen extends Component<Props, State> {
   }
 }
 
-const styles = StyleSheet.create(
-  {
-    bottomButtons: {
-      flex: 2,
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      padding: 14,
-    },
-    textStyle: {
-      color: 'white',
-      fontSize: 20,
-    },
-    ratioBestText: {
-      color: 'white',
-      fontSize: 18,
-    },
-    ratioText: {
-      color: '#ffc233',
-      fontSize: 18,
-    },
-    topButtons: {
-      flex: 1,
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      paddingTop: 8,
-      paddingBottom: 0,
-    },
-    cameraContainer: {
-      ...Platform.select({
-        android: {
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width,
-          height,
-        },
-        default: {
-          flex: 10,
-          flexDirection: 'column',
-        },
-      }),
-    },
-    captureButtonContainer: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    textNumberContainer: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      bottom: 0,
-      right: 0,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    bottomButton: {
-      flex: 1,
-      flexDirection: 'row',
-      alignItems: 'center',
-      padding: 10,
-    },
-    bottomContainerGap: {
-      flex: 1,
-      flexDirection: 'row',
-      justifyContent: 'flex-end',
-      alignItems: 'center',
-      padding: 10,
-    },
-    gap: {
-      flex: 10,
-      flexDirection: 'column',
-    },
-  });
+const styles = StyleSheet.create({
+  bottomButtons: {
+    flex: 2,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 14,
+  },
+  textStyle: {
+    color: 'white',
+    fontSize: 20,
+  },
+  ratioBestText: {
+    color: 'white',
+    fontSize: 18,
+  },
+  ratioText: {
+    color: '#ffc233',
+    fontSize: 18,
+  },
+  topButtons: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingTop: 8,
+    paddingBottom: 0,
+  },
+  cameraContainer: {
+    ...Platform.select({
+      android: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width,
+        height,
+      },
+      default: {
+        flex: 10,
+        flexDirection: 'column',
+      },
+    }),
+  },
+  captureButtonContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  textNumberContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bottomButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+  },
+  bottomContainerGap: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    padding: 10,
+  },
+  gap: {
+    flex: 10,
+    flexDirection: 'column',
+  },
+});

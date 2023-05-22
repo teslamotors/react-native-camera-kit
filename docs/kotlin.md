@@ -8,7 +8,7 @@ Add the `kotlin_version` to `buildscript.ext`
 buildscript {
   ext {
         ...
-        kotlin_version = '1.5.10'
+        kotlin_version = '1.7.20'
   }
 ```
 
