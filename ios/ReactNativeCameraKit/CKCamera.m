@@ -13,6 +13,20 @@
 #import "CKCameraOverlayView.h"
 #import "CKMockPreview.h"
 
+AVCaptureVideoOrientation AVCaptureVideoOrientationFromInterfaceOrientation(UIInterfaceOrientation orientation){
+    if (orientation == UIInterfaceOrientationPortrait) {
+        return AVCaptureVideoOrientationPortrait;
+    } else if (orientation == UIInterfaceOrientationLandscapeLeft){
+        return AVCaptureVideoOrientationLandscapeLeft;
+    } else if (orientation == UIInterfaceOrientationLandscapeRight){
+        return AVCaptureVideoOrientationLandscapeRight;
+    } else if (orientation == UIInterfaceOrientationPortraitUpsideDown){
+        return AVCaptureVideoOrientationPortraitUpsideDown;
+    } else {
+        @throw @"unknown interface orientation";
+    }
+}
+
 static void * CapturingStillImageContext = &CapturingStillImageContext;
 static void * SessionRunningContext = &SessionRunningContext;
 
@@ -127,6 +141,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 - (void)dealloc
 {
     [self removeObservers];
+    [[UIDevice currentDevice] endGeneratingDeviceOrientationNotifications];
 }
 
 -(PHFetchOptions *)fetchOptions {
@@ -183,18 +198,16 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
         [self handleCameraPermission];
 
-#if !(TARGET_IPHONE_SIMULATOR)
-        [self setupCaptureSession];
-#endif
-        self.previewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:self.session];
-        [self.layer addSublayer:self.previewLayer];
-        self.previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
-        
 #if (TARGET_IPHONE_SIMULATOR)
         // Create mock camera layer. When a photo is taken, we capture this layer and save it in place of a
         // hardware input.
         self.mockPreview = [[CKMockPreview alloc] initWithFrame:CGRectZero];
         [self addSubview:self.mockPreview];
+#else
+        self.previewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:self.session];
+        [self.layer addSublayer:self.previewLayer];
+        self.previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
+        [self setupCaptureSession];
 #endif
         
         UIView *focusView = [[UIView alloc] initWithFrame:CGRectZero];
@@ -391,8 +404,15 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         }
 
         [self.session commitConfiguration];
-
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self setInitialPreviewLayerVideoOrientation];
+        });
     } );
+}
+
+- (void)setInitialPreviewLayerVideoOrientation{
+    UIInterfaceOrientation initialInterfaceOrientation = [UIApplication sharedApplication].statusBarOrientation;
+    self.previewLayer.connection.videoOrientation = AVCaptureVideoOrientationFromInterfaceOrientation(initialInterfaceOrientation);
 }
 
 -(void)handleCameraPermission {
@@ -934,6 +954,10 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 #pragma mark - observers
 
+- (void)didChangeStatusBarOrientation:(NSNotification *)notification {
+    UIInterfaceOrientation currentInterfaceOrientation = [UIApplication sharedApplication].statusBarOrientation;
+    self.previewLayer.connection.videoOrientation = AVCaptureVideoOrientationFromInterfaceOrientation(currentInterfaceOrientation);
+}
 
 - (void)addObservers
 {
@@ -958,7 +982,10 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
                                                  selector:@selector(willEnterForeground:)
                                                      name:UIApplicationWillEnterForegroundNotification
                                                    object:nil];
-
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(didChangeStatusBarOrientation:)
+                                                     name:UIApplicationDidChangeStatusBarOrientationNotification
+                                                   object:nil];
         self.isAddedOberver = YES;
     }
 }
