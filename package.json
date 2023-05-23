@@ -7,7 +7,7 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
-  "version": "13.0.0",
+  "version": "14.0.0-beta3",
   "description": "A high performance, fully featured, rock solid camera library for React Native applications",
   "nativePackage": true,
   "scripts": {
