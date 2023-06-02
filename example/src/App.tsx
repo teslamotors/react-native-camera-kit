@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
     paddingTop: 30,
     alignItems: 'center',
     backgroundColor: '#F5FCFF',
-    marginHorizontal: 24,
+    paddingHorizontal: 24,
   },
   headerContainer: {
     flexDirection: 'column',
