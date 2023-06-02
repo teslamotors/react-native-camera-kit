@@ -94,7 +94,6 @@ export default class CameraScreen extends Component<CameraScreenProps, State> {
 
   constructor(props: CameraScreenProps) {
     super(props);
-    this.currentFlashArrayPosition = 0;
     this.flashArray = [
       {
         mode: 'auto',
@@ -110,15 +109,19 @@ export default class CameraScreen extends Component<CameraScreenProps, State> {
       },
     ];
 
+    this.currentFlashArrayPosition = this.props.flashMode
+      ? this.flashArray.findIndex((flashData) => flashData.mode === this.props.flashMode)
+      : 0;
+
     this.state = {
       captureImages: [],
       flashData: this.flashArray[this.currentFlashArrayPosition],
-      torchMode: false,
+      torchMode: this.props.torchMode === 'on' || false,
       ratios: [],
       ratioArrayPosition: -1,
       imageCaptured: undefined,
       captured: false,
-      cameraType: CameraType.Back,
+      cameraType: this.props.cameraType || CameraType.Back,
     };
   }
 
@@ -203,19 +206,13 @@ export default class CameraScreen extends Component<CameraScreenProps, State> {
           <Image style={{ flex: 1, justifyContent: 'flex-end' }} source={{ uri: this.state.imageCaptured.uri }} />
         ) : (
           <Camera
+            {...this.props}
             ref={(cam: CameraApi) => (this.camera = cam)}
             style={{ flex: 1, justifyContent: 'flex-end' }}
             cameraType={this.state.cameraType}
             flashMode={this.state.flashData?.mode}
             torchMode={this.state.torchMode ? 'on' : 'off'}
-            focusMode={this.props.focusMode}
-            zoomMode={this.props.zoomMode}
             ratioOverlay={this.state.ratios[this.state.ratioArrayPosition]}
-            showFrame={this.props.showFrame}
-            scanBarcode={this.props.scanBarcode}
-            laserColor={this.props.laserColor}
-            frameColor={this.props.frameColor}
-            onReadCode={this.props.onReadCode}
           />
         )}
       </View>
