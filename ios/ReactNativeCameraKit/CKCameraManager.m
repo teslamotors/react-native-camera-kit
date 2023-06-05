@@ -1,21 +1,19 @@
-#import "CKCameraManager.h"
-#import "CKCamera.h"
+//
+//  CKCameraManager.m
+//  ReactNativeCameraKit
+//
 
+@import AVFoundation;
 
-@interface CKCameraManager ()
+#if __has_include(<React/RCTBridge.h>)
+#import <React/RCTViewManager.h>
+#import <React/RCTConvert.h>
+#else
+#import "RCTViewManager.h"
+#import "RCTConvert.h"
+#endif
 
-@property (nonatomic, strong) CKCamera *camera;
-
-@end
-
-@implementation CKCameraManager
-
-RCT_EXPORT_MODULE()
-
-- (UIView *)view {
-    self.camera = [CKCamera new];
-    return self.camera;
-}
+@interface RCT_EXTERN_MODULE(CKCameraManager, RCTViewManager)
 
 RCT_EXPORT_VIEW_PROPERTY(cameraType, CKCameraType)
 RCT_EXPORT_VIEW_PROPERTY(flashMode, CKCameraFlashMode)
@@ -33,51 +31,16 @@ RCT_EXPORT_VIEW_PROPERTY(frameColor, UIColor)
 RCT_EXPORT_VIEW_PROPERTY(resetFocusTimeout, NSInteger)
 RCT_EXPORT_VIEW_PROPERTY(resetFocusWhenMotionDetected, BOOL)
 
-RCT_EXPORT_METHOD(capture:(NSDictionary*)options
+RCT_EXTERN_METHOD(capture:(NSDictionary*)options
                   resolve:(RCTPromiseResolveBlock)resolve
-                  reject:(RCTPromiseRejectBlock)reject) {
+                  reject:(RCTPromiseRejectBlock)reject)
 
-    [self.camera snapStillImage:options success:^(NSDictionary *imageObject) {
-        resolve(imageObject);
-    } onError:^(NSString* error) {
-        reject(@"capture_error", error, nil);
-    }];
-}
+RCT_EXTERN_METHOD(setTorchMode:(NSString*)mode)
 
-RCT_EXPORT_METHOD(setTorchMode:(NSString*)mode) {
-    AVCaptureTorchMode torchMode;
-    if([mode isEqualToString:@"on"]) {
-        torchMode = AVCaptureTorchModeOn;
-    } else {
-        torchMode = AVCaptureTorchModeOff;
-    }
-    
-    [self.camera setTorchMode:torchMode ];
-}
+RCT_EXTERN_METHOD(checkDeviceCameraAuthorizationStatus:(RCTPromiseResolveBlock)resolve
+                  reject:(__unused RCTPromiseRejectBlock)reject)
 
-RCT_EXPORT_METHOD(checkDeviceCameraAuthorizationStatus:(RCTPromiseResolveBlock)resolve
-                  reject:(__unused RCTPromiseRejectBlock)reject) {
-
-
-    AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
-    if(authStatus == AVAuthorizationStatusAuthorized) {
-        resolve(@YES);
-    } else if(authStatus == AVAuthorizationStatusNotDetermined) {
-        resolve(@(-1));
-    } else {
-        resolve(@NO);
-    }
-}
-
-RCT_EXPORT_METHOD(requestDeviceCameraAuthorization:(RCTPromiseResolveBlock)resolve
-                  reject:(__unused RCTPromiseRejectBlock)reject) {
-    __block NSString *mediaType = AVMediaTypeVideo;
-
-    [AVCaptureDevice requestAccessForMediaType:mediaType completionHandler:^(BOOL granted) {
-        if (resolve) {
-            resolve(@(granted));
-        }
-    }];
-}
+RCT_EXTERN_METHOD(requestDeviceCameraAuthorization:(RCTPromiseResolveBlock)resolve
+                  reject:(__unused RCTPromiseRejectBlock)reject)
 
 @end

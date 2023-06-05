@@ -11,63 +11,6 @@
 typedef void (^CaptureBlock)(NSDictionary *imageObject);
 typedef void (^CallbackBlock)(BOOL success);
 
-typedef NS_ENUM(NSInteger, CKCameraType) {
-    CKCameraTypeBack,
-    CKCameraTypeFront,
-};
-
-@interface RCTConvert(CKCameraType)
-
-+ (CKCameraType)CKCameraType:(id)json;
-
-@end
-
-typedef NS_ENUM(NSInteger, CKCameraFlashMode) {
-    CKCameraFlashModeAuto,
-    CKCameraFlashModeOn,
-    CKCameraFlashModeOff
-};
-
-@interface RCTConvert(CKCameraFlashMode)
-
-+ (CKCameraFlashMode)CKCameraFlashMode:(id)json;
-
-@end
-
-typedef NS_ENUM(NSInteger, CKCameraTorchMode) {
-    CKCameraTorchModeOn,
-    CKCameraTorchModeOff
-};
-
-@interface RCTConvert(CKCameraTorchMode)
-
-+ (CKCameraTorchMode)CKCameraTorchMode:(id)json;
-
-@end
-
-typedef NS_ENUM(NSInteger, CKCameraFocusMode) {
-    CKCameraFocusModeOn,
-    CKCameraFocusModeOff,
-};
-
-@interface RCTConvert(CKCameraFocusMode)
-
-+ (CKCameraFocusMode)CKCameraFocusMode:(id)json;
-
-@end
-
-typedef NS_ENUM(NSInteger, CKCameraZoomMode) {
-    CKCameraZoomModeOn,
-    CKCameraZoomModeOff,
-};
-
-@interface RCTConvert(CKCameraZoomMode)
-
-+ (CKCameraZoomMode)CKCameraZoomMode:(id)json;
-
-@end
-
-
 @interface CKCamera : UIView
 
 @property (nonatomic, readonly) AVCaptureDeviceInput *videoDeviceInput;

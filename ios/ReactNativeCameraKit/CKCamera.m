@@ -4,14 +4,15 @@
 #if __has_include(<React/RCTBridge.h>)
 #import <React/UIView+React.h>
 #import <React/RCTConvert.h>
+#import <React/RCTViewManager.h>
 #else
 #import "UIView+React.h"
 #import "RCTConvert.h"
+#import "RCTViewManager.h"
 #endif
 
 #import "CKCamera.h"
-#import "CKCameraOverlayView.h"
-#import "CKMockPreview.h"
+#import "ReactNativeCameraKit-Swift.h"
 
 AVCaptureVideoOrientation AVCaptureVideoOrientationFromInterfaceOrientation(UIInterfaceOrientation orientation){
     if (orientation == UIInterfaceOrientationPortrait) {
@@ -36,49 +37,6 @@ typedef NS_ENUM( NSInteger, CKSetupResult ) {
     CKSetupResultSessionConfigurationFailed
 };
 
-@implementation RCTConvert(CKCameraType)
-
-RCT_ENUM_CONVERTER(CKCameraType, (@{
-                                         @"back": @(AVCaptureDevicePositionBack),
-                                         @"front": @(AVCaptureDevicePositionFront),
-                                         }), AVCaptureDevicePositionBack, integerValue)
-@end
-
-@implementation RCTConvert(CKCameraTorchMode)
-
-RCT_ENUM_CONVERTER(CKCameraTorchMode, (@{
-                                         @"on": @(AVCaptureTorchModeOn),
-                                         @"off": @(AVCaptureTorchModeOff)
-                                         }), AVCaptureTorchModeAuto, integerValue)
-@end
-
-@implementation RCTConvert(CKCameraFlashMode)
-
-RCT_ENUM_CONVERTER(CKCameraFlashMode, (@{
-                                         @"auto": @(AVCaptureFlashModeAuto),
-                                         @"on": @(AVCaptureFlashModeOn),
-                                         @"off": @(AVCaptureFlashModeOff)
-                                         }), AVCaptureFlashModeAuto, integerValue)
-
-@end
-
-@implementation RCTConvert(CKCameraFocusMode)
-
-RCT_ENUM_CONVERTER(CKCameraFocusMode, (@{
-                                          @"on": @(CKCameraFocusModeOn),
-                                          @"off": @(CKCameraFocusModeOff)
-                                          }), CKCameraFocusModeOn, integerValue)
-
-@end
-
-@implementation RCTConvert(CKCameraZoomMode)
-
-RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
-                                        @"on": @(CKCameraZoomModeOn),
-                                        @"off": @(CKCameraZoomModeOff)
-                                        }), CKCameraZoomModeOn, integerValue)
-
-@end
 
 @interface CKCamera () <AVCaptureMetadataOutputObjectsDelegate>
 
@@ -87,7 +45,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 @property (nonatomic, strong) CKMockPreview *mockPreview;
 @property (nonatomic, strong) UIView *focusView;
 @property (nonatomic, strong) NSTimer *focusViewTimer;
-@property (nonatomic, strong) CKCameraOverlayView *cameraOverlayView;
+@property (nonatomic, strong) CKRatioOverlayView *ratioOverlayView;
 
 @property (nonatomic, strong) NSTimer *focusResetTimer;
 @property (nonatomic) BOOL startFocusResetTimerAfterFocusing;
@@ -121,9 +79,9 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 @property (nonatomic) UIView * dataReadingFrame;
 
 // camera options
-@property (nonatomic) AVCaptureDevicePosition cameraType;
-@property (nonatomic) AVCaptureFlashMode flashMode;
-@property (nonatomic) AVCaptureTorchMode torchMode;
+@property (nonatomic) CKCameraType cameraType;
+@property (nonatomic) CKCameraFlashMode flashMode;
+@property (nonatomic) CKCameraTorchMode torchMode;
 @property (nonatomic) CKCameraFocusMode focusMode;
 @property (nonatomic) CKCameraZoomMode zoomMode;
 @property (nonatomic, strong) NSString* ratioOverlay;
@@ -209,7 +167,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         self.previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
         [self setupCaptureSession];
 #endif
-        
+
         UIView *focusView = [[UIView alloc] initWithFrame:CGRectZero];
         focusView.backgroundColor = [UIColor clearColor];
         focusView.layer.borderColor = [UIColor yellowColor].CGColor;
@@ -223,7 +181,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         self.zoomMode = CKCameraZoomModeOn;
         self.flashMode = CKCameraFlashModeAuto;
         self.focusMode = CKCameraFocusModeOn;
-        
+
         self.frameColor = [UIColor whiteColor];
         self.laserColor = [UIColor redColor];
         self.frameOffset = 30;
@@ -233,26 +191,27 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
     return self;
 }
 
-- (void)setCameraType:(AVCaptureDevicePosition)cameraType {
+- (void)setCameraType:(CKCameraType)cameraType {
     if (cameraType != _cameraType) {
         _cameraType = cameraType;
-        [self changeCamera:cameraType];
+        [self changeCamera:[EnumHelper cameraTypeToAVPosition: cameraType]];
     }
 }
 
-- (void)setFlashMode:(AVCaptureFlashMode)flashMode {
+- (void)setFlashMode:(CKCameraFlashMode)flashMode {
     if (flashMode != _flashMode) {
         _flashMode = flashMode;
-        [CKCamera setFlashMode:flashMode forDevice:self.videoDeviceInput.device];
+        [CKCamera setFlashMode:[EnumHelper flashModeToAVFlashMode: flashMode] forDevice:self.videoDeviceInput.device];
     }
 }
 
--(void)setTorchMode:(AVCaptureTorchMode)torchMode {
+-(void)setTorchMode:(CKCameraTorchMode)torchMode {
     _torchMode = torchMode;
-    if (self.videoDeviceInput && [self.videoDeviceInput.device isTorchModeSupported:torchMode] && self.videoDeviceInput.device.hasTorch) {
+    AVCaptureTorchMode avTorchMode = [EnumHelper torchModeToAVTorchMode: torchMode];
+    if (self.videoDeviceInput && [self.videoDeviceInput.device isTorchModeSupported:avTorchMode] && self.videoDeviceInput.device.hasTorch) {
         NSError* err = nil;
         if ( [self.videoDeviceInput.device lockForConfiguration:&err] ) {
-            [self.videoDeviceInput.device setTorchMode:torchMode];
+            [self.videoDeviceInput.device setTorchMode:avTorchMode];
             [self.videoDeviceInput.device unlockForConfiguration];
         }
     }
@@ -330,7 +289,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
     // LANDSCAPE_LEFT: 1, // ⬅️
     // PORTRAIT_UPSIDE_DOWN: 2, // ⬇️
     // LANDSCAPE_RIGHT: 3, // ➡️
-    
+
     UIDevice * device = notification.object;
     UIDeviceOrientation orientation = device.orientation;
     if (orientation == UIDeviceOrientationPortrait) {
@@ -366,7 +325,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         if ( [self.session canAddInput:videoDeviceInput] ) {
             [self.session addInput:videoDeviceInput];
             self.videoDeviceInput = videoDeviceInput;
-            [CKCamera setFlashMode:self.flashMode forDevice:self.videoDeviceInput.device];
+            [CKCamera setFlashMode:[EnumHelper flashModeToAVFlashMode: self.flashMode] forDevice:self.videoDeviceInput.device];
         }
         else {
             self.setupResult = CKSetupResultSessionConfigurationFailed;
@@ -450,7 +409,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 -(void)reactSetFrame:(CGRect)frame {
     [super reactSetFrame:frame];
-    
+
     self.previewLayer.frame = self.bounds;
 
 #if TARGET_IPHONE_SIMULATOR
@@ -509,14 +468,14 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 -(void)setRatioOverlay:(NSString *)ratioOverlay {
     _ratioOverlay = ratioOverlay;
-    [self.cameraOverlayView setRatio:self.ratioOverlay];
+    [self.ratioOverlayView setRatio:self.ratioOverlay];
 }
 
 -(void)setOverlayRatioView {
     if (self.ratioOverlay) {
-        [self.cameraOverlayView removeFromSuperview];
-        self.cameraOverlayView = [[CKCameraOverlayView alloc] initWithFrame:self.bounds ratioString:self.ratioOverlay overlayColor:self.ratioOverlayColor];
-        [self addSubview:self.cameraOverlayView];
+        [self.ratioOverlayView removeFromSuperview];
+        self.ratioOverlayView = [[CKRatioOverlayView alloc] initWithFrame:self.bounds ratioString:self.ratioOverlay overlayColor:self.ratioOverlayColor];
+        [self addSubview:self.ratioOverlayView];
     }
 }
 
@@ -544,12 +503,12 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 
 - (void)snapStillImage:(NSDictionary*)options success:(CaptureBlock)onSuccess onError:(void (^)(NSString*))onError {
-    
+
     #if TARGET_IPHONE_SIMULATOR
     [self capturePreviewLayer:options success:onSuccess onError:onError];
     return;
     #endif
-    
+
     dispatch_async( self.sessionQueue, ^{
         AVCaptureConnection *connection = [self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
 
@@ -584,7 +543,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
             // The sample buffer is not retained. Create image data before saving the still image to the photo library asynchronously.
             NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
-            
+
             [self writeCapturedImageData:imageData onSuccess:onSuccess onError:onError];
             [self resetFocus];
         }];
@@ -649,7 +608,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         if ( [self.session canAddInput:videoDeviceInput] ) {
             [[NSNotificationCenter defaultCenter] removeObserver:self name:AVCaptureDeviceSubjectAreaDidChangeNotification object:currentVideoDevice];
 
-            [CKCamera setFlashMode:self.flashMode forDevice:videoDevice];
+            [CKCamera setFlashMode:[EnumHelper flashModeToAVFlashMode: self.flashMode] forDevice:videoDevice];
 
             [self.session addInput:videoDeviceInput];
             self.videoDeviceInput = videoDeviceInput;
