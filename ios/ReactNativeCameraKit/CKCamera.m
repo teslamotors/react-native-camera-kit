@@ -597,7 +597,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         if (self.mockPreview != nil) {
             UIImage *previewSnapshot = [self.mockPreview snapshotWithTimestamp:YES]; // Generate snapshot from main UI thread
             dispatch_async( self.sessionQueue, ^{ // write image async
-                [self writeCapturedImageData:UIImagePNGRepresentation(previewSnapshot) onSuccess:onSuccess onError:onError];
+                [self writeCapturedImageData:UIImageJPEGRepresentation(previewSnapshot, 0.85) onSuccess:onSuccess onError:onError];
             });
         } else {
             onError(@"Simulator image could not be captured from preview layer");
