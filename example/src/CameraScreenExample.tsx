@@ -16,7 +16,7 @@ export default class CameraScreenExample extends Component {
   render() {
     return (
       <CameraScreen
-        actions={{ rightButtonText: 'Done', leftButtonText: 'Cancel' }}
+        actions={{ leftButtonText: 'Cancel' }}
         onBottomButtonPressed={(event) => this.onBottomButtonPressed(event)}
         flashImages={{
           on: require('../images/flashOn.png'),
