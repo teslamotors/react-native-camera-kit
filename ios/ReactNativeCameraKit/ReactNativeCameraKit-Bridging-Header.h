@@ -7,9 +7,11 @@
 #import <React/RCTViewManager.h>
 #import <React/RCTConvert.h>
 #import <React/RCTEventEmitter.h>
+#import <React/UIView+React.h>
 #else
 #import "RCTBridgeModule.h"
 #import "RCTViewManager.h"
 #import "RCTConvert.h"
 #import "RCTEventEmitter.h"
+#import "UIView+React.h"
 #endif

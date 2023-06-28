@@ -1,20 +1,23 @@
 //
-//  CKCameraManager.swift
+//  CameraManager.swift
 //  ReactNativeCameraKit
 //
 
 import AVFoundation
 import Foundation
 
-@objc(CKCameraManager) public class CKCameraManager: RCTViewManager {
-    var camera: CKCamera!
+/*
+ * Class that manages the communication between React Native and the native implementation
+ */
+@objc(CKCameraManager) public class CameraManager: RCTViewManager {
+    var camera: CameraView!
 
     override public static func requiresMainQueueSetup() -> Bool {
         return true
     }
 
     override public func view() -> UIView! {
-        camera = CKCamera()
+        camera = CameraView()
 
         return camera
     }
@@ -22,14 +25,9 @@ import Foundation
     @objc func capture(_ options: NSDictionary,
                        resolve: @escaping RCTPromiseResolveBlock,
                        reject: @escaping RCTPromiseRejectBlock) {
-        camera.snapStillImage(options as! [String: Any],
-                              success: { resolve($0) },
-                              onError: { reject("capture_error", $0, nil) })
-    }
-
-    @objc func setTorchMode(_ modeString: String) {
-        let mode = TorchMode(from: modeString)
-        camera.setTorchMode(mode.avTorchMode)
+        camera.capture(options as! [String: Any],
+                       onSuccess: { resolve($0) },
+                       onError: { reject("capture_error", $0, nil) })
     }
 
     @objc func checkDeviceCameraAuthorizationStatus(_ resolve: @escaping RCTPromiseResolveBlock,

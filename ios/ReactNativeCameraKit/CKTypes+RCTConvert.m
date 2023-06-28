@@ -1,5 +1,5 @@
 //
-//  CKCamera+RCTConvert.m
+//  CKTypes+RCTConvert.m
 //  ReactNativeCameraKit
 //
 
@@ -20,25 +20,25 @@ RCT_ENUM_CONVERTER(CKCameraType, (@{
     @"front": @(CKCameraTypeFront)
 }), CKCameraTypeBack, integerValue)
 
-RCT_ENUM_CONVERTER(CKCameraFlashMode, (@{
-    @"on": @(CKCameraFlashModeOn),
-    @"off": @(CKCameraFlashModeOff),
-    @"auto": @(CKCameraFlashModeAuto)
-}), CKCameraFlashModeAuto, integerValue)
+RCT_ENUM_CONVERTER(CKFlashMode, (@{
+    @"on": @(CKFlashModeOn),
+    @"off": @(CKFlashModeOff),
+    @"auto": @(CKFlashModeAuto)
+}), CKFlashModeAuto, integerValue)
 
-RCT_ENUM_CONVERTER(CKCameraTorchMode, (@{
-    @"on": @(CKCameraTorchModeOn),
-    @"off": @(CKCameraTorchModeOff)
-}), CKCameraTorchModeOn, integerValue)
+RCT_ENUM_CONVERTER(CKTorchMode, (@{
+    @"on": @(CKTorchModeOn),
+    @"off": @(CKTorchModeOff)
+}), CKTorchModeOn, integerValue)
 
-RCT_ENUM_CONVERTER(CKCameraFocusMode, (@{
-    @"on": @(CKCameraFocusModeOn),
-    @"off": @(CKCameraFocusModeOff)
-}), CKCameraFocusModeOn, integerValue)
+RCT_ENUM_CONVERTER(CKFocusMode, (@{
+    @"on": @(CKFocusModeOn),
+    @"off": @(CKFocusModeOff)
+}), CKFocusModeOn, integerValue)
 
-RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
-    @"on": @(CKCameraZoomModeOn),
-    @"off": @(CKCameraZoomModeOff)
-}), CKCameraZoomModeOn, integerValue)
+RCT_ENUM_CONVERTER(CKZoomMode, (@{
+    @"on": @(CKZoomModeOn),
+    @"off": @(CKZoomModeOff)
+}), CKZoomModeOn, integerValue)
 
 @end

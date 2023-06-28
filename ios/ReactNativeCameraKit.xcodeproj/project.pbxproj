@@ -8,15 +8,20 @@
 
 /* Begin PBXBuildFile section */
 		26550AF61CFC7086007FF2DF /* CKCameraManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 26550AF51CFC7086007FF2DF /* CKCameraManager.m */; };
-		2685AA241CFD89A300E4A446 /* CKCamera.m in Sources */ = {isa = PBXBuildFile; fileRef = 2685AA231CFD89A300E4A446 /* CKCamera.m */; };
-		4620AA6A2A2BFDC400BC8929 /* CKOverlayObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4620AA692A2BFDC400BC8929 /* CKOverlayObject.swift */; };
-		4620AA6C2A2C03FC00BC8929 /* CKRatioOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4620AA6B2A2C03FC00BC8929 /* CKRatioOverlayView.swift */; };
-		4620AA6E2A2C090500BC8929 /* CKCompressedImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4620AA6D2A2C090500BC8929 /* CKCompressedImage.swift */; };
-		4620AA702A2C4A5F00BC8929 /* CKMockPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4620AA6F2A2C4A5F00BC8929 /* CKMockPreview.swift */; };
-		4620AA722A2C4FA500BC8929 /* CKCameraManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4620AA712A2C4FA500BC8929 /* CKCameraManager.swift */; };
-		4620AA742A2C52C300BC8929 /* CKCamera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4620AA732A2C52C300BC8929 /* CKCamera.swift */; };
+		460C0C6C2A4B52D800066334 /* PhotoCaptureDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 460C0C6B2A4B52D800066334 /* PhotoCaptureDelegate.swift */; };
+		4620AA6C2A2C03FC00BC8929 /* RatioOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4620AA6B2A2C03FC00BC8929 /* RatioOverlayView.swift */; };
+		4620AA702A2C4A5F00BC8929 /* SimulatorPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4620AA6F2A2C4A5F00BC8929 /* SimulatorPreviewView.swift */; };
+		4620AA722A2C4FA500BC8929 /* CameraManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4620AA712A2C4FA500BC8929 /* CameraManager.swift */; };
+		4620AA742A2C52C300BC8929 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4620AA732A2C52C300BC8929 /* CameraView.swift */; };
 		463096882A2C757F002ABA1A /* CKTypes+RCTConvert.m in Sources */ = {isa = PBXBuildFile; fileRef = 463096872A2C757F002ABA1A /* CKTypes+RCTConvert.m */; };
-		4630968B2A2D5423002ABA1A /* CKTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4630968A2A2D5423002ABA1A /* CKTypes.swift */; };
+		4630968B2A2D5423002ABA1A /* Types.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4630968A2A2D5423002ABA1A /* Types.swift */; };
+		46506F272A37810C0058D3F2 /* RealPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46506F262A37810B0058D3F2 /* RealPreviewView.swift */; };
+		46C558C92A4AAAD100C68BA0 /* RealCamera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46C558C82A4AAAD100C68BA0 /* RealCamera.swift */; };
+		46C558CB2A4AAB3400C68BA0 /* CameraProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46C558CA2A4AAB3400C68BA0 /* CameraProtocol.swift */; };
+		46C558CD2A4AAB5D00C68BA0 /* SimulatorCamera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46C558CC2A4AAB5D00C68BA0 /* SimulatorCamera.swift */; };
+		46C558CF2A4AAD7300C68BA0 /* FocusInterfaceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46C558CE2A4AAD7300C68BA0 /* FocusInterfaceView.swift */; };
+		46F30C012A3A859B000597F6 /* ScannerFrameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46F30C002A3A859B000597F6 /* ScannerFrameView.swift */; };
+		46F30C032A3ABB9D000597F6 /* ScannerInterfaceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46F30C022A3ABB9D000597F6 /* ScannerInterfaceView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -34,18 +39,22 @@
 /* Begin PBXFileReference section */
 		2646934E1CFB2A6B00F3A740 /* libReactNativeCameraKit.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libReactNativeCameraKit.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		26550AF51CFC7086007FF2DF /* CKCameraManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CKCameraManager.m; sourceTree = "<group>"; };
-		2685AA221CFD89A300E4A446 /* CKCamera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CKCamera.h; sourceTree = "<group>"; };
-		2685AA231CFD89A300E4A446 /* CKCamera.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CKCamera.m; sourceTree = "<group>"; };
+		460C0C6B2A4B52D800066334 /* PhotoCaptureDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoCaptureDelegate.swift; sourceTree = "<group>"; };
 		4620AA682A2BFDBC00BC8929 /* ReactNativeCameraKit-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ReactNativeCameraKit-Bridging-Header.h"; sourceTree = "<group>"; };
-		4620AA692A2BFDC400BC8929 /* CKOverlayObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CKOverlayObject.swift; sourceTree = "<group>"; };
-		4620AA6B2A2C03FC00BC8929 /* CKRatioOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CKRatioOverlayView.swift; sourceTree = "<group>"; };
-		4620AA6D2A2C090500BC8929 /* CKCompressedImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CKCompressedImage.swift; sourceTree = "<group>"; };
-		4620AA6F2A2C4A5F00BC8929 /* CKMockPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CKMockPreview.swift; sourceTree = "<group>"; };
-		4620AA712A2C4FA500BC8929 /* CKCameraManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CKCameraManager.swift; sourceTree = "<group>"; };
-		4620AA732A2C52C300BC8929 /* CKCamera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CKCamera.swift; sourceTree = "<group>"; };
+		4620AA6B2A2C03FC00BC8929 /* RatioOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RatioOverlayView.swift; sourceTree = "<group>"; };
+		4620AA6F2A2C4A5F00BC8929 /* SimulatorPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatorPreviewView.swift; sourceTree = "<group>"; };
+		4620AA712A2C4FA500BC8929 /* CameraManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraManager.swift; sourceTree = "<group>"; };
+		4620AA732A2C52C300BC8929 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		463096872A2C757F002ABA1A /* CKTypes+RCTConvert.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "CKTypes+RCTConvert.m"; sourceTree = "<group>"; };
 		463096892A2C7D89002ABA1A /* ReactNativeCameraKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReactNativeCameraKit.h; sourceTree = "<group>"; };
-		4630968A2A2D5423002ABA1A /* CKTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CKTypes.swift; sourceTree = "<group>"; };
+		4630968A2A2D5423002ABA1A /* Types.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Types.swift; sourceTree = "<group>"; };
+		46506F262A37810B0058D3F2 /* RealPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealPreviewView.swift; sourceTree = "<group>"; };
+		46C558C82A4AAAD100C68BA0 /* RealCamera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealCamera.swift; sourceTree = "<group>"; };
+		46C558CA2A4AAB3400C68BA0 /* CameraProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraProtocol.swift; sourceTree = "<group>"; };
+		46C558CC2A4AAB5D00C68BA0 /* SimulatorCamera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatorCamera.swift; sourceTree = "<group>"; };
+		46C558CE2A4AAD7300C68BA0 /* FocusInterfaceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusInterfaceView.swift; sourceTree = "<group>"; };
+		46F30C002A3A859B000597F6 /* ScannerFrameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScannerFrameView.swift; sourceTree = "<group>"; };
+		46F30C022A3ABB9D000597F6 /* ScannerInterfaceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScannerInterfaceView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -79,16 +88,20 @@
 			isa = PBXGroup;
 			children = (
 				26550AF51CFC7086007FF2DF /* CKCameraManager.m */,
-				4620AA712A2C4FA500BC8929 /* CKCameraManager.swift */,
-				2685AA221CFD89A300E4A446 /* CKCamera.h */,
-				2685AA231CFD89A300E4A446 /* CKCamera.m */,
+				4620AA712A2C4FA500BC8929 /* CameraManager.swift */,
 				463096872A2C757F002ABA1A /* CKTypes+RCTConvert.m */,
-				4630968A2A2D5423002ABA1A /* CKTypes.swift */,
-				4620AA732A2C52C300BC8929 /* CKCamera.swift */,
-				4620AA6D2A2C090500BC8929 /* CKCompressedImage.swift */,
-				4620AA6B2A2C03FC00BC8929 /* CKRatioOverlayView.swift */,
-				4620AA692A2BFDC400BC8929 /* CKOverlayObject.swift */,
-				4620AA6F2A2C4A5F00BC8929 /* CKMockPreview.swift */,
+				4620AA732A2C52C300BC8929 /* CameraView.swift */,
+				46C558CA2A4AAB3400C68BA0 /* CameraProtocol.swift */,
+				46C558C82A4AAAD100C68BA0 /* RealCamera.swift */,
+				46506F262A37810B0058D3F2 /* RealPreviewView.swift */,
+				460C0C6B2A4B52D800066334 /* PhotoCaptureDelegate.swift */,
+				46C558CC2A4AAB5D00C68BA0 /* SimulatorCamera.swift */,
+				4620AA6F2A2C4A5F00BC8929 /* SimulatorPreviewView.swift */,
+				4630968A2A2D5423002ABA1A /* Types.swift */,
+				4620AA6B2A2C03FC00BC8929 /* RatioOverlayView.swift */,
+				46F30C002A3A859B000597F6 /* ScannerFrameView.swift */,
+				46F30C022A3ABB9D000597F6 /* ScannerInterfaceView.swift */,
+				46C558CE2A4AAD7300C68BA0 /* FocusInterfaceView.swift */,
 				4620AA682A2BFDBC00BC8929 /* ReactNativeCameraKit-Bridging-Header.h */,
 				463096892A2C7D89002ABA1A /* ReactNativeCameraKit.h */,
 			);
@@ -153,16 +166,21 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				46C558CF2A4AAD7300C68BA0 /* FocusInterfaceView.swift in Sources */,
 				463096882A2C757F002ABA1A /* CKTypes+RCTConvert.m in Sources */,
-				4620AA742A2C52C300BC8929 /* CKCamera.swift in Sources */,
-				4620AA702A2C4A5F00BC8929 /* CKMockPreview.swift in Sources */,
-				4630968B2A2D5423002ABA1A /* CKTypes.swift in Sources */,
-				4620AA6C2A2C03FC00BC8929 /* CKRatioOverlayView.swift in Sources */,
+				4620AA742A2C52C300BC8929 /* CameraView.swift in Sources */,
+				4620AA702A2C4A5F00BC8929 /* SimulatorPreviewView.swift in Sources */,
+				46F30C032A3ABB9D000597F6 /* ScannerInterfaceView.swift in Sources */,
+				46C558C92A4AAAD100C68BA0 /* RealCamera.swift in Sources */,
+				46F30C012A3A859B000597F6 /* ScannerFrameView.swift in Sources */,
+				46C558CD2A4AAB5D00C68BA0 /* SimulatorCamera.swift in Sources */,
+				46506F272A37810C0058D3F2 /* RealPreviewView.swift in Sources */,
+				4630968B2A2D5423002ABA1A /* Types.swift in Sources */,
+				4620AA6C2A2C03FC00BC8929 /* RatioOverlayView.swift in Sources */,
+				460C0C6C2A4B52D800066334 /* PhotoCaptureDelegate.swift in Sources */,
 				26550AF61CFC7086007FF2DF /* CKCameraManager.m in Sources */,
-				4620AA722A2C4FA500BC8929 /* CKCameraManager.swift in Sources */,
-				4620AA6E2A2C090500BC8929 /* CKCompressedImage.swift in Sources */,
-				4620AA6A2A2BFDC400BC8929 /* CKOverlayObject.swift in Sources */,
-				2685AA241CFD89A300E4A446 /* CKCamera.m in Sources */,
+				46C558CB2A4AAB3400C68BA0 /* CameraProtocol.swift in Sources */,
+				4620AA722A2C4FA500BC8929 /* CameraManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -1,20 +1,39 @@
 //
-//  CKMockPreview.swift
+//  SimulatorPreviewView.swift
 //  ReactNativeCameraKit
 //
 
 import UIKit
 
-@objc(CKMockPreview)
-public class CKMockPreview: UIView {
-    // MARK: - Public
+class SimulatorPreviewView: UIView {
+    let zoomVelocityLabel = UILabel()
+    let focusAtLabel = UILabel()
+    let torchModeLabel = UILabel()
+    let flashModeLabel = UILabel()
+    let cameraTypeLabel = UILabel()
 
-    @objc
-    public override init(frame: CGRect) {
+    var balloonLayer = CALayer()
+
+    // MARK: - Lifecycle
+
+    override init(frame: CGRect) {
         super.init(frame: frame)
 
-        layer.cornerRadius = 10.0
         layer.masksToBounds = true
+
+        layer.insertSublayer(balloonLayer, at: 0)
+
+        let stackView = UIStackView()
+        stackView.axis = .vertical
+        addSubview(stackView)
+
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor).isActive = true
+        stackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10).isActive = true
+        [zoomVelocityLabel, focusAtLabel, torchModeLabel, flashModeLabel, cameraTypeLabel].forEach {
+            $0.numberOfLines = 0
+            stackView.addArrangedSubview($0)
+        }
     }
 
     @available(*, unavailable)
@@ -22,14 +41,15 @@ public class CKMockPreview: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override public func layoutSubviews() {
-        super.layoutSubviews()
+    override func draw(_ rect: CGRect) {
+        super.draw(rect)
 
         randomize()
     }
 
-    @objc
-    public func snapshotWithTimestamp(_ showTimestamp: Bool) -> UIImage? {
+    // MARK: - Public
+
+    func snapshot(withTimestamp showTimestamp: Bool) -> UIImage? {
         UIGraphicsBeginImageContextWithOptions(bounds.size, false, 0)
         drawHierarchy(in: bounds, afterScreenUpdates: false)
         var image = UIGraphicsGetImageFromCurrentImageContext()
@@ -42,7 +62,7 @@ public class CKMockPreview: UIView {
             let font = UIFont.boldSystemFont(ofSize: 20)
 
             image?.draw(in: CGRect(x: 0, y: 0, width: image?.size.width ?? 0, height: image?.size.height ?? 0))
-            let rect = CGRect(x: 25, y: 25, width: image?.size.width ?? 0, height: image?.size.height ?? 0)
+            let rect = CGRect(x: 25, y: 125, width: image?.size.width ?? 0, height: image?.size.height ?? 0)
             UIColor.white.set()
             let textFontAttributes = [NSAttributedString.Key.font: font]
             stringFromDate.draw(in: rect.integral, withAttributes: textFontAttributes)
@@ -54,10 +74,12 @@ public class CKMockPreview: UIView {
         return image
     }
 
-    @objc
-    public func randomize() {
+    func randomize() {
+        print("randomize \(Thread.current)")
         layer.backgroundColor = UIColor(hue: CGFloat(Double.random(in: 0...1)), saturation: 1.0, brightness: 1.0, alpha: 1.0).cgColor
-        layer.sublayers = nil
+        balloonLayer.removeFromSuperlayer()
+        balloonLayer = CALayer()
+        layer.insertSublayer(balloonLayer, at: 0)
 
         for _ in 0..<5 {
             drawBalloon()
@@ -107,7 +129,7 @@ public class CKMockPreview: UIView {
         circle.addSublayer(reflection)
         balloon.addSublayer(circle)
 
-        layer.addSublayer(balloon)
+        balloonLayer.addSublayer(balloon)
 
         // Apply animation
         let scale = CABasicAnimation(keyPath: "transform.scale")
