@@ -180,11 +180,11 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
             orientationListener!!.enable()
 
             val scaleDetector =  ScaleGestureDetector(context, object: ScaleGestureDetector.SimpleOnScaleGestureListener() {
-                override fun onScale(detector: ScaleGestureDetector?): Boolean {
+                override fun onScale(detector: ScaleGestureDetector): Boolean {
                     if (zoomMode == "off") return true
                     val cameraControl = camera?.cameraControl ?: return true
                     val zoom = camera?.cameraInfo?.zoomState?.value?.zoomRatio ?: return true
-                    val scaleFactor = detector?.scaleFactor ?: return true
+                    val scaleFactor = detector.scaleFactor
                     val scale = zoom * scaleFactor
                     cameraControl.setZoomRatio(scale)
                     return true
