@@ -82,7 +82,6 @@ class RatioOverlayView: UIView {
     }
 
     func setColor(_ color: UIColor) {
-        print("setColor \(color)")
         topView.backgroundColor = color
         bottomView.backgroundColor = color
     }

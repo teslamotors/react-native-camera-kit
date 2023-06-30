@@ -6,8 +6,6 @@
 import AVFoundation
 import UIKit
 
-import os.signpost
-
 /*
  * Real camera implementation that uses AVFoundation
  */
@@ -54,24 +52,14 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
     func cameraRemovedFromSuperview() {
         sessionQueue.async {
-            if #available(iOS 12.0, *) {
-                os_signpost(.begin, log: log, name: "stopRunning")
-            }
-
             if self.setupResult == .success {
-                print("------- stop running \(Thread.current)")
                 self.session.stopRunning()
                 self.removeObservers()
-            }
-
-            if #available(iOS 12.0, *) {
-                os_signpost(.end, log: log, name: "stopRunning")
             }
         }
     }
 
     deinit {
-        print("------- deinit RealCamera \(Thread.current)")
         removeObservers()
     }
 
@@ -79,12 +67,6 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
     func setup(cameraType: CameraType, supportedBarcodeType: [AVMetadataObject.ObjectType]) {
         self.cameraType = cameraType
-
-        if #available(iOS 12.0, *) {
-            os_signpost(.begin, log: log, name: "setup")
-        }
-
-        print("setup \(Thread.current)")
 
         DispatchQueue.main.async {
             self.cameraPreview.session = self.session
@@ -97,30 +79,15 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         // Because -[AVCaptureSession startRunning] is a blocking call which can take a long time. We dispatch session setup to the sessionQueue
         // so that the main queue isn't blocked, which keeps the UI responsive.
         sessionQueue.async {
-            if #available(iOS 12.0, *) {
-                os_signpost(.event, log: log, name: "Processing", "setupCaptureSession")
-            }
-
             self.setupResult = self.setupCaptureSession(supportedBarcodeType: supportedBarcodeType)
 
             self.addObservers()
 
             if self.setupResult == .success {
-                print("---- startRunning")
-                if #available(iOS 12.0, *) {
-                    os_signpost(.event, log: log, name: "Processing", "startRunning")
-                }
                 self.session.startRunning()
-                if #available(iOS 12.0, *) {
-                    os_signpost(.event, log: log, name: "Processing", "finished startRunning")
-                }
 
                 // We need to reapply the configuration after starting the camera
                 self.update(torchMode: self.torchMode)
-            }
-
-            if #available(iOS 12.0, *) {
-                os_signpost(.end, log: log, name: "setup")
             }
         }
     }
@@ -136,10 +103,6 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
     func focus(at touchPoint: CGPoint, focusBehavior: FocusBehavior) {
         DispatchQueue.main.async {
-            if #available(iOS 12.0, *) {
-                os_signpost(.begin, log: log, name: "focusat")
-            }
-
             let devicePoint = self.cameraPreview.previewLayer.captureDevicePointConverted(fromLayerPoint: touchPoint)
 
             self.sessionQueue.async {
@@ -155,10 +118,6 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
                                                             exposeWithMode: focusBehavior.exposureMode,
                                                             atDevicePoint: devicePoint,
                                                             isSubjectAreaChangeMonitoringEnabled: focusBehavior.isSubjectAreaChangeMonitoringEnabled)
-
-                if #available(iOS 12.0, *) {
-                    os_signpost(.end, log: log, name: "focusat")
-                }
             }
         }
     }
@@ -167,17 +126,8 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         self.torchMode = torchMode
 
         sessionQueue.asyncAfter(deadline: .now() + 0.1) {
-            if #available(iOS 12.0, *) {
-                os_signpost(.begin, log: log, name: "torchMode")
-            }
-
             if (self.videoDeviceInput?.device.torchMode != torchMode.avTorchMode) {
-                print("update torchMode from from \(self.videoDeviceInput?.device.torchMode.rawValue) to \(torchMode.avTorchMode.rawValue)")
                 self.videoDeviceInput?.device.setTorchMode(torchMode.avTorchMode)
-            }
-
-            if #available(iOS 12.0, *) {
-                os_signpost(.end, log: log, name: "torchMode")
             }
         }
     }
@@ -189,17 +139,9 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     func update(cameraType: CameraType) {
         self.cameraType = cameraType
 
-        if #available(iOS 12.0, *) {
-            os_signpost(.event, log: log, name: "update cameraType")
-        }
-
         sessionQueue.async {
             if self.videoDeviceInput?.device.position == cameraType.avPosition {
                 return
-            }
-
-            if #available(iOS 12.0, *) {
-                os_signpost(.begin, log: log, name: "cameraType")
             }
 
             // Avoid chaining device inputs when camera input is denied by the user, since both front and rear vido input devices will be nil
@@ -229,10 +171,6 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
             // We need to reapply the configuration after reloading the camera
             self.update(torchMode: self.torchMode)
-
-            if #available(iOS 12.0, *) {
-                os_signpost(.end, log: log, name: "cameraType")
-            }
         }
     }
 
@@ -283,12 +221,6 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         self.onBarcodeRead = onBarcodeRead
 
         sessionQueue.async {
-            if #available(iOS 12.0, *) {
-                os_signpost(.begin, log: log, name: "isBarcodeScannerEnabled")
-            }
-
-            print("--------- isBarcodeScannerEnabled")
-
             let newTypes: [AVMetadataObject.ObjectType]
             if isEnabled && onBarcodeRead != nil {
                 let availableTypes = self.metadataOutput.availableMetadataObjectTypes
@@ -298,18 +230,10 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
             }
 
             if self.metadataOutput.metadataObjectTypes != newTypes {
-                if #available(iOS 12.0, *) {
-                    os_signpost(.event, log: log, name: "update metadataObjectTypes")
-                }
-
                 self.metadataOutput.metadataObjectTypes = newTypes
 
                 // Setting metadataObjectTypes reloads the camera, we need to reapply the configuration
                 self.update(torchMode: self.torchMode)
-            }
-
-            if #available(iOS 12.0, *) {
-                os_signpost(.end, log: log, name: "isBarcodeScannerEnabled")
             }
         }
     }
@@ -320,15 +244,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         self.scannerFrameSize = scannerFrameSize
 
         self.sessionQueue.async {
-            if #available(iOS 12.0, *) {
-                os_signpost(.begin, log: log, name: "scannerFrameSize")
-            }
-
             if !self.session.isRunning {
-                print("setting rectOfInterest while session not running wouldn't work")
-                if #available(iOS 12.0, *) {
-                    os_signpost(.end, log: log, name: "scannerFrameSize")
-                }
                 return
             }
 
@@ -337,24 +253,12 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
                 self.sessionQueue.async {
                     if (self.metadataOutput.rectOfInterest == visibleRect) {
-                        if #available(iOS 12.0, *) {
-                            os_signpost(.end, log: log, name: "scannerFrameSize")
-                        }
                         return
                     }
 
-                    print("------ update scannerFrameSize from \(self.metadataOutput.rectOfInterest) to \(visibleRect ?? CGRect(x: 0, y: 0, width: 1, height: 1))")
-
-                    if #available(iOS 12.0, *) {
-                        os_signpost(.event, log: log, name: "update scannerFrameSize")
-                    }
                     self.metadataOutput.rectOfInterest = visibleRect ?? CGRect(x: 0, y: 0, width: 1, height: 1)
                     // We need to reapply the configuration after touching the metadataOutput
                     self.update(torchMode: self.torchMode)
-
-                    if #available(iOS 12.0, *) {
-                        os_signpost(.end, log: log, name: "scannerFrameSize")
-                    }
                 }
             }
         }
@@ -368,8 +272,6 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
               let codeStringValue = machineReadableCodeObject.stringValue else {
             return
         }
-
-        print("----------- \(codeStringValue)")
 
         onBarcodeRead?(codeStringValue)
     }

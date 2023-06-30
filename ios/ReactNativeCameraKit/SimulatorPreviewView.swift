@@ -75,7 +75,6 @@ class SimulatorPreviewView: UIView {
     }
 
     func randomize() {
-        print("randomize \(Thread.current)")
         layer.backgroundColor = UIColor(hue: CGFloat(Double.random(in: 0...1)), saturation: 1.0, brightness: 1.0, alpha: 1.0).cgColor
         balloonLayer.removeFromSuperlayer()
         balloonLayer = CALayer()

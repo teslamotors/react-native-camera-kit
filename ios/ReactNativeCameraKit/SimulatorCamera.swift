@@ -6,8 +6,6 @@
 import AVFoundation
 import UIKit
 
-import os.signpost
-
 /*
  * Fake camera implementation to be used on simulator
  */

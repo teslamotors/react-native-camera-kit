@@ -6,14 +6,6 @@
 import AVFoundation
 import UIKit
 
-import os.signpost
-
-@available(iOS 12.0, *)
-let log = OSLog(
-    subsystem: "com.bertet.app",
-    category: .pointsOfInterest
-)
-
 /*
  * View abtracting the logic unrelated to the actual camera
  * Like permission, ratio overlay, focus, zoom gesture, write image, etc
@@ -90,11 +82,6 @@ class CameraView: UIView {
     }
 
     override init(frame: CGRect) {
-        if #available(iOS 12.0, *) {
-            os_signpost(.begin, log: log, name: "init CameraView")
-        }
-
-        print("--------- init CameraView")
 #if targetEnvironment(simulator)
         camera = SimulatorCamera()
 #else
@@ -122,9 +109,6 @@ class CameraView: UIView {
                                                using: { [weak self] notification in self?.orientationChanged(notification: notification) })
 
         handleCameraPermission()
-        if #available(iOS 12.0, *) {
-            os_signpost(.end, log: log, name: "init CameraView")
-        }
     }
 
     override func removeFromSuperview() {
@@ -144,8 +128,6 @@ class CameraView: UIView {
     override func reactSetFrame(_ frame: CGRect) {
         super.reactSetFrame(frame)
 
-        print("---------- CameraView reactSetFrame \(frame) \(bounds) \(Thread.current)")
-
         camera.previewView.frame = bounds
 
         scannerInterfaceView.frame = bounds
@@ -158,20 +140,13 @@ class CameraView: UIView {
     }
 
     override func removeReactSubview(_ subview: UIView) {
-        print("---------- removeReactSubview \(subview)")
         subview.removeFromSuperview()
         super.removeReactSubview(subview)
     }
 
     // Called once when all props have been set, then every time one is updated
     override func didSetProps(_ changedProps: [String]) {
-        if #available(iOS 12.0, *) {
-            os_signpost(.begin, log: log, name: "didSetProps")
-        }
-
         hasPropBeenSetup = true
-
-        print("------ didSetProps \(changedProps) \(Thread.current)")
 
         // Camera settings
         if changedProps.contains("cameraType") {
@@ -250,10 +225,6 @@ class CameraView: UIView {
                     self.zoomGestureRecognizer = nil
                 }
             }
-        }
-
-        if #available(iOS 12.0, *) {
-            os_signpost(.end, log: log, name: "didSetProps")
         }
     }
 

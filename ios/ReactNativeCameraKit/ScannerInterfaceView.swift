@@ -49,15 +49,12 @@ class ScannerInterfaceView: UIView {
         frameView.frame = CGRect(x: 0, y: 0, width: bounds.size.width - 2 * frameOffset, height: frameHeight)
         frameView.center = center
 
-        print("--- draw rect scannerInterface \(frameView.frame)")
-
         updateOverlaySize(frameView.frame)
     }
 
     // MARK: - Public
 
     var frameSize: CGRect {
-        print("--- frameView.frame \(frameView.frame)")
         return frameView.frame
     }
 
