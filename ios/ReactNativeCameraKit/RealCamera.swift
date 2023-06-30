@@ -9,7 +9,7 @@ import UIKit
 /*
  * Real camera implementation that uses AVFoundation
  */
-class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelegate, AVCapturePhotoCaptureDelegate {
+class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelegate {
     var previewView: UIView { cameraPreview }
 
     private let cameraPreview = RealPreviewView(frame: .zero)
