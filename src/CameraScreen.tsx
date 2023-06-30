@@ -126,9 +126,9 @@ export default class CameraScreen extends Component<CameraScreenProps, State> {
   }
 
   componentDidMount() {
-    let ratios: string[] = [];
+    let ratios: string[] = this.props.ratioOverlay ? [this.props.ratioOverlay] : [];
     if (this.props.cameraRatioOverlay) {
-      ratios = this.props.cameraRatioOverlay.ratios || [];
+      ratios = ratios.concat(this.props.cameraRatioOverlay.ratios || []);
     }
     // eslint-disable-next-line react/no-did-mount-set-state
     this.setState({
@@ -264,7 +264,7 @@ export default class CameraScreen extends Component<CameraScreenProps, State> {
             style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', padding: 8 }}
             onPress={() => this.onRatioButtonPressed()}
           >
-            <Text style={styles.ratioText}>{this.props.ratioOverlay}</Text>
+            <Text style={styles.ratioText}>{this.state.ratios[this.state.ratioArrayPosition]}</Text>
           </TouchableOpacity>
         </View>
       </View>

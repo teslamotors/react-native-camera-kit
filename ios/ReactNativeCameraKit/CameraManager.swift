@@ -7,7 +7,7 @@ import AVFoundation
 import Foundation
 
 /*
- * Class that manages the communication between React Native and the native implementation
+ * Class managing the communication between React Native and the native implementation
  */
 @objc(CKCameraManager) public class CameraManager: RCTViewManager {
     var camera: CameraView!

@@ -33,7 +33,8 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     private var torchMode: TorchMode = .off
     private var resetFocus: (() -> Void)?
     private var focusFinished: (() -> Void)?
-    private var onReadCode: RCTDirectEventBlock?
+    private var onBarcodeRead: ((_ barcode: String) -> Void)?
+    private var scannerFrameSize: CGRect? = nil
 
     // KVO observation
     private var adjustingFocusObservation: NSKeyValueObservation?
@@ -76,17 +77,19 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
     // MARK: - Public
 
-    func setup() {
+    func setup(cameraType: CameraType, supportedBarcodeType: [AVMetadataObject.ObjectType]) {
+        self.cameraType = cameraType
+
         if #available(iOS 12.0, *) {
             os_signpost(.begin, log: log, name: "setup")
         }
 
         print("setup \(Thread.current)")
 
-        session.sessionPreset = .photo
-
-        cameraPreview.session = session
-        cameraPreview.previewLayer.videoGravity = .resizeAspectFill
+        DispatchQueue.main.async {
+            self.cameraPreview.session = self.session
+            self.cameraPreview.previewLayer.videoGravity = .resizeAspectFill
+        }
 
         // Setup the capture session.
         // In general, it is not safe to mutate an AVCaptureSession or any of its inputs, outputs, or connections from multiple threads at the same time.
@@ -98,7 +101,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
                 os_signpost(.event, log: log, name: "Processing", "setupCaptureSession")
             }
 
-            self.setupResult = self.setupCaptureSession()
+            self.setupResult = self.setupCaptureSession(supportedBarcodeType: supportedBarcodeType)
 
             self.addObservers()
 
@@ -111,6 +114,9 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
                 if #available(iOS 12.0, *) {
                     os_signpost(.event, log: log, name: "Processing", "finished startRunning")
                 }
+
+                // We need to reapply the configuration after starting the camera
+                self.update(torchMode: self.torchMode)
             }
 
             if #available(iOS 12.0, *) {
@@ -160,7 +166,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     func update(torchMode: TorchMode) {
         self.torchMode = torchMode
 
-        sessionQueue.async {
+        sessionQueue.asyncAfter(deadline: .now() + 0.1) {
             if #available(iOS 12.0, *) {
                 os_signpost(.begin, log: log, name: "torchMode")
             }
@@ -221,6 +227,9 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
             self.session.commitConfiguration()
             self.addObservers()
 
+            // We need to reapply the configuration after reloading the camera
+            self.update(torchMode: self.torchMode)
+
             if #available(iOS 12.0, *) {
                 os_signpost(.end, log: log, name: "cameraType")
             }
@@ -270,8 +279,8 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
     func isBarcodeScannerEnabled(_ isEnabled: Bool,
                                  supportedBarcodeType: [AVMetadataObject.ObjectType],
-                                 onReadCode: RCTDirectEventBlock?) {
-        self.onReadCode = onReadCode
+                                 onBarcodeRead: ((_ barcode: String) -> Void)?) {
+        self.onBarcodeRead = onBarcodeRead
 
         sessionQueue.async {
             if #available(iOS 12.0, *) {
@@ -280,36 +289,24 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
             print("--------- isBarcodeScannerEnabled")
 
-            if isEnabled && onReadCode != nil {
+            let newTypes: [AVMetadataObject.ObjectType]
+            if isEnabled && onBarcodeRead != nil {
                 let availableTypes = self.metadataOutput.availableMetadataObjectTypes
-                let filtered = supportedBarcodeType.filter { type in availableTypes.contains(type) }
-                self.metadataOutput.metadataObjectTypes = self.metadataOutput.availableMetadataObjectTypes // filtered
+                newTypes = supportedBarcodeType.filter { type in availableTypes.contains(type) }
             } else {
-                self.metadataOutput.metadataObjectTypes = []
+                newTypes = []
             }
 
-            //            if isEnabled && self.metadataOutput == nil {
-            //                self.session.beginConfiguration()
-            //
-            //                let metadataOutput = AVCaptureMetadataOutput()
-            //                if self.session.canAddOutput(metadataOutput) {
-            //                    self.session.addOutput(metadataOutput)
-            //                    metadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
-            //
-            //                    let availableTypes = metadataOutput.availableMetadataObjectTypes
-            //                    metadataOutput.metadataObjectTypes = supportedBarcodeType.filter { type in availableTypes.contains(type) }
-            //
-            //                    self.metadataOutput = metadataOutput
-            //                }
-            //
-            //                self.session.commitConfiguration()
-            //            } else if !isEnabled, let metadataOutput {
-            //                self.session.beginConfiguration()
-            //                self.session.removeOutput(metadataOutput)
-            //                self.session.commitConfiguration()
-            //
-            //                self.metadataOutput = nil
-            //            }
+            if self.metadataOutput.metadataObjectTypes != newTypes {
+                if #available(iOS 12.0, *) {
+                    os_signpost(.event, log: log, name: "update metadataObjectTypes")
+                }
+
+                self.metadataOutput.metadataObjectTypes = newTypes
+
+                // Setting metadataObjectTypes reloads the camera, we need to reapply the configuration
+                self.update(torchMode: self.torchMode)
+            }
 
             if #available(iOS 12.0, *) {
                 os_signpost(.end, log: log, name: "isBarcodeScannerEnabled")
@@ -318,22 +315,42 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     }
 
     func update(scannerFrameSize: CGRect?) {
+        guard self.scannerFrameSize != scannerFrameSize else { return }
+
+        self.scannerFrameSize = scannerFrameSize
+
         self.sessionQueue.async {
             if #available(iOS 12.0, *) {
-                os_signpost(.end, log: log, name: "scannerFrameSize")
+                os_signpost(.begin, log: log, name: "scannerFrameSize")
             }
 
             if !self.session.isRunning {
                 print("setting rectOfInterest while session not running wouldn't work")
+                if #available(iOS 12.0, *) {
+                    os_signpost(.end, log: log, name: "scannerFrameSize")
+                }
                 return
             }
 
             DispatchQueue.main.async {
                 let visibleRect = scannerFrameSize != nil && scannerFrameSize != .zero ? self.cameraPreview.previewLayer.metadataOutputRectConverted(fromLayerRect: scannerFrameSize!) : nil
 
-                print("------ update scannerFrameSize \(visibleRect ?? CGRect(x: 0, y: 0, width: 1, height: 1))")
                 self.sessionQueue.async {
+                    if (self.metadataOutput.rectOfInterest == visibleRect) {
+                        if #available(iOS 12.0, *) {
+                            os_signpost(.end, log: log, name: "scannerFrameSize")
+                        }
+                        return
+                    }
+
+                    print("------ update scannerFrameSize from \(self.metadataOutput.rectOfInterest) to \(visibleRect ?? CGRect(x: 0, y: 0, width: 1, height: 1))")
+
+                    if #available(iOS 12.0, *) {
+                        os_signpost(.event, log: log, name: "update scannerFrameSize")
+                    }
                     self.metadataOutput.rectOfInterest = visibleRect ?? CGRect(x: 0, y: 0, width: 1, height: 1)
+                    // We need to reapply the configuration after touching the metadataOutput
+                    self.update(torchMode: self.torchMode)
 
                     if #available(iOS 12.0, *) {
                         os_signpost(.end, log: log, name: "scannerFrameSize")
@@ -354,19 +371,20 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
         print("----------- \(codeStringValue)")
 
-        onReadCode?(["codeStringValue": codeStringValue])
-        // check code is different? should pause few seconds instead and allow user to scan a second time
+        onBarcodeRead?(codeStringValue)
     }
 
     // MARK: - Private
 
-    private func setupCaptureSession() -> SetupResult {
+    private func setupCaptureSession(supportedBarcodeType: [AVMetadataObject.ObjectType]) -> SetupResult {
         guard let videoDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: cameraType.avPosition),
               let videoDeviceInput = try? AVCaptureDeviceInput(device: videoDevice) else {
             return .sessionConfigurationFailed
         }
 
         session.beginConfiguration()
+
+        session.sessionPreset = .photo
 
         if session.canAddInput(videoDeviceInput) {
             session.addInput(videoDeviceInput)
@@ -385,7 +403,9 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
             self.session.addOutput(metadataOutput)
             metadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
 
-            metadataOutput.metadataObjectTypes = metadataOutput.availableMetadataObjectTypes
+            let availableTypes = self.metadataOutput.availableMetadataObjectTypes
+            let filteredTypes = supportedBarcodeType.filter { type in availableTypes.contains(type) }
+            metadataOutput.metadataObjectTypes = filteredTypes
         }
 
         session.commitConfiguration()

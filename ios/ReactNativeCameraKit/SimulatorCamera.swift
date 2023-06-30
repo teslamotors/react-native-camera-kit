@@ -14,8 +14,6 @@ import os.signpost
 class SimulatorCamera: CameraProtocol {
     var previewView: UIView { mockPreview }
 
-    var onReadCode: RCTDirectEventBlock?
-
     private var fakeFocusFinishedTimer: Timer?
 
     // Create mock camera layer. When a photo is taken, we capture this layer and save it in place of a hardware input.
@@ -23,7 +21,11 @@ class SimulatorCamera: CameraProtocol {
 
     // MARK: - Public
 
-    func setup() {}
+    func setup(cameraType: CameraType, supportedBarcodeType: [AVMetadataObject.ObjectType]) {
+        DispatchQueue.main.async {
+            self.mockPreview.cameraTypeLabel.text = "Camera type: \(cameraType)"
+        }
+    }
     func cameraRemovedFromSuperview() {}
 
     func update(zoomVelocity: CGFloat) {
@@ -68,7 +70,7 @@ class SimulatorCamera: CameraProtocol {
 
     func isBarcodeScannerEnabled(_ isEnabled: Bool,
                                  supportedBarcodeType: [AVMetadataObject.ObjectType],
-                                 onReadCode: RCTDirectEventBlock?) {}
+                                 onBarcodeRead: ((_ barcode: String) -> Void)?) {}
     func update(scannerFrameSize: CGRect?) {}
 
     func capturePicture(onWillCapture: @escaping () -> Void,

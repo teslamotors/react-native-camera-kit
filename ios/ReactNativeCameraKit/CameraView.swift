@@ -15,7 +15,7 @@ let log = OSLog(
 )
 
 /*
- * View that abtracts the logic unrelated to the actual camera
+ * View abtracting the logic unrelated to the actual camera
  * Like permission, ratio overlay, focus, zoom gesture, write image, etc
  */
 @objc(CKCameraView)
@@ -26,6 +26,7 @@ class CameraView: UIView {
     private let focusInterfaceView: FocusInterfaceView
 
     // scanner
+    private var lastBarcodeDetectedTime: TimeInterval = 0
     private var scannerInterfaceView: ScannerInterfaceView
     private var supportedBarcodeType: [AVMetadataObject.ObjectType] = [.upce, .code39, .code39Mod43,
                                                                        .ean13, .ean8, .code93,
@@ -49,6 +50,7 @@ class CameraView: UIView {
     @objc var scanBarcode = false
     @objc var showFrame = false
     @objc var onReadCode: RCTDirectEventBlock?
+    @objc var scanThrottleDelay = 2000
     @objc var frameColor: UIColor?
     @objc var laserColor: UIColor?
     // other
@@ -57,6 +59,28 @@ class CameraView: UIView {
     @objc var resetFocusWhenMotionDetected = false
     @objc var focusMode: FocusMode = .on
     @objc var zoomMode: ZoomMode = .on
+
+    // MARK: - Setup
+
+    // This is used to delay camera setup until we have both granted permission & received default props
+    var hasCameraBeenSetup = false
+    var hasPropBeenSetup = false {
+        didSet {
+            setupCamera()
+        }
+    }
+    var hasPermissionBeenGranted = false {
+        didSet {
+            setupCamera()
+        }
+    }
+
+    private func setupCamera() {
+        if (hasPropBeenSetup && hasPermissionBeenGranted && !hasCameraBeenSetup) {
+            hasCameraBeenSetup = true
+            camera.setup(cameraType: cameraType, supportedBarcodeType: scanBarcode && onReadCode != nil ? supportedBarcodeType : [])
+        }
+    }
 
     // MARK: Lifecycle
 
@@ -112,7 +136,6 @@ class CameraView: UIView {
     }
 
     deinit {
-//        removeObservers()
         UIDevice.current.endGeneratingDeviceOrientationNotifications()
     }
 
@@ -145,6 +168,9 @@ class CameraView: UIView {
         if #available(iOS 12.0, *) {
             os_signpost(.begin, log: log, name: "didSetProps")
         }
+
+        hasPropBeenSetup = true
+
         print("------ didSetProps \(changedProps) \(Thread.current)")
 
         // Camera settings
@@ -181,7 +207,7 @@ class CameraView: UIView {
         if changedProps.contains("scanBarcode") || changedProps.contains("onReadCode") {
             camera.isBarcodeScannerEnabled(scanBarcode,
                                            supportedBarcodeType: supportedBarcodeType,
-                                           onReadCode: onReadCode)
+                                           onBarcodeRead: { [weak self] barcode in self?.onBarcodeRead(barcode: barcode) })
         }
 
         if changedProps.contains("showFrame") || changedProps.contains("scanBarcode") {
@@ -259,13 +285,13 @@ class CameraView: UIView {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .authorized:
             // The user has previously granted access to the camera.
-            camera.setup()
+            hasPermissionBeenGranted = true
             break
         case .notDetermined:
             // The user has not yet been presented with the option to grant video access.
             AVCaptureDevice.requestAccess(for: .video) { [weak self] granted in
                 if granted {
-                    self?.camera.setup()
+                    self?.hasPermissionBeenGranted = true
                 }
             }
         default:
@@ -309,6 +335,18 @@ class CameraView: UIView {
         }
 
         onOrientationChange(["orientation": orientation.rawValue])
+    }
+
+    private func onBarcodeRead(barcode: String) {
+        // Throttle barcode detection
+        let now = Date.timeIntervalSinceReferenceDate
+        guard lastBarcodeDetectedTime + Double(scanThrottleDelay) / 1000 < now else {
+            return
+        }
+
+        lastBarcodeDetectedTime = now
+
+        onReadCode?(["codeStringValue": barcode])
     }
 
     // MARK: - Gesture selectors
