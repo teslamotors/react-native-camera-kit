@@ -106,16 +106,16 @@ const BarcodeExample = ({ onBack }: { onBack: () => void }) => {
         <View style={styles.topButtons}>
           {flashData.image && (
             <TouchableOpacity style={styles.flashMode} onPress={() => onSetFlash()}>
-              <Image source={flashData.image} resizeMode='contain' />
+              <Image source={flashData.image} resizeMode="contain" />
             </TouchableOpacity>
           )}
           <TouchableOpacity style={styles.switchCamera} onPress={() => onSwitchCameraPressed()}>
-            <Image source={require('../images/cameraFlipIcon.png')} resizeMode='contain' />
+            <Image source={require('../images/cameraFlipIcon.png')} resizeMode="contain" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.torch} onPress={() => onSetTorch()}>
             <Image
               source={torchMode ? require('../images/torchOn.png') : require('../images/torchOff.png')}
-              resizeMode='contain'
+              resizeMode="contain"
             />
           </TouchableOpacity>
         </View>
@@ -126,8 +126,8 @@ const BarcodeExample = ({ onBack }: { onBack: () => void }) => {
           style={{ width: window.width, height: window.width * cameraRatio }}
           cameraType={cameraType}
           flashMode={flashData?.mode}
-          zoomMode='on'
-          focusMode='on'
+          zoomMode="on"
+          focusMode="on"
           torchMode={torchMode ? 'on' : 'off'}
           onOrientationChange={(e) => {
             console.log('orientationChange', e.nativeEvent);

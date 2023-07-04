@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import Camera from '../../src/Camera';
 import { CameraApi, CameraType, CaptureData } from '../../src/types';
+import { Orientation } from '../../src';
 
 const { width, height } = Dimensions.get('window');
 
@@ -46,6 +47,11 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
   const [cameraType, setCameraType] = useState(CameraType.Back);
   const [showImageUri, setShowImageUri] = useState<string>('');
 
+  // iOS will error out if capturing too fast,
+  // so block capturing until the current capture is done
+  // This also minimizes issues of delayed capturing
+  const isCapturing = useRef(false);
+
   const numberOfImagesTaken = () => {
     const numberTook = captureImages.length;
     if (numberTook >= 2) {
@@ -73,13 +79,25 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
   };
 
   const onCaptureImagePressed = async () => {
-    if (!cameraRef.current) return;
-    const image = await cameraRef.current.capture();
-    if (image) {
-      setCaptured(true);
-      setCaptureImages([...captureImages, image]);
-      console.log('image', image);
+    if (showImageUri) {
+      setShowImageUri('');
+      return;
     }
+    if (!cameraRef.current || isCapturing.current) return;
+    let image: CaptureData | undefined;
+    try {
+      isCapturing.current = true;
+      image = await cameraRef.current.capture();
+    } catch (e) {
+      console.log('error', e);
+    } finally {
+      isCapturing.current = false;
+    }
+    if (!image) return;
+
+    setCaptured(true);
+    setCaptureImages([...captureImages, image]);
+    console.log('image', image);
   };
 
   const window = useWindowDimensions();
@@ -91,16 +109,16 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
         <View style={styles.topButtons}>
           {flashData.image && (
             <TouchableOpacity style={styles.flashMode} onPress={() => onSetFlash()}>
-              <Image source={flashData.image} resizeMode='contain' />
+              <Image source={flashData.image} resizeMode="contain" />
             </TouchableOpacity>
           )}
           <TouchableOpacity style={styles.switchCamera} onPress={() => onSwitchCameraPressed()}>
-            <Image source={require('../images/cameraFlipIcon.png')} resizeMode='contain' />
+            <Image source={require('../images/cameraFlipIcon.png')} resizeMode="contain" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.torch} onPress={() => onSetTorch()}>
             <Image
               source={torchMode ? require('../images/torchOn.png') : require('../images/torchOff.png')}
-              resizeMode='contain'
+              resizeMode="contain"
             />
           </TouchableOpacity>
         </View>
@@ -110,35 +128,32 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
           <Image
             source={{ uri: showImageUri }}
             style={{ width: window.width, height: window.width * cameraRatio }}
-            resizeMode='contain'
+            resizeMode="contain"
           />
         ) : (
           <Camera
             ref={cameraRef}
-            style={{ width: window.width, height: window.width * cameraRatio }}
+            style={{ width: window.width, height: window.width * cameraRatio, backgroundColor: 'magenta' }}
             cameraType={cameraType}
             flashMode={flashData?.mode}
             zoomMode="on"
             focusMode="on"
             torchMode={torchMode ? 'on' : 'off'}
             onOrientationChange={(e) => {
-              console.log('orientationChange', e.nativeEvent)
+              // We recommend locking the camera UI to portrait (using a different library)
+              // and rotating the UI elements counter to the orientation
+              // However, we include onOrientationChange so you can match your UI to what the camera does
+              const isLandscape = [Orientation.LANDSCAPE_LEFT, Orientation.LANDSCAPE_RIGHT].includes(
+                e.nativeEvent.orientation,
+              );
+              console.log('orientationChange', isLandscape ? 'landscape' : 'portrait');
             }}
           />
         )}
       </View>
       <SafeAreaView style={styles.bottomButtons}>
         <View style={styles.bottomButtonsInner}>
-          <TouchableOpacity
-            style={styles.backBtn}
-            onPress={() => {
-              if (showImageUri) {
-                setShowImageUri('');
-              } else {
-                onBack();
-              }
-            }}
-          >
+          <TouchableOpacity style={styles.backBtn} onPress={() => onBack()}>
             <Text style={styles.textStyle}>Back</Text>
           </TouchableOpacity>
           <View style={styles.captureButtonContainer}>

@@ -232,9 +232,9 @@ class CameraView: UIView {
                     self?.camera.previewView.alpha = 1
                 })
             }
-        }, onSuccess: { [weak self] imageData in
+        }, onSuccess: { [weak self] imageData, thumbnailData in
             DispatchQueue.global(qos: .default).async {
-                self?.writeCaptured(imageData: imageData, onSuccess: onSuccess, onError: onError)
+                self?.writeCaptured(imageData: imageData, thumbnailData: thumbnailData, onSuccess: onSuccess, onError: onError)
 
                 self?.focusInterfaceView.resetFocus()
             }
@@ -262,15 +262,21 @@ class CameraView: UIView {
         }
     }
 
-    private func writeCaptured(imageData: Data, 
+    private func writeCaptured(imageData: Data,
+                               thumbnailData: Data?,
                                onSuccess: @escaping (_ imageObject: [String: Any]) -> (),
                                onError: @escaping (_ error: String) -> ()) {
         do {
             let temporaryFileURL = try saveToTmpFolder(imageData)
+            var temporaryThumbFileURL: URL? = nil
+            if let t = thumbnailData {
+                temporaryThumbFileURL = try saveToTmpFolder(t)
+            }
             onSuccess([
                 "size": imageData.count,
                 "uri": temporaryFileURL.description,
-                "name": temporaryFileURL.lastPathComponent
+                "name": temporaryFileURL.lastPathComponent,
+                "thumb": temporaryThumbFileURL?.description ?? ""
             ])
         } catch {
             let errorMessage = "Error occurred while writing image data to a temporary file: \(error)"
@@ -304,9 +310,8 @@ class CameraView: UIView {
     // MARK: - Gesture selectors
 
     @objc func handlePinchToZoomRecognizer(_ pinchRecognizer: UIPinchGestureRecognizer) {
-        var zoomScale = pinchRecognizer.scale
         if pinchRecognizer.state == .changed {
-            camera.update(zoomScale: zoomScale)
+            camera.update(pinchVelocity: pinchRecognizer.velocity, pinchScale: pinchRecognizer.scale)
             pinchRecognizer.scale = 1.0
         }
     }

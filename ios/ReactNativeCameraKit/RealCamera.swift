@@ -36,12 +36,13 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     private var scannerFrameSize: CGRect? = nil
     private var onOrientationChange: RCTDirectEventBlock?
     
-    private var deviceOrientation = UIDeviceOrientation.portrait
+    private var deviceOrientation = UIInterfaceOrientation.unknown
     private var motionManager: CMMotionManager?
 
     // KVO observation
     private var adjustingFocusObservation: NSKeyValueObservation?
 
+    // Keep delegate objects in memory to avoid collecting them before photo capturing finishes
     private var inProgressPhotoCaptureDelegates = [Int64: PhotoCaptureDelegate]()
 
     // MARK: - Lifecycle
@@ -98,7 +99,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
                 print("no acceleration data")
                 return
             }
-            var orientationNew: UIDeviceOrientation
+            var orientationNew: UIInterfaceOrientation
             if acceleration.x >= 0.75 {
                 orientationNew = .landscapeLeft
             } else if acceleration.x <= -0.75 {
@@ -108,7 +109,8 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
             } else if acceleration.y >= 0.75 {
                 orientationNew = .portraitUpsideDown
             } else {
-                // Consider same as last time
+                // Device is not clearly pointing in either direction
+                // (e.g. it's flat on the table, so stick with the same orientation)
                 return
             }
             
@@ -116,7 +118,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
                 return
             }
             self.deviceOrientation = orientationNew
-            self.onOrientationChange?(["orientation": orientationNew.rawValue])
+            self.onOrientationChange?(["orientation": Orientation.init(from: orientationNew)!.rawValue])
         })
     }
     
@@ -125,7 +127,15 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
         DispatchQueue.main.async {
             self.cameraPreview.session = self.session
-            self.cameraPreview.previewLayer.videoGravity = .resizeAspectFill
+            self.cameraPreview.previewLayer.videoGravity = .resizeAspect
+            var interfaceOrientation: UIInterfaceOrientation
+            if #available(iOS 13.0, *) {
+                interfaceOrientation = self.previewView.window!.windowScene!.interfaceOrientation
+            } else {
+                interfaceOrientation = UIApplication.shared.statusBarOrientation
+            }
+            var orientation = self.counterRotatedCaptureVideoOrientationFrom(deviceOrientation: interfaceOrientation)
+            self.cameraPreview.previewLayer.connection?.videoOrientation = orientation!
         }
         
         self.initializeMotionManager()
@@ -149,21 +159,20 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         }
     }
 
-    func update(zoomScale: CGFloat) {
-        guard !zoomScale.isNaN else { return }
+    func update(pinchVelocity: CGFloat, pinchScale: CGFloat) {
+        guard !pinchScale.isNaN else { return }
         
         sessionQueue.async {
             guard let device = self.videoDeviceInput?.device else { return }
-            let zoom = device.videoZoomFactor * zoomScale
-            do{
+            do {
                 try device.lockForConfiguration()
                 defer {device.unlockForConfiguration()}
-                if zoom >= device.minAvailableVideoZoomFactor && zoom <= device.maxAvailableVideoZoomFactor {
-                    device.videoZoomFactor = zoom
-                } else {
-                    NSLog("Unable to set videoZoom: (max %f, asked %f)", device.activeFormat.videoMaxZoomFactor, zoom);
-                }
-            }catch _{
+                
+                let pinchVelocityDividerFactor = CGFloat(10.0);
+                let desiredZoomFactor = device.videoZoomFactor + CGFloat(atan2f(Float(pinchVelocity), Float(pinchVelocityDividerFactor)));
+                device.videoZoomFactor = max(1.0, min(desiredZoomFactor, device.activeFormat.videoMaxZoomFactor));
+            } catch {
+                NSLog("device.lockForConfiguration error: \(error))")
             }
         }
     }
@@ -244,9 +253,25 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
             self.update(torchMode: self.torchMode)
         }
     }
-
+    
+    func counterRotatedCaptureVideoOrientationFrom(deviceOrientation: UIInterfaceOrientation) -> AVCaptureVideoOrientation? {
+        switch(deviceOrientation) {
+        case .portrait:
+            return .portrait
+        case .portraitUpsideDown:
+            return .portraitUpsideDown
+        case .landscapeLeft:
+            return .landscapeLeft
+        case .landscapeRight:
+            return .landscapeRight
+        case .unknown: break
+        @unknown default: break
+        }
+        return nil
+    }
+    
     func capturePicture(onWillCapture: @escaping () -> Void,
-                        onSuccess: @escaping (_ imageData: Data) -> Void,
+                        onSuccess: @escaping (_ imageData: Data, _ thumbnailData: Data?) -> Void,
                         onError: @escaping (_ message: String) -> Void) {
         /*
          Retrieve the video preview layer's video orientation on the main queue before
@@ -254,26 +279,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
          the main thread and session configuration is done on the session queue.
          */
         DispatchQueue.main.async {
-            var videoPreviewLayerOrientation = self.cameraPreview.previewLayer.connection?.videoOrientation
-            
-            switch(self.deviceOrientation) {
-            case .portrait:
-                videoPreviewLayerOrientation = .portrait
-                break
-            case .portraitUpsideDown:
-                videoPreviewLayerOrientation = .portraitUpsideDown
-                break
-            case .landscapeLeft:
-                videoPreviewLayerOrientation = .landscapeLeft
-                break
-            case .landscapeRight:
-                videoPreviewLayerOrientation = .landscapeRight
-                break
-            case .unknown: break
-            case .faceUp: break
-            case .faceDown: break
-            @unknown default: break
-            }
+            var videoPreviewLayerOrientation = self.counterRotatedCaptureVideoOrientationFrom(deviceOrientation: self.deviceOrientation) ?? self.cameraPreview.previewLayer.connection?.videoOrientation
 
             self.sessionQueue.async {
                 if let photoOutputConnection = self.photoOutput.connection(with: .video), let videoPreviewLayerOrientation {
@@ -290,14 +296,23 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
                 let photoCaptureDelegate = PhotoCaptureDelegate(
                     with: settings,
                     onWillCapture: onWillCapture,
-                    onCaptureSuccess: { uniqueID, imageData in
+                    onCaptureSuccess: { uniqueID, imageData, photo in
                         self.inProgressPhotoCaptureDelegates[uniqueID] = nil
-                        onSuccess(imageData)
+                        
+                        var thumbnailData: Data? = nil
+                        if let previewPixelBuffer = photo.previewPixelBuffer {
+                            let ciImage = CIImage(cvPixelBuffer: previewPixelBuffer)
+                            let uiImage = UIImage(ciImage: ciImage)
+                            thumbnailData = uiImage.jpegData(compressionQuality: 0.7)
+                        }
+                        
+                        onSuccess(imageData, thumbnailData)
                     },
                     onCaptureError: { uniqueID, errorMessage in
                         self.inProgressPhotoCaptureDelegates[uniqueID] = nil
                         onError(errorMessage)
-                    })
+                    }
+                )
 
                 self.inProgressPhotoCaptureDelegates[photoCaptureDelegate.requestedPhotoSettings.uniqueID] = photoCaptureDelegate
                 self.photoOutput.capturePhoto(with: settings, delegate: photoCaptureDelegate)
@@ -442,6 +457,17 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
             let filteredTypes = supportedBarcodeType.filter { type in availableTypes.contains(type) }
             metadataOutput.metadataObjectTypes = filteredTypes
         }
+        
+        // Find the 'normal' zoom factor, which on the native camera defaults to the wide angle
+        var wideAngleZoomFactor = 1.0
+        if #available(iOS 13.0, *) {
+            if let indexOfWideAngle = videoDevice.constituentDevices.firstIndex(where: { device in device.deviceType == .builtInWideAngleCamera }) {
+                // .virtualDeviceSwitchOverVideoZoomFactors has the .constituentDevices zoom factor which borders the NEXT device
+                // so we grab the one PRIOR to the wide angle to get the wide angle's zoom factor
+                wideAngleZoomFactor = videoDevice.virtualDeviceSwitchOverVideoZoomFactors[indexOfWideAngle - 1].doubleValue
+            }
+        }
+        self.videoDeviceInput?.device.videoZoomFactor = wideAngleZoomFactor
 
         session.commitConfiguration()
 

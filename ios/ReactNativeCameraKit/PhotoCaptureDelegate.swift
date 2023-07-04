@@ -12,12 +12,12 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
     private(set) var requestedPhotoSettings: AVCapturePhotoSettings
 
     private let onWillCapture: () -> Void
-    private let onCaptureSuccess: (_ uniqueID: Int64, _ imageData: Data) -> Void
+    private let onCaptureSuccess: (_ uniqueID: Int64, _ imageData: Data, _ photo: AVCapturePhoto) -> Void
     private let onCaptureError: (_ uniqueID: Int64, _ message: String) -> Void
 
     init(with requestedPhotoSettings: AVCapturePhotoSettings,
          onWillCapture: @escaping () -> Void,
-         onCaptureSuccess: @escaping (_ uniqueID: Int64, _ imageData: Data) -> Void,
+         onCaptureSuccess: @escaping (_ uniqueID: Int64, _ imageData: Data, _ photo: AVCapturePhoto) -> Void,
          onCaptureError: @escaping (_ uniqueID: Int64, _ errorMessage: String) -> Void) {
         self.requestedPhotoSettings = requestedPhotoSettings
         self.onWillCapture = onWillCapture
@@ -43,6 +43,6 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
             return
         }
 
-        onCaptureSuccess(requestedPhotoSettings.uniqueID, imageData)
+        onCaptureSuccess(requestedPhotoSettings.uniqueID, imageData, photo)
     }
 }

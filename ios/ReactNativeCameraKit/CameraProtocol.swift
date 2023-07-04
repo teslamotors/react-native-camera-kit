@@ -11,7 +11,7 @@ protocol CameraProtocol: AnyObject, FocusInterfaceViewDelegate {
     func setup(cameraType: CameraType, supportedBarcodeType: [AVMetadataObject.ObjectType])
     func cameraRemovedFromSuperview()
 
-    func update(zoomScale: CGFloat)
+    func update(pinchVelocity: CGFloat, pinchScale: CGFloat)
     func update(torchMode: TorchMode)
     func update(flashMode: FlashMode)
     func update(cameraType: CameraType)
@@ -23,6 +23,6 @@ protocol CameraProtocol: AnyObject, FocusInterfaceViewDelegate {
     func update(scannerFrameSize: CGRect?)
 
     func capturePicture(onWillCapture: @escaping () -> Void,
-                        onSuccess: @escaping (_ imageData: Data) -> (),
+                        onSuccess: @escaping (_ imageData: Data, _ thumbnailData: Data?) -> (),
                         onError: @escaping (_ message: String) -> ())
 }

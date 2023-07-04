@@ -1,18 +1,12 @@
 import React, { Component } from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  ScrollView,
-} from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from 'react-native';
 
 import BarcodeScreenExample from './BarcodeScreenExample';
 import CameraExample from './CameraExample';
 
 type State = {
   example?: any;
-}
+};
 
 export default class App extends Component {
   state: State;
@@ -33,20 +27,14 @@ export default class App extends Component {
       <ScrollView style={{ flex: 1 }}>
         <View style={styles.headerContainer}>
           <Text style={{ fontSize: 60 }}>🎈</Text>
-          <Text style={styles.headerText}>
-            React Native Camera Kit
-          </Text>
+          <Text style={styles.headerText}>React Native Camera Kit</Text>
         </View>
         <View style={styles.container}>
           <TouchableOpacity style={styles.button} onPress={() => this.setState({ example: CameraExample })}>
-            <Text style={styles.buttonText}>
-              Camera
-            </Text>
+            <Text style={styles.buttonText}>Camera</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={() => this.setState({ example: BarcodeScreenExample })}>
-            <Text style={styles.buttonText}>
-              Barcode Scanner
-            </Text>
+            <Text style={styles.buttonText}>Barcode Scanner</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

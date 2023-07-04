@@ -54,9 +54,9 @@ class SimulatorCamera: CameraProtocol {
         self.onOrientationChange = onOrientationChange
     }
     
-    func update(zoomScale: CGFloat) {
+    func update(pinchVelocity: CGFloat, pinchScale: CGFloat) {
         DispatchQueue.main.async {
-            self.mockPreview.zoomVelocityLabel.text = "Zoom Velocity: \(zoomScale)"
+            self.mockPreview.zoomVelocityLabel.text = "Zoom Velocity: \(pinchVelocity)"
         }
     }
 
@@ -100,7 +100,7 @@ class SimulatorCamera: CameraProtocol {
     func update(scannerFrameSize: CGRect?) {}
 
     func capturePicture(onWillCapture: @escaping () -> Void,
-                        onSuccess: @escaping (_ imageData: Data) -> (),
+                        onSuccess: @escaping (_ imageData: Data, _ thumbnailData: Data?) -> (),
                         onError: @escaping (_ message: String) -> ()) {
         onWillCapture()
 
@@ -111,7 +111,7 @@ class SimulatorCamera: CameraProtocol {
             // Then switch to background thread
             DispatchQueue.global(qos: .default).async {
                 if let imageData = previewSnapshot?.jpegData(compressionQuality: 0.85) {
-                    onSuccess(imageData)
+                    onSuccess(imageData, nil)
                 } else {
                     onError("Failed to convert snapshot to JPEG data")
                 }
