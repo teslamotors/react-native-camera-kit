@@ -194,23 +194,25 @@ const styles = StyleSheet.create({
   topButtons: {
     flexDirection: 'row',
     justifyContent: 'center',
-    paddingVertical: 10,
-
     // borderColor: 'yellow',
     // position: 'relative',
   },
   flashMode: {
     position: 'absolute',
-    left: 20,
-    top: 10,
+    left: 10,
+    top: 0,
     bottom: 0,
+    padding: 10,
   },
-  switchCamera: {},
+  switchCamera: {
+    padding: 10,
+  },
   torch: {
     position: 'absolute',
-    right: 20,
-    top: 10,
+    right: 10,
+    top: 0,
     bottom: 0,
+    padding: 10,
   },
   cameraContainer: {
     ...Platform.select({
@@ -239,11 +241,12 @@ const styles = StyleSheet.create({
   },
   backBtn: {
     position: 'absolute',
-    left: 20,
+    left: 10,
     top: 0,
     bottom: 0,
     justifyContent: 'center',
     zIndex: 10,
+    padding: 10,
   },
   captureButtonContainer: {
     justifyContent: 'center',
