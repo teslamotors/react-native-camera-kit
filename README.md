@@ -74,43 +74,6 @@ Add the following usage descriptions to your `Info.plist` (usually found at: `io
 
 ## Components
 
-### CameraScreen
-
-Full screen camera component that holds camera state and provides common camera controls. Works for most needs
-
-```ts
-import { CameraScreen } from 'react-native-camera-kit';
-```
-
-```tsx
-<CameraScreen
-  // All Camera props can be used here, including Barcode ones
-  ...
-
-  // Plus the following ones specific to CameraScreen
-  actions={{ leftButtonText: 'Cancel', leftCaptureRetakeButtonText: 'Abandon' }}
-  onBottomButtonPressed={(event) => this.onBottomButtonPressed(event)}
-  flashImages={{
-    // optional, images for flash state button
-    on: require('path/to/image'),
-    off: require('path/to/image'),
-    auto: require('path/to/image'),
-  }}
-  flashImageStyle={} // optional, ImageStyle applied to flashImages
-  cameraFlipImage={require('path/to/image')} // optional, image for flipping camera button
-  cameraFlipImageStyle={} // optional, ImageStyle applied to cameraFlipImage
-  captureButtonImage={require('path/to/image')} // optional, image capture button
-  captureButtonImageStyle={} // optional, ImageStyle applied to captureButtonImage
-  torchOnImage={require('path/to/image')} // optional, image for toggling on flash light
-  torchOffImage={require('path/to/image')} // optional, image for toggling off flash light
-  torchImageStyle={} // optional, ImageStyle applied to torchImage
-  hideControls={false} // (default false) optional, hides camera controls
-  showCapturedImageCount={false} // (default false) optional, show count for photos taken during that capture session
-  cameraRatioOverlay // optional
-  allowCaptureRetake={false} // (default false) optional, ask for picture validation
-/>
-```
-
 ### Camera
 
 Barebones camera component if you need advanced/customized interface
@@ -129,7 +92,7 @@ import { Camera, CameraType } from 'react-native-camera-kit';
 
 #### Barcode / QR Code Scanning
 
-Additionally, the Camera / CameraScreen can be used for barcode scanning
+Additionally, the Camera can be used for barcode scanning
 
 ```tsx
 <Camera
@@ -142,27 +105,6 @@ Additionally, the Camera / CameraScreen can be used for barcode scanning
   frameColor='white' // (default white) optional, color of border of scanner frame
 />
 ```
-
-### CameraScreen Props (Optional)
-
-| Props                     | Type                                 | Description                                                                                |
-| ------------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------ |
-| All Camera Props          |                                      |                                                                                            |
-| `actions`                 | Actions                              | Labels for the buttons visible on screen                                                   |
-| `onBottomButtonPressed`   | `(event: BottomPressedData) => void` | Callback called when a button is pressed. `BottomPressedData` contains the data to consume |
-| `flashImages`             | FlashImages                          | Images for flash state button. Default: none, button is hidden                             |
-| `flashImageStyle`         | ImageStyle                           | ImageStyle applied to flashImages                                                          |
-| `cameraFlipImage`         | ImageSourcePropType                  | Image for flipping camera button. Default: none, button is hidden                          |
-| `cameraFlipImageStyle`    | ImageStyle                           | ImageStyle applied to cameraFlipImage                                                      |
-| `captureButtonImage`      | ImageSourcePropType                  | Image for capture button. Default: none, button is hidden                                  |
-| `captureButtonImageStyle` | ImageStyle                           | ImageStyle applied to captureButtonImage                                                   |
-| `torchOnImage`            | ImageSourcePropType                  | Image for toggling on flash light. Default: none, button is hidden                         |
-| `torchOffImage`           | ImageSourcePropType                  | Image for toggling off flash light. Default: none, button is hidden                        |
-| `torchImageStyle`         | ImageStyle                           | ImageStyle applied to torchOnImage/torchOffImage                                           |
-| `hideControls`            | Boolean                              | Hides camera controls Default: `false`                                                     |
-| `showCapturedImageCount`  | Boolean                              | Show count for photos taken during that capture session. Default: `false`                  |
-| `cameraRatioOverlay`      | CameraRatioOverlay                   |                                                                                            |
-| `allowCaptureRetake`      | Boolean                              | Ask for picture validation. Default: `false`                                               |
 
 ### Camera Props (Optional)
 

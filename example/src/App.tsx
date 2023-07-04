@@ -6,12 +6,11 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
-import CameraScreenExample from './CameraScreenExample';
 import BarcodeScreenExample from './BarcodeScreenExample';
 import CameraExample from './CameraExample';
 
 type State = {
-  example?: CameraExample | CameraScreenExample | BarcodeScreenExample;
+  example?: any;
 }
 
 export default class App extends Component {
@@ -41,11 +40,6 @@ export default class App extends Component {
           <TouchableOpacity style={styles.button} onPress={() => this.setState({ example: CameraExample })}>
             <Text style={styles.buttonText}>
               Camera
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={() => this.setState({ example: CameraScreenExample })}>
-            <Text style={styles.buttonText}>
-              Camera Screen
             </Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={() => this.setState({ example: BarcodeScreenExample })}>
