@@ -35,7 +35,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     private var scannerFrameSize: CGRect? = nil
     private var onOrientationChange: RCTDirectEventBlock?
     
-    private var deviceOrientation = UIInterfaceOrientation.unknown
+    private var deviceOrientation = UIDeviceOrientation.unknown
     private var motionManager: CMMotionManager?
 
     // KVO observation
@@ -84,43 +84,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     }
 
     // MARK: - Public
-    
-    func initializeMotionManager() {
-        motionManager = CMMotionManager()
-        motionManager?.accelerometerUpdateInterval = 0.2
-        motionManager?.gyroUpdateInterval = 0.2
-        motionManager?.startAccelerometerUpdates(to: (OperationQueue.current)!, withHandler: {
-            (accelerometerData, error) -> Void in
-            if error != nil {
-                print("\(error!)")
-            }
-            guard let acceleration = accelerometerData?.acceleration else {
-                print("no acceleration data")
-                return
-            }
-            var orientationNew: UIInterfaceOrientation
-            if acceleration.x >= 0.75 {
-                orientationNew = .landscapeLeft
-            } else if acceleration.x <= -0.75 {
-                orientationNew = .landscapeRight
-            } else if acceleration.y <= -0.75 {
-                orientationNew = .portrait
-            } else if acceleration.y >= 0.75 {
-                orientationNew = .portraitUpsideDown
-            } else {
-                // Device is not clearly pointing in either direction
-                // (e.g. it's flat on the table, so stick with the same orientation)
-                return
-            }
-            
-            if orientationNew == self.deviceOrientation {
-                return
-            }
-            self.deviceOrientation = orientationNew
-            self.onOrientationChange?(["orientation": Orientation.init(from: orientationNew)!.rawValue])
-        })
-    }
-    
+
     func setup(cameraType: CameraType, supportedBarcodeType: [AVMetadataObject.ObjectType]) {
         DispatchQueue.main.async {
             self.cameraPreview.session = self.session
@@ -131,8 +95,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
             } else {
                 interfaceOrientation = UIApplication.shared.statusBarOrientation
             }
-            let orientation = self.counterRotatedCaptureVideoOrientationFrom(deviceOrientation: interfaceOrientation)
-            self.cameraPreview.previewLayer.connection?.videoOrientation = orientation!
+            self.cameraPreview.previewLayer.connection?.videoOrientation = interfaceOrientation.videoOrientation
         }
         
         self.initializeMotionManager()
@@ -251,7 +214,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
          the main thread and session configuration is done on the session queue.
          */
         DispatchQueue.main.async {
-            let videoPreviewLayerOrientation = self.counterRotatedCaptureVideoOrientationFrom(deviceOrientation: self.deviceOrientation) ?? self.cameraPreview.previewLayer.connection?.videoOrientation
+            let videoPreviewLayerOrientation = self.deviceOrientation.videoOrientation ?? self.cameraPreview.previewLayer.connection?.videoOrientation
 
             self.sessionQueue.async {
                 if let photoOutputConnection = self.photoOutput.connection(with: .video), let videoPreviewLayerOrientation {
@@ -348,47 +311,13 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
     // MARK: - Private
 
-    private func counterRotatedCaptureVideoOrientationFrom(deviceOrientation: UIInterfaceOrientation) -> AVCaptureVideoOrientation? {
-        switch(deviceOrientation) {
-        case .portrait:
-            return .portrait
-        case .portraitUpsideDown:
-            return .portraitUpsideDown
-        case .landscapeLeft:
-            return .landscapeLeft
-        case .landscapeRight:
-            return .landscapeRight
-        case .unknown: break
-        @unknown default: break
-        }
-        return nil
-    }
-
     private func uiOrientationChanged(notification: Notification) {
-        guard let device = notification.object as? UIDevice else {
+        guard let device = notification.object as? UIDevice,
+              let videoOrientation = device.orientation.videoOrientation else {
             return
         }
-        
-        // Counter-rotate video when in landscapeLeft/Right UI so it appears level
-        // (note how landscapeLeft sets landscapeRight)
-        switch(device.orientation) {
-        case .unknown: break
-        case .portrait:
-            self.cameraPreview.previewLayer.connection?.videoOrientation = .portrait
-            print("ui portrait")
-        case .portraitUpsideDown:
-            self.cameraPreview.previewLayer.connection?.videoOrientation = .portraitUpsideDown
-            print("ui upside down")
-        case .landscapeLeft:
-            self.cameraPreview.previewLayer.connection?.videoOrientation = .landscapeRight
-            print("ui landscapeLeft")
-        case .landscapeRight:
-            self.cameraPreview.previewLayer.connection?.videoOrientation = .landscapeLeft
-            print("ui landscapeRight")
-        case .faceUp: break
-        case .faceDown: break
-        @unknown default: break
-        }
+
+        self.cameraPreview.previewLayer.connection?.videoOrientation = videoOrientation
     }
     
     private func getBestDevice(for cameraType: CameraType) -> AVCaptureDevice? {
@@ -459,6 +388,50 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
         return 1.0
     }
+
+    // MARK: - Private device orientation from accelerometer
+
+    private func initializeMotionManager() {
+        motionManager = CMMotionManager()
+        motionManager?.accelerometerUpdateInterval = 0.2
+        motionManager?.gyroUpdateInterval = 0.2
+        motionManager?.startAccelerometerUpdates(to: OperationQueue(), withHandler: { [weak self] (accelerometerData, error) -> Void in
+            guard error == nil else {
+                print("\(error!)")
+                return
+            }
+            guard let accelerometerData else {
+                print("no acceleration data")
+                return
+            }
+
+            guard let newOrientation = self?.deviceOrientation(from: accelerometerData.acceleration),
+                  newOrientation != self?.deviceOrientation else {
+                return
+            }
+
+            self?.deviceOrientation = newOrientation
+            self?.onOrientationChange?(["orientation": Orientation.init(from: newOrientation)!.rawValue])
+        })
+    }
+
+    private func deviceOrientation(from acceleration: CMAcceleration) -> UIDeviceOrientation? {
+        let threshold = 0.75
+        if acceleration.x >= threshold {
+            return .landscapeRight
+        } else if acceleration.x <= -threshold {
+            return .landscapeLeft
+        } else if acceleration.y <= -threshold {
+            return .portrait
+        } else if acceleration.y >= threshold {
+            return .portraitUpsideDown
+        } else {
+            // Device is not clearly pointing in either direction
+            // (e.g. it's flat on the table, so stick with the same orientation)
+            return nil
+        }
+    }
+
 
     // MARK: Private observers
 

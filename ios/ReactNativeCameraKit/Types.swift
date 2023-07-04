@@ -139,7 +139,7 @@ enum Orientation: Int {
         }
     }
 
-    var avVideoOrientation: AVCaptureVideoOrientation {
+    var videoOrientation: AVCaptureVideoOrientation {
         switch self {
         case .portrait: return .portrait
         case .landscapeLeft: return .landscapeLeft
