@@ -131,7 +131,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
             } else {
                 interfaceOrientation = UIApplication.shared.statusBarOrientation
             }
-            var orientation = self.counterRotatedCaptureVideoOrientationFrom(deviceOrientation: interfaceOrientation)
+            let orientation = self.counterRotatedCaptureVideoOrientationFrom(deviceOrientation: interfaceOrientation)
             self.cameraPreview.previewLayer.connection?.videoOrientation = orientation!
         }
         
@@ -227,6 +227,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
             if self.session.canAddInput(videoDeviceInput) {
                 self.session.addInput(videoDeviceInput)
+                videoDevice.videoZoomFactor = self.wideAngleZoomFactor(for: videoDevice)
                 self.videoDeviceInput = videoDeviceInput
             } else {
                 // If it fails, put back current camera
@@ -250,7 +251,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
          the main thread and session configuration is done on the session queue.
          */
         DispatchQueue.main.async {
-            var videoPreviewLayerOrientation = self.counterRotatedCaptureVideoOrientationFrom(deviceOrientation: self.deviceOrientation) ?? self.cameraPreview.previewLayer.connection?.videoOrientation
+            let videoPreviewLayerOrientation = self.counterRotatedCaptureVideoOrientationFrom(deviceOrientation: self.deviceOrientation) ?? self.cameraPreview.previewLayer.connection?.videoOrientation
 
             self.sessionQueue.async {
                 if let photoOutputConnection = self.photoOutput.connection(with: .video), let videoPreviewLayerOrientation {
@@ -418,10 +419,12 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
         if session.canAddInput(videoDeviceInput) {
             session.addInput(videoDeviceInput)
+            videoDevice.videoZoomFactor = wideAngleZoomFactor(for: videoDevice)
             self.videoDeviceInput = videoDeviceInput
         } else {
             return .sessionConfigurationFailed
         }
+
 
         if session.canAddOutput(photoOutput) {
             session.addOutput(photoOutput)
@@ -438,21 +441,23 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
             metadataOutput.metadataObjectTypes = filteredTypes
         }
 
-        // Devices that have multiple physical cameras are binded behind one virtual camera input. The zoom factor defines what physical camera it actually uses
-        // Find the 'normal' zoom factor, which on the physical camera defaults to the wide angle
-        var wideAngleZoomFactor = 1.0
-        if #available(iOS 13.0, *) {
-            if let indexOfWideAngle = videoDevice.constituentDevices.firstIndex(where: { device in device.deviceType == .builtInWideAngleCamera }) {
-                // .virtualDeviceSwitchOverVideoZoomFactors has the .constituentDevices zoom factor which borders the NEXT device
-                // so we grab the one PRIOR to the wide angle to get the wide angle's zoom factor
-                wideAngleZoomFactor = videoDevice.virtualDeviceSwitchOverVideoZoomFactors[indexOfWideAngle - 1].doubleValue
-            }
-        }
-        self.videoDeviceInput?.device.videoZoomFactor = wideAngleZoomFactor
-
         session.commitConfiguration()
 
         return .success
+    }
+
+    private func wideAngleZoomFactor(for videoDevice: AVCaptureDevice) -> CGFloat {
+        // Devices that have multiple physical cameras are binded behind one virtual camera input. The zoom factor defines what physical camera it actually uses
+        // Find the 'normal' zoom factor, which on the physical camera defaults to the wide angle
+        if #available(iOS 13.0, *) {
+            if let indexOfWideAngle = videoDevice.constituentDevices.firstIndex(where: { $0.deviceType == .builtInWideAngleCamera }) {
+                // .virtualDeviceSwitchOverVideoZoomFactors has the .constituentDevices zoom factor which borders the NEXT device
+                // so we grab the one PRIOR to the wide angle to get the wide angle's zoom factor
+                return videoDevice.virtualDeviceSwitchOverVideoZoomFactors[indexOfWideAngle - 1].doubleValue
+            }
+        }
+
+        return 1.0
     }
 
     // MARK: Private observers
