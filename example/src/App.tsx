@@ -1,46 +1,37 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from 'react-native';
 
 import BarcodeScreenExample from './BarcodeScreenExample';
 import CameraExample from './CameraExample';
 
-type State = {
-  example?: any;
+const App = () => {
+  const [example, setExample] = useState<JSX.Element>();
+
+  if (example) {
+    return example;
+  }
+
+  const onBack = () => setExample(undefined);
+
+  return (
+    <ScrollView style={{ flex: 1 }}>
+      <View style={styles.headerContainer}>
+        <Text style={{ fontSize: 60 }}>🎈</Text>
+        <Text style={styles.headerText}>React Native Camera Kit</Text>
+      </View>
+      <View style={styles.container}>
+        <TouchableOpacity style={styles.button} onPress={() => setExample(<CameraExample onBack={onBack} />)}>
+          <Text style={styles.buttonText}>Camera</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={() => setExample(<BarcodeScreenExample onBack={onBack} />)}>
+          <Text style={styles.buttonText}>Barcode Scanner</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
+  );
 };
 
-export default class App extends Component {
-  state: State;
-
-  constructor(props) {
-    super(props);
-    this.state = {
-      example: undefined,
-    };
-  }
-
-  render() {
-    if (this.state.example) {
-      const Example = this.state.example;
-      return <Example onBack={() => this.setState({ example: undefined })} />;
-    }
-    return (
-      <ScrollView style={{ flex: 1 }}>
-        <View style={styles.headerContainer}>
-          <Text style={{ fontSize: 60 }}>🎈</Text>
-          <Text style={styles.headerText}>React Native Camera Kit</Text>
-        </View>
-        <View style={styles.container}>
-          <TouchableOpacity style={styles.button} onPress={() => this.setState({ example: CameraExample })}>
-            <Text style={styles.buttonText}>Camera</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={() => this.setState({ example: BarcodeScreenExample })}>
-            <Text style={styles.buttonText}>Barcode Scanner</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    );
-  }
-}
+export default App;
 
 const styles = StyleSheet.create({
   container: {
