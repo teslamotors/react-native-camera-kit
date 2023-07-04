@@ -25,7 +25,6 @@ export type CaptureData = {
 
 export type CameraApi = {
   capture: () => Promise<CaptureData>;
-  setTorchMode: (mode: TorchMode) => void;
   requestDeviceCameraAuthorization: () => Promise<boolean>;
   checkDeviceCameraAuthorizationStatus: () => Promise<boolean>;
 };

@@ -27,7 +27,6 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     private let photoOutput = AVCapturePhotoOutput()
     private let metadataOutput = AVCaptureMetadataOutput()
 
-    private var cameraType: CameraType = .back
     private var flashMode: FlashMode = .auto
     private var torchMode: TorchMode = .off
     private var resetFocus: (() -> Void)?
@@ -123,8 +122,6 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     }
     
     func setup(cameraType: CameraType, supportedBarcodeType: [AVMetadataObject.ObjectType]) {
-        self.cameraType = cameraType
-
         DispatchQueue.main.async {
             self.cameraPreview.session = self.session
             self.cameraPreview.previewLayer.videoGravity = .resizeAspect
@@ -146,7 +143,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         // Because -[AVCaptureSession startRunning] is a blocking call which can take a long time. We dispatch session setup to the sessionQueue
         // so that the main queue isn't blocked, which keeps the UI responsive.
         sessionQueue.async {
-            self.setupResult = self.setupCaptureSession(supportedBarcodeType: supportedBarcodeType)
+            self.setupResult = self.setupCaptureSession(cameraType: cameraType, supportedBarcodeType: supportedBarcodeType)
 
             self.addObservers()
 
@@ -163,17 +160,9 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         guard !pinchScale.isNaN else { return }
         
         sessionQueue.async {
-            guard let device = self.videoDeviceInput?.device else { return }
-            do {
-                try device.lockForConfiguration()
-                defer {device.unlockForConfiguration()}
-                
-                let pinchVelocityDividerFactor = CGFloat(10.0);
-                let desiredZoomFactor = device.videoZoomFactor + CGFloat(atan2f(Float(pinchVelocity), Float(pinchVelocityDividerFactor)));
-                device.videoZoomFactor = max(1.0, min(desiredZoomFactor, device.activeFormat.videoMaxZoomFactor));
-            } catch {
-                NSLog("device.lockForConfiguration error: \(error))")
-            }
+            let pinchVelocityDividerFactor: Float = 10.0
+            let incrementZoomFactor = CGFloat(atan2f(Float(pinchVelocity), pinchVelocityDividerFactor))
+            self.videoDeviceInput?.device.incrementZoomFactor(incrementZoomFactor)
         }
     }
 
@@ -217,8 +206,6 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     }
 
     func update(cameraType: CameraType) {
-        self.cameraType = cameraType
-
         sessionQueue.async {
             if self.videoDeviceInput?.device.position == cameraType.avPosition {
                 return
@@ -227,7 +214,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
             // Avoid chaining device inputs when camera input is denied by the user, since both front and rear vido input devices will be nil
             guard self.setupResult == .success,
                   let currentViewDeviceInput = self.videoDeviceInput,
-                  let videoDevice = self.getBestDevice(),
+                  let videoDevice = self.getBestDevice(for: cameraType),
                   let videoDeviceInput = try? AVCaptureDeviceInput(device: videoDevice) else {
                 return
             }
@@ -253,23 +240,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
             self.update(torchMode: self.torchMode)
         }
     }
-    
-    func counterRotatedCaptureVideoOrientationFrom(deviceOrientation: UIInterfaceOrientation) -> AVCaptureVideoOrientation? {
-        switch(deviceOrientation) {
-        case .portrait:
-            return .portrait
-        case .portraitUpsideDown:
-            return .portraitUpsideDown
-        case .landscapeLeft:
-            return .landscapeLeft
-        case .landscapeRight:
-            return .landscapeRight
-        case .unknown: break
-        @unknown default: break
-        }
-        return nil
-    }
-    
+
     func capturePicture(onWillCapture: @escaping () -> Void,
                         onSuccess: @escaping (_ imageData: Data, _ thumbnailData: Data?) -> Void,
                         onError: @escaping (_ message: String) -> Void) {
@@ -296,15 +267,8 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
                 let photoCaptureDelegate = PhotoCaptureDelegate(
                     with: settings,
                     onWillCapture: onWillCapture,
-                    onCaptureSuccess: { uniqueID, imageData, photo in
+                    onCaptureSuccess: { uniqueID, imageData, thumbnailData in
                         self.inProgressPhotoCaptureDelegates[uniqueID] = nil
-                        
-                        var thumbnailData: Data? = nil
-                        if let previewPixelBuffer = photo.previewPixelBuffer {
-                            let ciImage = CIImage(cvPixelBuffer: previewPixelBuffer)
-                            let uiImage = UIImage(ciImage: ciImage)
-                            thumbnailData = uiImage.jpegData(compressionQuality: 0.7)
-                        }
                         
                         onSuccess(imageData, thumbnailData)
                     },
@@ -382,7 +346,23 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     }
 
     // MARK: - Private
-    
+
+    private func counterRotatedCaptureVideoOrientationFrom(deviceOrientation: UIInterfaceOrientation) -> AVCaptureVideoOrientation? {
+        switch(deviceOrientation) {
+        case .portrait:
+            return .portrait
+        case .portraitUpsideDown:
+            return .portraitUpsideDown
+        case .landscapeLeft:
+            return .landscapeLeft
+        case .landscapeRight:
+            return .landscapeRight
+        case .unknown: break
+        @unknown default: break
+        }
+        return nil
+    }
+
     private func uiOrientationChanged(notification: Notification) {
         guard let device = notification.object as? UIDevice else {
             return
@@ -410,8 +390,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         }
     }
     
-    private func getBestDevice() -> AVCaptureDevice? {
-        // AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: cameraType.avPosition),
+    private func getBestDevice(for cameraType: CameraType) -> AVCaptureDevice? {
         if #available(iOS 13.0, *) {
             if let device = AVCaptureDevice.default(.builtInTripleCamera, for: .video, position: cameraType.avPosition) {
                 return device
@@ -426,8 +405,9 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         return nil
     }
 
-    private func setupCaptureSession(supportedBarcodeType: [AVMetadataObject.ObjectType]) -> SetupResult {
-        guard let videoDevice = self.getBestDevice(),
+    private func setupCaptureSession(cameraType: CameraType,
+                                     supportedBarcodeType: [AVMetadataObject.ObjectType]) -> SetupResult {
+        guard let videoDevice = self.getBestDevice(for: cameraType),
               let videoDeviceInput = try? AVCaptureDeviceInput(device: videoDevice) else {
             return .sessionConfigurationFailed
         }
@@ -457,8 +437,9 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
             let filteredTypes = supportedBarcodeType.filter { type in availableTypes.contains(type) }
             metadataOutput.metadataObjectTypes = filteredTypes
         }
-        
-        // Find the 'normal' zoom factor, which on the native camera defaults to the wide angle
+
+        // Devices that have multiple physical cameras are binded behind one virtual camera input. The zoom factor defines what physical camera it actually uses
+        // Find the 'normal' zoom factor, which on the physical camera defaults to the wide angle
         var wideAngleZoomFactor = 1.0
         if #available(iOS 13.0, *) {
             if let indexOfWideAngle = videoDevice.constituentDevices.firstIndex(where: { device in device.deviceType == .builtInWideAngleCamera }) {

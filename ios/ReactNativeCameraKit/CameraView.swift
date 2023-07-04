@@ -267,16 +267,14 @@ class CameraView: UIView {
                                onSuccess: @escaping (_ imageObject: [String: Any]) -> (),
                                onError: @escaping (_ error: String) -> ()) {
         do {
-            let temporaryFileURL = try saveToTmpFolder(imageData)
-            var temporaryThumbFileURL: URL? = nil
-            if let t = thumbnailData {
-                temporaryThumbFileURL = try saveToTmpFolder(t)
-            }
+            let temporaryImageFileURL = try saveToTmpFolder(imageData)
+            var temporaryThumbnailFileURL = try saveToTmpFolder(thumbnailData)
+
             onSuccess([
                 "size": imageData.count,
-                "uri": temporaryFileURL.description,
-                "name": temporaryFileURL.lastPathComponent,
-                "thumb": temporaryThumbFileURL?.description ?? ""
+                "uri": temporaryImageFileURL?.description,
+                "name": temporaryImageFileURL?.lastPathComponent,
+                "thumb": temporaryThumbnailFileURL?.description ?? ""
             ])
         } catch {
             let errorMessage = "Error occurred while writing image data to a temporary file: \(error)"
@@ -285,7 +283,9 @@ class CameraView: UIView {
         }
     }
 
-    private func saveToTmpFolder(_ data: Data) throws -> URL {
+    private func saveToTmpFolder(_ data: Data?) throws -> URL? {
+        guard let data else { return nil }
+
         let temporaryFileName = ProcessInfo.processInfo.globallyUniqueString
         let temporaryFilePath = (NSTemporaryDirectory() as NSString).appendingPathComponent(temporaryFileName).appending(".jpg")
         let temporaryFileURL = URL(fileURLWithPath: temporaryFilePath)

@@ -10,8 +10,10 @@ extension AVCaptureDevice {
         if isTorchModeSupported(newTorchMode) && hasTorch {
             do {
                 try lockForConfiguration()
+
+                defer { unlockForConfiguration() }
+
                 torchMode = newTorchMode
-                unlockForConfiguration()
             } catch {
                 print("Error setting torch mode: \(error)")
             }
@@ -22,18 +24,14 @@ extension AVCaptureDevice {
         do {
             try lockForConfiguration()
 
-            var zoomFactor = videoZoomFactor + zoomFactorIncrement
-            if zoomFactor > activeFormat.videoMaxZoomFactor {
-                zoomFactor = activeFormat.videoMaxZoomFactor
-            } else if zoomFactor < 1 {
-                zoomFactor = 1.0
-            }
-            videoZoomFactor = zoomFactor
-            unlockForConfiguration()
+            defer { unlockForConfiguration() }
+
+            let desiredZoomFactor = videoZoomFactor + zoomFactorIncrement
+            videoZoomFactor = max(1.0, min(desiredZoomFactor, activeFormat.videoMaxZoomFactor))
         } catch {
             print("Error setting zoom factor: \(error)")
         }
-    }
+   }
 
     func focusWithMode(_ focusMode: AVCaptureDevice.FocusMode,
                        exposeWithMode exposureMode: AVCaptureDevice.ExposureMode,
@@ -41,6 +39,8 @@ extension AVCaptureDevice {
                        isSubjectAreaChangeMonitoringEnabled: Bool) {
         do {
             try lockForConfiguration()
+
+            defer { unlockForConfiguration() }
 
             if isFocusPointOfInterestSupported && isFocusModeSupported(focusMode) {
                 focusPointOfInterest = point
@@ -53,7 +53,6 @@ extension AVCaptureDevice {
             }
 
             self.isSubjectAreaChangeMonitoringEnabled = isSubjectAreaChangeMonitoringEnabled
-            unlockForConfiguration()
         } catch {
             print("Error setting focus: \(error)")
         }

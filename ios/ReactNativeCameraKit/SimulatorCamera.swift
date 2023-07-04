@@ -56,7 +56,7 @@ class SimulatorCamera: CameraProtocol {
     
     func update(pinchVelocity: CGFloat, pinchScale: CGFloat) {
         DispatchQueue.main.async {
-            self.mockPreview.zoomVelocityLabel.text = "Zoom Velocity: \(pinchVelocity)"
+            self.mockPreview.zoomVelocityLabel.text = "Zoom Velocity: \(pinchVelocity), Scale: \(pinchScale)"
         }
     }
 
