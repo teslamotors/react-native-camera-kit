@@ -101,26 +101,13 @@ class CameraView: UIView {
         addSubview(focusInterfaceView)
         focusInterfaceView.delegate = camera
 
-        // Listen to orientation changes
-        UIDevice.current.beginGeneratingDeviceOrientationNotifications()
-        NotificationCenter.default.addObserver(forName: UIDevice.orientationDidChangeNotification,
-                                               object: UIDevice.current,
-                                               queue: nil,
-                                               using: { [weak self] notification in self?.orientationChanged(notification: notification) })
-
         handleCameraPermission()
     }
 
     override func removeFromSuperview() {
         camera.cameraRemovedFromSuperview()
 
-        NotificationCenter.default.removeObserver(self, name: UIDevice.orientationDidChangeNotification, object: UIDevice.current)
-
         super.removeFromSuperview()
-    }
-
-    deinit {
-        UIDevice.current.endGeneratingDeviceOrientationNotifications()
     }
 
     // MARK: React lifecycle
@@ -157,6 +144,10 @@ class CameraView: UIView {
         }
         if changedProps.contains("cameraType") || changedProps.contains("torchMode") {
             camera.update(torchMode: torchMode)
+        }
+        
+        if changedProps.contains("onOrientationChange") {
+            camera.update(onOrientationChange: onOrientationChange)
         }
 
         // Ratio overlay
@@ -298,16 +289,6 @@ class CameraView: UIView {
         return temporaryFileURL
     }
 
-    private func orientationChanged(notification: Notification) {
-        guard let onOrientationChange,
-              let device = notification.object as? UIDevice,
-              let orientation = Orientation(from: device.orientation) else {
-            return
-        }
-
-        onOrientationChange(["orientation": orientation.rawValue])
-    }
-
     private func onBarcodeRead(barcode: String) {
         // Throttle barcode detection
         let now = Date.timeIntervalSinceReferenceDate
@@ -323,8 +304,10 @@ class CameraView: UIView {
     // MARK: - Gesture selectors
 
     @objc func handlePinchToZoomRecognizer(_ pinchRecognizer: UIPinchGestureRecognizer) {
+        var zoomScale = pinchRecognizer.scale
         if pinchRecognizer.state == .changed {
-            camera.update(zoomVelocity: pinchRecognizer.velocity)
+            camera.update(zoomScale: zoomScale)
+            pinchRecognizer.scale = 1.0
         }
     }
 }

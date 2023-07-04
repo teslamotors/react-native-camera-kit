@@ -10,6 +10,8 @@ import UIKit
  * Fake camera implementation to be used on simulator
  */
 class SimulatorCamera: CameraProtocol {
+    private var onOrientationChange: RCTDirectEventBlock?
+
     var previewView: UIView { mockPreview }
 
     private var fakeFocusFinishedTimer: Timer?
@@ -23,12 +25,38 @@ class SimulatorCamera: CameraProtocol {
         DispatchQueue.main.async {
             self.mockPreview.cameraTypeLabel.text = "Camera type: \(cameraType)"
         }
-    }
-    func cameraRemovedFromSuperview() {}
+        
+        // Listen to orientation changes
+        UIDevice.current.beginGeneratingDeviceOrientationNotifications()
+        NotificationCenter.default.addObserver(forName: UIDevice.orientationDidChangeNotification,
+                                               object: UIDevice.current,
+                                               queue: nil,
+                                               using: { [weak self] notification in self?.orientationChanged(notification: notification) })
 
-    func update(zoomVelocity: CGFloat) {
+
+    }
+    
+    private func orientationChanged(notification: Notification) {
+        guard let device = notification.object as? UIDevice,
+              let orientation = Orientation(from: device.orientation) else {
+            return
+        }
+
+        self.onOrientationChange?(["orientation": orientation.rawValue])
+    }
+    
+    func cameraRemovedFromSuperview() {
+        NotificationCenter.default.removeObserver(self, name: UIDevice.orientationDidChangeNotification, object: UIDevice.current)
+
+    }
+
+    func update(onOrientationChange: RCTDirectEventBlock?) {
+        self.onOrientationChange = onOrientationChange
+    }
+    
+    func update(zoomScale: CGFloat) {
         DispatchQueue.main.async {
-            self.mockPreview.zoomVelocityLabel.text = "Zoom Velocity: \(zoomVelocity)"
+            self.mockPreview.zoomVelocityLabel.text = "Zoom Velocity: \(zoomScale)"
         }
     }
 

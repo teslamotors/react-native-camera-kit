@@ -4,6 +4,7 @@ import {
   Text,
   View,
   TouchableOpacity,
+  ScrollView,
 } from 'react-native';
 
 import BarcodeScreenExample from './BarcodeScreenExample';
@@ -26,10 +27,10 @@ export default class App extends Component {
   render() {
     if (this.state.example) {
       const Example = this.state.example;
-      return <Example />;
+      return <Example onBack={() => this.setState({ example: undefined })} />;
     }
     return (
-      <View style={{ flex: 1 }}>
+      <ScrollView style={{ flex: 1 }}>
         <View style={styles.headerContainer}>
           <Text style={{ fontSize: 60 }}>🎈</Text>
           <Text style={styles.headerText}>
@@ -48,7 +49,7 @@ export default class App extends Component {
             </Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </ScrollView>
     );
   }
 }

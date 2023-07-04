@@ -5,6 +5,7 @@
 
 import AVFoundation
 import UIKit
+import CoreMotion
 
 /*
  * Real camera implementation that uses AVFoundation
@@ -33,6 +34,10 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     private var focusFinished: (() -> Void)?
     private var onBarcodeRead: ((_ barcode: String) -> Void)?
     private var scannerFrameSize: CGRect? = nil
+    private var onOrientationChange: RCTDirectEventBlock?
+    
+    private var deviceOrientation = UIDeviceOrientation.portrait
+    private var motionManager: CMMotionManager?
 
     // KVO observation
     private var adjustingFocusObservation: NSKeyValueObservation?
@@ -42,7 +47,16 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     // MARK: - Lifecycle
 
     override init() {
-        // No-op
+        super.init()
+        
+        // In addition to using accelerometer to determine REAL orientation
+        // we also listen to UI orientation changes (UIDevice does not report rotation if orientation lock is on, so photos aren't rotated correctly)
+        // When UIDevice reports rotation to the left, UI is rotated right to compensate, but that means we need to re-rotate left to make camera appear correctly (see self.uiOrientationChanged)
+        UIDevice.current.beginGeneratingDeviceOrientationNotifications()
+        NotificationCenter.default.addObserver(forName: UIDevice.orientationDidChangeNotification,
+                                               object: UIDevice.current,
+                                               queue: nil,
+                                               using: { [weak self] notification in self?.uiOrientationChanged(notification: notification) })
     }
 
     @available(*, unavailable)
@@ -57,6 +71,12 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
                 self.removeObservers()
             }
         }
+        
+        motionManager?.stopAccelerometerUpdates()
+        
+        NotificationCenter.default.removeObserver(self, name: UIDevice.orientationDidChangeNotification, object: UIDevice.current)
+        
+        UIDevice.current.endGeneratingDeviceOrientationNotifications()
     }
 
     deinit {
@@ -64,7 +84,42 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     }
 
     // MARK: - Public
-
+    
+    func initializeMotionManager() {
+        motionManager = CMMotionManager()
+        motionManager?.accelerometerUpdateInterval = 0.2
+        motionManager?.gyroUpdateInterval = 0.2
+        motionManager?.startAccelerometerUpdates(to: (OperationQueue.current)!, withHandler: {
+            (accelerometerData, error) -> Void in
+            if error != nil {
+                print("\(error!)")
+            }
+            guard let acceleration = accelerometerData?.acceleration else {
+                print("no acceleration data")
+                return
+            }
+            var orientationNew: UIDeviceOrientation
+            if acceleration.x >= 0.75 {
+                orientationNew = .landscapeLeft
+            } else if acceleration.x <= -0.75 {
+                orientationNew = .landscapeRight
+            } else if acceleration.y <= -0.75 {
+                orientationNew = .portrait
+            } else if acceleration.y >= 0.75 {
+                orientationNew = .portraitUpsideDown
+            } else {
+                // Consider same as last time
+                return
+            }
+            
+            if orientationNew == self.deviceOrientation {
+                return
+            }
+            self.deviceOrientation = orientationNew
+            self.onOrientationChange?(["orientation": orientationNew.rawValue])
+        })
+    }
+    
     func setup(cameraType: CameraType, supportedBarcodeType: [AVMetadataObject.ObjectType]) {
         self.cameraType = cameraType
 
@@ -72,6 +127,8 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
             self.cameraPreview.session = self.session
             self.cameraPreview.previewLayer.videoGravity = .resizeAspectFill
         }
+        
+        self.initializeMotionManager()
 
         // Setup the capture session.
         // In general, it is not safe to mutate an AVCaptureSession or any of its inputs, outputs, or connections from multiple threads at the same time.
@@ -92,12 +149,22 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         }
     }
 
-    func update(zoomVelocity: CGFloat) {
-        guard !zoomVelocity.isNaN else { return }
-
+    func update(zoomScale: CGFloat) {
+        guard !zoomScale.isNaN else { return }
+        
         sessionQueue.async {
-            let pinchVelocityDividerFactor: CGFloat = 20.0
-            self.videoDeviceInput?.device.incrementZoomFactor(atan(zoomVelocity / pinchVelocityDividerFactor))
+            guard let device = self.videoDeviceInput?.device else { return }
+            let zoom = device.videoZoomFactor * zoomScale
+            do{
+                try device.lockForConfiguration()
+                defer {device.unlockForConfiguration()}
+                if zoom >= device.minAvailableVideoZoomFactor && zoom <= device.maxAvailableVideoZoomFactor {
+                    device.videoZoomFactor = zoom
+                } else {
+                    NSLog("Unable to set videoZoom: (max %f, asked %f)", device.activeFormat.videoMaxZoomFactor, zoom);
+                }
+            }catch _{
+            }
         }
     }
 
@@ -121,7 +188,11 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
             }
         }
     }
-
+    
+    func update(onOrientationChange: RCTDirectEventBlock?) {
+        self.onOrientationChange = onOrientationChange
+    }
+    
     func update(torchMode: TorchMode) {
         self.torchMode = torchMode
 
@@ -147,7 +218,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
             // Avoid chaining device inputs when camera input is denied by the user, since both front and rear vido input devices will be nil
             guard self.setupResult == .success,
                   let currentViewDeviceInput = self.videoDeviceInput,
-                  let videoDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: cameraType.avPosition),
+                  let videoDevice = self.getBestDevice(),
                   let videoDeviceInput = try? AVCaptureDeviceInput(device: videoDevice) else {
                 return
             }
@@ -183,7 +254,26 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
          the main thread and session configuration is done on the session queue.
          */
         DispatchQueue.main.async {
-            let videoPreviewLayerOrientation = self.cameraPreview.previewLayer.connection?.videoOrientation
+            var videoPreviewLayerOrientation = self.cameraPreview.previewLayer.connection?.videoOrientation
+            
+            switch(self.deviceOrientation) {
+            case .portrait:
+                videoPreviewLayerOrientation = .portrait
+                break
+            case .portraitUpsideDown:
+                videoPreviewLayerOrientation = .portraitUpsideDown
+                break
+            case .landscapeLeft:
+                videoPreviewLayerOrientation = .landscapeLeft
+                break
+            case .landscapeRight:
+                videoPreviewLayerOrientation = .landscapeRight
+                break
+            case .unknown: break
+            case .faceUp: break
+            case .faceDown: break
+            @unknown default: break
+            }
 
             self.sessionQueue.async {
                 if let photoOutputConnection = self.photoOutput.connection(with: .video), let videoPreviewLayerOrientation {
@@ -277,9 +367,52 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     }
 
     // MARK: - Private
+    
+    private func uiOrientationChanged(notification: Notification) {
+        guard let device = notification.object as? UIDevice else {
+            return
+        }
+        
+        // Counter-rotate video when in landscapeLeft/Right UI so it appears level
+        // (note how landscapeLeft sets landscapeRight)
+        switch(device.orientation) {
+        case .unknown: break
+        case .portrait:
+            self.cameraPreview.previewLayer.connection?.videoOrientation = .portrait
+            print("ui portrait")
+        case .portraitUpsideDown:
+            self.cameraPreview.previewLayer.connection?.videoOrientation = .portraitUpsideDown
+            print("ui upside down")
+        case .landscapeLeft:
+            self.cameraPreview.previewLayer.connection?.videoOrientation = .landscapeRight
+            print("ui landscapeLeft")
+        case .landscapeRight:
+            self.cameraPreview.previewLayer.connection?.videoOrientation = .landscapeLeft
+            print("ui landscapeRight")
+        case .faceUp: break
+        case .faceDown: break
+        @unknown default: break
+        }
+    }
+    
+    private func getBestDevice() -> AVCaptureDevice? {
+        // AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: cameraType.avPosition),
+        if #available(iOS 13.0, *) {
+            if let device = AVCaptureDevice.default(.builtInTripleCamera, for: .video, position: cameraType.avPosition) {
+                return device
+            }
+        }
+        if let device = AVCaptureDevice.default(.builtInDualCamera, for: .video, position: cameraType.avPosition) {
+            return device
+        }
+        if let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: cameraType.avPosition) {
+            return device
+        }
+        return nil
+    }
 
     private func setupCaptureSession(supportedBarcodeType: [AVMetadataObject.ObjectType]) -> SetupResult {
-        guard let videoDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: cameraType.avPosition),
+        guard let videoDevice = self.getBestDevice(),
               let videoDeviceInput = try? AVCaptureDeviceInput(device: videoDevice) else {
             return .sessionConfigurationFailed
         }
@@ -312,28 +445,13 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
         session.commitConfiguration()
 
-        self.refreshPreviewVideoOrientation()
-
         return .success
-    }
-
-    private func refreshPreviewVideoOrientation() {
-        DispatchQueue.main.async {
-            guard let orientation = Orientation(from: UIApplication.shared.statusBarOrientation)?.avVideoOrientation else { return }
-
-            self.cameraPreview.previewLayer.connection?.videoOrientation = orientation
-        }
     }
 
     // MARK: Private observers
 
     private func addObservers() {
         guard adjustingFocusObservation == nil else { return }
-
-        NotificationCenter.default.addObserver(forName: UIApplication.didChangeStatusBarOrientationNotification,
-                                               object: nil,
-                                               queue: nil,
-                                               using: { [weak self] _ in self?.refreshPreviewVideoOrientation() })
 
         adjustingFocusObservation = videoDeviceInput?.device.observe(\.isAdjustingFocus,
                                                                       options: .new,
