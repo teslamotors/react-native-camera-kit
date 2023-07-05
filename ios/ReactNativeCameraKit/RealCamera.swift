@@ -123,9 +123,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         guard !pinchScale.isNaN else { return }
         
         sessionQueue.async {
-            let pinchVelocityDividerFactor: Float = 10.0
-            let incrementZoomFactor = CGFloat(atan2f(Float(pinchVelocity), pinchVelocityDividerFactor))
-            self.videoDeviceInput?.device.incrementZoomFactor(incrementZoomFactor)
+            self.videoDeviceInput?.device.scaleZoomFactor(pinchScale)
         }
     }
 

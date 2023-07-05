@@ -312,6 +312,7 @@ class CameraView: UIView {
     @objc func handlePinchToZoomRecognizer(_ pinchRecognizer: UIPinchGestureRecognizer) {
         if pinchRecognizer.state == .changed {
             camera.update(pinchVelocity: pinchRecognizer.velocity, pinchScale: pinchRecognizer.scale)
+            // Reset scale after every reading to get a one timeframe scale value. Otherwise pinchRecognizer.scale is relative to the start of the gesture
             pinchRecognizer.scale = 1.0
         }
     }

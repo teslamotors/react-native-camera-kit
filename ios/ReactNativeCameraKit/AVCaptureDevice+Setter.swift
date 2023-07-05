@@ -27,11 +27,26 @@ extension AVCaptureDevice {
             defer { unlockForConfiguration() }
 
             let desiredZoomFactor = videoZoomFactor + zoomFactorIncrement
-            videoZoomFactor = max(1.0, min(desiredZoomFactor, activeFormat.videoMaxZoomFactor))
+            let maxZoomFactor = min(20, maxAvailableVideoZoomFactor)
+            videoZoomFactor = max(1.0, min(desiredZoomFactor, maxZoomFactor))
         } catch {
             print("Error setting zoom factor: \(error)")
         }
    }
+
+    func scaleZoomFactor(_ scale: CGFloat) {
+        do {
+            try lockForConfiguration()
+
+            defer { unlockForConfiguration() }
+
+            let desiredZoomFactor = videoZoomFactor * scale
+            let maxZoomFactor = min(20, maxAvailableVideoZoomFactor)
+            videoZoomFactor = max(1.0, min(desiredZoomFactor, maxZoomFactor))
+        } catch {
+            print("Error setting zoom factor: \(error)")
+        }
+    }
 
     func focusWithMode(_ focusMode: AVCaptureDevice.FocusMode,
                        exposeWithMode exposureMode: AVCaptureDevice.ExposureMode,
