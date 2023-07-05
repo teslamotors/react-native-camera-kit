@@ -355,6 +355,12 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
         if session.canAddOutput(photoOutput) {
             session.addOutput(photoOutput)
+
+            if let photoOutputConnection = self.photoOutput.connection(with: .video) {
+                if photoOutputConnection.isVideoStabilizationSupported {
+                    photoOutputConnection.preferredVideoStabilizationMode = .auto
+                }
+            }
         } else {
             return .sessionConfigurationFailed
         }
