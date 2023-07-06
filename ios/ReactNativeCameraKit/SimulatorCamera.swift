@@ -54,9 +54,9 @@ class SimulatorCamera: CameraProtocol {
         self.onOrientationChange = onOrientationChange
     }
     
-    func update(pinchVelocity: CGFloat, pinchScale: CGFloat) {
+    func update(pinchScale: CGFloat) {
         DispatchQueue.main.async {
-            self.mockPreview.zoomVelocityLabel.text = "Zoom Velocity: \(pinchVelocity), Scale: \(pinchScale)"
+            self.mockPreview.zoomVelocityLabel.text = "Zoom Scale: \(pinchScale)"
         }
     }
 

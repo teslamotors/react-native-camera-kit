@@ -95,7 +95,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
             } else {
                 interfaceOrientation = UIApplication.shared.statusBarOrientation
             }
-            self.cameraPreview.previewLayer.connection?.videoOrientation = interfaceOrientation.videoOrientation
+            self.cameraPreview.previewLayer.connection?.videoOrientation = self.videoOrientation(from: interfaceOrientation)
         }
         
         self.initializeMotionManager()
@@ -119,11 +119,23 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         }
     }
 
-    func update(pinchVelocity: CGFloat, pinchScale: CGFloat) {
+    func update(pinchScale: CGFloat) {
         guard !pinchScale.isNaN else { return }
         
         sessionQueue.async {
-            self.videoDeviceInput?.device.scaleZoomFactor(pinchScale)
+            guard let videoDevice = self.videoDeviceInput?.device else { return }
+
+            do {
+                try videoDevice.lockForConfiguration()
+
+                let desiredZoomFactor = videoDevice.videoZoomFactor * pinchScale
+                let maxZoomFactor = min(20, videoDevice.maxAvailableVideoZoomFactor)
+                videoDevice.videoZoomFactor = max(1.0, min(desiredZoomFactor, maxZoomFactor))
+
+                videoDevice.unlockForConfiguration()
+            } catch {
+                print("Error setting zoom factor: \(error)")
+            }
         }
     }
 
@@ -132,6 +144,8 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
             let devicePoint = self.cameraPreview.previewLayer.captureDevicePointConverted(fromLayerPoint: touchPoint)
 
             self.sessionQueue.async {
+                guard let videoDevice = self.videoDeviceInput?.device else { return }
+
                 if case let .customFocus(_, resetFocus, focusFinished) = focusBehavior {
                     self.resetFocus = resetFocus
                     self.focusFinished = focusFinished
@@ -140,10 +154,25 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
                     self.focusFinished = nil
                 }
 
-                self.videoDeviceInput?.device.focusWithMode(focusBehavior.avFocusMode,
-                                                            exposeWithMode: focusBehavior.exposureMode,
-                                                            atDevicePoint: devicePoint,
-                                                            isSubjectAreaChangeMonitoringEnabled: focusBehavior.isSubjectAreaChangeMonitoringEnabled)
+                do {
+                    try videoDevice.lockForConfiguration()
+
+                    if videoDevice.isFocusPointOfInterestSupported && videoDevice.isFocusModeSupported(focusBehavior.avFocusMode) {
+                        videoDevice.focusPointOfInterest = devicePoint
+                        videoDevice.focusMode = focusBehavior.avFocusMode
+                    }
+
+                    if videoDevice.isExposurePointOfInterestSupported && videoDevice.isExposureModeSupported(focusBehavior.exposureMode) {
+                        videoDevice.exposurePointOfInterest = devicePoint
+                        videoDevice.exposureMode = focusBehavior.exposureMode
+                    }
+
+                    videoDevice.isSubjectAreaChangeMonitoringEnabled = focusBehavior.isSubjectAreaChangeMonitoringEnabled
+
+                    videoDevice.unlockForConfiguration()
+                } catch {
+                    print("Error setting focus: \(error)")
+                }
             }
         }
     }
@@ -155,9 +184,19 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     func update(torchMode: TorchMode) {
         self.torchMode = torchMode
 
-        sessionQueue.asyncAfter(deadline: .now() + 0.1) {
-            if (self.videoDeviceInput?.device.torchMode != torchMode.avTorchMode) {
-                self.videoDeviceInput?.device.setTorchMode(torchMode.avTorchMode)
+        sessionQueue.async {
+            guard let videoDevice = self.videoDeviceInput?.device, videoDevice.torchMode != torchMode.avTorchMode else { return }
+
+            if videoDevice.isTorchModeSupported(torchMode.avTorchMode) && videoDevice.hasTorch {
+                do {
+                    try videoDevice.lockForConfiguration()
+
+                    videoDevice.torchMode = torchMode.avTorchMode
+
+                    videoDevice.unlockForConfiguration()
+                } catch {
+                    print("Error setting torch mode: \(error)")
+                }
             }
         }
     }
@@ -212,7 +251,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
          the main thread and session configuration is done on the session queue.
          */
         DispatchQueue.main.async {
-            let videoPreviewLayerOrientation = self.deviceOrientation.videoOrientation ?? self.cameraPreview.previewLayer.connection?.videoOrientation
+            let videoPreviewLayerOrientation = self.videoOrientation(from: self.deviceOrientation) ?? self.cameraPreview.previewLayer.connection?.videoOrientation
 
             self.sessionQueue.async {
                 if let photoOutputConnection = self.photoOutput.connection(with: .video), let videoPreviewLayerOrientation {
@@ -309,15 +348,38 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
     // MARK: - Private
 
-    private func uiOrientationChanged(notification: Notification) {
-        guard let device = notification.object as? UIDevice,
-              let videoOrientation = device.orientation.videoOrientation else {
-            return
+    private func videoOrientation(from deviceOrientation: UIDeviceOrientation) -> AVCaptureVideoOrientation? {
+        // Device orientation counter-rotate interface when in landscapeLeft/Right so it appears level
+        // (note how landscapeLeft sets landscapeRight)
+        switch deviceOrientation {
+        case .portrait:
+            return .portrait
+        case .portraitUpsideDown:
+            return .portraitUpsideDown
+        case .landscapeLeft:
+            return .landscapeRight
+        case .landscapeRight:
+            return .landscapeLeft
+        case .faceUp, .faceDown, .unknown: return nil
+        @unknown default: return nil
         }
-
-        self.cameraPreview.previewLayer.connection?.videoOrientation = videoOrientation
     }
-    
+
+    private func videoOrientation(from interfaceOrientation: UIInterfaceOrientation) -> AVCaptureVideoOrientation {
+        switch interfaceOrientation {
+        case .portrait:
+            return .portrait
+        case .portraitUpsideDown:
+            return .portraitUpsideDown
+        case .landscapeLeft:
+            return .landscapeLeft
+        case .landscapeRight:
+            return .landscapeRight
+        case .unknown: return .portrait
+        @unknown default: return .portrait
+        }
+    }
+
     private func getBestDevice(for cameraType: CameraType) -> AVCaptureDevice? {
         if #available(iOS 13.0, *) {
             if let device = AVCaptureDevice.default(.builtInTripleCamera, for: .video, position: cameraType.avPosition) {
@@ -436,7 +498,6 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         }
     }
 
-
     // MARK: Private observers
 
     private func addObservers() {
@@ -480,6 +541,15 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
     private func subjectAreaDidChange(notification: Notification) {
         resetFocus?()
+    }
+
+    private func uiOrientationChanged(notification: Notification) {
+        guard let device = notification.object as? UIDevice,
+              let videoOrientation = videoOrientation(from: device.orientation) else {
+            return
+        }
+
+        self.cameraPreview.previewLayer.connection?.videoOrientation = videoOrientation
     }
 
     private func sessionRuntimeError(notification: Notification) {

@@ -20,9 +20,6 @@
 		46C558CB2A4AAB3400C68BA0 /* CameraProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46C558CA2A4AAB3400C68BA0 /* CameraProtocol.swift */; };
 		46C558CD2A4AAB5D00C68BA0 /* SimulatorCamera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46C558CC2A4AAB5D00C68BA0 /* SimulatorCamera.swift */; };
 		46C558CF2A4AAD7300C68BA0 /* FocusInterfaceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46C558CE2A4AAD7300C68BA0 /* FocusInterfaceView.swift */; };
-		46EE6F472A54C107001B9C30 /* UIInterfaceOrientation+Convert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46EE6F462A54C107001B9C30 /* UIInterfaceOrientation+Convert.swift */; };
-		46EE6F492A54C12D001B9C30 /* AVCaptureDevice+Setter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46EE6F482A54C12D001B9C30 /* AVCaptureDevice+Setter.swift */; };
-		46EE6F4B2A54CEB3001B9C30 /* UIDeviceOrientation+Convert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46EE6F4A2A54CEB3001B9C30 /* UIDeviceOrientation+Convert.swift */; };
 		46F30C012A3A859B000597F6 /* ScannerFrameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46F30C002A3A859B000597F6 /* ScannerFrameView.swift */; };
 		46F30C032A3ABB9D000597F6 /* ScannerInterfaceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46F30C022A3ABB9D000597F6 /* ScannerInterfaceView.swift */; };
 /* End PBXBuildFile section */
@@ -56,9 +53,6 @@
 		46C558CA2A4AAB3400C68BA0 /* CameraProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraProtocol.swift; sourceTree = "<group>"; };
 		46C558CC2A4AAB5D00C68BA0 /* SimulatorCamera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatorCamera.swift; sourceTree = "<group>"; };
 		46C558CE2A4AAD7300C68BA0 /* FocusInterfaceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusInterfaceView.swift; sourceTree = "<group>"; };
-		46EE6F462A54C107001B9C30 /* UIInterfaceOrientation+Convert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIInterfaceOrientation+Convert.swift"; sourceTree = "<group>"; };
-		46EE6F482A54C12D001B9C30 /* AVCaptureDevice+Setter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AVCaptureDevice+Setter.swift"; sourceTree = "<group>"; };
-		46EE6F4A2A54CEB3001B9C30 /* UIDeviceOrientation+Convert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIDeviceOrientation+Convert.swift"; sourceTree = "<group>"; };
 		46F30C002A3A859B000597F6 /* ScannerFrameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScannerFrameView.swift; sourceTree = "<group>"; };
 		46F30C022A3ABB9D000597F6 /* ScannerInterfaceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScannerInterfaceView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -93,9 +87,6 @@
 		264693501CFB2A6B00F3A740 /* ReactNativeCameraKit */ = {
 			isa = PBXGroup;
 			children = (
-				46EE6F482A54C12D001B9C30 /* AVCaptureDevice+Setter.swift */,
-				46EE6F4A2A54CEB3001B9C30 /* UIDeviceOrientation+Convert.swift */,
-				46EE6F462A54C107001B9C30 /* UIInterfaceOrientation+Convert.swift */,
 				26550AF51CFC7086007FF2DF /* CKCameraManager.m */,
 				4620AA712A2C4FA500BC8929 /* CameraManager.swift */,
 				463096872A2C757F002ABA1A /* CKTypes+RCTConvert.m */,
@@ -181,12 +172,9 @@
 				4620AA702A2C4A5F00BC8929 /* SimulatorPreviewView.swift in Sources */,
 				46F30C032A3ABB9D000597F6 /* ScannerInterfaceView.swift in Sources */,
 				46C558C92A4AAAD100C68BA0 /* RealCamera.swift in Sources */,
-				46EE6F4B2A54CEB3001B9C30 /* UIDeviceOrientation+Convert.swift in Sources */,
-				46EE6F472A54C107001B9C30 /* UIInterfaceOrientation+Convert.swift in Sources */,
 				46F30C012A3A859B000597F6 /* ScannerFrameView.swift in Sources */,
 				46C558CD2A4AAB5D00C68BA0 /* SimulatorCamera.swift in Sources */,
 				46506F272A37810C0058D3F2 /* RealPreviewView.swift in Sources */,
-				46EE6F492A54C12D001B9C30 /* AVCaptureDevice+Setter.swift in Sources */,
 				4630968B2A2D5423002ABA1A /* Types.swift in Sources */,
 				4620AA6C2A2C03FC00BC8929 /* RatioOverlayView.swift in Sources */,
 				460C0C6C2A4B52D800066334 /* PhotoCaptureDelegate.swift in Sources */,

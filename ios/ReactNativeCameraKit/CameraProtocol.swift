@@ -11,7 +11,7 @@ protocol CameraProtocol: AnyObject, FocusInterfaceViewDelegate {
     func setup(cameraType: CameraType, supportedBarcodeType: [AVMetadataObject.ObjectType])
     func cameraRemovedFromSuperview()
 
-    func update(pinchVelocity: CGFloat, pinchScale: CGFloat)
+    func update(pinchScale: CGFloat)
     func update(torchMode: TorchMode)
     func update(flashMode: FlashMode)
     func update(cameraType: CameraType)
