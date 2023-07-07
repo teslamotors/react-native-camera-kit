@@ -19,9 +19,7 @@
     "release:beta": "yarn clean && yarn build && yarn publish --tag beta --verbose",
     "release:local": "yarn clean && yarn build && tmp=$(mktemp) && yarn pack --filename $tmp.tar.gz && open -R $tmp.tar.gz",
     "start": "watchman watch-del-all && node node_modules/react-native/local-cli/cli.js start",
-    "example": "yarn --cwd example",
-    "pods": "cd example && pod-install --quiet",
-    "bootstrap": "yarn example && yarn && yarn pods"
+    "postinstall": "cd example/ && yarn && cd ./ios && pod install"
   },
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -41,7 +39,6 @@
     "eslint-plugin-import": "^2.22.1",
     "jest": "^26.0.1",
     "metro-react-native-babel-preset": "0.51.0",
-    "pod-install": "^0.1.0",
     "prettier": "^2.1.2",
     "react": "16.11.0",
     "react-native": "0.62.3",
