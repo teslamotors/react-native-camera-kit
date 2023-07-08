@@ -1,15 +1,5 @@
 import React, { useState, useRef } from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  Image,
-  Dimensions,
-  Platform,
-  SafeAreaView,
-  useWindowDimensions,
-} from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Image, Dimensions, SafeAreaView } from 'react-native';
 import Camera from '../../src/Camera';
 import { CameraApi, CameraType, CaptureData } from '../../src/types';
 import { Orientation } from '../../src';
@@ -100,40 +90,34 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
     console.log('image', image);
   };
 
-  const window = useWindowDimensions();
-  const cameraRatio = 4 / 3;
-
   return (
-    <View style={{ flexGrow: 1, flexShrink: 1, backgroundColor: 'black' }}>
-      <SafeAreaView style={styles.top}>
-        <View style={styles.topButtons}>
-          {flashData.image && (
-            <TouchableOpacity style={styles.flashMode} onPress={() => onSetFlash()}>
-              <Image source={flashData.image} resizeMode="contain" />
-            </TouchableOpacity>
-          )}
-          <TouchableOpacity style={styles.switchCamera} onPress={() => onSwitchCameraPressed()}>
-            <Image source={require('../images/cameraFlipIcon.png')} resizeMode="contain" />
+    <View style={styles.screen}>
+      <SafeAreaView style={styles.topButtons}>
+        {flashData.image && (
+          <TouchableOpacity style={styles.topButton} onPress={onSetFlash}>
+            <Image source={flashData.image} resizeMode="contain" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.torch} onPress={() => onSetTorch()}>
-            <Image
-              source={torchMode ? require('../images/torchOn.png') : require('../images/torchOff.png')}
-              resizeMode="contain"
-            />
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-      <View style={styles.cameraContainer}>
-        {showImageUri ? (
+        )}
+
+        <TouchableOpacity style={styles.topButton} onPress={onSwitchCameraPressed}>
+          <Image source={require('../images/cameraFlipIcon.png')} resizeMode="contain" />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.topButton} onPress={onSetTorch}>
           <Image
-            source={{ uri: showImageUri }}
-            style={{ width: window.width, height: window.width * cameraRatio }}
+            source={torchMode ? require('../images/torchOn.png') : require('../images/torchOff.png')}
             resizeMode="contain"
           />
+        </TouchableOpacity>
+      </SafeAreaView>
+
+      <View style={styles.cameraContainer}>
+        {showImageUri ? (
+          <Image source={{ uri: showImageUri }} style={styles.cameraPreview} resizeMode="contain" />
         ) : (
           <Camera
             ref={cameraRef}
-            style={{ width: window.width, height: window.width * cameraRatio, backgroundColor: 'magenta' }}
+            style={styles.cameraPreview}
             cameraType={cameraType}
             flashMode={flashData?.mode}
             zoomMode="on"
@@ -151,34 +135,37 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
           />
         )}
       </View>
+
       <SafeAreaView style={styles.bottomButtons}>
-        <View style={styles.bottomButtonsInner}>
-          <TouchableOpacity style={styles.backBtn} onPress={() => onBack()}>
-            <Text style={styles.textStyle}>Back</Text>
+        <View style={styles.backBtnContainer}>
+          <TouchableOpacity onPress={onBack}>
+            <Text style={styles.backTextStyle}>Back</Text>
           </TouchableOpacity>
-          <View style={styles.captureButtonContainer}>
-            <TouchableOpacity onPress={() => onCaptureImagePressed()}>
-              <Image source={require('../images/cameraButton.png')} />
-              <View style={styles.textNumberContainer}>
-                <Text>{numberOfImagesTaken()}</Text>
-              </View>
+        </View>
+
+        <View style={styles.captureButtonContainer}>
+          <TouchableOpacity onPress={onCaptureImagePressed}>
+            <Image source={require('../images/cameraButton.png')} />
+            <View style={styles.textNumberContainer}>
+              <Text>{numberOfImagesTaken()}</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.thumbnailContainer}>
+          {captureImages.length > 0 && (
+            <TouchableOpacity
+              onPress={() => {
+                if (showImageUri) {
+                  setShowImageUri('');
+                } else {
+                  setShowImageUri(captureImages[captureImages.length - 1].uri);
+                }
+              }}
+            >
+              <Image source={{ uri: captureImages[captureImages.length - 1].uri }} style={styles.thumbnail} />
             </TouchableOpacity>
-          </View>
-          <View style={styles.rightBottomArea}>
-            {captureImages.length > 0 && (
-              <TouchableOpacity
-                onPress={() => {
-                  if (showImageUri) {
-                    setShowImageUri('');
-                  } else {
-                    setShowImageUri(captureImages[captureImages.length - 1].uri);
-                  }
-                }}
-              >
-                <Image source={{ uri: captureImages[captureImages.length - 1].uri }} style={styles.preview} />
-              </TouchableOpacity>
-            )}
-          </View>
+          )}
         </View>
       </SafeAreaView>
     </View>
@@ -188,83 +175,48 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
 export default CameraExample;
 
 const styles = StyleSheet.create({
-  top: {
-    zIndex: 10,
+  screen: {
+    height: '100%',
+    backgroundColor: 'black',
   },
+
   topButtons: {
+    margin: 10,
+    zIndex: 10,
     flexDirection: 'row',
-    justifyContent: 'center',
-    // borderColor: 'yellow',
-    // position: 'relative',
+    justifyContent: 'space-between',
   },
-  flashMode: {
-    position: 'absolute',
-    left: 10,
-    top: 0,
-    bottom: 0,
+  topButton: {
     padding: 10,
   },
-  switchCamera: {
-    padding: 10,
-  },
-  torch: {
-    position: 'absolute',
-    right: 10,
-    top: 0,
-    bottom: 0,
-    padding: 10,
-  },
+
   cameraContainer: {
-    ...Platform.select({
-      android: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width,
-        height,
-      },
-      default: {
-        justifyContent: 'center',
-        flex: 1,
-        // zIndex: 0
-      },
-    }),
+    justifyContent: 'center',
+    flex: 1,
+  },
+  cameraPreview: {
+    aspectRatio: 3 / 4,
+    width: '100%',
   },
 
   bottomButtons: {
-    bottom: 0,
-    left: 0,
-    right: 0,
+    margin: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  bottomButtonsInner: {
-    paddingVertical: 10,
+  backBtnContainer: {
+    flex: 1,
+    alignItems: 'flex-start',
   },
-  backBtn: {
-    position: 'absolute',
-    left: 10,
-    top: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    zIndex: 10,
+  backTextStyle: {
     padding: 10,
-  },
-  captureButtonContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 9,
-  },
-  rightBottomArea: {
-    position: 'absolute',
-    right: 20,
-    top: 0,
-    bottom: 0,
-    zIndex: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  textStyle: {
     color: 'white',
     fontSize: 20,
+  },
+  captureButtonContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   textNumberContainer: {
     position: 'absolute',
@@ -275,13 +227,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  gap: {
-    flex: 10,
-    flexDirection: 'column',
+  thumbnailContainer: {
+    flex: 1,
+    alignItems: 'flex-end',
+    justifyContent: 'center',
   },
-  preview: {
+  thumbnail: {
     width: 48,
     height: 48,
     borderRadius: 4,
+    marginEnd: 10,
   },
 });
