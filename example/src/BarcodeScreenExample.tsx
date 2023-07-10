@@ -13,8 +13,7 @@ import {
 } from 'react-native';
 import Camera from '../../src/Camera';
 import { CameraApi, CameraType, CaptureData } from '../../src/types';
-
-const { width, height } = Dimensions.get('window');
+import { Orientation } from '../../src';
 
 const flashImages = {
   on: require('../images/flashOn.png'),
@@ -131,7 +130,26 @@ const BarcodeExample = ({ onBack }: { onBack: () => void }) => {
           focusMode="on"
           torchMode={torchMode ? 'on' : 'off'}
           onOrientationChange={(e) => {
-            console.log('orientationChange', e.nativeEvent);
+            // We recommend locking the camera UI to portrait (using a different library)
+            // and rotating the UI elements counter to the orientation
+            // However, we include onOrientationChange so you can match your UI to what the camera does
+            switch(e.nativeEvent.orientation) {
+              case Orientation.LANDSCAPE_LEFT:
+                console.log('orientationChange', 'LANDSCAPE_LEFT');
+                break;
+              case Orientation.LANDSCAPE_RIGHT:
+                console.log('orientationChange', 'LANDSCAPE_RIGHT');
+                break;
+              case Orientation.PORTRAIT:
+                console.log('orientationChange', 'PORTRAIT');
+                break;
+              case Orientation.PORTRAIT_UPSIDE_DOWN:
+                console.log('orientationChange', 'PORTRAIT_UPSIDE_DOWN');
+                break;
+              default:
+                console.log('orientationChange', e.nativeEvent);
+                break;
+              }
           }}
           // ratioOverlay={ratios[ratioArrayPosition]}
           laserColor="red"
@@ -208,7 +226,6 @@ const styles = StyleSheet.create({
     aspectRatio: 3 / 4,
     width: '100%',
   },
-
   bottomButtons: {
     margin: 10,
     flexDirection: 'row',

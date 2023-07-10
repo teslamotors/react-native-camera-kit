@@ -6,6 +6,8 @@ import android.view.View
 import androidx.annotation.ColorInt
 
 import com.rncamerakit.R
+import kotlin.math.max
+import kotlin.math.min
 
 class BarcodeFrame(context: Context) : View(context) {
     private var borderPaint: Paint = Paint()
@@ -29,14 +31,18 @@ class BarcodeFrame(context: Context) : View(context) {
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-        frameWidth = measuredWidth
-        frameHeight = measuredHeight
-        val marginWidth = width / WIDTH_SCALE
-        val marginHeight = (height / HEIGHT_SCALE).toInt()
-        frameRect.left = marginWidth
-        frameRect.right = width - marginWidth
-        frameRect.top = marginHeight
-        frameRect.bottom = height - marginHeight
+        val marginHeight = 40
+        val marginWidth = 40
+        val frameMaxWidth = 1200
+        val frameMaxHeight = 600
+        val frameMinWidth = 100
+        val frameMinHeight = 100
+        frameWidth = max(frameMinWidth, min(frameMaxWidth, measuredWidth - (marginWidth * 2)))
+        frameHeight = max(frameMinHeight, min(frameMaxHeight, measuredHeight - (marginHeight * 2)))
+        frameRect.left = (measuredWidth / 2) - (frameWidth / 2)
+        frameRect.right = (measuredWidth / 2) + (frameWidth / 2)
+        frameRect.top = (measuredHeight / 2) - (frameHeight / 2)
+        frameRect.bottom = (measuredHeight / 2) + (frameHeight / 2)
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -75,9 +81,7 @@ class BarcodeFrame(context: Context) : View(context) {
 
     companion object {
         private const val STROKE_WIDTH = 5
-        private const val ANIMATION_SPEED = 8
-        private const val WIDTH_SCALE = 7
-        private const val HEIGHT_SCALE = 2.75
+        private const val ANIMATION_SPEED = 4
     }
 
     init {

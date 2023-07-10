@@ -1,10 +1,8 @@
 import React, { useState, useRef } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Image, Dimensions, SafeAreaView } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Image, SafeAreaView } from 'react-native';
 import Camera from '../../src/Camera';
 import { CameraApi, CameraType, CaptureData } from '../../src/types';
 import { Orientation } from '../../src';
-
-const { width, height } = Dimensions.get('window');
 
 const flashImages = {
   on: require('../images/flashOn.png'),
@@ -127,10 +125,23 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
               // We recommend locking the camera UI to portrait (using a different library)
               // and rotating the UI elements counter to the orientation
               // However, we include onOrientationChange so you can match your UI to what the camera does
-              const isLandscape = [Orientation.LANDSCAPE_LEFT, Orientation.LANDSCAPE_RIGHT].includes(
-                e.nativeEvent.orientation,
-              );
-              console.log('orientationChange', isLandscape ? 'landscape' : 'portrait');
+              switch(e.nativeEvent.orientation) {
+                case Orientation.LANDSCAPE_LEFT:
+                  console.log('orientationChange', 'LANDSCAPE_LEFT');
+                  break;
+                case Orientation.LANDSCAPE_RIGHT:
+                  console.log('orientationChange', 'LANDSCAPE_RIGHT');
+                  break;
+                case Orientation.PORTRAIT:
+                  console.log('orientationChange', 'PORTRAIT');
+                  break;
+                case Orientation.PORTRAIT_UPSIDE_DOWN:
+                  console.log('orientationChange', 'PORTRAIT_UPSIDE_DOWN');
+                  break;
+                default:
+                  console.log('orientationChange', e.nativeEvent);
+                  break;
+                }
             }}
           />
         )}
@@ -179,7 +190,6 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: 'black',
   },
-
   topButtons: {
     margin: 10,
     zIndex: 10,
@@ -189,7 +199,6 @@ const styles = StyleSheet.create({
   topButton: {
     padding: 10,
   },
-
   cameraContainer: {
     justifyContent: 'center',
     flex: 1,
@@ -198,7 +207,6 @@ const styles = StyleSheet.create({
     aspectRatio: 3 / 4,
     width: '100%',
   },
-
   bottomButtons: {
     margin: 10,
     flexDirection: 'row',
