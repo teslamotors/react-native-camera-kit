@@ -1,42 +1,249 @@
-import React, { Component } from 'react';
-import { View, StyleSheet } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, Image, SafeAreaView } from 'react-native';
 import Camera from '../../src/Camera';
-import { CameraType } from '../../src/types';
+import { CameraApi, CameraType, CaptureData } from '../../src/types';
+import { Orientation } from '../../src';
 
-export default class CameraExample extends Component {
-  render() {
-    return (
-      <View style={styles.cameraContainer}>
-        <Camera
-          ref={this.camera}
-          style={{flex: 1}}
-          cameraType={CameraType.Back} // optional
-          flashMode="auto" // on/off/auto(default)
-          focusMode="on" // off/on(default)
-          zoomMode="on" // off/on(default)
-          torchMode="off" // on/off(default)
-          ratioOverlay="1:1" // optional
-          ratioOverlayColor="#00000077" // optional
-          resetFocusTimeout={0}
-          resetFocusWhenMotionDetected={false}
-          saveToCameraRole={false} // iOS only
-          scanBarcode={false} // optional
-          showFrame={false} // Barcode only, optional
-          laserColor="red" // Barcode only, optional
-          frameColor="yellow" // Barcode only, optional
-          surfaceColor="blue" // Barcode only, optional
-          onReadCode={(event) => console.log(event.nativeEvent.codeStringValue)}
-        />
-      </View>
-    );
-  }
-}
+const flashImages = {
+  on: require('../images/flashOn.png'),
+  off: require('../images/flashOff.png'),
+  auto: require('../images/flashAuto.png'),
+};
 
-const styles = StyleSheet.create(
+const flashArray = [
   {
-    cameraContainer: {
-      flex: 1,
-      backgroundColor: 'black',
-    },
+    mode: 'auto',
+    image: flashImages.auto,
   },
-);
+  {
+    mode: 'on',
+    image: flashImages.on,
+  },
+  {
+    mode: 'off',
+    image: flashImages.off,
+  },
+] as const;
+
+const CameraExample = ({ onBack }: { onBack: () => void }) => {
+  const cameraRef = useRef<CameraApi>(null);
+  const [currentFlashArrayPosition, setCurrentFlashArrayPosition] = useState(0);
+  const [captureImages, setCaptureImages] = useState<CaptureData[]>([]);
+  const [flashData, setFlashData] = useState(flashArray[currentFlashArrayPosition]);
+  const [torchMode, setTorchMode] = useState(false);
+  const [captured, setCaptured] = useState(false);
+  const [cameraType, setCameraType] = useState(CameraType.Back);
+  const [showImageUri, setShowImageUri] = useState<string>('');
+
+  // iOS will error out if capturing too fast,
+  // so block capturing until the current capture is done
+  // This also minimizes issues of delayed capturing
+  const isCapturing = useRef(false);
+
+  const numberOfImagesTaken = () => {
+    const numberTook = captureImages.length;
+    if (numberTook >= 2) {
+      return numberTook;
+    } else if (captured) {
+      return '1';
+    } else {
+      return '';
+    }
+  };
+
+  const onSwitchCameraPressed = () => {
+    const direction = cameraType === CameraType.Back ? CameraType.Front : CameraType.Back;
+    setCameraType(direction);
+  };
+
+  const onSetFlash = () => {
+    const newPosition = (currentFlashArrayPosition + 1) % 3;
+    setCurrentFlashArrayPosition(newPosition);
+    setFlashData(flashArray[newPosition]);
+  };
+
+  const onSetTorch = () => {
+    setTorchMode(!torchMode);
+  };
+
+  const onCaptureImagePressed = async () => {
+    if (showImageUri) {
+      setShowImageUri('');
+      return;
+    }
+    if (!cameraRef.current || isCapturing.current) return;
+    let image: CaptureData | undefined;
+    try {
+      isCapturing.current = true;
+      image = await cameraRef.current.capture();
+    } catch (e) {
+      console.log('error', e);
+    } finally {
+      isCapturing.current = false;
+    }
+    if (!image) return;
+
+    setCaptured(true);
+    setCaptureImages([...captureImages, image]);
+    console.log('image', image);
+  };
+
+  return (
+    <View style={styles.screen}>
+      <SafeAreaView style={styles.topButtons}>
+        {flashData.image && (
+          <TouchableOpacity style={styles.topButton} onPress={onSetFlash}>
+            <Image source={flashData.image} resizeMode="contain" />
+          </TouchableOpacity>
+        )}
+
+        <TouchableOpacity style={styles.topButton} onPress={onSwitchCameraPressed}>
+          <Image source={require('../images/cameraFlipIcon.png')} resizeMode="contain" />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.topButton} onPress={onSetTorch}>
+          <Image
+            source={torchMode ? require('../images/torchOn.png') : require('../images/torchOff.png')}
+            resizeMode="contain"
+          />
+        </TouchableOpacity>
+      </SafeAreaView>
+
+      <View style={styles.cameraContainer}>
+        {showImageUri ? (
+          <Image source={{ uri: showImageUri }} style={styles.cameraPreview} resizeMode="contain" />
+        ) : (
+          <Camera
+            ref={cameraRef}
+            style={styles.cameraPreview}
+            cameraType={cameraType}
+            flashMode={flashData?.mode}
+            zoomMode="on"
+            focusMode="on"
+            torchMode={torchMode ? 'on' : 'off'}
+            onOrientationChange={(e) => {
+              // We recommend locking the camera UI to portrait (using a different library)
+              // and rotating the UI elements counter to the orientation
+              // However, we include onOrientationChange so you can match your UI to what the camera does
+              switch(e.nativeEvent.orientation) {
+                case Orientation.LANDSCAPE_LEFT:
+                  console.log('orientationChange', 'LANDSCAPE_LEFT');
+                  break;
+                case Orientation.LANDSCAPE_RIGHT:
+                  console.log('orientationChange', 'LANDSCAPE_RIGHT');
+                  break;
+                case Orientation.PORTRAIT:
+                  console.log('orientationChange', 'PORTRAIT');
+                  break;
+                case Orientation.PORTRAIT_UPSIDE_DOWN:
+                  console.log('orientationChange', 'PORTRAIT_UPSIDE_DOWN');
+                  break;
+                default:
+                  console.log('orientationChange', e.nativeEvent);
+                  break;
+                }
+            }}
+          />
+        )}
+      </View>
+
+      <SafeAreaView style={styles.bottomButtons}>
+        <View style={styles.backBtnContainer}>
+          <TouchableOpacity onPress={onBack}>
+            <Text style={styles.backTextStyle}>Back</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.captureButtonContainer}>
+          <TouchableOpacity onPress={onCaptureImagePressed}>
+            <Image source={require('../images/cameraButton.png')} />
+            <View style={styles.textNumberContainer}>
+              <Text>{numberOfImagesTaken()}</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.thumbnailContainer}>
+          {captureImages.length > 0 && (
+            <TouchableOpacity
+              onPress={() => {
+                if (showImageUri) {
+                  setShowImageUri('');
+                } else {
+                  setShowImageUri(captureImages[captureImages.length - 1].uri);
+                }
+              }}
+            >
+              <Image source={{ uri: captureImages[captureImages.length - 1].uri }} style={styles.thumbnail} />
+            </TouchableOpacity>
+          )}
+        </View>
+      </SafeAreaView>
+    </View>
+  );
+};
+
+export default CameraExample;
+
+const styles = StyleSheet.create({
+  screen: {
+    height: '100%',
+    backgroundColor: 'black',
+  },
+  topButtons: {
+    margin: 10,
+    zIndex: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  topButton: {
+    padding: 10,
+  },
+  cameraContainer: {
+    justifyContent: 'center',
+    flex: 1,
+  },
+  cameraPreview: {
+    aspectRatio: 3 / 4,
+    width: '100%',
+  },
+  bottomButtons: {
+    margin: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  backBtnContainer: {
+    flex: 1,
+    alignItems: 'flex-start',
+  },
+  backTextStyle: {
+    padding: 10,
+    color: 'white',
+    fontSize: 20,
+  },
+  captureButtonContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  textNumberContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  thumbnailContainer: {
+    flex: 1,
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+  },
+  thumbnail: {
+    width: 48,
+    height: 48,
+    borderRadius: 4,
+    marginEnd: 10,
+  },
+});

@@ -34,6 +34,7 @@ export interface CameraProps {
   ratioOverlayColor?: number | string;
   resetFocusTimeout?: number;
   resetFocusWhenMotionDetected?: boolean;
+  scanThrottleDelay: number;
 }
 
 declare const Camera: React.FC<CameraProps>;

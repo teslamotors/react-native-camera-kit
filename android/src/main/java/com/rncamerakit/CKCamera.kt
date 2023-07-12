@@ -501,7 +501,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
             val height: Int = convertDeviceHeightToSupportedAspectRatio(actualPreviewWidth, actualPreviewHeight)
             barcodeFrame!!.setFrameColor(frameColor)
             barcodeFrame!!.setLaserColor(laserColor)
-            (barcodeFrame as View).layout(0, 0, actualPreviewWidth, height)
+            (barcodeFrame as View).layout(0, 0, this.effectLayer.width, this.effectLayer.height)
             addView(barcodeFrame)
         } else if (barcodeFrame != null) {
             removeView(barcodeFrame)
