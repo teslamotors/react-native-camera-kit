@@ -34,6 +34,7 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
   const [captured, setCaptured] = useState(false);
   const [cameraType, setCameraType] = useState(CameraType.Back);
   const [showImageUri, setShowImageUri] = useState<string>('');
+  const [zoom, setZoom] = useState(0);
 
   // iOS will error out if capturing too fast,
   // so block capturing until the current capture is done
@@ -54,6 +55,7 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
   const onSwitchCameraPressed = () => {
     const direction = cameraType === CameraType.Back ? CameraType.Front : CameraType.Back;
     setCameraType(direction);
+    setZoom(0); // When changing camera type, reset to default zoom for that camera
   };
 
   const onSetFlash = () => {
@@ -101,6 +103,10 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
           <Image source={require('../images/cameraFlipIcon.png')} resizeMode="contain" />
         </TouchableOpacity>
 
+        <TouchableOpacity style={styles.zoom} onPress={() => setZoom(0)}>
+          <Text style={styles.zoomFactor}>{Number(zoom).toFixed(1)}x</Text>
+        </TouchableOpacity>
+
         <TouchableOpacity style={styles.topButton} onPress={onSetTorch}>
           <Image
             source={torchMode ? require('../images/torchOn.png') : require('../images/torchOff.png')}
@@ -120,12 +126,18 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
             flashMode={flashData?.mode}
             zoomMode="on"
             focusMode="on"
+            zoom={zoom}
+            maxZoom={15}
             torchMode={torchMode ? 'on' : 'off'}
+            onZoom={(e) => {
+              console.log('zoom', e.nativeEvent.zoom);
+              setZoom(e.nativeEvent.zoom);
+            }}
             onOrientationChange={(e) => {
               // We recommend locking the camera UI to portrait (using a different library)
               // and rotating the UI elements counter to the orientation
               // However, we include onOrientationChange so you can match your UI to what the camera does
-              switch(e.nativeEvent.orientation) {
+              switch (e.nativeEvent.orientation) {
                 case Orientation.LANDSCAPE_LEFT:
                   console.log('orientationChange', 'LANDSCAPE_LEFT');
                   break;
@@ -141,7 +153,7 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
                 default:
                   console.log('orientationChange', e.nativeEvent);
                   break;
-                }
+              }
             }}
           />
         )}
@@ -234,6 +246,13 @@ const styles = StyleSheet.create({
     right: 0,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  zoom: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  zoomFactor: {
+    color: '#ffffff',
   },
   thumbnailContainer: {
     flex: 1,

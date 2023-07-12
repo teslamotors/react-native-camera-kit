@@ -9,8 +9,6 @@ jobs:
         uses: actions/checkout@v2
       - name: Install modules
         run: yarn
-      - name: Bootstrap
-        run: yarn bootstrap
       - name: Build
         run: cd example/ios && xcodebuild -workspace CameraKitExample.xcworkspace -configuration Debug -scheme CameraKitExample -sdk iphoneos build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
   build-example-android:
@@ -23,7 +21,5 @@ jobs:
         uses: gradle/wrapper-validation-action@v1
       - name: Install modules
         run: yarn
-      - name: Bootstrap
-        run: yarn bootstrap
       - name: Build
         run: cd example/android && ./gradlew assembleDebug

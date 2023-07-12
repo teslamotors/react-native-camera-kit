@@ -47,10 +47,13 @@ class CameraView: UIView {
     @objc var laserColor: UIColor?
     // other
     @objc var onOrientationChange: RCTDirectEventBlock?
+    @objc var onZoom: RCTDirectEventBlock?
     @objc var resetFocusTimeout = 0
     @objc var resetFocusWhenMotionDetected = false
     @objc var focusMode: FocusMode = .on
     @objc var zoomMode: ZoomMode = .on
+    @objc var zoom: NSNumber?
+    @objc var maxZoom: NSNumber?
 
     // MARK: - Setup
 
@@ -149,6 +152,10 @@ class CameraView: UIView {
         if changedProps.contains("onOrientationChange") {
             camera.update(onOrientationChange: onOrientationChange)
         }
+        
+        if changedProps.contains("onZoom") {
+            camera.update(onZoom: onZoom)
+        }
 
         // Ratio overlay
         if changedProps.contains("ratioOverlay") {
@@ -217,6 +224,14 @@ class CameraView: UIView {
                 }
             }
         }
+        
+        if changedProps.contains("zoom") {
+            camera.update(zoom: zoom?.doubleValue)
+        }
+        
+        if changedProps.contains("maxZoom") {
+            camera.update(maxZoom: maxZoom?.doubleValue)
+        }
     }
 
     // MARK: Public
@@ -240,7 +255,7 @@ class CameraView: UIView {
             }
         }, onError: onError)
     }
-
+    
     // MARK: - Private Helper
 
     private func handleCameraPermission() {
@@ -310,10 +325,11 @@ class CameraView: UIView {
     // MARK: - Gesture selectors
 
     @objc func handlePinchToZoomRecognizer(_ pinchRecognizer: UIPinchGestureRecognizer) {
+        if pinchRecognizer.state == .began {
+            camera.zoomPinchStart()
+        }
         if pinchRecognizer.state == .changed {
-            camera.update(pinchScale: pinchRecognizer.scale)
-            // Reset scale after every reading to get a one timeframe scale value. Otherwise pinchRecognizer.scale is relative to the start of the gesture
-            pinchRecognizer.scale = 1.0
+            camera.zoomPinchChange(pinchScale: pinchRecognizer.scale)
         }
     }
 }

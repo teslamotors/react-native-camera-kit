@@ -1,7 +1,7 @@
 import { NativeModules } from 'react-native';
 
 import Camera from './Camera';
-import type { CameraApi, CameraType, CaptureData, FlashMode, FocusMode, TorchMode, ZoomMode } from './types';
+import { CameraApi, CameraType, CaptureData, FlashMode, FocusMode, TorchMode, ZoomMode } from './types';
 
 const { CameraKit } = NativeModules;
 

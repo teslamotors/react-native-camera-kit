@@ -128,6 +128,7 @@ const BarcodeExample = ({ onBack }: { onBack: () => void }) => {
           flashMode={flashData?.mode}
           zoomMode="on"
           focusMode="on"
+          maxZoom={5}
           torchMode={torchMode ? 'on' : 'off'}
           onOrientationChange={(e) => {
             // We recommend locking the camera UI to portrait (using a different library)

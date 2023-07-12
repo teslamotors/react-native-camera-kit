@@ -6,7 +6,7 @@
 import UIKit
 
 class SimulatorPreviewView: UIView {
-    let zoomVelocityLabel = UILabel()
+    let zoomLabel = UILabel()
     let focusAtLabel = UILabel()
     let torchModeLabel = UILabel()
     let flashModeLabel = UILabel()
@@ -30,7 +30,7 @@ class SimulatorPreviewView: UIView {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor).isActive = true
         stackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10).isActive = true
-        [zoomVelocityLabel, focusAtLabel, torchModeLabel, flashModeLabel, cameraTypeLabel].forEach {
+        [zoomLabel, focusAtLabel, torchModeLabel, flashModeLabel, cameraTypeLabel].forEach {
             $0.numberOfLines = 0
             stackView.addArrangedSubview($0)
         }

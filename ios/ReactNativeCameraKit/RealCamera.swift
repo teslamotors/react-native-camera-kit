@@ -34,6 +34,9 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     private var onBarcodeRead: ((_ barcode: String) -> Void)?
     private var scannerFrameSize: CGRect? = nil
     private var onOrientationChange: RCTDirectEventBlock?
+    private var onZoom: RCTDirectEventBlock?
+    private var zoom: Double?
+    private var maxZoom: Double?
     
     private var deviceOrientation = UIDeviceOrientation.unknown
     private var motionManager: CMMotionManager?
@@ -118,8 +121,16 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
             }
         }
     }
+    
+    private var zoomStartedAt: Double = 1.0
+    func zoomPinchStart() {
+        sessionQueue.async {
+            guard let videoDevice = self.videoDeviceInput?.device else { return }
+            self.zoomStartedAt = videoDevice.videoZoomFactor
+        }
+    }
 
-    func update(pinchScale: CGFloat) {
+    func zoomPinchChange(pinchScale: CGFloat) {
         guard !pinchScale.isNaN else { return }
         
         sessionQueue.async {
@@ -127,16 +138,69 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
             do {
                 try videoDevice.lockForConfiguration()
+                defer { videoDevice.unlockForConfiguration() }
 
-                let desiredZoomFactor = videoDevice.videoZoomFactor * pinchScale
-                let maxZoomFactor = min(20, videoDevice.maxAvailableVideoZoomFactor)
-                videoDevice.videoZoomFactor = max(1.0, min(desiredZoomFactor, maxZoomFactor))
-
-                videoDevice.unlockForConfiguration()
+                let desiredZoomFactor = self.zoomStartedAt * pinchScale
+                var maxZoomFactor = videoDevice.maxAvailableVideoZoomFactor
+                if let maxZoom = self.maxZoom {
+                    maxZoomFactor = min(maxZoom, maxZoomFactor)
+                }
+                let zoomForDevice = max(1.0, min(desiredZoomFactor, maxZoomFactor))
+                
+                if zoomForDevice != videoDevice.videoZoomFactor {
+                    // Only trigger zoom changes if it's an uncontrolled component (zoom isn't manually set)
+                    // otherwise it's likely to cause issues inf. loops
+                    if self.zoom == nil {
+                        videoDevice.videoZoomFactor = zoomForDevice
+                    }
+                    self.onZoom?(["zoom": zoomForDevice])
+                }
             } catch {
                 print("Error setting zoom factor: \(error)")
             }
         }
+    }
+    
+    func update(maxZoom: Double?) {
+        self.maxZoom = maxZoom
+    }
+    
+    func update(zoom: Double?) {
+        self.zoom = zoom
+        
+        sessionQueue.async {
+            guard let videoDevice = self.videoDeviceInput?.device else { return }
+
+            var zoomOrDefault = zoom ?? 0
+            // -1 will reset to zoom default (which is not 1 on modern cameras)
+            if zoomOrDefault == 0 {
+                zoomOrDefault = self.wideAngleZoomFactor(for: videoDevice)
+            }
+
+            do {
+                try videoDevice.lockForConfiguration()
+                defer { videoDevice.unlockForConfiguration() }
+                
+                var maxZoomFactor = videoDevice.maxAvailableVideoZoomFactor
+                if let maxZoom = self.maxZoom {
+                    maxZoomFactor = min(maxZoom, maxZoomFactor)
+                }
+                let zoomForDevice = max(1.0, min(zoomOrDefault, maxZoomFactor))
+                videoDevice.videoZoomFactor = zoomForDevice
+                
+                // If they wanted to reset, tell them what the default zoom turned out to be
+                // regardless if it's controlled
+                if self.zoom == nil || zoom == 0 {
+                    self.onZoom?(["zoom": zoomForDevice])
+                }
+            } catch {
+                print("Error setting zoom factor: \(error)")
+            }
+        }
+    }
+    
+    func update(onZoom: RCTDirectEventBlock?) {
+        self.onZoom = onZoom
     }
 
     func focus(at touchPoint: CGPoint, focusBehavior: FocusBehavior) {
@@ -227,7 +291,11 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
             if self.session.canAddInput(videoDeviceInput) {
                 self.session.addInput(videoDeviceInput)
-                videoDevice.videoZoomFactor = self.wideAngleZoomFactor(for: videoDevice)
+                let zoomForDevice = self.wideAngleZoomFactor(for: videoDevice)
+                if self.zoom == nil {
+                    videoDevice.videoZoomFactor = zoomForDevice
+                }
+                self.onZoom?(["zoom": zoomForDevice])
                 self.videoDeviceInput = videoDeviceInput
             } else {
                 // If it fails, put back current camera
@@ -408,7 +476,11 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
         if session.canAddInput(videoDeviceInput) {
             session.addInput(videoDeviceInput)
-            videoDevice.videoZoomFactor = wideAngleZoomFactor(for: videoDevice)
+            let zoomForDevice = wideAngleZoomFactor(for: videoDevice)
+            if self.zoom == nil {
+                videoDevice.videoZoomFactor = zoomForDevice
+            }
+            self.onZoom?(["zoom": zoomForDevice])
             self.videoDeviceInput = videoDeviceInput
         } else {
             return .sessionConfigurationFailed
