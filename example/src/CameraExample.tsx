@@ -127,12 +127,11 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
             zoomMode="on"
             focusMode="on"
             zoom={zoom}
-            maxZoom={3}
-            torchMode={torchMode ? 'on' : 'off'}
             onZoom={(e) => {
-              console.log('zoom', e.nativeEvent.zoom);
-              setZoom(e.nativeEvent.zoom);
-            }}
+                console.log('zoom', e.nativeEvent.zoom);
+                setZoom(e.nativeEvent.zoom);
+              }}
+            torchMode={torchMode ? 'on' : 'off'}
             onOrientationChange={(e) => {
               // We recommend locking the camera UI to portrait (using a different library)
               // and rotating the UI elements counter to the orientation

@@ -92,7 +92,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
     private var autoFocus = "on"
     private var zoomMode = "on"
     private var lastOnZoom = 0.0
-    private var zoom: Double? = 1.0
+    private var zoom: Double? = null
     private var maxZoom: Double? = null
     private var zoomStartedAt = 1.0f
 
@@ -494,8 +494,8 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
         }
     }
 
-    fun setZoomMode(mode: String = "on") {
-        zoomMode = mode
+    fun setZoomMode(mode: String?) {
+        zoomMode = mode ?: "off"
     }
 
     fun setZoom(factor: Double?) {

@@ -72,7 +72,7 @@ class CKCameraManager : SimpleViewManager<CKCamera>() {
     }
 
     @ReactProp(name = "zoomMode")
-    fun setZoomMode(view: CKCamera, mode: String) {
+    fun setZoomMode(view: CKCamera, mode: String?) {
         view.setZoomMode(mode)
     }
 

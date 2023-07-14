@@ -143,7 +143,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
                 let desiredZoomFactor = self.zoomStartedAt * pinchScale
                 var maxZoomFactor = videoDevice.maxAvailableVideoZoomFactor
-                var minZoomFactor = videoDevice.minAvailableVideoZoomFactor
+                let minZoomFactor = videoDevice.minAvailableVideoZoomFactor
                 if let maxZoom = self.maxZoom {
                     maxZoomFactor = min(maxZoom, maxZoomFactor)
                 }
