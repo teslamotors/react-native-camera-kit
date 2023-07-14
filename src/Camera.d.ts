@@ -50,9 +50,12 @@ export interface CameraProps {
    * ```
    */
   zoom?: number;
-  /** Maximum zoom factor. Default 20.
+  /**
+   * Limits the maximum zoom factor to something smaller than the camera's maximum.
+   * You cannot go beyond the camera's maximum, only below.
    * Should be at least 1.0 (no zoom, widest angle).
-   * Modern iPhones will otherwise have a maximum zoom factor of >150
+   * The purpose of limiting is because some modern iPhones report max zoom of 150+
+   * which is probably beyond what you want.
    * Example:
    * ```
    * <Camera
@@ -90,7 +93,8 @@ export interface CameraProps {
   ratioOverlayColor?: number | string;
   resetFocusTimeout?: number;
   resetFocusWhenMotionDetected?: boolean;
-  scanThrottleDelay: number;
+  /** **iOS Only**. Throttle how often the barcode scanner triggers a new scan */
+  scanThrottleDelay?: number;
 }
 
 declare const Camera: React.FC<CameraProps>;

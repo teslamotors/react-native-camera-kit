@@ -46,7 +46,8 @@ class CKCameraManager : SimpleViewManager<CKCamera>() {
         return MapBuilder.of(
                 "onOrientationChange", MapBuilder.of("registrationName", "onOrientationChange"),
                 "onReadCode", MapBuilder.of("registrationName", "onReadCode"),
-                "onPictureTaken", MapBuilder.of("registrationName", "onPictureTaken")
+                "onPictureTaken", MapBuilder.of("registrationName", "onPictureTaken"),
+                "onZoom", MapBuilder.of("registrationName", "onZoom")
         )
     }
 
@@ -73,6 +74,16 @@ class CKCameraManager : SimpleViewManager<CKCamera>() {
     @ReactProp(name = "zoomMode")
     fun setZoomMode(view: CKCamera, mode: String) {
         view.setZoomMode(mode)
+    }
+
+    @ReactProp(name = "zoom", defaultDouble = -1.0)
+    fun setZoom(view: CKCamera, factor: Double) {
+        view.setZoom(if (factor == -1.0) null else factor)
+    }
+
+    @ReactProp(name = "maxZoom", defaultDouble = 420.0)
+    fun setMaxZoom(view: CKCamera, factor: Double) {
+        view.setMaxZoom(factor)
     }
 
     @ReactProp(name = "scanBarcode")

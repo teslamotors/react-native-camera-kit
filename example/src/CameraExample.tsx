@@ -127,7 +127,7 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
             zoomMode="on"
             focusMode="on"
             zoom={zoom}
-            maxZoom={15}
+            maxZoom={3}
             torchMode={torchMode ? 'on' : 'off'}
             onZoom={(e) => {
               console.log('zoom', e.nativeEvent.zoom);

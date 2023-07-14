@@ -39,12 +39,12 @@ const flashArray = [
 const BarcodeExample = ({ onBack }: { onBack: () => void }) => {
   const cameraRef = useRef<CameraApi>(null);
   const [currentFlashArrayPosition, setCurrentFlashArrayPosition] = useState(0);
-  const [captureImages, setCaptureImages] = useState<CaptureData[]>([]);
+  
   const [flashData, setFlashData] = useState(flashArray[currentFlashArrayPosition]);
   const [torchMode, setTorchMode] = useState(false);
   // const [ratios, setRatios] = useState([]);
   // const [ratioArrayPosition, setRatioArrayPosition] = useState(-1);
-  const [captured, setCaptured] = useState(false);
+  
   const [cameraType, setCameraType] = useState(CameraType.Back);
   const [barcode, setBarcode] = useState<string>('');
 
@@ -79,16 +79,6 @@ const BarcodeExample = ({ onBack }: { onBack: () => void }) => {
 
   const onSetTorch = () => {
     setTorchMode(!torchMode);
-  };
-
-  const onCaptureImagePressed = async () => {
-    if (!cameraRef.current) return;
-    const image = await cameraRef.current.capture();
-    if (image) {
-      setCaptured(true);
-      setCaptureImages([...captureImages, image]);
-      console.log('image', image);
-    }
   };
 
   // const onRatioButtonPressed = () => {
@@ -185,12 +175,6 @@ const BarcodeExample = ({ onBack }: { onBack: () => void }) => {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.captureButtonContainer}>
-          <TouchableOpacity onPress={onCaptureImagePressed}>
-            <Image source={require('../images/cameraButton.png')} />
-          </TouchableOpacity>
-        </View>
-
         <View style={styles.barcodeContainer}>
           <Text numberOfLines={1} style={styles.textStyle}>
             {barcode}
@@ -233,13 +217,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   backBtnContainer: {
-    flex: 1,
     alignItems: 'flex-start',
   },
   captureButtonContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   textNumberContainer: {
     position: 'absolute',
