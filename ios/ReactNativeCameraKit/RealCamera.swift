@@ -95,7 +95,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
             self.cameraPreview.previewLayer.videoGravity = .resizeAspect
             var interfaceOrientation: UIInterfaceOrientation
             if #available(iOS 13.0, *) {
-                interfaceOrientation = self.previewView.window!.windowScene!.interfaceOrientation
+                interfaceOrientation = self.previewView.window?.windowScene?.interfaceOrientation ?? .portrait
             } else {
                 interfaceOrientation = UIApplication.shared.statusBarOrientation
             }
@@ -136,29 +136,28 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         
         sessionQueue.async {
             guard let videoDevice = self.videoDeviceInput?.device else { return }
-
-            do {
-                try videoDevice.lockForConfiguration()
-                defer { videoDevice.unlockForConfiguration() }
-
-                let desiredZoomFactor = self.zoomStartedAt * pinchScale
-                var maxZoomFactor = videoDevice.maxAvailableVideoZoomFactor
-                let minZoomFactor = videoDevice.minAvailableVideoZoomFactor
-                if let maxZoom = self.maxZoom {
-                    maxZoomFactor = min(maxZoom, maxZoomFactor)
-                }
-                let zoomForDevice = max(minZoomFactor, min(desiredZoomFactor, maxZoomFactor))
-                
-                if zoomForDevice != videoDevice.videoZoomFactor {
-                    // Only trigger zoom changes if it's an uncontrolled component (zoom isn't manually set)
-                    // otherwise it's likely to cause issues inf. loops
-                    if self.zoom == nil {
+            let desiredZoomFactor = self.zoomStartedAt * pinchScale
+            var maxZoomFactor = videoDevice.maxAvailableVideoZoomFactor
+            let minZoomFactor = videoDevice.minAvailableVideoZoomFactor
+            if let maxZoom = self.maxZoom {
+                maxZoomFactor = min(maxZoom, maxZoomFactor)
+            }
+            let zoomForDevice = max(minZoomFactor, min(desiredZoomFactor, maxZoomFactor))
+            
+            if zoomForDevice != videoDevice.videoZoomFactor {
+                // Only trigger zoom changes if it's an uncontrolled component (zoom isn't manually set)
+                // otherwise it's likely to cause issues inf. loops
+                if self.zoom == nil {
+                    do {
+                        try videoDevice.lockForConfiguration()
+                        defer { videoDevice.unlockForConfiguration() }
                         videoDevice.videoZoomFactor = zoomForDevice
+                    } catch {
+                        print("CKCameraKit: zoomPinchChange zoom factor error: \(error))")
                     }
-                    self.onZoom(desiredZoom: zoomForDevice)
+                    
                 }
-            } catch {
-                print("Error setting zoom factor: \(error)")
+                self.onZoom(desiredZoom: zoomForDevice)
             }
         }
     }
@@ -179,25 +178,25 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
                 zoomOrDefault = self.defaultZoomFactor(for: videoDevice)
             }
 
+            let minZoomFactor = videoDevice.minAvailableVideoZoomFactor
+            var maxZoomFactor = videoDevice.maxAvailableVideoZoomFactor
+            if let maxZoom = self.maxZoom {
+                maxZoomFactor = min(maxZoom, maxZoomFactor)
+            }
+            let zoomForDevice = max(minZoomFactor, min(zoomOrDefault, maxZoomFactor))
             do {
                 try videoDevice.lockForConfiguration()
                 defer { videoDevice.unlockForConfiguration() }
-                
-                let minZoomFactor = videoDevice.minAvailableVideoZoomFactor
-                var maxZoomFactor = videoDevice.maxAvailableVideoZoomFactor
-                if let maxZoom = self.maxZoom {
-                    maxZoomFactor = min(maxZoom, maxZoomFactor)
-                }
-                let zoomForDevice = max(minZoomFactor, min(zoomOrDefault, maxZoomFactor))
                 videoDevice.videoZoomFactor = zoomForDevice
-                
-                // If they wanted to reset, tell them what the camera zoom is after resetting,
-                // regardless if it's controlled
-                if zoom == 0 {
-                    self.onZoom(desiredZoom: nil)
-                }
             } catch {
-                print("Error setting zoom factor: \(error)")
+                print("CKCameraKit: update(zoom:) error: \(error))")
+            }
+            
+            
+            // If they wanted to reset, tell them what the camera zoom is after resetting,
+            // regardless if it's controlled
+            if zoom == 0 {
+                self.onZoom(desiredZoom: nil)
             }
         }
     }
@@ -316,7 +315,13 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
                 self.session.addInput(videoDeviceInput)
                 let zoomForDevice = self.defaultZoomFactor(for: videoDevice)
                 if self.zoom == nil {
-                    videoDevice.videoZoomFactor = zoomForDevice
+                    do {
+                        try videoDevice.lockForConfiguration()
+                        defer { videoDevice.unlockForConfiguration() }
+                        videoDevice.videoZoomFactor = zoomForDevice
+                    } catch {
+                        print("CKCameraKit: update(cameraType:) zoom factor error: \(error))")
+                    }
                 }
                 self.onZoom(desiredZoom: zoomForDevice)
                 self.videoDeviceInput = videoDeviceInput
@@ -501,7 +506,13 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
             session.addInput(videoDeviceInput)
             let zoomForDevice = defaultZoomFactor(for: videoDevice)
             if self.zoom == nil {
-                videoDevice.videoZoomFactor = zoomForDevice
+                do {
+                    try videoDevice.lockForConfiguration()
+                    defer { videoDevice.unlockForConfiguration() }
+                    videoDevice.videoZoomFactor = zoomForDevice
+                } catch {
+                    print("CKCameraKit: setupCaptureSession zoom factor error: \(error))")
+                }
             }
             onZoom(desiredZoom: zoomForDevice)
             self.videoDeviceInput = videoDeviceInput
