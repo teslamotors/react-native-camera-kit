@@ -29,7 +29,7 @@ export interface CameraProps {
    * Enable or disable the pinch gesture handler
    * Example:
    * ```
-   * <Camera zoom="on" />
+   * <Camera zoomMode="on" />
    * ```
    */
   zoomMode?: ZoomMode;

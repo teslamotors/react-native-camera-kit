@@ -34,7 +34,7 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
   const [captured, setCaptured] = useState(false);
   const [cameraType, setCameraType] = useState(CameraType.Back);
   const [showImageUri, setShowImageUri] = useState<string>('');
-  const [zoom, setZoom] = useState(0);
+  const [zoom, setZoom] = useState<number|undefined>();
 
   // iOS will error out if capturing too fast,
   // so block capturing until the current capture is done
@@ -128,9 +128,9 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
             focusMode="on"
             zoom={zoom}
             onZoom={(e) => {
-                console.log('zoom', e.nativeEvent.zoom);
-                setZoom(e.nativeEvent.zoom);
-              }}
+              console.log('zoom', e.nativeEvent.zoom);
+              setZoom(e.nativeEvent.zoom);
+            }}
             torchMode={torchMode ? 'on' : 'off'}
             onOrientationChange={(e) => {
               // We recommend locking the camera UI to portrait (using a different library)
