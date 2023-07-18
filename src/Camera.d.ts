@@ -34,9 +34,16 @@ export interface CameraProps {
    */
   zoomMode?: ZoomMode;
   /**
-   * **iOS only.**
-   * Control zoom. `0` is resets zoom. `1` is the widest zoom possible. Higher values zooms in.
-   * Example:
+   * Controls zoom. Higher values zooms in.
+   * ## iOS
+   * - "Default" zoom depends on the phone.
+   * - iPhone 14 Pro Max uses `2.0`, iPhone 6 default is `1.0`.
+   * - `1.0` is always the minimum allowed on iOS.
+   * ## Android
+   * - "Default" zoom is `1.0`.
+   * - Wide angle is below `1.0`.
+   * - Google Pixel 7 uses `0.7` for the widest angle.
+   * ## Example
    * ```
    * const [zoom, setZoom] = useState(0);
    * <Button onPress={() => setZoom(0)} title="Reset" />
@@ -53,13 +60,12 @@ export interface CameraProps {
   /**
    * Limits the maximum zoom factor to something smaller than the camera's maximum.
    * You cannot go beyond the camera's maximum, only below.
-   * Should be at least 1.0 (no zoom, widest angle).
-   * The purpose of limiting is because some modern iPhones report max zoom of 150+
-   * which is probably beyond what you want.
+   * The purpose of limiting zoom is because some modern iPhones report max zoom of 150+
+   * which is probably beyond what you want. See documentation for the `zoom` prop for more info.
    * Example:
    * ```
    * <Camera
-   *   maxZoom={15}
+   *   maxZoom={15.0}
    * />
    * ```
    */
@@ -68,7 +74,6 @@ export interface CameraProps {
   cameraType?: CameraType;
   onOrientationChange?: (event: OnOrientationChangeData) => void;
   /**
-   * **iOS only.**
    * Triggered when:
    * - User pinches to zoom, or
    * - 'zoom={0}' prop is set to 0, which resets zoom for the camera

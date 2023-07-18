@@ -21,9 +21,7 @@ const Camera = React.forwardRef((props: CameraProps, ref: any) => {
     },
   }));
 
-  return (
-    <NativeCamera maxZoom={props.maxZoom ?? 20} style={{ minWidth: 100, minHeight: 100 }} ref={nativeRef} {...props} />
-  );
+  return <NativeCamera style={{ minWidth: 100, minHeight: 100 }} ref={nativeRef} {...props} />;
 });
 
 Camera.defaultProps = {

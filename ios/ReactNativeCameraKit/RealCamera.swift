@@ -136,8 +136,8 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         
         sessionQueue.async {
             guard let videoDevice = self.videoDeviceInput?.device else { return }
-            let desiredZoomFactor = self.zoomStartedAt * pinchScale
             
+            let desiredZoomFactor = self.zoomStartedAt * pinchScale
             let zoomForDevice = self.getValidZoom(forDevice: videoDevice, zoom: desiredZoomFactor)
             
             if zoomForDevice != videoDevice.videoZoomFactor {
@@ -153,6 +153,9 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     
     func update(maxZoom: Double?) {
         self.maxZoom = maxZoom
+        
+        // Re-update zoom value in case the max was increased
+        self.update(zoom: self.zoom)
     }
     
     func update(zoom: Double?) {

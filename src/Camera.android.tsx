@@ -29,13 +29,7 @@ const Camera = React.forwardRef((props: CameraProps, ref) => {
   transformedProps.frameColor = processColor(props.frameColor);
   transformedProps.laserColor = processColor(props.laserColor);
 
-  return (
-    <NativeCamera
-      style={{ minWidth: 100, minHeight: 100 }}
-      ref={nativeRef}
-      {...transformedProps}
-    />
-  );
+  return <NativeCamera style={{ minWidth: 100, minHeight: 100 }} ref={nativeRef} {...transformedProps} />;
 });
 
 export default Camera;
