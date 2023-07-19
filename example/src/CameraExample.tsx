@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Image, SafeAreaView } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Image, SafeAreaView, Animated } from 'react-native';
 import Camera from '../../src/Camera';
 import { CameraApi, CameraType, CaptureData } from '../../src/types';
 import { Orientation } from '../../src';
@@ -35,6 +35,7 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
   const [cameraType, setCameraType] = useState(CameraType.Back);
   const [showImageUri, setShowImageUri] = useState<string>('');
   const [zoom, setZoom] = useState<number | undefined>();
+  const [orientationAnim] = useState(new Animated.Value(3));
 
   // iOS will error out if capturing too fast,
   // so block capturing until the current capture is done
@@ -102,28 +103,49 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
     );
   }
 
+  // Counter-rotate the icons to indicate the actual orientation of the captured photo.
+  // For this example, it'll behave incorrectly since UI orientation is allowed (and already-counter rotates the entire screen)
+  // For real phone apps, lock your UI orientation using a library like 'react-native-orientation-locker'
+  const rotateUi = true;
+  const uiRotation = orientationAnim.interpolate({
+    inputRange: [1, 4],
+    outputRange: ['180deg', '-90deg'],
+  });
+  const uiRotationStyle = rotateUi ? {transform: [{ rotate: uiRotation }]} : undefined;
+
+  function rotateUiTo(rotationValue: number) {
+    Animated.timing(orientationAnim, {
+      toValue: rotationValue,
+      useNativeDriver: true,
+      duration: 200,
+      isInteraction: false,
+    }).start();
+  }
+
   return (
     <View style={styles.screen}>
       <SafeAreaView style={styles.topButtons}>
         {flashData.image && (
           <TouchableOpacity style={styles.topButton} onPress={onSetFlash}>
-            <Image source={flashData.image} resizeMode="contain" style={styles.topButtonImg} />
+            <Animated.Image source={flashData.image} resizeMode="contain" style={[styles.topButtonImg, uiRotationStyle]} />
           </TouchableOpacity>
         )}
 
         <TouchableOpacity style={styles.topButton} onPress={onSwitchCameraPressed}>
-          <Image source={require('../images/cameraFlipIcon.png')} resizeMode="contain" style={styles.topButtonImg} />
+          <Animated.Image source={require('../images/cameraFlipIcon.png')} resizeMode="contain" style={[styles.topButtonImg, uiRotationStyle]} />
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.topButton} onPress={() => setZoom(1)}>
-          <Text style={styles.zoomFactor}>{zoom ? Number(zoom).toFixed(1) : '??'}x</Text>
+          <Animated.Text style={[styles.zoomFactor, uiRotationStyle]}>
+            {zoom ? Number(zoom).toFixed(1) : '??'}x
+          </Animated.Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.topButton} onPress={onSetTorch}>
-          <Image
+          <Animated.Image
             source={torchMode ? require('../images/torchOn.png') : require('../images/torchOff.png')}
             resizeMode="contain"
-            style={styles.topButtonImg}
+            style={[styles.topButtonImg, uiRotationStyle]}
           />
         </TouchableOpacity>
       </SafeAreaView>
@@ -150,17 +172,21 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
               // and rotating the UI elements counter to the orientation
               // However, we include onOrientationChange so you can match your UI to what the camera does
               switch (e.nativeEvent.orientation) {
+                case Orientation.PORTRAIT_UPSIDE_DOWN:
+                  console.log('orientationChange', 'PORTRAIT_UPSIDE_DOWN');
+                  rotateUiTo(1);
+                  break;
                 case Orientation.LANDSCAPE_LEFT:
                   console.log('orientationChange', 'LANDSCAPE_LEFT');
-                  break;
-                case Orientation.LANDSCAPE_RIGHT:
-                  console.log('orientationChange', 'LANDSCAPE_RIGHT');
+                  rotateUiTo(2);
                   break;
                 case Orientation.PORTRAIT:
                   console.log('orientationChange', 'PORTRAIT');
+                  rotateUiTo(3);
                   break;
-                case Orientation.PORTRAIT_UPSIDE_DOWN:
-                  console.log('orientationChange', 'PORTRAIT_UPSIDE_DOWN');
+                case Orientation.LANDSCAPE_RIGHT:
+                  console.log('orientationChange', 'LANDSCAPE_RIGHT');
+                  rotateUiTo(4);
                   break;
                 default:
                   console.log('orientationChange', e.nativeEvent);
@@ -174,7 +200,7 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
       <SafeAreaView style={styles.bottomButtons}>
         <View style={styles.backBtnContainer}>
           <TouchableOpacity onPress={onBack}>
-            <Text style={styles.backTextStyle}>Back</Text>
+            <Animated.Text style={[styles.backTextStyle, uiRotationStyle]}>Back</Animated.Text>
           </TouchableOpacity>
         </View>
 
