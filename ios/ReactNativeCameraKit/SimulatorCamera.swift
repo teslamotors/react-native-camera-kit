@@ -11,6 +11,12 @@ import UIKit
  */
 class SimulatorCamera: CameraProtocol {
     private var onOrientationChange: RCTDirectEventBlock?
+    private var onZoom: RCTDirectEventBlock?
+    private var videoDeviceZoomFactor: Double = 1.0
+    private var videoDeviceMaxAvailableVideoZoomFactor: Double = 150.0
+    private var wideAngleZoomFactor: Double = 2.0
+    private var zoom: Double?
+    private var maxZoom: Double?
 
     var previewView: UIView { mockPreview }
 
@@ -54,9 +60,42 @@ class SimulatorCamera: CameraProtocol {
         self.onOrientationChange = onOrientationChange
     }
     
-    func update(pinchScale: CGFloat) {
+    func update(onZoom: RCTDirectEventBlock?) {
+        self.onZoom = onZoom
+    }
+    
+    func setVideoDevice(zoomFactor: Double) {
+        self.videoDeviceZoomFactor = zoomFactor
+        self.mockPreview.zoomLabel.text = "Zoom: \(zoomFactor)"
+    }
+    
+    private var zoomStartedAt: Double = 1.0
+    func zoomPinchStart() {
         DispatchQueue.main.async {
-            self.mockPreview.zoomVelocityLabel.text = "Zoom Scale: \(pinchScale)"
+            self.zoomStartedAt = self.videoDeviceZoomFactor
+            self.mockPreview.zoomLabel.text = "Zoom start"
+        }
+    }
+    
+    func zoomPinchChange(pinchScale: CGFloat) {
+        guard !pinchScale.isNaN else { return }
+        
+        DispatchQueue.main.async {
+            let desiredZoomFactor = self.zoomStartedAt * pinchScale
+            var maxZoomFactor = self.videoDeviceMaxAvailableVideoZoomFactor
+            if let maxZoom = self.maxZoom {
+                maxZoomFactor = min(maxZoom, maxZoomFactor)
+            }
+            let zoomForDevice = max(1.0, min(desiredZoomFactor, maxZoomFactor))
+            
+            if zoomForDevice != self.videoDeviceZoomFactor {
+                // Only trigger zoom changes if it's an uncontrolled component (zoom isn't manually set)
+                // otherwise it's likely to cause issues inf. loops
+                if self.zoom == nil {
+                    self.setVideoDevice(zoomFactor: zoomForDevice)
+                }
+                self.onZoom?(["zoom": zoomForDevice])
+            }
         }
     }
 
@@ -93,6 +132,36 @@ class SimulatorCamera: CameraProtocol {
             self.mockPreview.randomize()
         }
     }
+    
+    func update(maxZoom: Double?) {
+        self.maxZoom = maxZoom
+    }
+    
+    func update(zoom: Double?) {
+        self.zoom = zoom
+        
+        DispatchQueue.main.async {
+            var zoomOrDefault = zoom ?? 0
+            // -1 will reset to zoom default (which is not 1 on modern cameras)
+            if zoomOrDefault == 0 {
+                zoomOrDefault = self.wideAngleZoomFactor
+            }
+
+            var maxZoomFactor = self.videoDeviceMaxAvailableVideoZoomFactor
+            if let maxZoom = self.maxZoom {
+                maxZoomFactor = min(maxZoom, maxZoomFactor)
+            }
+            let zoomForDevice = max(1.0, min(zoomOrDefault, maxZoomFactor))
+            self.setVideoDevice(zoomFactor: zoomForDevice)
+            
+            // If they wanted to reset, tell them what the default zoom turned out to be
+            // regardless if it's controlled
+            if self.zoom == nil || zoom == 0 {
+                self.onZoom?(["zoom": zoomForDevice])
+            }
+        }
+    }
+    
 
     func isBarcodeScannerEnabled(_ isEnabled: Bool,
                                  supportedBarcodeType: [AVMetadataObject.ObjectType],

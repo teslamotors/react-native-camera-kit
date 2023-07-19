@@ -91,6 +91,11 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
     private var lensType = CameraSelector.LENS_FACING_BACK
     private var autoFocus = "on"
     private var zoomMode = "on"
+    private var lastOnZoom = 0.0
+    private var zoom: Double? = null
+    private var maxZoom: Double? = null
+    private var zoomStartedAt = 1.0f
+    private var pinchGestureStartedAt = 0.0f
 
     // Barcode Props
     private var scanBarcode: Boolean = false
@@ -180,13 +185,30 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
             orientationListener!!.enable()
 
             val scaleDetector =  ScaleGestureDetector(context, object: ScaleGestureDetector.SimpleOnScaleGestureListener() {
-                override fun onScale(detector: ScaleGestureDetector): Boolean {
+                override fun onScaleBegin(detector: ScaleGestureDetector?): Boolean {
+                    val cameraZoom = camera?.cameraInfo?.zoomState?.value?.zoomRatio ?: return false
+                    detector ?: return false
+                    zoomStartedAt = cameraZoom
+                    pinchGestureStartedAt = detector.currentSpan
+                    return true
+                }
+                override fun onScale(detector: ScaleGestureDetector?): Boolean {
                     if (zoomMode == "off") return true
-                    val cameraControl = camera?.cameraControl ?: return true
-                    val zoom = camera?.cameraInfo?.zoomState?.value?.zoomRatio ?: return true
-                    val scaleFactor = detector.scaleFactor
-                    val scale = zoom * scaleFactor
-                    cameraControl.setZoomRatio(scale)
+                    if (detector == null) return true
+                    val videoDevice = camera ?: return true
+                    val pinchScale = detector.currentSpan / pinchGestureStartedAt
+
+                    val desiredZoomFactor = zoomStartedAt * pinchScale
+                    val zoomForDevice = getValidZoom(videoDevice, desiredZoomFactor.toDouble())
+
+                    if (zoomForDevice != (videoDevice.cameraInfo.zoomState.value?.zoomRatio ?: -1)) {
+                        // Only trigger zoom changes if it's an uncontrolled component (zoom isn't manually set)
+                        // otherwise it's likely to cause issues inf. loops
+                        if (zoom == null) {
+                            videoDevice.cameraControl.setZoomRatio(zoomForDevice.toFloat())
+                        }
+                        onZoom(zoomForDevice)
+                    }
                     return true
                 }
             })
@@ -202,6 +224,37 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
 
             bindCameraUseCases()
         }, ContextCompat.getMainExecutor(getActivity()))
+    }
+
+    private fun setZoomFor(videoDevice: Camera, zoom: Double) {
+        videoDevice.cameraControl.setZoomRatio(zoom.toFloat())
+    }
+
+    private fun resetZoom(videoDevice: Camera) {
+        var zoomForDevice = getValidZoom(videoDevice, 1.0)
+        val zoomPropValue = this.zoom
+        if (zoomPropValue != null) {
+            zoomForDevice = getValidZoom(videoDevice, zoomPropValue)
+        }
+        setZoomFor(videoDevice, zoomForDevice)
+        this.onZoom(zoomForDevice)
+    }
+
+    private fun getValidZoom(videoDevice: Camera?, zoom: Double): Double {
+        var zoomOrDefault = zoom
+        val minZoomFactor = videoDevice?.cameraInfo?.zoomState?.value?.minZoomRatio?.toDouble()
+        var maxZoomFactor: Double? = videoDevice?.cameraInfo?.zoomState?.value?.maxZoomRatio?.toDouble()
+        val maxZoom = this.maxZoom
+        if (maxZoom != null) {
+            maxZoomFactor = min(maxZoomFactor ?: maxZoom, maxZoom)
+        }
+        if (maxZoomFactor != null) {
+            zoomOrDefault = min(zoomOrDefault, maxZoomFactor)
+        }
+        if (minZoomFactor != null) {
+            zoomOrDefault = max(zoomOrDefault, minZoomFactor)
+        }
+        return zoomOrDefault
     }
 
     private fun bindCameraUseCases() {
@@ -264,7 +317,10 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
         try {
             // A variable number of use-cases can be passed here -
             // camera provides access to CameraControl & CameraInfo
-            camera = cameraProvider.bindToLifecycle(getActivity() as AppCompatActivity, cameraSelector, *useCases.toTypedArray())
+            val newCamera = cameraProvider.bindToLifecycle(getActivity() as AppCompatActivity, cameraSelector, *useCases.toTypedArray())
+            camera = newCamera
+
+            resetZoom(newCamera)
 
             // Attach the viewfinder's surface provider to preview use case
             preview?.setSurfaceProvider(viewFinder.surfaceProvider)
@@ -469,8 +525,45 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
         }
     }
 
-    fun setZoomMode(mode: String = "on") {
-        zoomMode = mode
+    fun setZoomMode(mode: String?) {
+        zoomMode = mode ?: "off"
+    }
+
+    fun setZoom(factor: Double?) {
+        zoom = factor
+        var zoomOrDefault = zoom ?: return
+        val videoDevice = camera ?: return
+
+        val zoomForDevice = this.getValidZoom(camera, zoomOrDefault)
+        this.setZoomFor(videoDevice, zoomForDevice)
+    }
+
+    private fun onZoom(desiredZoom: Double?) {
+        val cameraZoom = camera?.cameraInfo?.zoomState?.value?.zoomRatio?.toDouble() ?: return
+        val desiredOrCameraZoom = desiredZoom ?: cameraZoom
+        // ignore duplicate events when zooming to min/max
+        // but always notify if a desiredZoom wasn't given,
+        // since that means they wanted to reset setZoom(1.0)
+        // so we should tell them what zoom it really is
+        if (desiredZoom != null && desiredOrCameraZoom == lastOnZoom) {
+            return
+        }
+
+        lastOnZoom = desiredOrCameraZoom
+        val event: WritableMap = Arguments.createMap()
+        event.putDouble("zoom", desiredOrCameraZoom)
+        currentContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(
+                id,
+                "onZoom",
+                event
+        )
+    }
+
+    fun setMaxZoom(factor: Double?) {
+        maxZoom = factor
+
+        // Re-update zoom value in case the max was increased
+        setZoom(zoom)
     }
 
     fun setScanBarcode(enabled: Boolean) {

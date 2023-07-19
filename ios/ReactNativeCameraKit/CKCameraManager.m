@@ -29,10 +29,13 @@ RCT_EXPORT_VIEW_PROPERTY(laserColor, UIColor)
 RCT_EXPORT_VIEW_PROPERTY(frameColor, UIColor)
 
 RCT_EXPORT_VIEW_PROPERTY(onOrientationChange, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onZoom, RCTDirectEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(resetFocusTimeout, NSInteger)
 RCT_EXPORT_VIEW_PROPERTY(resetFocusWhenMotionDetected, BOOL)
 RCT_EXPORT_VIEW_PROPERTY(focusMode, CKFocusMode)
 RCT_EXPORT_VIEW_PROPERTY(zoomMode, CKZoomMode)
+RCT_EXPORT_VIEW_PROPERTY(zoom, NSNumber)
+RCT_EXPORT_VIEW_PROPERTY(maxZoom, NSNumber)
 
 RCT_EXTERN_METHOD(capture:(NSDictionary*)options
                   resolve:(RCTPromiseResolveBlock)resolve
