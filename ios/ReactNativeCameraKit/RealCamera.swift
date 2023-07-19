@@ -517,13 +517,13 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     
     private func getValidZoom(forDevice videoDevice: AVCaptureDevice, zoom: Double) -> Double {
         let defaultZoom = defaultZoomFactor(for: videoDevice)
-        let minZoomFactor = videoDevice.minAvailableVideoZoomFactor
-        var maxZoomFactor = videoDevice.maxAvailableVideoZoomFactor
+        let minZoomFactor = videoDevice.minAvailableVideoZoomFactor / defaultZoom
+        var maxZoomFactor = videoDevice.maxAvailableVideoZoomFactor / defaultZoom
         if let maxZoom {
             maxZoomFactor = min(maxZoom, maxZoomFactor)
         }
-        let cappedZoom = max(minZoomFactor, min(zoom * defaultZoom, maxZoomFactor))
-        return cappedZoom / defaultZoom
+        let cappedZoom = max(minZoomFactor, min(zoom, maxZoomFactor))
+        return cappedZoom
     }
     
     private func resetZoom(forDevice videoDevice: AVCaptureDevice) {

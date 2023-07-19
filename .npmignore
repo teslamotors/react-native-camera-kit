@@ -7,3 +7,5 @@ example-android/
 android/build/
 img/
 ios/lib/DerivedData/
+images/
+docs/

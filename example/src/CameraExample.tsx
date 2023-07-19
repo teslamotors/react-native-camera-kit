@@ -161,7 +161,9 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
             flashMode={flashData?.mode}
             zoomMode="on"
             focusMode="on"
+            resetFocusWhenMotionDetected
             zoom={zoom}
+            maxZoom={10}
             onZoom={(e) => {
               console.log('zoom', e.nativeEvent.zoom);
               setZoom(e.nativeEvent.zoom);
