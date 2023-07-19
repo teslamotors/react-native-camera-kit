@@ -35,18 +35,15 @@ export interface CameraProps {
   zoomMode?: ZoomMode;
   /**
    * Controls zoom. Higher values zooms in.
-   * ## iOS
-   * - "Default" zoom depends on the phone.
-   * - iPhone 14 Pro Max uses `2.0`, iPhone 6 default is `1.0`.
-   * - `1.0` is always the minimum allowed on iOS.
-   * ## Android
-   * - "Default" zoom is `1.0`.
-   * - Wide angle is below `1.0`.
-   * - Google Pixel 7 uses `0.7` for the widest angle.
+   * Default zoom is `1.0`, relative to 'wide angle' camera.
+   * Examples of minimum/widest zoom:
+   * - iPhone 6S Plus minimum is `1.0`
+   * - iPhone 14 Pro Max minimum `0.5`
+   * - Google Pixel 7 minimum is `0.7`
    * ## Example
    * ```
-   * const [zoom, setZoom] = useState(0);
-   * <Button onPress={() => setZoom(0)} title="Reset" />
+   * const [zoom, setZoom] = useState(1.0);
+   * <Button onPress={() => setZoom(1.0)} title="Reset" />
    * <Camera
    *   zoom={zoom}
    *   onZoom={(e) => {
@@ -74,9 +71,7 @@ export interface CameraProps {
   cameraType?: CameraType;
   onOrientationChange?: (event: OnOrientationChangeData) => void;
   /**
-   * Triggered when:
-   * - User pinches to zoom, or
-   * - 'zoom={0}' prop is set to 0, which resets zoom for the camera
+   * Callback triggered when user pinches to zoom and on startup.
    * Example:
    * ```
    * <Camera

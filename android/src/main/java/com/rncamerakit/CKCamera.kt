@@ -231,7 +231,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
     }
 
     private fun resetZoom(videoDevice: Camera) {
-        var zoomForDevice = getValidZoom(videoDevice)
+        var zoomForDevice = getValidZoom(videoDevice, 1.0)
         val zoomPropValue = this.zoom
         if (zoomPropValue != null) {
             zoomForDevice = getValidZoom(videoDevice, zoomPropValue)
@@ -240,8 +240,8 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
         this.onZoom(zoomForDevice)
     }
 
-    private fun getValidZoom(videoDevice: Camera?, zoom: Double = 0.0): Double {
-        var zoomOrDefault = if (zoom == 0.0) this.defaultZoomFactor(videoDevice) else zoom
+    private fun getValidZoom(videoDevice: Camera?, zoom: Double): Double {
+        var zoomOrDefault = zoom
         val minZoomFactor = videoDevice?.cameraInfo?.zoomState?.value?.minZoomRatio?.toDouble()
         var maxZoomFactor: Double? = videoDevice?.cameraInfo?.zoomState?.value?.maxZoomRatio?.toDouble()
         val maxZoom = this.maxZoom
@@ -536,19 +536,14 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
 
         val zoomForDevice = this.getValidZoom(camera, zoomOrDefault)
         this.setZoomFor(videoDevice, zoomForDevice)
-
-        // If they wanted to reset, tell them what the default zoom turned out to be
-        // regardless if it's controlled
-        if (zoom == 0.0) {
-            onZoom(null)
-        }
     }
 
     private fun onZoom(desiredZoom: Double?) {
-        val desiredOrCameraZoom = desiredZoom ?: camera?.cameraInfo?.zoomState?.value?.zoomRatio?.toDouble() ?: return
+        val cameraZoom = camera?.cameraInfo?.zoomState?.value?.zoomRatio?.toDouble() ?: return
+        val desiredOrCameraZoom = desiredZoom ?: cameraZoom
         // ignore duplicate events when zooming to min/max
         // but always notify if a desiredZoom wasn't given,
-        // since that means they wanted to reset setZoom(0.0)
+        // since that means they wanted to reset setZoom(1.0)
         // so we should tell them what zoom it really is
         if (desiredZoom != null && desiredOrCameraZoom == lastOnZoom) {
             return
@@ -562,11 +557,6 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
                 "onZoom",
                 event
         )
-    }
-
-    private fun defaultZoomFactor(videoDevice: Camera?): Double {
-        // Can be used to detect what default zoom to use in case of multiple lenses
-        return 1.0
     }
 
     fun setMaxZoom(factor: Double?) {

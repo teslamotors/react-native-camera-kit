@@ -160,12 +160,6 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
             let zoomForDevice = self.getValidZoom(forDevice: videoDevice, zoom: zoom_)
             self.setZoomFor(videoDevice, to: zoomForDevice)
-            
-            // If they wanted to reset, tell them what the camera zoom is after resetting,
-            // regardless if it's controlled
-            if zoom == 0 {
-                self.onZoom(desiredZoom: nil)
-            }
         }
     }
     
