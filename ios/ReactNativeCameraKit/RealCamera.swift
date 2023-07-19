@@ -60,7 +60,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         NotificationCenter.default.addObserver(forName: UIDevice.orientationDidChangeNotification,
                                                object: UIDevice.current,
                                                queue: nil,
-                                               using: { [weak self] notification in self?.uiOrientationChanged(notification: notification) })
+                                               using: { _ in self.setVideoOrientationToInterfaceOrientation() })
     }
 
     @available(*, unavailable)
@@ -93,13 +93,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         DispatchQueue.main.async {
             self.cameraPreview.session = self.session
             self.cameraPreview.previewLayer.videoGravity = .resizeAspect
-            var interfaceOrientation: UIInterfaceOrientation
-            if #available(iOS 13.0, *) {
-                interfaceOrientation = self.previewView.window?.windowScene?.interfaceOrientation ?? .portrait
-            } else {
-                interfaceOrientation = UIApplication.shared.statusBarOrientation
-            }
-            self.cameraPreview.previewLayer.connection?.videoOrientation = self.videoOrientation(from: interfaceOrientation)
+            self.setVideoOrientationToInterfaceOrientation()
         }
         
         self.initializeMotionManager()
@@ -627,13 +621,14 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         resetFocus?()
     }
 
-    private func uiOrientationChanged(notification: Notification) {
-        guard let device = notification.object as? UIDevice,
-              let videoOrientation = videoOrientation(from: device.orientation) else {
-            return
+    private func setVideoOrientationToInterfaceOrientation() {
+        var interfaceOrientation: UIInterfaceOrientation
+        if #available(iOS 13.0, *) {
+            interfaceOrientation = self.previewView.window?.windowScene?.interfaceOrientation ?? .portrait
+        } else {
+            interfaceOrientation = UIApplication.shared.statusBarOrientation
         }
-
-        self.cameraPreview.previewLayer.connection?.videoOrientation = videoOrientation
+        self.cameraPreview.previewLayer.connection?.videoOrientation = self.videoOrientation(from: interfaceOrientation)
     }
 
     private func sessionRuntimeError(notification: Notification) {
