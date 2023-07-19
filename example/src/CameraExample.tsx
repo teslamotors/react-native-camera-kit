@@ -34,7 +34,7 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
   const [captured, setCaptured] = useState(false);
   const [cameraType, setCameraType] = useState(CameraType.Back);
   const [showImageUri, setShowImageUri] = useState<string>('');
-  const [zoom, setZoom] = useState<number|undefined>();
+  const [zoom, setZoom] = useState<number | undefined>();
 
   // iOS will error out if capturing too fast,
   // so block capturing until the current capture is done
@@ -55,7 +55,7 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
   const onSwitchCameraPressed = () => {
     const direction = cameraType === CameraType.Back ? CameraType.Front : CameraType.Back;
     setCameraType(direction);
-    setZoom(0); // When changing camera type, reset to default zoom for that camera
+    setZoom(1); // When changing camera type, reset to default zoom for that camera
   };
 
   const onSetFlash = () => {
@@ -103,8 +103,8 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
           <Image source={require('../images/cameraFlipIcon.png')} resizeMode="contain" />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.zoom} onPress={() => setZoom(0)}>
-          <Text style={styles.zoomFactor}>{Number(zoom).toFixed(1)}x</Text>
+        <TouchableOpacity style={styles.zoom} onPress={() => setZoom(1)}>
+          <Text style={styles.zoomFactor}>{zoom ? Number(zoom).toFixed(1) : '??'}x</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.topButton} onPress={onSetTorch}>
