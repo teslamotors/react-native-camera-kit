@@ -90,20 +90,32 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
     console.log('image', image);
   };
 
+  function CaptureButton({ onPress, children }: { onPress: () => void, children?: React.ReactNode }) {
+    const w = 80, brdW = 4, spc = 6;
+    const cInner = 'white', cOuter = 'white';
+    return (
+      <TouchableOpacity onPress={onPress} style={{ width: w, height: w }}>
+        <View style={{ position: 'absolute', left: 0, top: 0, width: w, height: w, borderColor: cOuter, borderWidth: brdW, borderRadius: w / 2 }} />
+        <View style={{ position: 'absolute', left: brdW + spc, top: brdW + spc, width: w - ((brdW + spc) * 2), height: w - ((brdW + spc) * 2), backgroundColor: cInner, borderRadius: (w - ((brdW + spc) * 2)) / 2 }} />
+        {children}
+      </TouchableOpacity>
+    );
+  }
+
   return (
     <View style={styles.screen}>
       <SafeAreaView style={styles.topButtons}>
         {flashData.image && (
           <TouchableOpacity style={styles.topButton} onPress={onSetFlash}>
-            <Image source={flashData.image} resizeMode="contain" />
+            <Image source={flashData.image} resizeMode="contain" style={styles.topButtonImg} />
           </TouchableOpacity>
         )}
 
         <TouchableOpacity style={styles.topButton} onPress={onSwitchCameraPressed}>
-          <Image source={require('../images/cameraFlipIcon.png')} resizeMode="contain" />
+          <Image source={require('../images/cameraFlipIcon.png')} resizeMode="contain" style={styles.topButtonImg} />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.zoom} onPress={() => setZoom(1)}>
+        <TouchableOpacity style={styles.topButton} onPress={() => setZoom(1)}>
           <Text style={styles.zoomFactor}>{zoom ? Number(zoom).toFixed(1) : '??'}x</Text>
         </TouchableOpacity>
 
@@ -111,6 +123,7 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
           <Image
             source={torchMode ? require('../images/torchOn.png') : require('../images/torchOff.png')}
             resizeMode="contain"
+            style={styles.topButtonImg}
           />
         </TouchableOpacity>
       </SafeAreaView>
@@ -166,12 +179,11 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
         </View>
 
         <View style={styles.captureButtonContainer}>
-          <TouchableOpacity onPress={onCaptureImagePressed}>
-            <Image source={require('../images/cameraButton.png')} />
+          <CaptureButton onPress={onCaptureImagePressed}>
             <View style={styles.textNumberContainer}>
               <Text>{numberOfImagesTaken()}</Text>
             </View>
-          </TouchableOpacity>
+          </CaptureButton>
         </View>
 
         <View style={styles.thumbnailContainer}>
@@ -208,7 +220,17 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   topButton: {
-    padding: 10,
+    backgroundColor: '#222',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  topButtonImg: {
+    margin: 10,
+    width: 24,
+    height: 24,
   },
   cameraContainer: {
     justifyContent: 'center',
@@ -245,10 +267,6 @@ const styles = StyleSheet.create({
     right: 0,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  zoom: {
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   zoomFactor: {
     color: '#ffffff',
