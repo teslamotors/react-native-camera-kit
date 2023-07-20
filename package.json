@@ -19,7 +19,7 @@
     "release:beta": "yarn clean && yarn build && yarn publish --tag beta --verbose",
     "release:local": "yarn clean && yarn build && tmp=$(mktemp) && yarn pack --filename $tmp.tar.gz && open -R $tmp.tar.gz",
     "start": "watchman watch-del-all && node node_modules/react-native/local-cli/cli.js start",
-    "boostrap": "cd example/ && yarn && cd ./ios && pod install"
+    "bootstrap": "cd example/ && yarn && cd ./ios && pod install"
   },
   "main": "dist/index.js",
   "module": "dist/index.js",
