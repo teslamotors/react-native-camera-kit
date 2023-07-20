@@ -1,5 +1,4 @@
 import React from 'react';
-import _cloneDeep from 'lodash/cloneDeep';
 import { requireNativeComponent, findNodeHandle, NativeModules, processColor } from 'react-native';
 import { CameraApi } from './types';
 import { CameraProps } from './Camera';
@@ -24,7 +23,7 @@ const Camera = React.forwardRef((props: CameraProps, ref) => {
     },
   }));
 
-  const transformedProps: CameraProps = _cloneDeep(props);
+  const transformedProps: CameraProps = { ...props };
   transformedProps.ratioOverlayColor = processColor(props.ratioOverlayColor);
   transformedProps.frameColor = processColor(props.frameColor);
   transformedProps.laserColor = processColor(props.laserColor);

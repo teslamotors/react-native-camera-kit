@@ -10,7 +10,6 @@
     "reverse": "adb reverse tcp:8081 tcp:8081"
   },
   "dependencies": {
-    "lodash": "^4.17.20",
     "react": "^18.2.0",
     "react-native": "^0.71.0"
   },
