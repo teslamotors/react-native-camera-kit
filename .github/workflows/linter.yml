@@ -8,6 +8,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Install modules
-        run: yarn --ignore-scripts
+        run: yarn
+      - name: Install modules
+        run: yarn bootstrap
       - name: Lint
         run: yarn lint
