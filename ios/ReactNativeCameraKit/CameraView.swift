@@ -283,13 +283,12 @@ class CameraView: UIView {
                                onError: @escaping (_ error: String) -> ()) {
         do {
             let temporaryImageFileURL = try saveToTmpFolder(imageData)
-//            var temporaryThumbnailFileURL = try saveToTmpFolder(thumbnailData)
-
+            
             onSuccess([
                 "size": imageData.count,
-                "uri": temporaryImageFileURL?.description,
-                "name": temporaryImageFileURL?.lastPathComponent,
-                //"thumb": temporaryThumbnailFileURL?.description ?? ""
+                "uri": temporaryImageFileURL.description,
+                "name": temporaryImageFileURL.lastPathComponent,
+                "thumb": ""
             ])
         } catch {
             let errorMessage = "Error occurred while writing image data to a temporary file: \(error)"
@@ -298,9 +297,7 @@ class CameraView: UIView {
         }
     }
 
-    private func saveToTmpFolder(_ data: Data?) throws -> URL? {
-        guard let data else { return nil }
-
+    private func saveToTmpFolder(_ data: Data) throws -> URL {
         let temporaryFileName = ProcessInfo.processInfo.globallyUniqueString
         // Store temporary photos in the 'caches' directory to support expo-file-system
         let cachesUrl = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
