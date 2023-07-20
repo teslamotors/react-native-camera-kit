@@ -283,13 +283,13 @@ class CameraView: UIView {
                                onError: @escaping (_ error: String) -> ()) {
         do {
             let temporaryImageFileURL = try saveToTmpFolder(imageData)
-            var temporaryThumbnailFileURL = try saveToTmpFolder(thumbnailData)
+//            var temporaryThumbnailFileURL = try saveToTmpFolder(thumbnailData)
 
             onSuccess([
                 "size": imageData.count,
                 "uri": temporaryImageFileURL?.description,
                 "name": temporaryImageFileURL?.lastPathComponent,
-                "thumb": temporaryThumbnailFileURL?.description ?? ""
+                //"thumb": temporaryThumbnailFileURL?.description ?? ""
             ])
         } catch {
             let errorMessage = "Error occurred while writing image data to a temporary file: \(error)"
@@ -302,8 +302,15 @@ class CameraView: UIView {
         guard let data else { return nil }
 
         let temporaryFileName = ProcessInfo.processInfo.globallyUniqueString
-        let temporaryFilePath = (NSTemporaryDirectory() as NSString).appendingPathComponent(temporaryFileName).appending(".jpg")
-        let temporaryFileURL = URL(fileURLWithPath: temporaryFilePath)
+        // Store temporary photos in the 'caches' directory to support expo-file-system
+        let cachesUrl = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+        var temporaryFolderURL = cachesUrl
+        if let bundleId = Bundle.main.bundleIdentifier {
+            temporaryFolderURL = temporaryFolderURL.appendingPathComponent(bundleId, isDirectory: true)
+        }
+        temporaryFolderURL = temporaryFolderURL.appendingPathComponent("com.tesla.react-native-camera-kit", isDirectory: true)
+        try FileManager.default.createDirectory(at: temporaryFolderURL, withIntermediateDirectories: true)
+        let temporaryFileURL = temporaryFolderURL.appendingPathComponent("\(temporaryFileName).jpg")
 
         try data.write(to: temporaryFileURL, options: .atomic)
 
