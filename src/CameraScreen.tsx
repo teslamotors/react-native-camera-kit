@@ -288,7 +288,7 @@ export default class CameraScreen extends Component<CameraScreenProps, State> {
     }
   }
 
-  renderBottomButton(type: 'left') {
+  renderBottomButton(type: 'left' | 'right') {
     const showButton = true;
     if (showButton) {
       const buttonNameSuffix = this.isCaptureRetakeMode() ? 'CaptureRetakeButtonText' : 'ButtonText';
@@ -312,6 +312,7 @@ export default class CameraScreen extends Component<CameraScreenProps, State> {
         <SafeAreaView style={[styles.bottomButtons, { backgroundColor: '#ffffff00' }]}>
           {this.renderBottomButton('left')}
           {this.renderCaptureButton()}
+          {this.renderBottomButton('right')}
         </SafeAreaView>
       )
     );
