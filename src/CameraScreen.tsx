@@ -312,7 +312,6 @@ export default class CameraScreen extends Component<CameraScreenProps, State> {
         <SafeAreaView style={[styles.bottomButtons, { backgroundColor: '#ffffff00' }]}>
           {this.renderBottomButton('left')}
           {this.renderCaptureButton()}
-          {this.renderBottomButton('right')}
         </SafeAreaView>
       )
     );
