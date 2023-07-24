@@ -93,7 +93,8 @@ class CameraView: UIView {
 
         scannerInterfaceView = ScannerInterfaceView(frameColor: .white, laserColor: .red)
         focusInterfaceView = FocusInterfaceView()
-
+        focusInterfaceView.update(focusMode: focusMode)
+        
         super.init(frame: frame)
 
         addSubview(camera.previewView)
