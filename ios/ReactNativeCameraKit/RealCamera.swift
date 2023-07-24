@@ -626,7 +626,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     private func setVideoOrientationToInterfaceOrientation() {
         var interfaceOrientation: UIInterfaceOrientation
         if #available(iOS 13.0, *) {
-            interfaceOrientation = UIApplication.shared.keyWindow!.windowScene!.interfaceOrientation
+            interfaceOrientation = UIApplication.shared.keyWindow?.windowScene?.interfaceOrientation ?? .portrait
         } else {
             interfaceOrientation = UIApplication.shared.statusBarOrientation
         }
