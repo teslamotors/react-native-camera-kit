@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Image, SafeAreaView, Animated } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Image, SafeAreaView, Animated, StatusBar } from 'react-native';
 import Camera from '../../src/Camera';
 import { CameraApi, CameraType, CaptureData } from '../../src/types';
 import { Orientation } from '../../src';
@@ -124,6 +124,7 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
 
   return (
     <View style={styles.screen}>
+      <StatusBar hidden />
       <SafeAreaView style={styles.topButtons}>
         {flashData.image && (
           <TouchableOpacity style={styles.topButton} onPress={onSetFlash}>

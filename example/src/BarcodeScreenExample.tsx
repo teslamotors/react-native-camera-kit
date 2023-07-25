@@ -5,14 +5,13 @@ import {
   View,
   TouchableOpacity,
   Image,
-  Dimensions,
-  Platform,
   SafeAreaView,
+  StatusBar,
   useWindowDimensions,
   Vibration,
 } from 'react-native';
 import Camera from '../../src/Camera';
-import { CameraApi, CameraType, CaptureData } from '../../src/types';
+import { CameraApi, CameraType } from '../../src/types';
 import { Orientation } from '../../src';
 
 const flashImages = {
@@ -91,6 +90,7 @@ const BarcodeExample = ({ onBack }: { onBack: () => void }) => {
 
   return (
     <View style={styles.screen}>
+      <StatusBar hidden />
       <SafeAreaView style={styles.topButtons}>
         {flashData.image && (
           <TouchableOpacity style={styles.topButton} onPress={onSetFlash}>
