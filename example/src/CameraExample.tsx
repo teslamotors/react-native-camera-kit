@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Image, SafeAreaView, Animated } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Image, SafeAreaView, Animated, StatusBar } from 'react-native';
 import Camera from '../../src/Camera';
 import { CameraApi, CameraType, CaptureData } from '../../src/types';
 import { Orientation } from '../../src';
@@ -33,7 +33,7 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
   const [torchMode, setTorchMode] = useState(false);
   const [captured, setCaptured] = useState(false);
   const [cameraType, setCameraType] = useState(CameraType.Back);
-  const [showImageUri, setShowImageUri] = useState<string>('');
+  const [showImage, setShowImage] = useState<string|undefined>();
   const [zoom, setZoom] = useState<number | undefined>();
   const [orientationAnim] = useState(new Animated.Value(3));
 
@@ -70,8 +70,8 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
   };
 
   const onCaptureImagePressed = async () => {
-    if (showImageUri) {
-      setShowImageUri('');
+    if (showImage) {
+      setShowImage(undefined);
       return;
     }
     if (!cameraRef.current || isCapturing.current) return;
@@ -151,8 +151,8 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
       </SafeAreaView>
 
       <View style={styles.cameraContainer}>
-        {showImageUri ? (
-          <Image source={{ uri: showImageUri }} style={styles.cameraPreview} resizeMode="contain" />
+        {showImage ? (
+          <Image source={{ uri: showImage }} style={styles.cameraPreview} resizeMode="contain" />
         ) : (
           <Camera
             ref={cameraRef}
@@ -162,6 +162,7 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
             resetFocusWhenMotionDetected
             zoom={zoom}
             maxZoom={10}
+            captureThumbnail={{ width: 300, height: 300 }}
             onZoom={(e) => {
               console.log('zoom', e.nativeEvent.zoom);
               setZoom(e.nativeEvent.zoom);
@@ -205,7 +206,15 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
         </View>
 
         <View style={styles.captureButtonContainer}>
-          <CaptureButton onPress={onCaptureImagePressed}>
+          <CaptureButton onPress={async () => {
+            const measurements: number[] = [];
+            for (let i = 0; i < 1; i++) {
+              const start = Date.now();
+              await onCaptureImagePressed();
+              measurements.push(Date.now() - start);
+            }
+            console.log('avg', measurements.reduce((prev, cur) => prev + cur, 0) / measurements.length);
+          }}>
             <View style={styles.textNumberContainer}>
               <Text>{numberOfImagesTaken()}</Text>
             </View>
@@ -216,14 +225,15 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
           {captureImages.length > 0 && (
             <TouchableOpacity
               onPress={() => {
-                if (showImageUri) {
-                  setShowImageUri('');
+                if (showImage) {
+                  setShowImage(undefined);
                 } else {
-                  setShowImageUri(captureImages[captureImages.length - 1].uri);
+                  const img = captureImages[captureImages.length - 1]
+                  setShowImage(img.uri);
                 }
               }}
             >
-              <Image source={{ uri: captureImages[captureImages.length - 1].uri }} style={styles.thumbnail} />
+              <Image source={{ uri: captureImages[captureImages.length - 1].thumb ?? captureImages[captureImages.length - 1].uri }} style={styles.thumbnail} />
             </TouchableOpacity>
           )}
         </View>

@@ -18,6 +18,7 @@ protocol CameraProtocol: AnyObject, FocusInterfaceViewDelegate {
     func update(onZoom: RCTDirectEventBlock?)
     func update(zoom: Double?)
     func update(maxZoom: Double?)
+    func update(captureThumbnail: Dictionary<String, Any>?)
 
     func zoomPinchStart()
     func zoomPinchChange(pinchScale: CGFloat)

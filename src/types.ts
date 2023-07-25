@@ -12,14 +12,17 @@ export type FocusMode = 'on' | 'off';
 export type ZoomMode = 'on' | 'off';
 
 export type CaptureData = {
+  /** URI of photo stored in a temporary directory. */
   uri: string;
+  /** **iOS only**. Experimental! URL of the thumbnail, if one was generated. */
+  thumb?: string;
   name: string;
-  // Android only
+  /** **Android only** */
   id?: string;
   path?: string;
-  height?: number;
   width?: number;
-  // iOS only
+  height?: number;
+  /** **iOS only**. Size of the main photo file, in bytes. */
   size?: number;
 };
 

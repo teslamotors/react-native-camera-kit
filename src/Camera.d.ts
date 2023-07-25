@@ -95,6 +95,14 @@ export interface CameraProps {
   resetFocusWhenMotionDetected?: boolean;
   /** **iOS Only**. Throttle how often the barcode scanner triggers a new scan */
   scanThrottleDelay?: number;
+  /** **iOS Only**. Experimental!
+   * If a size is defined, save a thumbnail when capturing. Default: `undefined`.
+   * Assume that it takes at least 20ms extra on an iPhone 14 Pro Max for a tiny thumbnail (64x64),
+   * but it will take longer for larger thumbnails.
+   * While we recommend using an external library for doing this,
+   * leveraging the capture pipeline may save processing time on the whole.
+   **/
+  captureThumbnail?: { width: number, height: number };
 }
 
 declare const Camera: React.FC<CameraProps>;

@@ -36,6 +36,7 @@ RCT_EXPORT_VIEW_PROPERTY(focusMode, CKFocusMode)
 RCT_EXPORT_VIEW_PROPERTY(zoomMode, CKZoomMode)
 RCT_EXPORT_VIEW_PROPERTY(zoom, NSNumber)
 RCT_EXPORT_VIEW_PROPERTY(maxZoom, NSNumber)
+RCT_EXPORT_VIEW_PROPERTY(captureThumbnail, NSDictionary)
 
 RCT_EXTERN_METHOD(capture:(NSDictionary*)options
                   resolve:(RCTPromiseResolveBlock)resolve

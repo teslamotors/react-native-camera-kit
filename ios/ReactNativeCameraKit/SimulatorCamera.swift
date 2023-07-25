@@ -17,6 +17,7 @@ class SimulatorCamera: CameraProtocol {
     private var wideAngleZoomFactor: Double = 2.0
     private var zoom: Double?
     private var maxZoom: Double?
+    private var captureThumbnail: Dictionary<String, Any>?
 
     var previewView: UIView { mockPreview }
 
@@ -128,13 +129,15 @@ class SimulatorCamera: CameraProtocol {
     func update(cameraType: CameraType) {
         DispatchQueue.main.async {
             self.mockPreview.cameraTypeLabel.text = "Camera type: \(cameraType)"
-
             self.mockPreview.randomize()
         }
     }
     
     func update(maxZoom: Double?) {
         self.maxZoom = maxZoom
+        DispatchQueue.main.async {
+            self.mockPreview.maxZoomLabel.text = "maxZoom: \(maxZoom)"
+        }
     }
     
     func update(zoom: Double?) {
@@ -159,6 +162,14 @@ class SimulatorCamera: CameraProtocol {
             if self.zoom == nil || zoom == 0 {
                 self.onZoom?(["zoom": zoomForDevice])
             }
+        }
+    }
+    
+    func update(captureThumbnail: Dictionary<String, Any>?) {
+        self.captureThumbnail = captureThumbnail
+        DispatchQueue.main.async {
+            let json = String(data: try! JSONSerialization.data(withJSONObject: captureThumbnail ?? [:]), encoding: .ascii)
+            self.mockPreview.captureThumbnailLabel.text = "captureThumbnail: \(json ?? ""))"
         }
     }
     

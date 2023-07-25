@@ -54,6 +54,7 @@ class CameraView: UIView {
     @objc var zoomMode: ZoomMode = .on
     @objc var zoom: NSNumber?
     @objc var maxZoom: NSNumber?
+    @objc var captureThumbnail: NSDictionary?
 
     // MARK: - Setup
 
@@ -227,12 +228,16 @@ class CameraView: UIView {
         if changedProps.contains("maxZoom") {
             camera.update(maxZoom: maxZoom?.doubleValue)
         }
+        
+        if changedProps.contains("captureThumbnail") {
+            camera.update(captureThumbnail: captureThumbnail as? Dictionary<String, Any>)
+        }
     }
 
     // MARK: Public
 
     func capture(_ options: [String: Any],
-                 onSuccess: @escaping (_ imageObject: [String: Any]) -> (),
+                 onSuccess: @escaping (_ imageObject: [String: Any?]) -> (),
                  onError: @escaping (_ error: String) -> ()) {
         camera.capturePicture(onWillCapture: { [weak self] in
             // Flash/dim preview to indicate shutter action
@@ -289,16 +294,20 @@ class CameraView: UIView {
 
     private func writeCaptured(imageData: Data,
                                thumbnailData: Data?,
-                               onSuccess: @escaping (_ imageObject: [String: Any]) -> (),
+                               onSuccess: @escaping (_ imageObject: [String: Any?]) -> (),
                                onError: @escaping (_ error: String) -> ()) {
         do {
-            let temporaryImageFileURL = try saveToTmpFolder(imageData)
+            let temporaryUri = try saveToTmpFolder(imageData)
+            var temporaryThumbUri: String?
+            if let thumbnailData {
+                temporaryThumbUri = try saveToTmpFolder(thumbnailData).description
+            }
             
             onSuccess([
                 "size": imageData.count,
-                "uri": temporaryImageFileURL.description,
-                "name": temporaryImageFileURL.lastPathComponent,
-                "thumb": ""
+                "uri": temporaryUri.description,
+                "name": temporaryUri.lastPathComponent,
+                "thumb": temporaryThumbUri
             ])
         } catch {
             let errorMessage = "Error occurred while writing image data to a temporary file: \(error)"

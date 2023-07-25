@@ -38,6 +38,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     private var lastOnZoom: Double?
     private var zoom: Double?
     private var maxZoom: Double?
+    private var captureThumbnail: Dictionary<String, Any>?
     
     private var deviceOrientation = UIDeviceOrientation.unknown
     private var motionManager: CMMotionManager?
@@ -190,6 +191,10 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     func update(onZoom: RCTDirectEventBlock?) {
         self.onZoomCallback = onZoom
     }
+    
+    func update(captureThumbnail: Dictionary<String, Any>?) {
+        self.captureThumbnail = captureThumbnail
+    }
 
     func focus(at touchPoint: CGPoint, focusBehavior: FocusBehavior) {
         DispatchQueue.main.async {
@@ -309,6 +314,19 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
                 let settings = AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecType.jpeg])
                 settings.isAutoStillImageStabilizationEnabled = true
+                
+                if let captureThumbnail = self.captureThumbnail {
+                    if !settings.availablePreviewPhotoPixelFormatTypes.isEmpty {
+                        if let width = captureThumbnail["width"] as? Double,
+                            let height = captureThumbnail["height"] as? Double {
+                            settings.previewPhotoFormat = [
+                                kCVPixelBufferPixelFormatTypeKey as String: settings.__availablePreviewPhotoPixelFormatTypes.first!,
+                                kCVPixelBufferWidthKey as String: width,
+                                kCVPixelBufferHeightKey as String: height,
+                            ]
+                        }
+                    }
+                }
 
                 if self.videoDeviceInput?.device.isFlashAvailable == true {
                     settings.flashMode = self.flashMode.avFlashMode

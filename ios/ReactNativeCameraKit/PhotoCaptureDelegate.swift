@@ -45,9 +45,31 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
 
         var thumbnailData: Data? = nil
         if let previewPixelBuffer = photo.previewPixelBuffer {
-            let ciImage = CIImage(cvPixelBuffer: previewPixelBuffer)
-            let uiImage = UIImage(ciImage: ciImage)
-            thumbnailData = uiImage.jpegData(compressionQuality: 0.7)
+            // The preview buffer orientation is usually wrong,
+            // so grab the correct one from the main image
+            var previewPhotoOrientation: CGImagePropertyOrientation?
+            if let orientationNum = photo.metadata[kCGImagePropertyOrientation as String] as? NSNumber {
+                previewPhotoOrientation = CGImagePropertyOrientation(rawValue: orientationNum.uint32Value)
+            }
+            
+            var uiiOrientation: UIImage.Orientation = .up
+            switch previewPhotoOrientation {
+            case .none: fallthrough
+            case .some(.up): uiiOrientation = .up
+            case .some(.upMirrored): uiiOrientation = .upMirrored
+            case .some(.right): uiiOrientation = .right
+            case .some(.rightMirrored): uiiOrientation = .rightMirrored
+            case .some(.down): uiiOrientation = .down
+            case .some(.downMirrored): uiiOrientation = .downMirrored
+            case .some(.left): uiiOrientation = .left
+            case .some(.leftMirrored): uiiOrientation = .leftMirrored
+            }
+
+            let previewCiImage = CIImage(cvPixelBuffer: previewPixelBuffer)
+            let uiImage = UIImage(ciImage: previewCiImage, scale: 1.0, orientation: uiiOrientation)
+            // iOS compressionQuality seems to behave differently from many other apps
+            // 0.1 seems to be >50% (little quality loss)
+            thumbnailData = uiImage.jpegData(compressionQuality: 0.1)
         }
 
         onCaptureSuccess(requestedPhotoSettings.uniqueID, imageData, thumbnailData)
