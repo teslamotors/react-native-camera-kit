@@ -96,6 +96,12 @@ class CameraView: UIView {
 
         super.init(frame: frame)
 
+        // Transfer the default values, otherwise the default wont take effect since it's a separate class
+        focusInterfaceView.update(focusMode: focusMode)
+        focusInterfaceView.update(resetFocusTimeout: resetFocusTimeout)
+        focusInterfaceView.update(resetFocusWhenMotionDetected: resetFocusWhenMotionDetected)
+        update(zoomMode: zoomMode)
+
         addSubview(camera.previewView)
 
         addSubview(scannerInterfaceView)
@@ -211,18 +217,7 @@ class CameraView: UIView {
         }
 
         if changedProps.contains("zoomMode") {
-            if zoomMode == .on {
-                if (zoomGestureRecognizer == nil) {
-                    let pinchGesture = UIPinchGestureRecognizer(target: self, action: #selector(handlePinchToZoomRecognizer(_:)))
-                    addGestureRecognizer(pinchGesture)
-                    zoomGestureRecognizer = pinchGesture
-                }
-            } else {
-                if let zoomGestureRecognizer {
-                    removeGestureRecognizer(zoomGestureRecognizer)
-                    self.zoomGestureRecognizer = nil
-                }
-            }
+            self.update(zoomMode: zoomMode)
         }
         
         if changedProps.contains("zoom") {
@@ -258,6 +253,21 @@ class CameraView: UIView {
     
     // MARK: - Private Helper
 
+    private func update(zoomMode: ZoomMode) {
+        if zoomMode == .on {
+            if (zoomGestureRecognizer == nil) {
+                let pinchGesture = UIPinchGestureRecognizer(target: self, action: #selector(handlePinchToZoomRecognizer(_:)))
+                addGestureRecognizer(pinchGesture)
+                zoomGestureRecognizer = pinchGesture
+            }
+        } else {
+            if let zoomGestureRecognizer {
+                removeGestureRecognizer(zoomGestureRecognizer)
+                self.zoomGestureRecognizer = nil
+            }
+        }
+    }
+    
     private func handleCameraPermission() {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .authorized:

@@ -159,8 +159,6 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
             style={styles.cameraPreview}
             cameraType={cameraType}
             flashMode={flashData?.mode}
-            zoomMode="on"
-            focusMode="on"
             resetFocusWhenMotionDetected
             zoom={zoom}
             maxZoom={10}
