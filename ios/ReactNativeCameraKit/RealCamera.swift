@@ -93,7 +93,6 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         DispatchQueue.main.async {
             self.cameraPreview.session = self.session
             self.cameraPreview.previewLayer.videoGravity = .resizeAspect
-            self.setVideoOrientationToInterfaceOrientation()
         }
         
         self.initializeMotionManager()
@@ -114,6 +113,10 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
                 // We need to reapply the configuration after starting the camera
                 self.update(torchMode: self.torchMode)
             }
+            
+           DispatchQueue.main.async {
+               self.setVideoOrientationToInterfaceOrientation()
+           }
         }
     }
     
@@ -541,7 +544,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         motionManager = CMMotionManager()
         motionManager?.accelerometerUpdateInterval = 0.2
         motionManager?.gyroUpdateInterval = 0.2
-        motionManager?.startAccelerometerUpdates(to: OperationQueue(), withHandler: { [weak self] (accelerometerData, error) -> Void in
+        motionManager?.startAccelerometerUpdates(to: OperationQueue(), withHandler: { (accelerometerData, error) -> Void in
             guard error == nil else {
                 print("\(error!)")
                 return
@@ -551,13 +554,13 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
                 return
             }
 
-            guard let newOrientation = self?.deviceOrientation(from: accelerometerData.acceleration),
-                  newOrientation != self?.deviceOrientation else {
+            guard let newOrientation = self.deviceOrientation(from: accelerometerData.acceleration),
+                  newOrientation != self.deviceOrientation else {
                 return
             }
 
-            self?.deviceOrientation = newOrientation
-            self?.onOrientationChange?(["orientation": Orientation.init(from: newOrientation)!.rawValue])
+            self.deviceOrientation = newOrientation
+            self.onOrientationChange?(["orientation": Orientation.init(from: newOrientation)!.rawValue])
         })
     }
 
