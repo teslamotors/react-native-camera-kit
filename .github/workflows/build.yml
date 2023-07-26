@@ -21,10 +21,6 @@ jobs:
     name: build-example-android
     runs-on: ubuntu-latest
     steps:
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '2.7.4'
       - name: Checkout
         uses: actions/checkout@v3
       - name: Validate Gradle Wrapper

@@ -6,10 +6,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Install modules
         run: yarn
       - name: Install example
-        run: yarn bootstrap
+        run: yarn bootstrap-linux
       - name: Lint
         run: yarn lint
