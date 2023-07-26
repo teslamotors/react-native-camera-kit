@@ -5,8 +5,12 @@ jobs:
     name: build-example-ios
     runs-on: macos-latest
     steps:
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '2.7.4'
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Install modules
         run: yarn
       - name: Install example
@@ -17,8 +21,12 @@ jobs:
     name: build-example-android
     runs-on: ubuntu-latest
     steps:
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '2.7.4'
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Validate Gradle Wrapper
         uses: gradle/wrapper-validation-action@v1
       - name: Install modules
