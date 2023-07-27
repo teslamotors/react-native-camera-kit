@@ -1,9 +1,12 @@
 name: Linter
-on: [push, pull_request]
+on:
+  pull_request:
+    types: [opened, reopened]
+  push:
 jobs:
   eslint:
     name: ESLint
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest # using linux runner for speed
     steps:
       - name: Checkout
         uses: actions/checkout@v3
