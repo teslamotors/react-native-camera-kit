@@ -17,7 +17,7 @@ jobs:
       - name: Install modules
         run: yarn
       - name: Install example
-        run: yarn bootstrap-macos
+        run: yarn bootstrap
       - name: Build
         run: cd example/ios && xcodebuild -workspace CameraKitExample.xcworkspace -configuration Debug -scheme CameraKitExample -sdk iphoneos build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
   build-example-android:
