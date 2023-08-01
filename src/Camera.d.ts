@@ -82,6 +82,8 @@ export interface CameraProps {
    * ```
    */
   onZoom?: (event: OnZoom) => void;
+  /** **Android only**. Triggered when camera fails to initialize */
+  onError?: (event: { nativeEvent: { errorMessage: number } }) => void;
   // Barcode only
   scanBarcode?: boolean;
   showFrame?: boolean;

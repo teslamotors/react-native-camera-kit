@@ -326,6 +326,14 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
             preview?.setSurfaceProvider(viewFinder.surfaceProvider)
         } catch (exc: Exception) {
             Log.e(TAG, "Use case binding failed", exc)
+
+            val event: WritableMap = Arguments.createMap()
+            event.putString("errorMessage", exc.message)
+            currentContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(
+                    id,
+                    "onError",
+                    event
+            )
         }
     }
 
