@@ -489,13 +489,14 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     }
 
     private func defaultZoomFactor(for videoDevice: AVCaptureDevice) -> CGFloat {
-        // Devices that have multiple physical cameras are binded behind one virtual camera input. The zoom factor defines what physical camera it actually uses
-        // Find the 'normal' zoom factor, which on the physical camera defaults to the wide angle
+        // Devices that have multiple physical cameras are hidden behind one virtual camera input. The zoom factor defines what physical camera it actually uses
+        // Find the 'normal' zoom factor, which on the native camera app defaults to the wide angle
         if #available(iOS 13.0, *) {
-            if let indexOfWideAngle = videoDevice.constituentDevices.firstIndex(where: { $0.deviceType == .builtInWideAngleCamera }) {
+            if let wideAngleIndex = videoDevice.constituentDevices.firstIndex(where: { $0.deviceType == .builtInWideAngleCamera }) {
                 // .virtualDeviceSwitchOverVideoZoomFactors has the .constituentDevices zoom factor which borders the NEXT device
                 // so we grab the one PRIOR to the wide angle to get the wide angle's zoom factor
-                return videoDevice.virtualDeviceSwitchOverVideoZoomFactors[indexOfWideAngle - 1].doubleValue
+                let wideAnglePriorIndex = wideAngleIndex >= 1 ? wideAngleIndex - 1 : 0
+                return videoDevice.virtualDeviceSwitchOverVideoZoomFactors[wideAnglePriorIndex].doubleValue
             }
         }
 
