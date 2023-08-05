@@ -489,18 +489,20 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     }
 
     private func defaultZoomFactor(for videoDevice: AVCaptureDevice) -> CGFloat {
-        // Devices that have multiple physical cameras are hidden behind one virtual camera input. The zoom factor defines what physical camera it actually uses
-        // Find the 'normal' zoom factor, which on the native camera app defaults to the wide angle
-        if #available(iOS 13.0, *) {
-            if let wideAngleIndex = videoDevice.constituentDevices.firstIndex(where: { $0.deviceType == .builtInWideAngleCamera }) {
-                // .virtualDeviceSwitchOverVideoZoomFactors has the .constituentDevices zoom factor which borders the NEXT device
-                // so we grab the one PRIOR to the wide angle to get the wide angle's zoom factor
-                let wideAnglePriorIndex = wideAngleIndex >= 1 ? wideAngleIndex - 1 : 0
-                return videoDevice.virtualDeviceSwitchOverVideoZoomFactors[wideAnglePriorIndex].doubleValue
-            }
+        let fallback = 1.0
+        guard #available(iOS 13.0, *) else { return fallback }
+        
+        // Devices that have multiple physical cameras are hidden behind one virtual camera input
+        // The zoom factor defines what physical camera it actually uses
+        // The default lens on the native camera app is the wide angle
+        if var wideAngleIndex = videoDevice.constituentDevices.firstIndex(where: { $0.deviceType == .builtInWideAngleCamera }) {
+            // .virtualDeviceSwitchOverVideoZoomFactors has the .constituentDevices zoom factor which borders the NEXT device
+            // so we grab the one PRIOR to the wide angle to get the wide angle's zoom factor
+            guard wideAngleIndex >= 1 else { return fallback }
+            return videoDevice.virtualDeviceSwitchOverVideoZoomFactors[wideAngleIndex - 1].doubleValue
         }
 
-        return videoDevice.minAvailableVideoZoomFactor
+        return fallback
     }
     
     private func setZoomFor(_ videoDevice: AVCaptureDevice, to zoom: Double) {
