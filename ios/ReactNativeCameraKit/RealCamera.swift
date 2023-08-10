@@ -429,14 +429,17 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     private func getBestDevice(for cameraType: CameraType) -> AVCaptureDevice? {
         if #available(iOS 13.0, *) {
             if let device = AVCaptureDevice.default(.builtInTripleCamera, for: .video, position: cameraType.avPosition) {
-                return device
+                return device // multi-lens/logical device, ultra-wide & wide & tele
+            }
+            if let device = AVCaptureDevice.default(.builtInDualWideCamera, for: .video, position: cameraType.avPosition) {
+                return device // multi-lens/logical device, ultra-wide & wide
             }
         }
         if let device = AVCaptureDevice.default(.builtInDualCamera, for: .video, position: cameraType.avPosition) {
-            return device
+            return device // multi-lens/logical device, wide & tele (no ultra-wide)
         }
         if let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: cameraType.avPosition) {
-            return device
+            return device // single-lens/physical device
         }
         return nil
     }
