@@ -199,6 +199,13 @@ const isUserAuthorizedCamera = await Camera.requestDeviceCameraAuthorization();
 
 otherwise, returns `false`
 
+## Using with Expo
+
+If you are using Expo Managed Workflow, you can use this library with a third-party plugin `expo-react-native-camera-kit`.
+
+[See more here](https://github.com/avantstay/expo-react-native-camera-kit)
+
+
 ## Contributing
 
 - Pull Requests are welcome, if you open a pull request we will do our best to get to it in a timely manner
