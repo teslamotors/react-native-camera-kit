@@ -185,14 +185,14 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
             orientationListener!!.enable()
 
             val scaleDetector =  ScaleGestureDetector(context, object: ScaleGestureDetector.SimpleOnScaleGestureListener() {
-                override fun onScaleBegin(detector: ScaleGestureDetector?): Boolean {
+                override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
                     val cameraZoom = camera?.cameraInfo?.zoomState?.value?.zoomRatio ?: return false
                     detector ?: return false
                     zoomStartedAt = cameraZoom
                     pinchGestureStartedAt = detector.currentSpan
                     return true
                 }
-                override fun onScale(detector: ScaleGestureDetector?): Boolean {
+                override fun onScale(detector: ScaleGestureDetector): Boolean {
                     if (zoomMode == "off") return true
                     if (detector == null) return true
                     val videoDevice = camera ?: return true
