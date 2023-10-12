@@ -168,6 +168,7 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
               setZoom(e.nativeEvent.zoom);
             }}
             torchMode={torchMode ? 'on' : 'off'}
+            shutterPhotoSound
             onOrientationChange={(e) => {
               // We recommend locking the camera UI to portrait (using a different library)
               // and rotating the UI elements counter to the orientation

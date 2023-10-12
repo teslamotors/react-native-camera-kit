@@ -115,4 +115,9 @@ class CKCameraManager : SimpleViewManager<CKCamera>() {
     fun setShutterAnimationDuration(view: CKCamera, duration: Int) {
         view.setShutterAnimationDuration(duration)
     }
+
+    @ReactProp(name = "shutterPhotoSound")
+    fun setShutterPhotoSound(view: CKCamera, enabled: Boolean) {
+        view.setShutterPhotoSound(enabled);
+    }
 }

@@ -85,6 +85,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
     private var cameraProvider: ProcessCameraProvider? = null
     private var outputPath: String? = null
     private var shutterAnimationDuration: Int = 50
+    private var shutterPhotoSound: Boolean = true
     private var effectLayer = View(context)
 
     // Camera Props
@@ -375,6 +376,10 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
         shutterAnimationDuration = duration
     }
 
+    fun setShutterPhotoSound(enabled: Boolean) {
+        shutterPhotoSound = enabled;
+    }
+
     fun capture(options: Map<String, Any>, promise: Promise) {
         // Create the output file option to store the captured image in MediaStore
         val outputPath: String = when {
@@ -393,9 +398,11 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
 
         flashViewFinder()
 
-        val audio = getActivity().getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        if (audio.ringerMode == AudioManager.RINGER_MODE_NORMAL) {
-            MediaActionSound().play(MediaActionSound.SHUTTER_CLICK)
+        if (shutterPhotoSound) {
+            val audio = getActivity().getSystemService(Context.AUDIO_SERVICE) as AudioManager
+            if (audio.ringerMode == AudioManager.RINGER_MODE_NORMAL) {
+                MediaActionSound().play(MediaActionSound.SHUTTER_CLICK)
+            }
         }
 
         // Setup image capture listener which is triggered after photo has been taken
