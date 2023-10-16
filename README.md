@@ -46,7 +46,7 @@ Android:
 
 ## Permissions
 
-You must use a separate library for prompt the user for permissions before rendering the `Camera` component.  
+You must use a separate library for prompting the user for permissions before rendering the `<Camera .../>` component.  
 We recommend zoontek's library, react-native-permissions:
 https://github.com/zoontek/react-native-permissions#ios-flow
 
