@@ -46,6 +46,68 @@ Android:
 
 ## Permissions
 
+You must use a separate library for prompt the user for permissions before rendering the `Camera` component.  
+We recommend Zootek's library, react-native-permissions:
+https://github.com/zoontek/react-native-permissions#ios-flow
+
+**If you fail to prompt for permission, the camera will appear blank / black.**
+
+### Why no permissions API?
+
+Conceptually, permissions are simple: Granted / Denied. However, in reality it isn't.
+Both Android and iOS keep changing how permissions work and what permissions are needed for an action.  
+As an example, [here's the iOS diagram that react-native-permissions provides in their README](https://github.com/zoontek/react-native-permissions#ios-flow), which illustrates the complexity we don't want to duplicate:
+```
+   ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+   ┃ check(PERMISSIONS.IOS.CAMERA) ┃
+   ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+                   │
+       Is the feature available
+           on this device ?
+                   │           ╔════╗
+                   ├───────────║ NO ║──────────────┐
+                   │           ╚════╝              │
+                ╔═════╗                            ▼
+                ║ YES ║                 ┌─────────────────────┐
+                ╚═════╝                 │ RESULTS.UNAVAILABLE │
+                   │                    └─────────────────────┘
+           Is the permission
+             requestable ?
+                   │           ╔════╗
+                   ├───────────║ NO ║──────────────┐
+                   │           ╚════╝              │
+                ╔═════╗                            ▼
+                ║ YES ║                  ┌───────────────────┐
+                ╚═════╝                  │ RESULTS.BLOCKED / │
+                   │                     │ RESULTS.LIMITED / │
+                   │                     │  RESULTS.GRANTED  │
+                   ▼                     └───────────────────┘
+          ┌────────────────┐
+          │ RESULTS.DENIED │
+          └────────────────┘
+                   │
+                   ▼
+  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+  ┃ request(PERMISSIONS.IOS.CAMERA) ┃
+  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+                   │
+         Does the user accept
+            the request ?
+                   │           ╔════╗
+                   ├───────────║ NO ║──────────────┐
+                   │           ╚════╝              │
+                ╔═════╗                            ▼
+                ║ YES ║                   ┌─────────────────┐
+                ╚═════╝                   │ RESULTS.BLOCKED │
+                   │                      └─────────────────┘
+                   ▼
+          ┌─────────────────┐
+          │ RESULTS.GRANTED │
+          └─────────────────┘
+```
+
+In earlier versions of `react-native-camera-kit`, permissions were provided with an API, but for the above reasons, these APIs will be removed.
+
 #### Android
 
 Add the following uses-permission to your `AndroidManifest.xml` (usually found at: `android/src/main/`)
