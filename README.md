@@ -47,16 +47,17 @@ Android:
 ## Permissions
 
 You must use a separate library for prompt the user for permissions before rendering the `Camera` component.  
-We recommend Zootek's library, react-native-permissions:
+We recommend zoontek's library, react-native-permissions:
 https://github.com/zoontek/react-native-permissions#ios-flow
 
 **If you fail to prompt for permission, the camera will appear blank / black.**
 
 ### Why no permissions API?
 
-Conceptually, permissions are simple: Granted / Denied. However, in reality it isn't.
-Both Android and iOS keep changing how permissions work and what permissions are needed for an action.  
-As an example, [here's the iOS diagram that react-native-permissions provides in their README](https://github.com/zoontek/react-native-permissions#ios-flow), which illustrates the complexity we don't want to duplicate:
+Conceptually, permissions are simple: Granted / Denied.  
+However, in reality it's not that simple due to privacy enhancements on iOS and Android.  
+
+[Here's an example diagram from react-native-permissions's README](https://github.com/zoontek/react-native-permissions#ios-flow), which illustrates the complexity of the user-experience, which we don't want to duplicate in a camera library:
 ```
    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
    ┃ check(PERMISSIONS.IOS.CAMERA) ┃
@@ -106,7 +107,7 @@ As an example, [here's the iOS diagram that react-native-permissions provides in
           └─────────────────┘
 ```
 
-In earlier versions of `react-native-camera-kit`, permissions were provided with an API, but for the above reasons, these APIs will be removed.
+In earlier versions of react-native-camera-kit, permissions were provided with an API, but for the above reasons, these APIs will be removed.
 
 #### Android
 
