@@ -4,7 +4,7 @@ apply plugin: 'kotlin-android'
 android {
     compileSdkVersion 31
     defaultConfig {
-        minSdkVersion 24
+        minSdkVersion 23
         // noinspection ExpiredTargetSdkVersion
         targetSdkVersion 30
         versionCode 1

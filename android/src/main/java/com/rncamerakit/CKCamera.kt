@@ -55,7 +55,9 @@ class RectOverlay constructor(context: Context) :
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         // Pass it a list of RectF (rectBounds)
-        rectBounds.forEach { canvas.drawRect(it, paint) }
+        for (rect in rectBounds) {
+            canvas.drawRect(rect, paint)
+        }
     }
 
     fun drawRectBounds(rectBounds: List<RectF>) {
