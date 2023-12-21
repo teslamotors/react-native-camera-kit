@@ -47,7 +47,8 @@ class CKCameraManager : SimpleViewManager<CKCamera>() {
                 "onOrientationChange", MapBuilder.of("registrationName", "onOrientationChange"),
                 "onReadCode", MapBuilder.of("registrationName", "onReadCode"),
                 "onPictureTaken", MapBuilder.of("registrationName", "onPictureTaken"),
-                "onZoom", MapBuilder.of("registrationName", "onZoom")
+                "onZoom", MapBuilder.of("registrationName", "onZoom"),
+                "onError", MapBuilder.of("registrationName", "onError")
         )
     }
 
