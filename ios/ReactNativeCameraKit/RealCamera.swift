@@ -31,7 +31,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     private var torchMode: TorchMode = .off
     private var resetFocus: (() -> Void)?
     private var focusFinished: (() -> Void)?
-    private var onBarcodeRead: ((_ barcode: String) -> Void)?
+    private var onBarcodeRead: ((_ barcode: String,_ codeFormat : CodeFormat) -> Void)?
     private var scannerFrameSize: CGRect? = nil
     private var onOrientationChange: RCTDirectEventBlock?
     private var onZoomCallback: RCTDirectEventBlock?
@@ -335,8 +335,8 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     }
 
     func isBarcodeScannerEnabled(_ isEnabled: Bool,
-                                 supportedBarcodeType: [AVMetadataObject.ObjectType],
-                                 onBarcodeRead: ((_ barcode: String) -> Void)?) {
+                                 supportedBarcodeTypes supportedBarcodeType: [AVMetadataObject.ObjectType],
+                                 onBarcodeRead: ((_ barcode: String,_ codeFormat:CodeFormat) -> Void)?) {
         sessionQueue.async {
             self.onBarcodeRead = onBarcodeRead
             let newTypes: [AVMetadataObject.ObjectType]
@@ -388,8 +388,10 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
               let codeStringValue = machineReadableCodeObject.stringValue else {
             return
         }
+        // Determine the barcode type and convert it to CodeFormat
+          let barcodeType = CodeFormat.fromAVMetadataObjectType(machineReadableCodeObject.type)
 
-        onBarcodeRead?(codeStringValue)
+        onBarcodeRead?(codeStringValue,barcodeType)
     }
 
     // MARK: - Private

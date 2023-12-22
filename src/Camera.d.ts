@@ -4,6 +4,7 @@ import { Orientation } from './index';
 export type OnReadCodeData = {
   nativeEvent: {
     codeStringValue: string;
+    codeFormat: string;
   };
 };
 

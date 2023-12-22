@@ -185,9 +185,12 @@ class CameraView: UIView {
         // Scanner
         if changedProps.contains("scanBarcode") || changedProps.contains("onReadCode") {
             camera.isBarcodeScannerEnabled(scanBarcode,
-                                           supportedBarcodeType: supportedBarcodeType,
-                                           onBarcodeRead: { [weak self] barcode in self?.onBarcodeRead(barcode: barcode) })
+                                           supportedBarcodeTypes: supportedBarcodeType,
+                                           onBarcodeRead: { [weak self] (barcode, codeFormat) in
+                                               self?.onBarcodeRead(barcode: barcode, codeFormat: codeFormat)
+                                           })
         }
+
 
         if changedProps.contains("showFrame") || changedProps.contains("scanBarcode") {
             DispatchQueue.main.async {
@@ -324,7 +327,7 @@ class CameraView: UIView {
         return temporaryFileURL
     }
 
-    private func onBarcodeRead(barcode: String) {
+    private func onBarcodeRead(barcode: String, codeFormat:CodeFormat) {
         // Throttle barcode detection
         let now = Date.timeIntervalSinceReferenceDate
         guard lastBarcodeDetectedTime + Double(scanThrottleDelay) / 1000 < now else {
@@ -333,7 +336,7 @@ class CameraView: UIView {
 
         lastBarcodeDetectedTime = now
 
-        onReadCode?(["codeStringValue": barcode])
+        onReadCode?(["codeStringValue": barcode,"codeFormat":codeFormat.rawValue])
     }
 
     // MARK: - Gesture selectors
