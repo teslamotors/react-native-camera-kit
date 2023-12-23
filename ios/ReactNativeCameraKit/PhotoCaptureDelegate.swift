@@ -43,7 +43,7 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
             return
         }
 
-        var thumbnailData: Data? = nil
+        var thumbnailData: Data?
         if let previewPixelBuffer = photo.previewPixelBuffer {
             let ciImage = CIImage(cvPixelBuffer: previewPixelBuffer)
             let uiImage = UIImage(ciImage: ciImage)

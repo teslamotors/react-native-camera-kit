@@ -31,7 +31,7 @@ class SimulatorCamera: CameraProtocol {
         DispatchQueue.main.async {
             self.mockPreview.cameraTypeLabel.text = "Camera type: \(cameraType)"
         }
-        
+
         // Listen to orientation changes
         UIDevice.current.beginGeneratingDeviceOrientationNotifications()
         NotificationCenter.default.addObserver(forName: UIDevice.orientationDidChangeNotification,
@@ -39,9 +39,8 @@ class SimulatorCamera: CameraProtocol {
                                                queue: nil,
                                                using: { [weak self] notification in self?.orientationChanged(notification: notification) })
 
-
     }
-    
+
     private func orientationChanged(notification: Notification) {
         guard let device = notification.object as? UIDevice,
               let orientation = Orientation(from: device.orientation) else {
@@ -50,7 +49,7 @@ class SimulatorCamera: CameraProtocol {
 
         self.onOrientationChange?(["orientation": orientation.rawValue])
     }
-    
+
     func cameraRemovedFromSuperview() {
         NotificationCenter.default.removeObserver(self, name: UIDevice.orientationDidChangeNotification, object: UIDevice.current)
 
@@ -59,16 +58,16 @@ class SimulatorCamera: CameraProtocol {
     func update(onOrientationChange: RCTDirectEventBlock?) {
         self.onOrientationChange = onOrientationChange
     }
-    
+
     func update(onZoom: RCTDirectEventBlock?) {
         self.onZoom = onZoom
     }
-    
+
     func setVideoDevice(zoomFactor: Double) {
         self.videoDeviceZoomFactor = zoomFactor
         self.mockPreview.zoomLabel.text = "Zoom: \(zoomFactor)"
     }
-    
+
     private var zoomStartedAt: Double = 1.0
     func zoomPinchStart() {
         DispatchQueue.main.async {
@@ -76,10 +75,10 @@ class SimulatorCamera: CameraProtocol {
             self.mockPreview.zoomLabel.text = "Zoom start"
         }
     }
-    
+
     func zoomPinchChange(pinchScale: CGFloat) {
         guard !pinchScale.isNaN else { return }
-        
+
         DispatchQueue.main.async {
             let desiredZoomFactor = self.zoomStartedAt * pinchScale
             var maxZoomFactor = self.videoDeviceMaxAvailableVideoZoomFactor
@@ -87,7 +86,7 @@ class SimulatorCamera: CameraProtocol {
                 maxZoomFactor = min(maxZoom, maxZoomFactor)
             }
             let zoomForDevice = max(1.0, min(desiredZoomFactor, maxZoomFactor))
-            
+
             if zoomForDevice != self.videoDeviceZoomFactor {
                 // Only trigger zoom changes if it's an uncontrolled component (zoom isn't manually set)
                 // otherwise it's likely to cause issues inf. loops
@@ -132,14 +131,14 @@ class SimulatorCamera: CameraProtocol {
             self.mockPreview.randomize()
         }
     }
-    
+
     func update(maxZoom: Double?) {
         self.maxZoom = maxZoom
     }
-    
+
     func update(zoom: Double?) {
         self.zoom = zoom
-        
+
         DispatchQueue.main.async {
             var zoomOrDefault = zoom ?? 0
             // -1 will reset to zoom default (which is not 1 on modern cameras)
@@ -153,7 +152,7 @@ class SimulatorCamera: CameraProtocol {
             }
             let zoomForDevice = max(1.0, min(zoomOrDefault, maxZoomFactor))
             self.setVideoDevice(zoomFactor: zoomForDevice)
-            
+
             // If they wanted to reset, tell them what the default zoom turned out to be
             // regardless if it's controlled
             if self.zoom == nil || zoom == 0 {
@@ -161,7 +160,6 @@ class SimulatorCamera: CameraProtocol {
             }
         }
     }
-    
 
     func isBarcodeScannerEnabled(_ isEnabled: Bool,
                                  supportedBarcodeType: [AVMetadataObject.ObjectType],
@@ -169,8 +167,8 @@ class SimulatorCamera: CameraProtocol {
     func update(scannerFrameSize: CGRect?) {}
 
     func capturePicture(onWillCapture: @escaping () -> Void,
-                        onSuccess: @escaping (_ imageData: Data, _ thumbnailData: Data?) -> (),
-                        onError: @escaping (_ message: String) -> ()) {
+                        onSuccess: @escaping (_ imageData: Data, _ thumbnailData: Data?) -> Void,
+                        onError: @escaping (_ message: String) -> Void) {
         onWillCapture()
 
         DispatchQueue.main.async {
