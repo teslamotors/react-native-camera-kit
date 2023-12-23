@@ -82,7 +82,7 @@ class FocusInterfaceView: UIView {
 
     func update(focusMode: FocusMode) {
         if focusMode == .on {
-            if (focusGestureRecognizer == nil) {
+            if focusGestureRecognizer == nil {
                 let tapGesture = UITapGestureRecognizer(target: self, action: #selector(focusAndExposeTap(_:)))
                 addGestureRecognizer(tapGesture)
                 focusGestureRecognizer = tapGesture
@@ -157,17 +157,17 @@ class FocusInterfaceView: UIView {
             UIView.animate(withDuration: 0.2, animations: {
                 self.focusView.frame = focusViewFrame
                 self.focusView.alpha = 1
-            }) { _ in
+            }, completion: { _ in
                 self.hideFocusViewTimer?.invalidate()
-                self.hideFocusViewTimer = Timer.scheduledTimer(withTimeInterval: 2, repeats: false) { [weak self] _ in
+                self.hideFocusViewTimer = Timer.scheduledTimer(withTimeInterval: 2, repeats: false, block: { [weak self] _ in
                     guard let self else { return }
                     UIView.animate(withDuration: 0.2, animations: {
                         self.focusView.alpha = 0
-                    }) { _ in
+                    }, completion: { _ in
                         self.focusView.isHidden = true
-                    }
-                }
-            }
+                    })
+                })
+            })
         }
     }
 

@@ -1,0 +1,21 @@
+included:
+  - ios
+  - example/ios
+
+excluded:
+  - ios/Pods
+  - example/ios/Pods
+
+disabled_rules:
+  - todo
+
+line_length: 160
+type_body_length: 400
+function_body_length: 50
+
+identifier_name:
+  excluded:
+    - on
+    - x
+    - y
+    - at

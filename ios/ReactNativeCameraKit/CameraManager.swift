@@ -25,12 +25,11 @@ import Foundation
                        resolve: @escaping RCTPromiseResolveBlock,
                        reject: @escaping RCTPromiseRejectBlock) {
         guard let cam = self.camera else {
-            reject("capture_error", "CKCamera capture() was called but  camera view is nil", nil)
+            reject("capture_error", "CKCamera capture() was called but camera view is nil", nil)
             return
         }
-        cam.capture(options as! [String: Any],
-                       onSuccess: { resolve($0) },
-                       onError: { reject("capture_error", $0, nil) })
+        cam.capture(onSuccess: { resolve($0) },
+                    onError: { reject("capture_error", $0, nil) })
     }
 
     @objc func checkDeviceCameraAuthorizationStatus(_ resolve: @escaping RCTPromiseResolveBlock,

@@ -1,8 +1,13 @@
 name: Build
+run-name: ⚙️ Build examples on ${{ github.event_name == 'pull_request' && 'PR' || '🌱' }} ${{ github.event_name == 'pull_request' && github.event.number || github.ref_name }}
+
 on:
-  pull_request:
-    types: [opened, reopened]
   push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+
 jobs:
   build-example-ios:
     name: build-example-ios

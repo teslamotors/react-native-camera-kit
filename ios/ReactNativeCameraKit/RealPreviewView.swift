@@ -14,6 +14,7 @@ class RealPreviewView: UIView {
     // Create an accessor for the right layer type
     var previewLayer: AVCaptureVideoPreviewLayer {
         // We can safely forcecast here, it can't change at runtime
+        // swiftlint:disable:next force_cast
         return layer as! AVCaptureVideoPreviewLayer
     }
 

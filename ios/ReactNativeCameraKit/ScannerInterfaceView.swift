@@ -80,6 +80,10 @@ class ScannerInterfaceView: UIView {
         topOverlayView.frame = CGRect(x: 0, y: 0, width: frame.size.width, height: frameRect.origin.y)
         leftOverlayView.frame = CGRect(x: 0, y: frameRect.origin.y, width: frameOffset, height: frameHeight)
         rightOverlayView.frame = CGRect(x: frameRect.size.width + frameOffset, y: frameRect.origin.y, width: frameOffset, height: frameHeight)
-        bottomOverlayView.frame = CGRect(x: 0, y: frameRect.origin.y + frameHeight, width: frame.size.width, height: frame.size.height - frameRect.origin.y - frameHeight)
+        bottomOverlayView.frame = CGRect(
+            x: 0,
+            y: frameRect.origin.y + frameHeight,
+            width: frame.size.width,
+            height: frame.size.height - frameRect.origin.y - frameHeight)
     }
 }
