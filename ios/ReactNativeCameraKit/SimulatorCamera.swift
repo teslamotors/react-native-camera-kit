@@ -161,6 +161,8 @@ class SimulatorCamera: CameraProtocol {
             }
         }
     }
+
+    func update(resizeMode: ResizeMode) {}
     
 
     func isBarcodeScannerEnabled(_ isEnabled: Bool,

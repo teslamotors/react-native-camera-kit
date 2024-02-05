@@ -11,6 +11,8 @@ export type FocusMode = 'on' | 'off';
 
 export type ZoomMode = 'on' | 'off';
 
+export type ResizeMode = "cover" | "contain";
+
 export type CaptureData = {
   uri: string;
   name: string;
