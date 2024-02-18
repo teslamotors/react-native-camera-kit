@@ -36,7 +36,7 @@ enum class CodeFormat(val code: String) {
     }
 
     companion object {
-        fun fromBarcodeType(barcodeType: Int): CodeFormat =
+        fun fromBarcodeType(@Barcode.BarcodeFormat barcodeType: Int): CodeFormat =
             when (barcodeType) {
                 Barcode.FORMAT_CODE_128 -> CODE_128
                 Barcode.FORMAT_CODE_39 -> CODE_39
