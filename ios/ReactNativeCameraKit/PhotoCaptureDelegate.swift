@@ -12,12 +12,12 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
     private(set) var requestedPhotoSettings: AVCapturePhotoSettings
 
     private let onWillCapture: () -> Void
-    private let onCaptureSuccess: (_ uniqueID: Int64, _ imageData: Data, _ thumbnailData: Data?) -> Void
+    private let onCaptureSuccess: (_ uniqueID: Int64, _ imageData: Data, _ thumbnailData: Data?, _ dimensions: CMVideoDimensions) -> Void
     private let onCaptureError: (_ uniqueID: Int64, _ message: String) -> Void
 
     init(with requestedPhotoSettings: AVCapturePhotoSettings,
          onWillCapture: @escaping () -> Void,
-         onCaptureSuccess: @escaping (_ uniqueID: Int64, _ imageData: Data, _ thumbnailData: Data?) -> Void,
+         onCaptureSuccess: @escaping (_ uniqueID: Int64, _ imageData: Data, _ thumbnailData: Data?, _ dimensions: CMVideoDimensions) -> Void,
          onCaptureError: @escaping (_ uniqueID: Int64, _ errorMessage: String) -> Void) {
         self.requestedPhotoSettings = requestedPhotoSettings
         self.onWillCapture = onWillCapture
@@ -50,6 +50,6 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
             thumbnailData = uiImage.jpegData(compressionQuality: 0.7)
         }
 
-        onCaptureSuccess(requestedPhotoSettings.uniqueID, imageData, thumbnailData)
+        onCaptureSuccess(requestedPhotoSettings.uniqueID, imageData, thumbnailData, photo.resolvedSettings.photoDimensions)
     }
 }

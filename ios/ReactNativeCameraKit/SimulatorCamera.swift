@@ -169,7 +169,7 @@ class SimulatorCamera: CameraProtocol {
     func update(scannerFrameSize: CGRect?) {}
 
     func capturePicture(onWillCapture: @escaping () -> Void,
-                        onSuccess: @escaping (_ imageData: Data, _ thumbnailData: Data?) -> (),
+                        onSuccess: @escaping (_ imageData: Data, _ thumbnailData: Data?, _ dimensions: CMVideoDimensions) -> (),
                         onError: @escaping (_ message: String) -> ()) {
         onWillCapture()
 
@@ -180,7 +180,7 @@ class SimulatorCamera: CameraProtocol {
             // Then switch to background thread
             DispatchQueue.global(qos: .default).async {
                 if let imageData = previewSnapshot?.jpegData(compressionQuality: 0.85) {
-                    onSuccess(imageData, nil)
+                    onSuccess(imageData, nil, CMVideoDimensions(width: 480, height: 640))
                 } else {
                     onError("Failed to convert snapshot to JPEG data")
                 }

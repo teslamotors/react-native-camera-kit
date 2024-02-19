@@ -292,7 +292,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     }
 
     func capturePicture(onWillCapture: @escaping () -> Void,
-                        onSuccess: @escaping (_ imageData: Data, _ thumbnailData: Data?) -> Void,
+                        onSuccess: @escaping (_ imageData: Data, _ thumbnailData: Data?, _ dimensions: CMVideoDimensions) -> Void,
                         onError: @escaping (_ message: String) -> Void) {
         /*
          Retrieve the video preview layer's video orientation on the main queue before
@@ -317,10 +317,10 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
                 let photoCaptureDelegate = PhotoCaptureDelegate(
                     with: settings,
                     onWillCapture: onWillCapture,
-                    onCaptureSuccess: { uniqueID, imageData, thumbnailData in
+                    onCaptureSuccess: { uniqueID, imageData, thumbnailData, dimensions in
                         self.inProgressPhotoCaptureDelegates[uniqueID] = nil
                         
-                        onSuccess(imageData, thumbnailData)
+                        onSuccess(imageData, thumbnailData, dimensions)
                     },
                     onCaptureError: { uniqueID, errorMessage in
                         self.inProgressPhotoCaptureDelegates[uniqueID] = nil
