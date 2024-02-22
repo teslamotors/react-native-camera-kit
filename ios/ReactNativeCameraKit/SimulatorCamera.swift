@@ -27,7 +27,7 @@ class SimulatorCamera: CameraProtocol {
 
     // MARK: - Public
 
-    func setup(cameraType: CameraType, supportedBarcodeType: [AVMetadataObject.ObjectType]) {
+    func setup(cameraType: CameraType, supportedBarcodeType: [CodeFormat]) {
         DispatchQueue.main.async {
             self.mockPreview.cameraTypeLabel.text = "Camera type: \(cameraType)"
         }

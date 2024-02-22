@@ -89,7 +89,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
     // MARK: - Public
 
-    func setup(cameraType: CameraType, supportedBarcodeType: [AVMetadataObject.ObjectType]) {
+    func setup(cameraType: CameraType, supportedBarcodeType: [CodeFormat]) {
         DispatchQueue.main.async {
             self.cameraPreview.session = self.session
             self.cameraPreview.previewLayer.videoGravity = .resizeAspect
@@ -335,14 +335,15 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     }
 
     func isBarcodeScannerEnabled(_ isEnabled: Bool,
-                                 supportedBarcodeTypes supportedBarcodeType: [AVMetadataObject.ObjectType],
+                                 supportedBarcodeTypes supportedBarcodeType: [CodeFormat],
                                  onBarcodeRead: ((_ barcode: String,_ codeFormat:CodeFormat) -> Void)?) {
         sessionQueue.async {
             self.onBarcodeRead = onBarcodeRead
             let newTypes: [AVMetadataObject.ObjectType]
             if isEnabled && onBarcodeRead != nil {
                 let availableTypes = self.metadataOutput.availableMetadataObjectTypes
-                newTypes = supportedBarcodeType.filter { type in availableTypes.contains(type) }
+                newTypes = supportedBarcodeType.map { $0.toAVMetadataObjectType() }
+                                                        .filter { availableTypes.contains($0) }
             } else {
                 newTypes = []
             }
@@ -447,7 +448,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     }
 
     private func setupCaptureSession(cameraType: CameraType,
-                                     supportedBarcodeType: [AVMetadataObject.ObjectType]) -> SetupResult {
+                                     supportedBarcodeType: [CodeFormat]) -> SetupResult {
         guard let videoDevice = self.getBestDevice(for: cameraType),
               let videoDeviceInput = try? AVCaptureDeviceInput(device: videoDevice) else {
             return .sessionConfigurationFailed
@@ -484,8 +485,9 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
             metadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
 
             let availableTypes = self.metadataOutput.availableMetadataObjectTypes
-            let filteredTypes = supportedBarcodeType.filter { type in availableTypes.contains(type) }
-            metadataOutput.metadataObjectTypes = filteredTypes
+            let filteredTypes = supportedBarcodeType.filter { type in availableTypes.contains(type.toAVMetadataObjectType()) }
+
+            metadataOutput.metadataObjectTypes = filteredTypes.map { $0.toAVMetadataObjectType() }
         }
 
         session.commitConfiguration()

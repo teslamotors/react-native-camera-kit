@@ -73,9 +73,11 @@ class CameraView: UIView {
     private func setupCamera() {
         if (hasPropBeenSetup && hasPermissionBeenGranted && !hasCameraBeenSetup) {
             hasCameraBeenSetup = true
-            camera.setup(cameraType: cameraType, supportedBarcodeType: scanBarcode && onReadCode != nil ? supportedBarcodeType : [])
+            let supportedFormats = supportedBarcodeType.map { CodeFormat.fromAVMetadataObjectType($0) }
+            camera.setup(cameraType: cameraType, supportedBarcodeType: scanBarcode && onReadCode != nil ? supportedFormats : [])
         }
     }
+
 
     // MARK: Lifecycle
 
@@ -184,12 +186,14 @@ class CameraView: UIView {
 
         // Scanner
         if changedProps.contains("scanBarcode") || changedProps.contains("onReadCode") {
+            let supportedFormats = supportedBarcodeType.map { CodeFormat.fromAVMetadataObjectType($0) }
             camera.isBarcodeScannerEnabled(scanBarcode,
-                                           supportedBarcodeTypes: supportedBarcodeType,
+                                           supportedBarcodeTypes: supportedFormats,
                                            onBarcodeRead: { [weak self] (barcode, codeFormat) in
                                                self?.onBarcodeRead(barcode: barcode, codeFormat: codeFormat)
                                            })
         }
+
 
 
         if changedProps.contains("showFrame") || changedProps.contains("scanBarcode") {
