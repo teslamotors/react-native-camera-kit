@@ -8,7 +8,7 @@
 import Foundation
 import AVFoundation
 
-enum CodeFormat: String {
+enum CodeFormat: String, CaseIterable {
     case code128 = "code-128"
     case code39 = "code-39"
     case code93 = "code-93"

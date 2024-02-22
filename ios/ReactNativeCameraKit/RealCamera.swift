@@ -485,9 +485,11 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
             metadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
 
             let availableTypes = self.metadataOutput.availableMetadataObjectTypes
-            let filteredTypes = supportedBarcodeType.filter { type in availableTypes.contains(type.toAVMetadataObjectType()) }
+            let filteredTypes = supportedBarcodeType
+              .map { $0.toAVMetadataObjectType() }
+              .filter { availableTypes.contains($0) }
 
-            metadataOutput.metadataObjectTypes = filteredTypes.map { $0.toAVMetadataObjectType() }
+            metadataOutput.metadataObjectTypes = filteredTypes
         }
 
         session.commitConfiguration()
