@@ -8,7 +8,7 @@ import AVFoundation
 protocol CameraProtocol: AnyObject, FocusInterfaceViewDelegate {
     var previewView: UIView { get }
 
-    func setup(cameraType: CameraType, supportedBarcodeType: [AVMetadataObject.ObjectType])
+    func setup(cameraType: CameraType, supportedBarcodeType: [CodeFormat])
     func cameraRemovedFromSuperview()
 
     func update(torchMode: TorchMode)
@@ -23,8 +23,9 @@ protocol CameraProtocol: AnyObject, FocusInterfaceViewDelegate {
     func zoomPinchChange(pinchScale: CGFloat)
 
     func isBarcodeScannerEnabled(_ isEnabled: Bool,
-                                 supportedBarcodeType: [AVMetadataObject.ObjectType],
-                                 onBarcodeRead: ((_ barcode: String) -> Void)?)
+                                 supportedBarcodeTypes: [CodeFormat],
+                                 onBarcodeRead: ((_ barcode: String, _ codeFormat: CodeFormat) -> Void)?)
+
     func update(scannerFrameSize: CGRect?)
 
     func capturePicture(onWillCapture: @escaping () -> Void,

@@ -22,6 +22,7 @@
 		46C558CF2A4AAD7300C68BA0 /* FocusInterfaceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46C558CE2A4AAD7300C68BA0 /* FocusInterfaceView.swift */; };
 		46F30C012A3A859B000597F6 /* ScannerFrameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46F30C002A3A859B000597F6 /* ScannerFrameView.swift */; };
 		46F30C032A3ABB9D000597F6 /* ScannerInterfaceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46F30C022A3ABB9D000597F6 /* ScannerInterfaceView.swift */; };
+		B5C747452B35924D00C95030 /* CodeFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5C747442B35924D00C95030 /* CodeFormat.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -55,6 +56,7 @@
 		46C558CE2A4AAD7300C68BA0 /* FocusInterfaceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusInterfaceView.swift; sourceTree = "<group>"; };
 		46F30C002A3A859B000597F6 /* ScannerFrameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScannerFrameView.swift; sourceTree = "<group>"; };
 		46F30C022A3ABB9D000597F6 /* ScannerInterfaceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScannerInterfaceView.swift; sourceTree = "<group>"; };
+		B5C747442B35924D00C95030 /* CodeFormat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeFormat.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -104,6 +106,7 @@
 				46C558CE2A4AAD7300C68BA0 /* FocusInterfaceView.swift */,
 				4620AA682A2BFDBC00BC8929 /* ReactNativeCameraKit-Bridging-Header.h */,
 				463096892A2C7D89002ABA1A /* ReactNativeCameraKit.h */,
+				B5C747442B35924D00C95030 /* CodeFormat.swift */,
 			);
 			path = ReactNativeCameraKit;
 			sourceTree = "<group>";
@@ -181,6 +184,7 @@
 				26550AF61CFC7086007FF2DF /* CKCameraManager.m in Sources */,
 				46C558CB2A4AAB3400C68BA0 /* CameraProtocol.swift in Sources */,
 				4620AA722A2C4FA500BC8929 /* CameraManager.swift in Sources */,
+				B5C747452B35924D00C95030 /* CodeFormat.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
