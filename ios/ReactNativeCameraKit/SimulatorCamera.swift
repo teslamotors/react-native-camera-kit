@@ -17,6 +17,7 @@ class SimulatorCamera: CameraProtocol {
     private var wideAngleZoomFactor: Double = 2.0
     private var zoom: Double?
     private var maxZoom: Double?
+    private var resizeMode: ResizeMode = .contain
 
     var previewView: UIView { mockPreview }
 
@@ -128,7 +129,6 @@ class SimulatorCamera: CameraProtocol {
     func update(cameraType: CameraType) {
         DispatchQueue.main.async {
             self.mockPreview.cameraTypeLabel.text = "Camera type: \(cameraType)"
-
             self.mockPreview.randomize()
         }
     }
@@ -162,7 +162,12 @@ class SimulatorCamera: CameraProtocol {
         }
     }
 
-    func update(resizeMode: ResizeMode) {}
+    func update(resizeMode: ResizeMode) {
+        DispatchQueue.main.async {
+            self.mockPreview.resizeModeLabel.text = "Resize mode: \(resizeMode)"
+            self.mockPreview.randomize()
+        }
+    }
     
 
     func isBarcodeScannerEnabled(_ isEnabled: Bool,

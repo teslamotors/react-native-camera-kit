@@ -106,11 +106,11 @@ public enum ZoomMode: Int, CustomStringConvertible {
 }
 
 @objc(CKResizeMode)
-public enum ResizeMode: Int {
-    case cover = 0
-    case contain = 1
+public enum ResizeMode: Int, CustomStringConvertible {
+    case cover
+    case contain
 
-    public var stringValue: String {
+    public var description: String {
         switch self {
         case .cover: return "cover"
         case .contain: return "contain"
