@@ -11,6 +11,7 @@ class SimulatorPreviewView: UIView {
     let torchModeLabel = UILabel()
     let flashModeLabel = UILabel()
     let cameraTypeLabel = UILabel()
+    let resizeModeLabel = UILabel()
 
     var balloonLayer = CALayer()
 
@@ -30,7 +31,7 @@ class SimulatorPreviewView: UIView {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor).isActive = true
         stackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10).isActive = true
-        [zoomLabel, focusAtLabel, torchModeLabel, flashModeLabel, cameraTypeLabel].forEach {
+        [zoomLabel, focusAtLabel, torchModeLabel, flashModeLabel, cameraTypeLabel, resizeModeLabel].forEach {
             $0.numberOfLines = 0
             stackView.addArrangedSubview($0)
         }

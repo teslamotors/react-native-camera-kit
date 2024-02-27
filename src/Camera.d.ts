@@ -1,4 +1,4 @@
-import { CameraApi, FlashMode, FocusMode, ZoomMode, TorchMode, CameraType } from './types';
+import { CameraApi, FlashMode, FocusMode, ZoomMode, TorchMode, CameraType, ResizeMode } from './types';
 import { Orientation } from './index';
 
 export type OnReadCodeData = {
@@ -95,6 +95,7 @@ export interface CameraProps {
   ratioOverlayColor?: number | string;
   resetFocusTimeout?: number;
   resetFocusWhenMotionDetected?: boolean;
+  resizeMode?: ResizeMode;
   /** **iOS Only**. Throttle how often the barcode scanner triggers a new scan */
   scanThrottleDelay?: number;
   /** **Android only**. Play a shutter capture sound when capturing a photo */
