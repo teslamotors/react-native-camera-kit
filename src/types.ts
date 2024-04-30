@@ -16,11 +16,11 @@ export type ZoomMode = 'on' | 'off';
 export type CaptureData = {
   uri: string;
   name: string;
+  height: number;
+  width: number;
   // Android only
   id?: string;
   path?: string;
-  height?: number;
-  width?: number;
   // iOS only
   size?: number;
 };
