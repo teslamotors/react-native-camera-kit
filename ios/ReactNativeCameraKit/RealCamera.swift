@@ -3,6 +3,8 @@
 //  ReactNativeCameraKit
 //
 
+// swiftlint:disable file_length
+
 import AVFoundation
 import UIKit
 import CoreMotion
@@ -10,6 +12,7 @@ import CoreMotion
 /*
  * Real camera implementation that uses AVFoundation
  */
+// swiftlint:disable:next type_body_length
 class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelegate {
     var previewView: UIView { cameraPreview }
 
@@ -32,13 +35,13 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     private var resetFocus: (() -> Void)?
     private var focusFinished: (() -> Void)?
     private var onBarcodeRead: ((_ barcode: String) -> Void)?
-    private var scannerFrameSize: CGRect? = nil
+    private var scannerFrameSize: CGRect?
     private var onOrientationChange: RCTDirectEventBlock?
     private var onZoomCallback: RCTDirectEventBlock?
     private var lastOnZoom: Double?
     private var zoom: Double?
     private var maxZoom: Double?
-    
+
     private var deviceOrientation = UIDeviceOrientation.unknown
     private var motionManager: CMMotionManager?
 
@@ -52,10 +55,11 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
     override init() {
         super.init()
-        
+
         // In addition to using accelerometer to determine REAL orientation
         // we also listen to UI orientation changes (UIDevice does not report rotation if orientation lock is on, so photos aren't rotated correctly)
-        // When UIDevice reports rotation to the left, UI is rotated right to compensate, but that means we need to re-rotate left to make camera appear correctly (see self.uiOrientationChanged)
+        // When UIDevice reports rotation to the left, UI is rotated right to compensate, but that means we need to re-rotate left
+        // to make camera appear correctly (see self.uiOrientationChanged)
         UIDevice.current.beginGeneratingDeviceOrientationNotifications()
         NotificationCenter.default.addObserver(forName: UIDevice.orientationDidChangeNotification,
                                                object: UIDevice.current,
@@ -75,11 +79,11 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
                 self.removeObservers()
             }
         }
-        
+
         motionManager?.stopAccelerometerUpdates()
-        
+
         NotificationCenter.default.removeObserver(self, name: UIDevice.orientationDidChangeNotification, object: UIDevice.current)
-        
+
         UIDevice.current.endGeneratingDeviceOrientationNotifications()
     }
 
@@ -94,7 +98,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
             self.cameraPreview.session = self.session
             self.cameraPreview.previewLayer.videoGravity = .resizeAspect
         }
-        
+
         self.initializeMotionManager()
 
         // Setup the capture session.
@@ -113,13 +117,13 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
                 // We need to reapply the configuration after starting the camera
                 self.update(torchMode: self.torchMode)
             }
-            
+
            DispatchQueue.main.async {
                self.setVideoOrientationToInterfaceOrientation()
            }
         }
     }
-    
+
     private var zoomStartedAt: Double = 1.0
     func zoomPinchStart() {
         sessionQueue.async {
@@ -130,13 +134,13 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
     func zoomPinchChange(pinchScale: CGFloat) {
         guard !pinchScale.isNaN else { return }
-        
+
         sessionQueue.async {
             guard let videoDevice = self.videoDeviceInput?.device else { return }
-            
+
             let desiredZoomFactor = (self.zoomStartedAt / self.defaultZoomFactor(for: videoDevice)) * pinchScale
             let zoomForDevice = self.getValidZoom(forDevice: videoDevice, zoom: desiredZoomFactor)
-            
+
             if zoomForDevice != self.normalizedZoom(for: videoDevice) {
                 // Only trigger zoom changes if it's an uncontrolled component (zoom isn't manually set)
                 // otherwise it's likely to cause issues inf. loops
@@ -147,25 +151,25 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
             }
         }
     }
-    
+
     func update(maxZoom: Double?) {
         self.maxZoom = maxZoom
-        
+
         // Re-update zoom value in case the max was increased
         self.update(zoom: self.zoom)
     }
-    
+
     func update(zoom: Double?) {
         sessionQueue.async {
             self.zoom = zoom
             guard let videoDevice = self.videoDeviceInput?.device else { return }
-            guard let zoom_ = zoom else { return }
+            guard let zoom else { return }
 
-            let zoomForDevice = self.getValidZoom(forDevice: videoDevice, zoom: zoom_)
+            let zoomForDevice = self.getValidZoom(forDevice: videoDevice, zoom: zoom)
             self.setZoomFor(videoDevice, to: zoomForDevice)
         }
     }
-    
+
     /**
      `desiredZoom` can be nil when we want to notify what the zoom factor really is
      */
@@ -174,7 +178,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         let cameraZoom = normalizedZoom(for: videoDevice)
         let desiredOrCameraZoom = desiredZoom ?? cameraZoom
         guard desiredOrCameraZoom > -1.0 else { return }
-        
+
         // ignore duplicate events when zooming to min/max
         // but always notify if a desiredZoom wasn't given,
         // since that means they wanted to reset setZoom(0.0)
@@ -182,11 +186,11 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         if desiredZoom != nil && desiredOrCameraZoom == lastOnZoom {
             return
         }
-        
+
         lastOnZoom = desiredOrCameraZoom
         self.onZoomCallback?(["zoom": desiredOrCameraZoom])
     }
-    
+
     func update(onZoom: RCTDirectEventBlock?) {
         self.onZoomCallback = onZoom
     }
@@ -228,11 +232,11 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
             }
         }
     }
-    
+
     func update(onOrientationChange: RCTDirectEventBlock?) {
         self.onOrientationChange = onOrientationChange
     }
-    
+
     func update(torchMode: TorchMode) {
         sessionQueue.async {
             self.torchMode = torchMode
@@ -300,7 +304,8 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
          the main thread and session configuration is done on the session queue.
          */
         DispatchQueue.main.async {
-            let videoPreviewLayerOrientation = self.videoOrientation(from: self.deviceOrientation) ?? self.cameraPreview.previewLayer.connection?.videoOrientation
+            let videoPreviewLayerOrientation =
+                self.videoOrientation(from: self.deviceOrientation) ?? self.cameraPreview.previewLayer.connection?.videoOrientation
 
             self.sessionQueue.async {
                 if let photoOutputConnection = self.photoOutput.connection(with: .video), let videoPreviewLayerOrientation {
@@ -365,10 +370,13 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
             }
 
             DispatchQueue.main.async {
-                let visibleRect = scannerFrameSize != nil && scannerFrameSize != .zero ? self.cameraPreview.previewLayer.metadataOutputRectConverted(fromLayerRect: scannerFrameSize!) : nil
+                var visibleRect: CGRect?
+                if scannerFrameSize != nil && scannerFrameSize != .zero {
+                    visibleRect = self.cameraPreview.previewLayer.metadataOutputRectConverted(fromLayerRect: scannerFrameSize!)
+                }
 
                 self.sessionQueue.async {
-                    if (self.metadataOutput.rectOfInterest == visibleRect) {
+                    if self.metadataOutput.rectOfInterest == visibleRect {
                         return
                     }
 
@@ -457,13 +465,12 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
         if session.canAddInput(videoDeviceInput) {
             session.addInput(videoDeviceInput)
-            
+
             self.videoDeviceInput = videoDeviceInput
             self.resetZoom(forDevice: videoDevice)
         } else {
             return .sessionConfigurationFailed
         }
-
 
         if session.canAddOutput(photoOutput) {
             session.addOutput(photoOutput)
@@ -494,11 +501,11 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     private func defaultZoomFactor(for videoDevice: AVCaptureDevice) -> CGFloat {
         let fallback = 1.0
         guard #available(iOS 13.0, *) else { return fallback }
-        
+
         // Devices that have multiple physical cameras are hidden behind one virtual camera input
         // The zoom factor defines what physical camera it actually uses
         // The default lens on the native camera app is the wide angle
-        if var wideAngleIndex = videoDevice.constituentDevices.firstIndex(where: { $0.deviceType == .builtInWideAngleCamera }) {
+        if let wideAngleIndex = videoDevice.constituentDevices.firstIndex(where: { $0.deviceType == .builtInWideAngleCamera }) {
             // .virtualDeviceSwitchOverVideoZoomFactors has the .constituentDevices zoom factor which borders the NEXT device
             // so we grab the one PRIOR to the wide angle to get the wide angle's zoom factor
             guard wideAngleIndex >= 1 else { return fallback }
@@ -507,7 +514,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
         return fallback
     }
-    
+
     private func setZoomFor(_ videoDevice: AVCaptureDevice, to zoom: Double) {
         do {
             try videoDevice.lockForConfiguration()
@@ -523,7 +530,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         let defaultZoom = defaultZoomFactor(for: videoDevice)
         return videoDevice.videoZoomFactor / defaultZoom
     }
-    
+
     private func getValidZoom(forDevice videoDevice: AVCaptureDevice, zoom: Double) -> Double {
         let defaultZoom = defaultZoomFactor(for: videoDevice)
         let minZoomFactor = videoDevice.minAvailableVideoZoomFactor / defaultZoom
@@ -534,7 +541,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         let cappedZoom = max(minZoomFactor, min(zoom, maxZoomFactor))
         return cappedZoom
     }
-    
+
     private func resetZoom(forDevice videoDevice: AVCaptureDevice) {
         var zoomForDevice = getValidZoom(forDevice: videoDevice, zoom: 1)
         if let zoomPropValue = self.zoom {
@@ -594,7 +601,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
         adjustingFocusObservation = videoDeviceInput?.device.observe(\.isAdjustingFocus,
                                                                       options: .new,
-                                                                      changeHandler: { [weak self] device, change in
+                                                                      changeHandler: { [weak self] _, change in
             guard let self, let isFocusing = change.newValue else { return }
 
             self.isAdjustingFocus(isFocusing: isFocusing)
@@ -616,6 +623,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     }
 
     private func removeObservers() {
+        // swiftlint:disable:next notification_center_detachment
         NotificationCenter.default.removeObserver(self)
 
         adjustingFocusObservation?.invalidate()

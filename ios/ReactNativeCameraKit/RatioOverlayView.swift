@@ -88,6 +88,7 @@ class RatioOverlayView: UIView {
 
     // MARK: - Private
 
+    // swiftlint:disable:next function_body_length
     private func setOverlayParts() {
         guard let ratioData, ratioData.ratio != 0 else {
             isHidden = true
