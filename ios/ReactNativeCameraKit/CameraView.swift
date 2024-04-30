@@ -20,10 +20,10 @@ class CameraView: UIView {
     // scanner
     private var lastBarcodeDetectedTime: TimeInterval = 0
     private var scannerInterfaceView: ScannerInterfaceView
-    private var supportedBarcodeType: [AVMetadataObject.ObjectType] = [.upce, .code39, .code39Mod43,
-                                                                       .ean13, .ean8, .code93,
-                                                                       .code128, .pdf417, .qr,
-                                                                       .aztec, .dataMatrix, .interleaved2of5]
+    private var supportedBarcodeType: [CodeFormat] = {
+        return CodeFormat.allCases
+    }()
+    
     // camera
     private var ratioOverlayView: RatioOverlayView?
 
@@ -69,13 +69,13 @@ class CameraView: UIView {
             setupCamera()
         }
     }
-
     private func setupCamera() {
         if hasPropBeenSetup && hasPermissionBeenGranted && !hasCameraBeenSetup {
             hasCameraBeenSetup = true
             camera.setup(cameraType: cameraType, supportedBarcodeType: scanBarcode && onReadCode != nil ? supportedBarcodeType : [])
         }
     }
+
 
     // MARK: Lifecycle
 
@@ -186,9 +186,13 @@ class CameraView: UIView {
         // Scanner
         if changedProps.contains("scanBarcode") || changedProps.contains("onReadCode") {
             camera.isBarcodeScannerEnabled(scanBarcode,
-                                           supportedBarcodeType: supportedBarcodeType,
-                                           onBarcodeRead: { [weak self] barcode in self?.onBarcodeRead(barcode: barcode) })
+                                           supportedBarcodeTypes: supportedBarcodeType,
+                                           onBarcodeRead: { [weak self] (barcode, codeFormat) in
+                                               self?.onBarcodeRead(barcode: barcode, codeFormat: codeFormat)
+                                           })
         }
+
+
 
         if changedProps.contains("showFrame") || changedProps.contains("scanBarcode") {
             DispatchQueue.main.async {
@@ -330,7 +334,7 @@ class CameraView: UIView {
         return temporaryFileURL
     }
 
-    private func onBarcodeRead(barcode: String) {
+    private func onBarcodeRead(barcode: String, codeFormat:CodeFormat) {
         // Throttle barcode detection
         let now = Date.timeIntervalSinceReferenceDate
         guard lastBarcodeDetectedTime + Double(scanThrottleDelay) / 1000 < now else {
@@ -339,7 +343,7 @@ class CameraView: UIView {
 
         lastBarcodeDetectedTime = now
 
-        onReadCode?(["codeStringValue": barcode])
+        onReadCode?(["codeStringValue": barcode,"codeFormat":codeFormat.rawValue])
     }
 
     // MARK: - Gesture selectors

@@ -27,7 +27,7 @@ class SimulatorCamera: CameraProtocol {
 
     // MARK: - Public
 
-    func setup(cameraType: CameraType, supportedBarcodeType: [AVMetadataObject.ObjectType]) {
+    func setup(cameraType: CameraType, supportedBarcodeType: [CodeFormat]) {
         DispatchQueue.main.async {
             self.mockPreview.cameraTypeLabel.text = "Camera type: \(cameraType)"
         }
@@ -162,8 +162,8 @@ class SimulatorCamera: CameraProtocol {
     }
 
     func isBarcodeScannerEnabled(_ isEnabled: Bool,
-                                 supportedBarcodeType: [AVMetadataObject.ObjectType],
-                                 onBarcodeRead: ((_ barcode: String) -> Void)?) {}
+                                 supportedBarcodeTypes: [CodeFormat],
+                                 onBarcodeRead: ((_ barcode: String,_ codeFormat:CodeFormat) -> Void)?) {}
     func update(scannerFrameSize: CGRect?) {}
 
     func capturePicture(onWillCapture: @escaping () -> Void,

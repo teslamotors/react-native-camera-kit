@@ -1,9 +1,10 @@
-import { CameraApi, FlashMode, FocusMode, ZoomMode, TorchMode, CameraType } from './types';
+import { CameraApi, FlashMode, FocusMode, ZoomMode, TorchMode, CameraType, CodeFormat } from './types';
 import { Orientation } from './index';
 
 export type OnReadCodeData = {
   nativeEvent: {
     codeStringValue: string;
+    codeFormat: CodeFormat;
   };
 };
 

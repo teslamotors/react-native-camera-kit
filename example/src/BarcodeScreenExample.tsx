@@ -151,6 +151,8 @@ const BarcodeExample = ({ onBack }: { onBack: () => void }) => {
             Vibration.vibrate(100);
             setBarcode(event.nativeEvent.codeStringValue);
             console.log('barcode', event.nativeEvent.codeStringValue);
+            console.log('codeFormat', event.nativeEvent.codeFormat);
+
           }}
         />
       </View>

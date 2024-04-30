@@ -34,8 +34,8 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     private var torchMode: TorchMode = .off
     private var resetFocus: (() -> Void)?
     private var focusFinished: (() -> Void)?
-    private var onBarcodeRead: ((_ barcode: String) -> Void)?
-    private var scannerFrameSize: CGRect?
+    private var onBarcodeRead: ((_ barcode: String,_ codeFormat : CodeFormat) -> Void)?
+    private var scannerFrameSize: CGRect? = nil
     private var onOrientationChange: RCTDirectEventBlock?
     private var onZoomCallback: RCTDirectEventBlock?
     private var lastOnZoom: Double?
@@ -93,7 +93,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
     // MARK: - Public
 
-    func setup(cameraType: CameraType, supportedBarcodeType: [AVMetadataObject.ObjectType]) {
+    func setup(cameraType: CameraType, supportedBarcodeType: [CodeFormat]) {
         DispatchQueue.main.async {
             self.cameraPreview.session = self.session
             self.cameraPreview.previewLayer.videoGravity = .resizeAspect
@@ -340,14 +340,15 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     }
 
     func isBarcodeScannerEnabled(_ isEnabled: Bool,
-                                 supportedBarcodeType: [AVMetadataObject.ObjectType],
-                                 onBarcodeRead: ((_ barcode: String) -> Void)?) {
+                                 supportedBarcodeTypes supportedBarcodeType: [CodeFormat],
+                                 onBarcodeRead: ((_ barcode: String,_ codeFormat:CodeFormat) -> Void)?) {
         sessionQueue.async {
             self.onBarcodeRead = onBarcodeRead
             let newTypes: [AVMetadataObject.ObjectType]
             if isEnabled && onBarcodeRead != nil {
                 let availableTypes = self.metadataOutput.availableMetadataObjectTypes
-                newTypes = supportedBarcodeType.filter { type in availableTypes.contains(type) }
+                newTypes = supportedBarcodeType.map { $0.toAVMetadataObjectType() }
+                                                        .filter { availableTypes.contains($0) }
             } else {
                 newTypes = []
             }
@@ -396,8 +397,10 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
               let codeStringValue = machineReadableCodeObject.stringValue else {
             return
         }
+        // Determine the barcode type and convert it to CodeFormat
+          let barcodeType = CodeFormat.fromAVMetadataObjectType(machineReadableCodeObject.type)
 
-        onBarcodeRead?(codeStringValue)
+        onBarcodeRead?(codeStringValue,barcodeType)
     }
 
     // MARK: - Private
@@ -453,7 +456,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     }
 
     private func setupCaptureSession(cameraType: CameraType,
-                                     supportedBarcodeType: [AVMetadataObject.ObjectType]) -> SetupResult {
+                                     supportedBarcodeType: [CodeFormat]) -> SetupResult {
         guard let videoDevice = self.getBestDevice(for: cameraType),
               let videoDeviceInput = try? AVCaptureDeviceInput(device: videoDevice) else {
             return .sessionConfigurationFailed
@@ -489,7 +492,10 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
             metadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
 
             let availableTypes = self.metadataOutput.availableMetadataObjectTypes
-            let filteredTypes = supportedBarcodeType.filter { type in availableTypes.contains(type) }
+            let filteredTypes = supportedBarcodeType
+              .map { $0.toAVMetadataObjectType() }
+              .filter { availableTypes.contains($0) }
+
             metadataOutput.metadataObjectTypes = filteredTypes
         }
 
