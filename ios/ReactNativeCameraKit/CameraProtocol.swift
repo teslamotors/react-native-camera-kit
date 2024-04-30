@@ -28,6 +28,6 @@ protocol CameraProtocol: AnyObject, FocusInterfaceViewDelegate {
     func update(scannerFrameSize: CGRect?)
 
     func capturePicture(onWillCapture: @escaping () -> Void,
-                        onSuccess: @escaping (_ imageData: Data, _ thumbnailData: Data?) -> (),
+                        onSuccess: @escaping (_ imageData: Data, _ thumbnailData: Data?, _ dimensions: CMVideoDimensions) -> (),
                         onError: @escaping (_ message: String) -> ())
 }

@@ -242,9 +242,13 @@ class CameraView: UIView {
                     self?.camera.previewView.alpha = 1
                 })
             }
-        }, onSuccess: { [weak self] imageData, thumbnailData in
+        }, onSuccess: { [weak self] imageData, thumbnailData, dimensions in
             DispatchQueue.global(qos: .default).async {
-                self?.writeCaptured(imageData: imageData, thumbnailData: thumbnailData, onSuccess: onSuccess, onError: onError)
+                self?.writeCaptured(imageData: imageData,
+                                    thumbnailData: thumbnailData,
+                                    dimensions: dimensions,
+                                    onSuccess: onSuccess,
+                                    onError: onError)
 
                 self?.focusInterfaceView.resetFocus()
             }
@@ -289,6 +293,7 @@ class CameraView: UIView {
 
     private func writeCaptured(imageData: Data,
                                thumbnailData: Data?,
+                               dimensions: CMVideoDimensions,
                                onSuccess: @escaping (_ imageObject: [String: Any]) -> (),
                                onError: @escaping (_ error: String) -> ()) {
         do {
@@ -298,7 +303,9 @@ class CameraView: UIView {
                 "size": imageData.count,
                 "uri": temporaryImageFileURL.description,
                 "name": temporaryImageFileURL.lastPathComponent,
-                "thumb": ""
+                "thumb": "",
+                "height": dimensions.height,
+                "width": dimensions.width
             ])
         } catch {
             let errorMessage = "Error occurred while writing image data to a temporary file: \(error)"
