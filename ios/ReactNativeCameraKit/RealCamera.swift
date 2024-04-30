@@ -30,6 +30,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     private let photoOutput = AVCapturePhotoOutput()
     private let metadataOutput = AVCaptureMetadataOutput()
 
+    private var resizeMode: ResizeMode = .contain
     private var flashMode: FlashMode = .auto
     private var torchMode: TorchMode = .off
     private var resetFocus: (() -> Void)?
@@ -292,6 +293,17 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
             // We need to reapply the configuration after reloading the camera
             self.update(torchMode: self.torchMode)
+        }
+    }
+
+    func update(resizeMode: ResizeMode) {
+        DispatchQueue.main.async {
+            switch resizeMode {
+            case .cover:
+                self.cameraPreview.previewLayer.videoGravity = .resizeAspectFill
+            case .contain:
+                self.cameraPreview.previewLayer.videoGravity = .resizeAspect
+            }
         }
     }
 

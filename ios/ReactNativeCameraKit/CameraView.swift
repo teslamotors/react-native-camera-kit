@@ -33,6 +33,7 @@ class CameraView: UIView {
     // props
     // camera settings
     @objc var cameraType: CameraType = .back
+    @objc var resizeMode: ResizeMode = .contain
     @objc var flashMode: FlashMode = .auto
     @objc var torchMode: TorchMode = .off
     // ratio overlay
@@ -162,6 +163,10 @@ class CameraView: UIView {
 
         if changedProps.contains("onZoom") {
             camera.update(onZoom: onZoom)
+        }
+        
+        if changedProps.contains("resizeMode") {
+            camera.update(resizeMode: resizeMode)
         }
 
         // Ratio overlay

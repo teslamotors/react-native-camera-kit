@@ -41,4 +41,9 @@ RCT_ENUM_CONVERTER(CKZoomMode, (@{
     @"off": @(CKZoomModeOff)
 }), CKZoomModeOn, integerValue)
 
+RCT_ENUM_CONVERTER(CKResizeMode, (@{
+    @"cover": @(CKResizeModeCover),
+    @"contain": @(CKResizeModeContain)
+}), CKResizeModeCover, integerValue)
+
 @end
