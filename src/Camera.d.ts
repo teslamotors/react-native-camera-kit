@@ -101,6 +101,8 @@ export interface CameraProps {
   scanThrottleDelay?: number;
   /** **Android only**. Play a shutter capture sound when capturing a photo */
   shutterPhotoSound?: boolean;
+  onCaptureButtonPressIn?: ({ nativeEvent: {} }) => void;
+  onCaptureButtonPressOut?: ({ nativeEvent: {} }) => void;
 }
 
 declare const Camera: React.FC<CameraProps>;

@@ -5,6 +5,7 @@
 
 import AVFoundation
 import UIKit
+import AVKit
 
 /*
  * View abtracting the logic unrelated to the actual camera
@@ -55,6 +56,11 @@ class CameraView: UIView {
     @objc var zoomMode: ZoomMode = .on
     @objc var zoom: NSNumber?
     @objc var maxZoom: NSNumber?
+
+    @objc var onCaptureButtonPressIn: RCTDirectEventBlock?
+    @objc var onCaptureButtonPressOut: RCTDirectEventBlock?
+    
+    var eventInteraction: Any? = nil
 
     // MARK: - Setup
 
@@ -112,7 +118,28 @@ class CameraView: UIView {
         focusInterfaceView.delegate = camera
 
         handleCameraPermission()
+        
+        configureHardwareInteraction()
     }
+    
+    private func configureHardwareInteraction() {
+        // Create a new capture event interaction with a handler that captures a photo.
+        if #available(iOS 17.2, *) {
+            let interaction = AVCaptureEventInteraction { event in
+                // Capture a photo on "press up" of a hardware button.
+                if event.phase == .began {
+                    self.onCaptureButtonPressIn?(nil)
+                } else if event.phase == .ended {
+                    self.onCaptureButtonPressOut?(nil)
+                }
+            }
+            // Add the interaction to the view controller's view.
+            self.addInteraction(interaction)
+            eventInteraction = interaction
+        }
+    }
+    
+
 
     override func removeFromSuperview() {
         camera.cameraRemovedFromSuperview()

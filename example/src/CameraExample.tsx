@@ -219,6 +219,13 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
             }}
             torchMode={torchMode ? 'on' : 'off'}
             shutterPhotoSound
+            onCaptureButtonPressIn={() => {
+              console.log('capture button pressed in');
+            }}
+            onCaptureButtonPressOut={() => {
+              console.log('capture button released');
+              onCaptureImagePressed();
+            }}
             onOrientationChange={(e) => {
               // We recommend locking the camera UI to portrait (using a different library)
               // and rotating the UI elements counter to the orientation
