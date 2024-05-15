@@ -15,4 +15,4 @@ export const Orientation = {
 
 export default CameraKit;
 
-export { Camera, CameraType, TorchMode, FlashMode, FocusMode, ZoomMode, CameraApi, CaptureData, ResizeMode };
+export type { Camera, CameraType, TorchMode, FlashMode, FocusMode, ZoomMode, CameraApi, CaptureData, ResizeMode };

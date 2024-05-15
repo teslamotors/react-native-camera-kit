@@ -24,9 +24,9 @@ const Camera = React.forwardRef((props: CameraProps, ref) => {
   }));
 
   const transformedProps: CameraProps = { ...props };
-  transformedProps.ratioOverlayColor = processColor(props.ratioOverlayColor);
-  transformedProps.frameColor = processColor(props.frameColor);
-  transformedProps.laserColor = processColor(props.laserColor);
+  transformedProps.ratioOverlayColor = processColor(props.ratioOverlayColor) as any;
+  transformedProps.frameColor = processColor(props.frameColor) as any;
+  transformedProps.laserColor = processColor(props.laserColor) as any;
 
   return <NativeCamera style={{ minWidth: 100, minHeight: 100 }} ref={nativeRef} {...transformedProps} />;
 });

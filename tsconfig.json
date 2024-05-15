@@ -9,7 +9,7 @@
     "jsx": "react-native",
     "lib": ["ES6"],
     "module": "ES6",
-    "moduleResolution": "node",
+    "moduleResolution": "Node16",
     "noImplicitAny": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
