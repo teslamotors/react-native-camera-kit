@@ -1,7 +1,16 @@
 import { NativeModules } from 'react-native';
 
 import Camera from './Camera';
-import { CameraApi, CameraType, CaptureData, FlashMode, FocusMode, TorchMode, ZoomMode, ResizeMode } from './types';
+import {
+  CameraType,
+  type CameraApi,
+  type CaptureData,
+  type FlashMode,
+  type FocusMode,
+  type TorchMode,
+  type ZoomMode,
+  type ResizeMode,
+} from './types';
 
 const { CameraKit } = NativeModules;
 
@@ -15,4 +24,5 @@ export const Orientation = {
 
 export default CameraKit;
 
-export type { Camera, CameraType, TorchMode, FlashMode, FocusMode, ZoomMode, CameraApi, CaptureData, ResizeMode };
+export { Camera, CameraType };
+export type { TorchMode, FlashMode, FocusMode, ZoomMode, CameraApi, CaptureData, ResizeMode };

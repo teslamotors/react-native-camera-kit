@@ -1,15 +1,15 @@
 import React from 'react';
 import { requireNativeComponent, findNodeHandle, NativeModules, processColor } from 'react-native';
-import { CameraApi } from './types';
-import { CameraProps } from './Camera';
+import type { CameraApi } from './types';
+import type { CameraProps } from './CameraProps';
 
 const { RNCameraKitModule } = NativeModules;
 const NativeCamera = requireNativeComponent('CKCameraManager');
 
-const Camera = React.forwardRef((props: CameraProps, ref) => {
-  const nativeRef = React.useRef();
+const Camera = React.forwardRef<CameraApi, CameraProps>((props, ref) => {
+  const nativeRef = React.useRef(null);
 
-  React.useImperativeHandle<any, CameraApi>(ref, () => ({
+  React.useImperativeHandle(ref, () => ({
     capture: async (options = {}) => {
       // Because RN doesn't support return types for ViewManager methods
       // we must use the general module and tell it what View it's supposed to be using

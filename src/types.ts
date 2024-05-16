@@ -3,7 +3,20 @@ export enum CameraType {
   Back = 'back',
 }
 
-export type CodeFormat = 'code-128' | 'code-39' | 'code-93' | 'codabar' | 'ean-13' | 'ean-8' | 'itf' | 'upc-e' | 'qr' | 'pdf-417' | 'aztec' | 'data-matrix' | 'unknown';
+export type CodeFormat =
+  | 'code-128'
+  | 'code-39'
+  | 'code-93'
+  | 'codabar'
+  | 'ean-13'
+  | 'ean-8'
+  | 'itf'
+  | 'upc-e'
+  | 'qr'
+  | 'pdf-417'
+  | 'aztec'
+  | 'data-matrix'
+  | 'unknown';
 
 export type TorchMode = 'on' | 'off';
 
@@ -32,5 +45,3 @@ export type CameraApi = {
   requestDeviceCameraAuthorization: () => Promise<boolean>;
   checkDeviceCameraAuthorizationStatus: () => Promise<boolean>;
 };
-
-

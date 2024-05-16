@@ -1,4 +1,13 @@
-import { CameraApi, FlashMode, FocusMode, ZoomMode, TorchMode, CameraType, CodeFormat, ResizeMode } from './types';
+import { type ViewProps } from 'react-native';
+import {
+  CameraType,
+  type FlashMode,
+  type FocusMode,
+  type ZoomMode,
+  type TorchMode,
+  type ResizeMode,
+  type CodeFormat,
+} from './types';
 import { Orientation } from './index';
 
 export type OnReadCodeData = {
@@ -10,7 +19,7 @@ export type OnReadCodeData = {
 
 export type OnOrientationChangeData = {
   nativeEvent: {
-    orientation: Orientation;
+    orientation: typeof Orientation;
   };
 };
 
@@ -20,9 +29,7 @@ export type OnZoom = {
   };
 }
 
-export interface CameraProps {
-  ref?: LegacyRef<Component<CameraApi, {}, any>>;
-  style?: StyleProp<ViewStyle>;
+export interface CameraProps extends ViewProps {
   // Behavior
   flashMode?: FlashMode;
   focusMode?: FocusMode;
@@ -84,7 +91,7 @@ export interface CameraProps {
    */
   onZoom?: (event: OnZoom) => void;
   /** **Android only**. Triggered when camera fails to initialize */
-  onError?: (event: { nativeEvent: { errorMessage: number } }) => void;
+  onError?: (event: { nativeEvent: { errorMessage: string } }) => void;
   // Barcode only
   scanBarcode?: boolean;
   showFrame?: boolean;
@@ -104,7 +111,3 @@ export interface CameraProps {
   onCaptureButtonPressIn?: ({ nativeEvent: {} }) => void;
   onCaptureButtonPressOut?: ({ nativeEvent: {} }) => void;
 }
-
-declare const Camera: React.FC<CameraProps>;
-
-export default Camera;
