@@ -48,7 +48,6 @@ class ScannerFrameView: UIView {
             laserView.frame = CGRect(x: 2, y: 2, width: frame.size.width - 4, height: 2)
         }
 
-
         UIView.animate(withDuration: 3, delay: 0, options: [.autoreverse, .repeat], animations: {
             self.laserView.center = CGPoint(x: self.frame.size.width / 2, y: self.frame.size.height - 3)
         })
