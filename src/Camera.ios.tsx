@@ -1,15 +1,18 @@
 import React from 'react';
 import { requireNativeComponent, NativeModules } from 'react-native';
-import { CameraApi } from './types';
-import { CameraProps } from './Camera';
+import type { CameraApi } from './types';
+import type { CameraProps } from './CameraProps';
 
 const { CKCameraManager } = NativeModules;
 const NativeCamera = requireNativeComponent('CKCamera');
 
-const Camera = React.forwardRef((props: CameraProps, ref: any) => {
-  const nativeRef = React.useRef();
+const Camera = React.forwardRef<CameraApi, CameraProps>((props, ref) => {
+  const nativeRef = React.useRef(null);
 
-  React.useImperativeHandle<any, CameraApi>(ref, () => ({
+  props.resetFocusTimeout = props.resetFocusTimeout ?? 0;
+  props.resetFocusWhenMotionDetected = props.resetFocusWhenMotionDetected ?? true;
+
+  React.useImperativeHandle(ref, () => ({
     capture: async () => {
       return await CKCameraManager.capture({});
     },
@@ -23,10 +26,5 @@ const Camera = React.forwardRef((props: CameraProps, ref: any) => {
 
   return <NativeCamera style={{ minWidth: 100, minHeight: 100 }} ref={nativeRef} {...props} />;
 });
-
-Camera.defaultProps = {
-  resetFocusTimeout: 0,
-  resetFocusWhenMotionDetected: true,
-};
 
 export default Camera;

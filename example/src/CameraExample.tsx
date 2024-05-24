@@ -36,6 +36,7 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
   const [showImageUri, setShowImageUri] = useState<string>('');
   const [zoom, setZoom] = useState<number | undefined>();
   const [orientationAnim] = useState(new Animated.Value(3));
+  const [resize, setResize] = useState<'contain' | 'cover'>('contain');
 
   // iOS will error out if capturing too fast,
   // so block capturing until the current capture is done
@@ -65,6 +66,14 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
     setFlashData(flashArray[newPosition]);
   };
 
+  const onSetResize = () => {
+    if (resize === 'contain') {
+      setResize('cover');
+    } else {
+      setResize('contain');
+    }
+  };
+
   const onSetTorch = () => {
     setTorchMode(!torchMode);
   };
@@ -91,13 +100,37 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
     console.log('image', image);
   };
 
-  function CaptureButton({ onPress, children }: { onPress: () => void, children?: React.ReactNode }) {
-    const w = 80, brdW = 4, spc = 6;
-    const cInner = 'white', cOuter = 'white';
+  function CaptureButton({ onPress, children }: { onPress: () => void; children?: React.ReactNode }) {
+    const w = 80,
+      brdW = 4,
+      spc = 6;
+    const cInner = 'white',
+      cOuter = 'white';
     return (
       <TouchableOpacity onPress={onPress} style={{ width: w, height: w }}>
-        <View style={{ position: 'absolute', left: 0, top: 0, width: w, height: w, borderColor: cOuter, borderWidth: brdW, borderRadius: w / 2 }} />
-        <View style={{ position: 'absolute', left: brdW + spc, top: brdW + spc, width: w - ((brdW + spc) * 2), height: w - ((brdW + spc) * 2), backgroundColor: cInner, borderRadius: (w - ((brdW + spc) * 2)) / 2 }} />
+        <View
+          style={{
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            width: w,
+            height: w,
+            borderColor: cOuter,
+            borderWidth: brdW,
+            borderRadius: w / 2,
+          }}
+        />
+        <View
+          style={{
+            position: 'absolute',
+            left: brdW + spc,
+            top: brdW + spc,
+            width: w - (brdW + spc) * 2,
+            height: w - (brdW + spc) * 2,
+            backgroundColor: cInner,
+            borderRadius: (w - (brdW + spc) * 2) / 2,
+          }}
+        />
         {children}
       </TouchableOpacity>
     );
@@ -111,7 +144,7 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
     inputRange: [1, 4],
     outputRange: ['180deg', '-90deg'],
   });
-  const uiRotationStyle = rotateUi ? {transform: [{ rotate: uiRotation }]} : undefined;
+  const uiRotationStyle = rotateUi ? { transform: [{ rotate: uiRotation }] } : undefined;
 
   function rotateUiTo(rotationValue: number) {
     Animated.timing(orientationAnim, {
@@ -128,12 +161,20 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
       <SafeAreaView style={styles.topButtons}>
         {flashData.image && (
           <TouchableOpacity style={styles.topButton} onPress={onSetFlash}>
-            <Animated.Image source={flashData.image} resizeMode="contain" style={[styles.topButtonImg, uiRotationStyle]} />
+            <Animated.Image
+              source={flashData.image}
+              resizeMode="contain"
+              style={[styles.topButtonImg, uiRotationStyle]}
+            />
           </TouchableOpacity>
         )}
 
         <TouchableOpacity style={styles.topButton} onPress={onSwitchCameraPressed}>
-          <Animated.Image source={require('../images/cameraFlipIcon.png')} resizeMode="contain" style={[styles.topButtonImg, uiRotationStyle]} />
+          <Animated.Image
+            source={require('../images/cameraFlipIcon.png')}
+            resizeMode="contain"
+            style={[styles.topButtonImg, uiRotationStyle]}
+          />
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.topButton} onPress={() => setZoom(1)}>
@@ -149,6 +190,14 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
             style={[styles.topButtonImg, uiRotationStyle]}
           />
         </TouchableOpacity>
+
+        <TouchableOpacity style={styles.topButton} onPress={onSetResize}>
+          <Animated.Image
+            source={require('../images/resize.png')}
+            resizeMode="contain"
+            style={[styles.topButtonImg, uiRotationStyle]}
+          />
+        </TouchableOpacity>
       </SafeAreaView>
 
       <View style={styles.cameraContainer}>
@@ -160,6 +209,7 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
             style={styles.cameraPreview}
             cameraType={cameraType}
             flashMode={flashData?.mode}
+            resizeMode={resize}
             resetFocusWhenMotionDetected
             zoom={zoom}
             maxZoom={10}
@@ -169,6 +219,13 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
             }}
             torchMode={torchMode ? 'on' : 'off'}
             shutterPhotoSound
+            onCaptureButtonPressIn={() => {
+              console.log('capture button pressed in');
+            }}
+            onCaptureButtonPressOut={() => {
+              console.log('capture button released');
+              onCaptureImagePressed();
+            }}
             onOrientationChange={(e) => {
               // We recommend locking the camera UI to portrait (using a different library)
               // and rotating the UI elements counter to the orientation
@@ -265,7 +322,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   cameraPreview: {
-    aspectRatio: 3 / 4,
+    flex: 1,
     width: '100%',
   },
   bottomButtons: {
