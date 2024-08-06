@@ -40,14 +40,4 @@ RCT_EXPORT_VIEW_PROPERTY(zoomMode, CKZoomMode)
 RCT_EXPORT_VIEW_PROPERTY(zoom, NSNumber)
 RCT_EXPORT_VIEW_PROPERTY(maxZoom, NSNumber)
 
-RCT_EXTERN_METHOD(capture:(NSDictionary*)options
-                  resolve:(RCTPromiseResolveBlock)resolve
-                  reject:(RCTPromiseRejectBlock)reject)
-
-RCT_EXTERN_METHOD(checkDeviceCameraAuthorizationStatus:(RCTPromiseResolveBlock)resolve
-                  reject:(__unused RCTPromiseRejectBlock)reject)
-
-RCT_EXTERN_METHOD(requestDeviceCameraAuthorization:(RCTPromiseResolveBlock)resolve
-                  reject:(__unused RCTPromiseRejectBlock)reject)
-
 @end
