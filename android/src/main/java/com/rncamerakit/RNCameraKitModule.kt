@@ -69,15 +69,15 @@ class RNCameraKitModule(private val reactContext: ReactApplicationContext) : Nat
      */
     @ReactMethod
     override fun capture(options: ReadableMap?, tag: Double?, promise: Promise) {
-        // CameraManager does not allow us to return values
-        val context = reactContext
         val viewTag = tag?.toInt()
         if (viewTag != null && options != null) {
             val uiManager = UIManagerHelper.getUIManagerForReactTag(reactContext, viewTag)
-            context.runOnUiQueueThread {
+            reactContext.runOnUiQueueThread {
                 val camera = uiManager?.resolveView(viewTag) as CKCamera
                 camera.capture(options.toHashMap(), promise)
             }
+        } else {
+            promise.reject("E_CAPTURE_FAILED", "options or/and tag arguments are null, options: $options, tag: $viewTag")
         }
     }
 }

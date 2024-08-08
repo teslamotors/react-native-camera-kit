@@ -34,7 +34,6 @@ class RNCameraKitPackage : TurboReactPackage() {
                 RNCameraKitModule.REACT_CLASS,
                 false,  // canOverrideExistingModule
                 false,  // needsEagerInit
-                true,  // hasConstants
                 false,  // isCxxModule
                 isTurboModule // isTurboModule
             )
