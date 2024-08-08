@@ -146,7 +146,6 @@ static id CKConvertFollyDynamicToId(const folly::dynamic &dyn)
     [_view updateSubviewsBounds:RCTCGRectFromRect(layoutMetrics.frame)];
 }
 
-
 - (void)updateProps:(const Props::Shared &)props oldProps:(const Props::Shared &)oldProps
 {
     const auto &newProps = static_cast<const CKCameraProps &>(*props);
@@ -246,7 +245,6 @@ static id CKConvertFollyDynamicToId(const folly::dynamic &dyn)
     [super prepareForRecycle];
     [self prepareView];
 }
-
 
 @end
 
