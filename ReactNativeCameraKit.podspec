@@ -19,9 +19,9 @@ Pod::Spec.new do |s|
   if ENV['USE_FRAMEWORKS']
     exisiting_flags = s.attributes_hash["compiler_flags"]
       if exisiting_flags.present?
-        s.compiler_flags = exisiting_flags + " -DCK_USE_FRAMEWORKS=1"
+        s.compiler_flags = exisiting_flags + "-DCK_USE_FRAMEWORKS=1"
       else
-        s.compiler_flags = extra_flags
+        s.compiler_flags = "-DCK_USE_FRAMEWORKS=1"
       end
   end
 
