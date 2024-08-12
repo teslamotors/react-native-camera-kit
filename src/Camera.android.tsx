@@ -10,7 +10,7 @@ const Camera = React.forwardRef<CameraApi, CameraProps>((props, ref) => {
 
   React.useImperativeHandle(ref, () => ({
     capture: async (options = {}) => {
-      return await NativeCameraKitModule.capture(options, findNodeHandle(nativeRef.current ?? null) ?? undefined);
+      return await NativeCameraKitModule.capture(options, findNodeHandle(nativeRef.current) ?? undefined);
     },
     requestDeviceCameraAuthorization: () => {
       throw new Error('Not implemented');
