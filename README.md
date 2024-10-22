@@ -42,7 +42,7 @@ cd ios && pod install && cd ..
 ```
 
 Android:
-[Add Kotlin to your project](./docs/kotlin.md)
+[Review your Kotlin configuration](./docs/kotlin.md) to ensure it's compatible with this library.
 
 ## Permissions
 
