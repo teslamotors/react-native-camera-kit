@@ -11,7 +11,7 @@
 #import "RCTConvert.h"
 #endif
 
-#import "ReactNativeCameraKit-Swift.h"
+#import "ReactNativeCameraKit-Swift.pre.h"
 
 @implementation RCTConvert (CKTypes)
 

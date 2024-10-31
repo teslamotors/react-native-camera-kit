@@ -12,7 +12,7 @@ import AVKit
  * Like permission, ratio overlay, focus, zoom gesture, write image, etc
  */
 @objc(CKCameraView)
-class CameraView: UIView {
+public class CameraView: UIView {
     private let camera: CameraProtocol
 
     // Focus
@@ -33,32 +33,32 @@ class CameraView: UIView {
 
     // props
     // camera settings
-    @objc var cameraType: CameraType = .back
-    @objc var resizeMode: ResizeMode = .contain
-    @objc var flashMode: FlashMode = .auto
-    @objc var torchMode: TorchMode = .off
+    @objc public var cameraType: CameraType = .back
+    @objc public var resizeMode: ResizeMode = .contain
+    @objc public var flashMode: FlashMode = .auto
+    @objc public var torchMode: TorchMode = .off
     // ratio overlay
-    @objc var ratioOverlay: String?
-    @objc var ratioOverlayColor: UIColor?
+    @objc public var ratioOverlay: String?
+    @objc public var ratioOverlayColor: UIColor?
     // scanner
-    @objc var scanBarcode = false
-    @objc var showFrame = false
-    @objc var onReadCode: RCTDirectEventBlock?
-    @objc var scanThrottleDelay = 2000
-    @objc var frameColor: UIColor?
-    @objc var laserColor: UIColor?
+    @objc public var scanBarcode = false
+    @objc public var showFrame = false
+    @objc public var onReadCode: RCTDirectEventBlock?
+    @objc public var scanThrottleDelay = 2000
+    @objc public var frameColor: UIColor?
+    @objc public var laserColor: UIColor?
     // other
-    @objc var onOrientationChange: RCTDirectEventBlock?
-    @objc var onZoom: RCTDirectEventBlock?
-    @objc var resetFocusTimeout = 0
-    @objc var resetFocusWhenMotionDetected = false
-    @objc var focusMode: FocusMode = .on
-    @objc var zoomMode: ZoomMode = .on
-    @objc var zoom: NSNumber?
-    @objc var maxZoom: NSNumber?
+    @objc public var onOrientationChange: RCTDirectEventBlock?
+    @objc public var onZoom: RCTDirectEventBlock?
+    @objc public var resetFocusTimeout = 0
+    @objc public var resetFocusWhenMotionDetected = false
+    @objc public var focusMode: FocusMode = .on
+    @objc public var zoomMode: ZoomMode = .on
+    @objc public var zoom: NSNumber?
+    @objc public var maxZoom: NSNumber?
 
-    @objc var onCaptureButtonPressIn: RCTDirectEventBlock?
-    @objc var onCaptureButtonPressOut: RCTDirectEventBlock?
+    @objc public var onCaptureButtonPressIn: RCTDirectEventBlock?
+    @objc public var onCaptureButtonPressOut: RCTDirectEventBlock?
     
     var eventInteraction: Any? = nil
 
@@ -138,10 +138,8 @@ class CameraView: UIView {
             eventInteraction = interaction
         }
     }
-    
 
-
-    override func removeFromSuperview() {
+    override public func removeFromSuperview() {
         camera.cameraRemovedFromSuperview()
 
         super.removeFromSuperview()
@@ -149,9 +147,12 @@ class CameraView: UIView {
 
     // MARK: React lifecycle
 
-    override func reactSetFrame(_ frame: CGRect) {
+    override public func reactSetFrame(_ frame: CGRect) {
         super.reactSetFrame(frame)
-
+        self.updateSubviewsBounds(frame)
+    }
+    
+    @objc public func updateSubviewsBounds(_ frame: CGRect) {
         camera.previewView.frame = bounds
 
         scannerInterfaceView.frame = bounds
@@ -163,14 +164,14 @@ class CameraView: UIView {
         ratioOverlayView?.frame = bounds
     }
 
-    override func removeReactSubview(_ subview: UIView) {
+    override public func removeReactSubview(_ subview: UIView) {
         subview.removeFromSuperview()
         super.removeReactSubview(subview)
     }
 
     // Called once when all props have been set, then every time one is updated
     // swiftlint:disable:next cyclomatic_complexity function_body_length
-    override func didSetProps(_ changedProps: [String]) {
+    override public func didSetProps(_ changedProps: [String]) {
         hasPropBeenSetup = true
 
         // Camera settings
@@ -268,7 +269,7 @@ class CameraView: UIView {
 
     // MARK: Public
 
-    func capture(onSuccess: @escaping (_ imageObject: [String: Any]) -> Void,
+    @objc public func capture(onSuccess: @escaping (_ imageObject: [String: Any]) -> Void,
                  onError: @escaping (_ error: String) -> Void) {
         camera.capturePicture(onWillCapture: { [weak self] in
             // Flash/dim preview to indicate shutter action
