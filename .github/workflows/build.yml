@@ -1,29 +1,41 @@
 name: Build
-on: [push, pull_request]
+run-name: ⚙️ Build examples on ${{ github.event_name == 'pull_request' && 'PR' || '🌱' }} ${{ github.event_name == 'pull_request' && github.event.number || github.ref_name }}
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+
 jobs:
   build-example-ios:
     name: build-example-ios
     runs-on: macos-latest
     steps:
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '2.7.4'
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Install modules
         run: yarn
-      - name: Bootstrap
+      - name: Install example
         run: yarn bootstrap
       - name: Build
-        run: cd example/ios && xcodebuild -workspace CameraKitExample.xcworkspace -configuration Debug -scheme CameraKitExample -arch x86_64
+        run: cd example/ios && xcodebuild -workspace CameraKitExample.xcworkspace -configuration Debug -scheme CameraKitExample -sdk iphoneos build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
   build-example-android:
-      name: build-example-android
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v2
-        - name: Validate Gradle Wrapper
-          uses: gradle/wrapper-validation-action@v1
-        - name: Install modules
-          run: yarn
-        - name: Bootstrap
-          run: yarn bootstrap
-        - name: Build
-          run: cd example/android && ./gradlew assembleDebug
+    name: build-example-android
+    runs-on: ubuntu-latest # using linux runner for speed
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Validate Gradle Wrapper
+        uses: gradle/wrapper-validation-action@v1
+      - name: Install modules
+        run: yarn
+      - name: Install example
+        run: yarn bootstrap-linux
+      - name: Build
+        run: cd example/android && ./gradlew assembleDebug

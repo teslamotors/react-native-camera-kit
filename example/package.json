@@ -6,17 +6,26 @@
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
-    "start": "react-native start"
+    "start": "react-native start",
+    "reverse": "adb reverse tcp:8081 tcp:8081"
   },
   "dependencies": {
-    "lodash": "^4.17.20",
-    "react": "16.13.1",
-    "react-native": "0.63.4"
+    "@react-native/babel-preset": "0.74.83",
+    "@react-native/eslint-config": "0.74.83",
+    "@react-native/metro-config": "0.74.83",
+    "@react-native/typescript-config": "0.74.83",
+    "@types/react": "^18.2.6",
+    "react": "^18.2.0",
+    "react-native": "^0.74.1"
   },
   "devDependencies": {
     "@babel/core": "^7.9.6",
     "@babel/runtime": "^7.9.6",
-    "babel-plugin-module-resolver": "^4.0.0",
-    "metro-react-native-babel-preset": "^0.59.0"
-  }
+    "babel-plugin-module-resolver": "^5.0.0",
+    "metro-react-native-babel-preset": "^0.76.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "packageManager": "yarn@3.6.4"
 }

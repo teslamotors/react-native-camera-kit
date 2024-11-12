@@ -46,6 +46,70 @@ Android:
 
 ## Permissions
 
+You must use a separate library for prompting the user for permissions before rendering the `<Camera .../>` component.  
+We recommend zoontek's library, react-native-permissions:
+https://github.com/zoontek/react-native-permissions#ios-flow
+
+**If you fail to prompt for permission, the camera will appear blank / black.**
+
+### Why no permissions API?
+
+Conceptually, permissions are simple: Granted / Denied.  
+However, in reality it's not that simple due to privacy enhancements on iOS and Android.
+
+[Here's an example diagram from react-native-permissions's README](https://github.com/zoontek/react-native-permissions#ios-flow), which illustrates the complexity of the user-experience, which we don't want to duplicate in a camera library:
+
+```
+   ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+   ┃ check(PERMISSIONS.IOS.CAMERA) ┃
+   ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+                   │
+       Is the feature available
+           on this device ?
+                   │           ╔════╗
+                   ├───────────║ NO ║──────────────┐
+                   │           ╚════╝              │
+                ╔═════╗                            ▼
+                ║ YES ║                 ┌─────────────────────┐
+                ╚═════╝                 │ RESULTS.UNAVAILABLE │
+                   │                    └─────────────────────┘
+           Is the permission
+             requestable ?
+                   │           ╔════╗
+                   ├───────────║ NO ║──────────────┐
+                   │           ╚════╝              │
+                ╔═════╗                            ▼
+                ║ YES ║                  ┌───────────────────┐
+                ╚═════╝                  │ RESULTS.BLOCKED / │
+                   │                     │ RESULTS.LIMITED / │
+                   │                     │  RESULTS.GRANTED  │
+                   ▼                     └───────────────────┘
+          ┌────────────────┐
+          │ RESULTS.DENIED │
+          └────────────────┘
+                   │
+                   ▼
+  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+  ┃ request(PERMISSIONS.IOS.CAMERA) ┃
+  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+                   │
+         Does the user accept
+            the request ?
+                   │           ╔════╗
+                   ├───────────║ NO ║──────────────┐
+                   │           ╚════╝              │
+                ╔═════╗                            ▼
+                ║ YES ║                   ┌─────────────────┐
+                ╚═════╝                   │ RESULTS.BLOCKED │
+                   │                      └─────────────────┘
+                   ▼
+          ┌─────────────────┐
+          │ RESULTS.GRANTED │
+          └─────────────────┘
+```
+
+In earlier versions of react-native-camera-kit, permissions were provided with an API, but for the above reasons, these APIs will be removed.
+
 #### Android
 
 Add the following uses-permission to your `AndroidManifest.xml` (usually found at: `android/src/main/`)
@@ -74,52 +138,9 @@ Add the following usage descriptions to your `Info.plist` (usually found at: `io
 
 ## Components
 
-### CameraScreen
-
-Full screen camera component that holds camera state and provides camera controls
-
-```ts
-import { CameraScreen } from 'react-native-camera-kit';
-```
-
-```tsx
-<CameraScreen
-  actions={{ rightButtonText: 'Done', leftButtonText: 'Cancel' }}
-  onBottomButtonPressed={(event) => this.onBottomButtonPressed(event)}
-  flashImages={{
-    // optional, images for flash state
-    on: require('path/to/image'),
-    off: require('path/to/image'),
-    auto: require('path/to/image'),
-  }}
-  cameraFlipImage={require('path/to/image')} // optional, image for flipping camera button
-  captureButtonImage={require('path/to/image')} // optional, image capture button
-  torchOnImage={require('path/to/image')} // optional, image for toggling on flash light
-  torchOffImage={require('path/to/image')} // optional, image for toggling off flash light
-  hideControls={false} // (default false) optional, hides camera controls
-  showCapturedImageCount={false} // (default false) optional, show count for photos taken during that capture session
-/>
-```
-
-#### Barcode / QR Code Scanning
-
-Additionally, the camera screen can be used for barcode scanning
-
-```tsx
-<CameraScreen
-  ...
-  // Barcode props
-  scanBarcode={true}
-  onReadCode={(event) => Alert.alert('QR code found')} // optional
-  showFrame={true} // (default false) optional, show frame with transparent layer (qr code or barcode will be read on this area ONLY), start animation for scanner,that stoped when find any code. Frame always at center of the screen
-  laserColor='red' // (default red) optional, color of laser in scanner frame
-  frameColor='white' // (default white) optional, color of border of scanner frame
-/>
-```
-
 ### Camera
 
-Barebones camera component
+Barebones camera component if you need advanced/customized interface
 
 ```ts
 import { Camera, CameraType } from 'react-native-camera-kit';
@@ -129,33 +150,59 @@ import { Camera, CameraType } from 'react-native-camera-kit';
 <Camera
   ref={(ref) => (this.camera = ref)}
   cameraType={CameraType.Back} // front/back(default)
+  flashMode="auto"
+/>
+```
+
+#### Barcode / QR Code Scanning
+
+Additionally, the Camera can be used for barcode scanning
+
+```tsx
+<Camera
+  ...
+  // Barcode props
+  scanBarcode={true}
+  onReadCode={(event) => Alert.alert('QR code found')} // optional
+  showFrame={true} // (default false) optional, show frame with transparent layer (qr code or barcode will be read on this area ONLY), start animation for scanner, that stops when a code has been found. Frame always at center of the screen
+  laserColor='red' // (default red) optional, color of laser in scanner frame
+  frameColor='white' // (default white) optional, color of border of scanner frame
 />
 ```
 
 ### Camera Props (Optional)
 
-| Props                          | Type                    | Description                                                                                                                                                                                                                                                                                                                                   |
-| ------------------------------ | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `flashMode`                    | `'on'`/`'off'`/`'auto'` | Camera flash mode. Default: `auto`                                                                                                                                                                                                                                                                                                            |
-| `focusMode`                    | `'on'`/`'off'`          | Camera focus mode. Default: `on`                                                                                                                                                                                                                                                                                                              |
-| `zoomMode`                     | `'on'`/`'off'`          | Enable pinch to zoom camera. Default: `on`                                                                                                                                                                                                                                                                                                    |
-| `torchMode`                    | `'on'`/`'off'`          | Toggle flash light when camera is active. Default: `off`                                                                                                                                                                                                                                                                                      |
-| `ratioOverlay`                 | `['int':'int', ...]`    | Show a guiding overlay in the camera preview for the selected ratio. Does not crop image as of v9.0. Example: `['16:9', '1:1', '3:4']`                                                                                                                                                                                                        |
-| `ratioOverlayColor`            | Color                   | Any color with alpha. Default: `'#ffffff77'`                                                                                                                                                                                                                                                                                                  |
-| `resetFocusTimeout`            | Number                  | **iOS only.** Dismiss tap to focus after this many milliseconds. Default `0` (disabled). Example: `5000` is 5 seconds.                                                                                                                                                                                                                            |
-| `resetFocusWhenMotionDetected` | Boolean                 | **iOS only.** Dismiss tap to focus when focus area content changes. Native iOS feature, see documentation: https://developer.apple.com/documentation/avfoundation/avcapturedevice/1624644-subjectareachangemonitoringenabl?language=objc). Default `true`.                                                                                        |
-| `onOrientationChange`          | Function                | Callback when physical device orientation changes. Returned event contains `orientation`. Ex: `onOrientationChange={(event) => console.log(event.nativeEvent.orientation)}`. Use `import { Orientation } from 'react-native-camera-kit'; if (event.nativeEvent.orientation === Orientation.PORTRAIT) { ... }` to understand the new value |
-
-### Barcode Props (Optional)
-
-| Props          | Type     | Description                                                                                                                                                                                |
-| -------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `scanBarcode`  | Boolean  | Enable barcode scanner. Default: `false`                                                                                                                                                   |
-| `showFrame`    | Boolean  | Show frame in barcode scanner. Default: `false`                                                                                                                                            |
-| `laserColor`   | Color    | Color of barcode scanner laser visualization. Default: `red`                                                                                                                               |
-| `frameColor`   | Color    | Color of barcode scanner frame visualization. Default: `yellow`                                                                                                                            |
-| `surfaceColor` | Color    | Color of barcode scanner surface visualization. Default: `blue`                                                                                                                            |
-| `onReadCode`   | Function | Callback when scanner successfully reads barcode. Returned event contains `codeStringValue`. Default: `null`. Ex: `onReadCode={(event) => console.log(event.nativeEvent.codeStringValue)}` |
+| Props                          | Type                             | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| ------------------------------ | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ref`                          | Ref                              | Reference on the camera view                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| `style`                        | StyleProp\<ViewStyle>            | Style to apply on the camera view                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| `flashMode`                    | `'on'`/`'off'`/`'auto'`          | Camera flash mode. Default: `auto`                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `focusMode`                    | `'on'`/`'off'`                   | Camera focus mode. Default: `on`                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| `zoomMode`                     | `'on'`/`'off'`                   | Enable the pinch to zoom gesture. Default: `on`                                                                                                                                                                                                                                                                                                                                                                                                            |
+| `zoom`                         | `number`                         | Control the zoom. Default: `1.0`                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| `maxZoom`                      | `number`                         | Maximum zoom allowed (but not beyond what camera allows). Default: `undefined` (camera default max)                                                                                                                                                                                                                                                                                                                                                        |
+| `onZoom`                       | Function                         | Callback when user makes a pinch gesture, regardless of what the `zoom` prop was set to. Returned event contains `zoom`. Ex: `onZoom={(e) => console.log(e.nativeEvent.zoom)}`.                                                                                                                                                                                                                                                                            |
+| `torchMode`                    | `'on'`/`'off'`                   | Toggle flash light when camera is active. Default: `off`                                                                                                                                                                                                                                                                                                                                                                                                   |
+| `cameraType`                   | CameraType.Back/CameraType.Front | Choose what camera to use. Default: `CameraType.Back`                                                                                                                                                                                                                                                                                                                                                                                                      |
+| `onOrientationChange`          | Function                         | Callback when physical device orientation changes. Returned event contains `orientation`. Ex: `onOrientationChange={(event) => console.log(event.nativeEvent.orientation)}`. Use `import { Orientation } from 'react-native-camera-kit'; if (event.nativeEvent.orientation === Orientation.PORTRAIT) { ... }` to understand the new value                                                                                                                  |
+| **Android only**               |
+| `onError`                      | Function                         | Android only. Callback when camera fails to initialize. Ex: `onError={(e) => console.log(e.nativeEvent.errorMessage)}`.                                                                                                                                                                                                                                                                                                                                    |
+| `shutterPhotoSound`            | `boolean`                        | Android only. Enable or disable the shutter sound when capturing a photo. Default: `true`                                                                                                                                                                                                                                                                                                                                                                  |
+| **iOS only**                   |
+| `ratioOverlay`                 | `'int:int'`                      | Show a guiding overlay in the camera preview for the selected ratio. Does not crop image as of v9.0. Example: `'16:9'`                                                                                                                                                                                                                                                                                                                                     |
+| `ratioOverlayColor`            | Color                            | Any color with alpha. Default: `'#ffffff77'`                                                                                                                                                                                                                                                                                                                                                                                                               |
+| `resetFocusTimeout`            | `number`                         | Dismiss tap to focus after this many milliseconds. Default `0` (disabled). Example: `5000` is 5 seconds.                                                                                                                                                                                                                                                                                                                                                   |
+| `resetFocusWhenMotionDetected` | Boolean                          | Dismiss tap to focus when focus area content changes. Native iOS feature, see documentation: https://developer.apple.com/documentation/avfoundation/avcapturedevice/1624644-subjectareachangemonitoringenabl?language=objc). Default `true`.                                                                                                                                                                                                               |
+| `resizeMode`                   | `'cover' / 'contain'`            | Determines the scaling and cropping behavior of content within the view. `cover` (resizeAspectFill on iOS) scales the content to fill the view completely, potentially cropping content if its aspect ratio differs from the view. `contain` (resizeAspect on iOS) scales the content to fit within the view's bounds without cropping, ensuring all content is visible but may introduce letterboxing. Default behavior depends on the specific use case. |
+| `scanThrottleDelay`            | `number`                         | Duration between scan detection in milliseconds. Default 2000 (2s)                                                                                                                                                                                                                                                                                                                                                                                         |
+| `onCaptureButtonPressIn`       | Function                         | Callback when iPhone capture button is pressed in. Ex: `onCaptureButtonPressIn={() => console.log("volume button pressed in")}`                                                                                                                  |
+| `onCaptureButtonPressOut`      | Function                         | Callback when iPhone capture button is released. Ex: `onCaptureButtonPressOut={() => console.log("volume button released")}`                                                                                                                  |
+| **Barcode only**               |
+| `scanBarcode`                  | `boolean`                        | Enable barcode scanner. Default: `false`                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| `showFrame`                    | `boolean`                        | Show frame in barcode scanner. Default: `false`                                                                                                                                                                                                                                                                                                                                                                                                            |
+| `laserColor`                   | Color                            | Color of barcode scanner laser visualization. Default: `red`                                                                                                                                                                                                                                                                                                                                                                                               |
+| `frameColor`                   | Color                            | Color of barcode scanner frame visualization. Default: `yellow`                                                                                                                                                                                                                                                                                                                                                                                            |
+| `onReadCode`                   | Function                         | Callback when scanner successfully reads barcode. Returned event contains `codeStringValue`. Default: `null`. Ex: `onReadCode={(event) => console.log(event.nativeEvent.codeStringValue)}`                                                                                                                                                                                                                                                                 |
 
 ### Imperative API
 
@@ -165,7 +212,7 @@ _Note: Must be called on a valid camera ref_
 
 Capture image as JPEG.
 
-A temporary file is created. You *must* move this file to a permanent location (e.g. the app's 'Documents' folder) if you need it beyond the current session of the app as it may be deleted when the user leaves the app. You can move files by using a file system library such as [react-native-fs](https://github.com/itinance/react-native-fs) or [expo-filesystem](https://docs.expo.io/versions/latest/sdk/filesystem/).
+A temporary file is created. You _must_ move this file to a permanent location (e.g. the app's 'Documents' folder) if you need it beyond the current session of the app as it may be deleted when the user leaves the app. You can move files by using a file system library such as [react-native-fs](https://github.com/itinance/react-native-fs) or [expo-filesystem](https://docs.expo.io/versions/latest/sdk/filesystem/).
 (On Android we currently have an unsupported `outputPath` prop but it's subject to change at any time).
 
 Note that the reason you're getting a URL despite it being a file is because Android 10+ encourages URIs. To keep things consistent regardless of settings or platform we always send back a URI.
@@ -176,6 +223,7 @@ const { uri } = await this.camera.capture();
 ```
 
 If you want to store it permanently, here's an example using [react-native-fs](https://github.com/itinance/react-native-fs):
+
 ```ts
 import RNFS from 'react-native-fs';
 // [...]
@@ -218,6 +266,12 @@ const isUserAuthorizedCamera = await Camera.requestDeviceCameraAuthorization();
 `AVAuthorizationStatusAuthorized` returns `true`
 
 otherwise, returns `false`
+
+## Using with Expo
+
+If you are using Expo Managed Workflow, you can use this library with a third-party plugin `expo-react-native-camera-kit`.
+
+[See more here](https://github.com/avantstay/expo-react-native-camera-kit)
 
 ## Contributing
 

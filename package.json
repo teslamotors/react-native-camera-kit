@@ -7,7 +7,7 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
-  "version": "13.0.0",
+  "version": "14.0.0",
   "description": "A high performance, fully featured, rock solid camera library for React Native applications",
   "nativePackage": true,
   "scripts": {
@@ -15,41 +15,47 @@
     "clean": "rm -rf dist/",
     "test": "jest",
     "lint": "yarn eslint -c .eslintrc.js",
+    "check-ios": "scripts/check-ios.sh",
     "release": "yarn clean && yarn build && yarn publish --verbose",
     "release:beta": "yarn clean && yarn build && yarn publish --tag beta --verbose",
     "release:local": "yarn clean && yarn build && tmp=$(mktemp) && yarn pack --filename $tmp.tar.gz && open -R $tmp.tar.gz",
     "start": "watchman watch-del-all && node node_modules/react-native/local-cli/cli.js start",
-    "example": "yarn --cwd example",
-    "pods": "cd example && pod-install --quiet",
-    "bootstrap": "yarn example && yarn && yarn pods"
+    "bootstrap": "cd example/ && bundle install && yarn && cd ios/ && bundle exec pod install",
+    "bootstrap-linux": "cd example/ && yarn"
   },
   "main": "dist/index.js",
   "module": "dist/index.js",
   "source": "./src/",
-  "dependencies": {
-    "lodash": "^4.14.2"
-  },
+  "types": "dist/index.d.ts",
+  "react-native": "src/index",
+  "dependencies": {},
   "license": "MIT",
   "devDependencies": {
-    "@react-native-community/eslint-config": "^2.0.0",
-    "@types/jest": "^26.0.0",
-    "@types/lodash": "^4.14.165",
-    "@types/react": "^16.9.19",
-    "@types/react-native": "0.62.13",
-    "babel-jest": "22.4.1",
-    "eslint": "^7.11.0",
+    "@babel/core": "^7.20.0",
+    "@babel/preset-env": "^7.20.0",
+    "@babel/runtime": "^7.20.0",
+    "@react-native/babel-preset": "0.74.83",
+    "@react-native/eslint-config": "0.74.83",
+    "@react-native/metro-config": "0.74.83",
+    "@react-native/typescript-config": "0.74.83",
+    "@types/react": "^18.2.6",
+    "@types/react-test-renderer": "^18.0.0",
+    "babel-jest": "^29.6.3",
+    "eslint": "^8.19.0",
     "eslint-plugin-import": "^2.22.1",
-    "jest": "^26.0.1",
-    "metro-react-native-babel-preset": "0.51.0",
-    "pod-yarn": "^0.1.0",
-    "prettier": "^2.1.2",
-    "react": "16.11.0",
-    "react-native": "0.62.3",
-    "react-test-renderer": "16.6.0",
-    "typescript": "^4.2.3"
+    "jest": "^29.6.3",
+    "prettier": "2.8.8",
+    "react": "18.2.0",
+    "react-native": "0.74.1",
+    "react-test-renderer": "18.2.0",
+    "typescript": "5.0.4"
   },
   "peerDependencies": {
     "react": "*",
     "react-native": "*"
-  }
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "packageManager": "yarn@3.6.4"
 }

@@ -10,10 +10,10 @@ Pod::Spec.new do |s|
 
   s.authors      = "CameraKit"
   s.homepage     = "https://github.com/teslamotors/react-native-camera-kit"
-  s.platform     = :ios, "10.0"
+  s.platform     = :ios, "11.0"
 
   s.source       = { :git => "https://github.com/teslamotors/react-native-camera-kit.git", :tag => "v#{s.version}" }
-  s.source_files  = "ios/**/*.{h,m}"
+  s.source_files  = "ios/**/*.{h,m,swift}"
 
   s.dependency 'React-Core'
 end

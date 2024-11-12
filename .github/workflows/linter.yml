@@ -1,13 +1,49 @@
 name: Linter
-on: [push, pull_request]
+run-name: 🩺 Code checks on ${{ github.event_name == 'pull_request' && 'PR' || '🌱' }} ${{ github.event_name == 'pull_request' && github.event.number || github.ref_name }}
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+
 jobs:
   eslint:
     name: ESLint
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest # using linux runner for speed
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Install modules
         run: yarn
+      - name: Install example
+        run: yarn bootstrap-linux
       - name: Lint
         run: yarn lint
+
+  ios:
+    name: Lint iOS
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Install dependencies
+        run: brew bundle
+      - name: Run swiftlint
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            updatedFiles=$(git --no-pager diff --name-only --diff-filter=ACMRT ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} -- '*.swift')
+
+            if [[ -z "$updatedFiles" ]]; then
+              echo "No Swift files changed, skipping linting"
+              exit 0
+            fi
+
+            swiftlint --reporter github-actions-logging -- $updatedFiles
+          else
+            swiftlint
+          fi
