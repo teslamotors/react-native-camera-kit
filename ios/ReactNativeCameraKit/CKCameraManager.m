@@ -17,6 +17,7 @@
 
 RCT_EXPORT_VIEW_PROPERTY(cameraType, CKCameraType)
 RCT_EXPORT_VIEW_PROPERTY(flashMode, CKFlashMode)
+RCT_EXPORT_VIEW_PROPERTY(maxPhotoQualityPrioritization, CKMaxPhotoQualityPrioritization)
 RCT_EXPORT_VIEW_PROPERTY(torchMode, CKTorchMode)
 RCT_EXPORT_VIEW_PROPERTY(ratioOverlay, NSString)
 RCT_EXPORT_VIEW_PROPERTY(ratioOverlayColor, UIColor)

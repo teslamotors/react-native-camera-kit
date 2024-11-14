@@ -37,6 +37,7 @@ class CameraView: UIView {
     @objc var resizeMode: ResizeMode = .contain
     @objc var flashMode: FlashMode = .auto
     @objc var torchMode: TorchMode = .off
+    @objc var maxPhotoQualityPrioritization: MaxPhotoQualityPrioritization = .balanced
     // ratio overlay
     @objc var ratioOverlay: String?
     @objc var ratioOverlayColor: UIColor?
@@ -182,6 +183,9 @@ class CameraView: UIView {
         }
         if changedProps.contains("cameraType") || changedProps.contains("torchMode") {
             camera.update(torchMode: torchMode)
+        }
+        if changedProps.contains("maxPhotoQualityPrioritization") {
+            camera.update(maxPhotoQualityPrioritization: maxPhotoQualityPrioritization)
         }
 
         if changedProps.contains("onOrientationChange") {

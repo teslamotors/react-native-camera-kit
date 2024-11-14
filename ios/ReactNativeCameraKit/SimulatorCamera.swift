@@ -118,6 +118,9 @@ class SimulatorCamera: CameraProtocol {
             self.mockPreview.torchModeLabel.text = "Torch mode: \(torchMode)"
         }
     }
+    
+    func update(maxPhotoQualityPrioritization: MaxPhotoQualityPrioritization?) {
+    }
 
     func update(flashMode: FlashMode) {
         DispatchQueue.main.async {

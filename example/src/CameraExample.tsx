@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Image, SafeAreaView, Animated, StatusBar } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Image, SafeAreaView, Animated, StatusBar, ScrollView } from 'react-native';
 import Camera from '../../src/Camera';
 import { CameraApi, CameraType, CaptureData } from '../../src/types';
 import { Orientation } from '../../src';
@@ -24,6 +24,12 @@ const flashArray = [
     image: flashImages.off,
   },
 ] as const;
+
+function median(values: number[]): number {
+  values = [...values].sort((a, b) => a - b);
+  const half = Math.floor(values.length / 2);
+  return values.length % 2 ? values[half] : (values[half - 1] + values[half]) / 2;
+}
 
 const CameraExample = ({ onBack }: { onBack: () => void }) => {
   const cameraRef = useRef<CameraApi>(null);
@@ -79,25 +85,31 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
   };
 
   const onCaptureImagePressed = async () => {
-    if (showImageUri) {
-      setShowImageUri('');
-      return;
-    }
-    if (!cameraRef.current || isCapturing.current) return;
-    let image: CaptureData | undefined;
-    try {
-      isCapturing.current = true;
-      image = await cameraRef.current.capture();
-    } catch (e) {
-      console.log('error', e);
-    } finally {
-      isCapturing.current = false;
-    }
-    if (!image) return;
+    const times: number[] = [];
+    for (let i = 1; i <= 5; i++) {
+      const start = Date.now();
+      if (showImageUri) {
+        setShowImageUri('');
+        return;
+      }
+      if (!cameraRef.current || isCapturing.current) return;
+      let image: CaptureData | undefined;
+      try {
+        isCapturing.current = true;
+        image = await cameraRef.current.capture();
+      } catch (e) {
+        console.log('error', e);
+      } finally {
+        isCapturing.current = false;
+      }
+      if (!image) return;
 
-    setCaptured(true);
-    setCaptureImages([...captureImages, image]);
-    console.log('image', image);
+      setCaptured(true);
+      setCaptureImages(prev => [...prev, image]);
+      console.log('image', image);
+      times.push(Date.now() - start);
+    }
+    console.log(`median capture time: ${median(times)}ms`);
   };
 
   function CaptureButton({ onPress, children }: { onPress: () => void; children?: React.ReactNode }) {
@@ -202,7 +214,12 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
 
       <View style={styles.cameraContainer}>
         {showImageUri ? (
-          <Image source={{ uri: showImageUri }} style={styles.cameraPreview} resizeMode="contain" />
+          <ScrollView
+            maximumZoomScale={10}
+            contentContainerStyle={{ flexGrow: 1 }}
+          >
+            <Image source={{ uri: showImageUri }} style={styles.cameraPreview} />
+          </ScrollView>
         ) : (
           <Camera
             ref={cameraRef}
@@ -219,6 +236,7 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
             }}
             torchMode={torchMode ? 'on' : 'off'}
             shutterPhotoSound
+            maxPhotoQualityPrioritization="quality"
             onCaptureButtonPressIn={() => {
               console.log('capture button pressed in');
             }}
@@ -322,8 +340,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   cameraPreview: {
-    flex: 1,
     width: '100%',
+    height: '100%',
   },
   bottomButtons: {
     margin: 10,

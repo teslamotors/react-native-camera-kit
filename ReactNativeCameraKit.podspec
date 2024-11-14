@@ -5,7 +5,7 @@ package = JSON.parse(File.read(File.join(__dir__, 'package.json')))
 Pod::Spec.new do |s|
   s.name         = "ReactNativeCameraKit"
   s.version      = package["version"]
-  s.summary      = "Advanced native camera and gallery controls and device photos API"
+  s.summary      = "A high performance, easy to use camera API"
   s.license      = "MIT"
 
   s.authors      = "CameraKit"
@@ -13,7 +13,7 @@ Pod::Spec.new do |s|
   s.platform     = :ios, "11.0"
 
   s.source       = { :git => "https://github.com/teslamotors/react-native-camera-kit.git", :tag => "v#{s.version}" }
-  s.source_files  = "ios/**/*.{h,m,swift}"
+  s.source_files  = "ios/**/*.{h,m,mm,swift}"
 
   s.dependency 'React-Core'
 end

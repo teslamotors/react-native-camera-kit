@@ -33,6 +33,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     private var resizeMode: ResizeMode = .contain
     private var flashMode: FlashMode = .auto
     private var torchMode: TorchMode = .off
+    private var maxPhotoQualityPrioritization: MaxPhotoQualityPrioritization?
     private var resetFocus: (() -> Void)?
     private var focusFinished: (() -> Void)?
     private var onBarcodeRead: ((_ barcode: String,_ codeFormat : CodeFormat) -> Void)?
@@ -258,6 +259,16 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     func update(flashMode: FlashMode) {
         self.flashMode = flashMode
     }
+    
+    func update(maxPhotoQualityPrioritization: MaxPhotoQualityPrioritization?) {
+        guard maxPhotoQualityPrioritization != self.maxPhotoQualityPrioritization else { return }
+        if #available(iOS 13.0, *) {
+            self.session.beginConfiguration()
+            self.maxPhotoQualityPrioritization = maxPhotoQualityPrioritization
+            self.photoOutput.maxPhotoQualityPrioritization = maxPhotoQualityPrioritization?.avQualityPrioritization ?? .balanced
+            self.session.commitConfiguration()
+        }
+    }
 
     func update(cameraType: CameraType) {
         sessionQueue.async {
@@ -325,7 +336,9 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
                 }
 
                 let settings = AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecType.jpeg])
-                settings.isAutoStillImageStabilizationEnabled = true
+                if #available(iOS 13.0, *) {
+                    settings.photoQualityPrioritization = self.photoOutput.maxPhotoQualityPrioritization
+                }
 
                 if self.videoDeviceInput?.device.isFlashAvailable == true {
                     settings.flashMode = self.flashMode.avFlashMode
@@ -477,7 +490,13 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         session.beginConfiguration()
 
         session.sessionPreset = .photo
-
+        
+        if #available(iOS 13.0, *) {
+            if let maxPhotoQualityPrioritization {
+                photoOutput.maxPhotoQualityPrioritization = maxPhotoQualityPrioritization.avQualityPrioritization
+            }
+        }
+        
         if session.canAddInput(videoDeviceInput) {
             session.addInput(videoDeviceInput)
 
@@ -510,7 +529,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
             metadataOutput.metadataObjectTypes = filteredTypes
         }
-
+        
         session.commitConfiguration()
 
         return .success
