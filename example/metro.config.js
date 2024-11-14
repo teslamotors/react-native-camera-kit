@@ -10,6 +10,8 @@ const modules = Object.keys({
   ...pak.peerDependencies,
 });
 
+const nodeModulesPaths = [path.resolve(path.join(__dirname, './node_modules'))];
+
 /**
  * Metro configuration
  * https://reactnative.dev/docs/metro
@@ -34,6 +36,7 @@ const config = {
       acc[name] = path.join(__dirname, 'node_modules', name);
       return acc;
     }, {}),
+    nodeModulesPaths,
   },
 };
 
