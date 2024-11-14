@@ -5,7 +5,7 @@ package = JSON.parse(File.read(File.join(__dir__, 'package.json')))
 Pod::Spec.new do |s|
   s.name         = "ReactNativeCameraKit"
   s.version      = package["version"]
-  s.summary      = "Advanced native camera and gallery controls and device photos API"
+  s.summary      = "A high performance, easy to use camera API"
   s.license      = "MIT"
 
   s.authors      = "CameraKit"

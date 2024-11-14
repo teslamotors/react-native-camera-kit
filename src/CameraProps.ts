@@ -19,7 +19,7 @@ export type OnReadCodeData = {
 
 export type OnOrientationChangeData = {
   nativeEvent: {
-    orientation: typeof Orientation;
+    orientation: typeof Orientation[keyof typeof Orientation];
   };
 };
 
@@ -106,6 +106,8 @@ export interface CameraProps extends ViewProps {
   resizeMode?: ResizeMode;
   /** **iOS Only**. Throttle how often the barcode scanner triggers a new scan */
   scanThrottleDelay?: number;
+  /** **iOS Only**. 'speed' provides 60-80% faster image capturing */
+  maxPhotoQualityPrioritization?: 'balanced' | 'quality' | 'speed';
   /** **Android only**. Play a shutter capture sound when capturing a photo */
   shutterPhotoSound?: boolean;
   onCaptureButtonPressIn?: ({ nativeEvent: {} }) => void;

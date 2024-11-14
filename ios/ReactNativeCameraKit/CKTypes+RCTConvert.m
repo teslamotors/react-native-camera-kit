@@ -26,6 +26,12 @@ RCT_ENUM_CONVERTER(CKFlashMode, (@{
     @"auto": @(CKFlashModeAuto)
 }), CKFlashModeAuto, integerValue)
 
+RCT_ENUM_CONVERTER(CKMaxPhotoQualityPrioritization, (@{
+    @"balanced": @(CKMaxPhotoQualityPrioritizationBalanced),
+    @"quality": @(CKMaxPhotoQualityPrioritizationQuality),
+    @"speed": @(CKMaxPhotoQualityPrioritizationSpeed)
+}), CKMaxPhotoQualityPrioritizationBalanced, integerValue)
+
 RCT_ENUM_CONVERTER(CKTorchMode, (@{
     @"on": @(CKTorchModeOn),
     @"off": @(CKTorchModeOff)
