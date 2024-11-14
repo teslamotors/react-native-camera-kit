@@ -1,7 +1,7 @@
 package com.rncamerakit
 
 import com.facebook.react.bridge.*
-import com.facebook.react.uimanager.UIManagerModule
+import com.facebook.react.uimanager.UIManagerHelper
 
 /**
  * Native module for interacting with the camera in React Native applications.
@@ -11,7 +11,7 @@ import com.facebook.react.uimanager.UIManagerModule
  *
  * @param reactContext The application's ReactApplicationContext.
  */
-class RNCameraKitModule(private val reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
+class RNCameraKitModule(private val reactContext: ReactApplicationContext) : NativeCameraKitModuleSpec(reactContext) {
 
     companion object {
         // Constants for camera orientation
@@ -34,10 +34,12 @@ class RNCameraKitModule(private val reactContext: ReactApplicationContext) : Rea
          * Represents the landscape orientation with the right side of the device up.
          */
         const val LANDSCAPE_RIGHT = 3 // ➡️
+
+        const val REACT_CLASS = "RNCameraKitModule"
     }
 
     override fun getName(): String {
-        return "RNCameraKitModule"
+        return REACT_CLASS
     }
 
     /**
@@ -54,6 +56,10 @@ class RNCameraKitModule(private val reactContext: ReactApplicationContext) : Rea
         )
     }
 
+    override fun requestDeviceCameraAuthorization(promise: Promise?) = Unit
+
+    override fun checkDeviceCameraAuthorizationStatus(promise: Promise?) = Unit
+
     /**
      * Captures a photo using the camera.
      *
@@ -62,13 +68,16 @@ class RNCameraKitModule(private val reactContext: ReactApplicationContext) : Rea
      * @param promise The promise to resolve the capture result.
      */
     @ReactMethod
-    fun capture(options: ReadableMap, viewTag: Int, promise: Promise) {
-        // CameraManager does not allow us to return values
-        val context = reactContext
-        val uiManager = context.getNativeModule(UIManagerModule::class.java)
-        context.runOnUiQueueThread {
-            val view = uiManager?.resolveView(viewTag) as CKCamera
-            view.capture(options.toHashMap(), promise)
+    override fun capture(options: ReadableMap?, tag: Double?, promise: Promise) {
+        val viewTag = tag?.toInt()
+        if (viewTag != null && options != null) {
+            val uiManager = UIManagerHelper.getUIManagerForReactTag(reactContext, viewTag)
+            reactContext.runOnUiQueueThread {
+                val camera = uiManager?.resolveView(viewTag) as CKCamera
+                camera.capture(options.toHashMap(), promise)
+            }
+        } else {
+            promise.reject("E_CAPTURE_FAILED", "options or/and tag arguments are null, options: $options, tag: $viewTag")
         }
     }
 }

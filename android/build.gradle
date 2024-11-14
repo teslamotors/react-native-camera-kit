@@ -1,12 +1,23 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
+def isNewArchitectureEnabled() {
+    // To opt-in for the New Architecture, you can either:
+    // - Set `newArchEnabled` to true inside the `gradle.properties` file
+    // - Invoke gradle with `-newArchEnabled=true`
+    // - Set an environment variable `ORG_GRADLE_PROJECT_newArchEnabled=true`
+    return project.hasProperty("newArchEnabled") && project.newArchEnabled == "true"
+}
+
+if (isNewArchitectureEnabled()) {
+    apply plugin: 'com.facebook.react'
+}
+
 android {
     def agpVersion = com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION
     if (agpVersion.tokenize('.')[0].toInteger() >= 7) {
       namespace "com.rncamerakit"
     }
-
     compileSdkVersion = 34
     defaultConfig {
         minSdkVersion = 24
@@ -17,9 +28,18 @@ android {
         ndk {
             abiFilters "arm64-v8a", "x86"
         }
+        buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
     }
     lintOptions {
         warning 'InvalidPackage'
+    }
+
+    if (!isNewArchitectureEnabled()) {
+        sourceSets {
+            main {
+                java.srcDirs += 'src/paper/java'
+            }
+        }
     }
 }
 

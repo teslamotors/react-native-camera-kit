@@ -1,10 +1,9 @@
 import React from 'react';
-import { requireNativeComponent, NativeModules } from 'react-native';
+import { findNodeHandle } from 'react-native';
 import type { CameraApi } from './types';
 import type { CameraProps } from './CameraProps';
-
-const { CKCameraManager } = NativeModules;
-const NativeCamera = requireNativeComponent('CKCamera');
+import NativeCamera from './specs/CameraNativeComponent';
+import NativeCameraKitModule from './specs/NativeCameraKitModule';
 
 const Camera = React.forwardRef<CameraApi, CameraProps>((props, ref) => {
   const nativeRef = React.useRef(null);
@@ -14,16 +13,17 @@ const Camera = React.forwardRef<CameraApi, CameraProps>((props, ref) => {
 
   React.useImperativeHandle(ref, () => ({
     capture: async () => {
-      return await CKCameraManager.capture({});
+      return await NativeCameraKitModule.capture({}, findNodeHandle(nativeRef.current) ?? undefined);
     },
     requestDeviceCameraAuthorization: async () => {
-      return await CKCameraManager.checkDeviceCameraAuthorizationStatus();
+      return await NativeCameraKitModule.checkDeviceCameraAuthorizationStatus();
     },
     checkDeviceCameraAuthorizationStatus: async () => {
-      return await CKCameraManager.checkDeviceCameraAuthorizationStatus();
+      return await NativeCameraKitModule.checkDeviceCameraAuthorizationStatus();
     },
   }));
 
+  // @ts-expect-error props for codegen differ a bit from the user-facing ones
   return <NativeCamera style={{ minWidth: 100, minHeight: 100 }} ref={nativeRef} {...props} />;
 });
 

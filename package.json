@@ -57,5 +57,13 @@
   "engines": {
     "node": ">=18"
   },
+  "codegenConfig": {
+    "name": "rncamerakit_specs",
+    "type": "all",
+    "jsSrcsDir": "src/specs",
+    "android": {
+      "javaPackageName": "com.rncamerakit"
+    }
+  },
   "packageManager": "yarn@3.6.4"
 }
