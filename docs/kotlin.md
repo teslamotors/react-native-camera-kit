@@ -2,14 +2,16 @@
 
 1. Open and edit android/build.gradle
 
-Add the `kotlin_version` to `buildscript.ext`
+Add the `kotlin_version` to `buildscript.ext`. If you are using React Native `0.73` or higher, you should already have a variable called `kotlinVersion` defined inside of here, so remember you can reference this instead of repeating the version number twice:
 
 ```
 buildscript {
-  ext {
+    ext {
         ...
-        kotlin_version = '1.7.20'
-  }
+        kotlinVersion = '1.7.20' // Variable now included for React Native core
+        kotlin_version = kotlinVersion // Used by react-native-camera-kit
+    }
+}
 ```
 
 Add `google()` to the `buildscript.repositories` and `allprojects.repositories`
