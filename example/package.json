@@ -12,7 +12,8 @@
   },
   "dependencies": {
     "react": "18.3.1",
-    "react-native": "0.76.3"
+    "react-native": "0.76.3",
+    "react-native-camera-kit": "link:../"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
@@ -28,7 +29,6 @@
     "@types/react": "^18.2.6",
     "@types/react-test-renderer": "^18.0.0",
     "babel-jest": "^29.6.3",
-    "babel-plugin-module-resolver": "^5.0.2",
     "eslint": "^8.19.0",
     "prettier": "2.8.8",
     "typescript": "5.0.4"
