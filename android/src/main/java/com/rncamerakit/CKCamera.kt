@@ -115,6 +115,8 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
                 LayoutParams.MATCH_PARENT,
                 LayoutParams.MATCH_PARENT
         )
+        viewFinder.setFocusableInTouchMode(true)
+        viewFinder.requestFocusFromTouch()
         installHierarchyFitter(viewFinder)
         addView(viewFinder)
 
@@ -137,6 +139,22 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
         cameraExecutor.shutdown()
         orientationListener?.disable()
         cameraProvider?.unbindAll()
+    }
+
+    override fun dispatchKeyEvent(event: KeyEvent?): Boolean {
+        val keyCode = event?.getKeyCode()
+        val action = event?.getAction()
+
+        if (keyCode == KeyEvent.KEYCODE_CAMERA || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+            if (action == KeyEvent.ACTION_DOWN) {
+                onCaptureButtonPressIn(keyCode)
+                return true
+            } else if (action == KeyEvent.ACTION_UP) {
+                onCaptureButtonPressOut(keyCode)
+                return true
+            }
+        }
+        return super.dispatchKeyEvent(event)
     }
 
     // If this is not called correctly, view finder will be black/blank
@@ -489,6 +507,21 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
             .getEventDispatcherForReactTag(currentContext, id)
             ?.dispatchEvent(PictureTakenEvent(surfaceId, id, uri))
     }
+
+    private fun onCaptureButtonPressIn(keyCode: Int) {
+        val surfaceId = UIManagerHelper.getSurfaceId(currentContext)
+        UIManagerHelper
+            .getEventDispatcherForReactTag(currentContext, id)
+            ?.dispatchEvent(CaptureButtonPressInEvent(surfaceId, id, keyCode))
+    }
+
+    private fun onCaptureButtonPressOut(keyCode: Int) {
+        val surfaceId = UIManagerHelper.getSurfaceId(currentContext)
+        UIManagerHelper
+            .getEventDispatcherForReactTag(currentContext, id)
+            ?.dispatchEvent(CaptureButtonPressOutEvent(surfaceId, id, keyCode))
+    }
+
 
     fun setFlashMode(mode: String?) {
         val imageCapture = imageCapture ?: return
