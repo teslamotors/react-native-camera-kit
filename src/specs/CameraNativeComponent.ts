@@ -22,6 +22,7 @@ type OnZoom = {
 export interface NativeProps extends ViewProps {
   flashMode?: string;
   focusMode?: string;
+  maxPhotoQualityPrioritization?: string;
   zoomMode?: string;
   zoom?: Double;
   maxZoom?: Double;

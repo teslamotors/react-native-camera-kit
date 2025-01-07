@@ -141,4 +141,6 @@ class CKCameraManager : SimpleViewManager<CKCamera>(), CKCameraManagerInterface<
     override fun setResizeMode(view: CKCamera?, value: String?) = Unit
 
     override fun setScanThrottleDelay(view: CKCamera?, value: Int) = Unit
+
+    override fun setMaxPhotoQualityPrioritization(view: CKCamera?, value: String?) = Unit
 }

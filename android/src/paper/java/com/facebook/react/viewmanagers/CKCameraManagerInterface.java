@@ -15,6 +15,7 @@ import androidx.annotation.Nullable;
 public interface CKCameraManagerInterface<T extends View> {
   void setFlashMode(T view, @Nullable String value);
   void setFocusMode(T view, @Nullable String value);
+  void setMaxPhotoQualityPrioritization(T view, @Nullable String value);
   void setZoomMode(T view, @Nullable String value);
   void setZoom(T view, double value);
   void setMaxZoom(T view, double value);
