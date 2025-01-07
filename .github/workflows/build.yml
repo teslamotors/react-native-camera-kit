@@ -29,14 +29,14 @@ jobs:
     name: build-example-android
     runs-on: ubuntu-latest # using linux runner for speed
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'zulu'
           cache: 'gradle'
-      - name: Checkout
-        uses: actions/checkout@v3
       - name: Validate Gradle Wrapper
         uses: gradle/wrapper-validation-action@v1
       - name: Install modules
