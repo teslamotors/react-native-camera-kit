@@ -9,8 +9,8 @@ import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
 
-class QRCodeAnalyzer(
-        private val onQRCodesDetected: (qrCodes: List<Barcode>, imageSize: Size) -> Unit
+class QRCodeAnalyzer (
+    private val onQRCodesDetected: (qrCodes: List<Barcode>, imageSize: Size) -> Unit
 ) : ImageAnalysis.Analyzer {
     @SuppressLint("UnsafeExperimentalUsageError")
     @ExperimentalGetImage
@@ -21,15 +21,15 @@ class QRCodeAnalyzer(
 
         val scanner = BarcodeScanning.getClient()
         scanner.process(inputImage)
-                .addOnSuccessListener { barcodes ->
-                    val strBarcodes = mutableListOf<Barcode>()
-                    barcodes.forEach { barcode ->
-                        strBarcodes.add(barcode ?: return@forEach)
-                    }
-                    onQRCodesDetected(strBarcodes, Size(image.width, image.height))
+            .addOnSuccessListener { barcodes ->
+                val strBarcodes = mutableListOf<Barcode>()
+                barcodes.forEach { barcode ->
+                    strBarcodes.add(barcode ?: return@forEach)
                 }
-                .addOnCompleteListener {
-                    image.close()
-                }
+                onQRCodesDetected(strBarcodes, Size(image.width, image.height))
+            }
+            .addOnCompleteListener {
+                image.close()
+            }
     }
 }

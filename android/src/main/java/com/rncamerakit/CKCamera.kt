@@ -314,7 +314,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
                 }
 
                 val barcodeFrame = barcodeFrame;
-                if(barcodeFrame == null){
+                if(barcodeFrame == null) {
                     onBarcodeRead(barcodes)
                     return@QRCodeAnalyzer
                 }
@@ -326,17 +326,15 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
                 val filteredBarcodes = barcodes.filter { barcode ->
                     val barcodeBoundingBox = barcode.boundingBox ?: return@filter false;
                     val scaledBarcodeBoundingBox = Rect(
-                            (barcodeBoundingBox.left * scaleX).toInt(),
-                            (barcodeBoundingBox.top * scaleY).toInt(),
-                            (barcodeBoundingBox.right * scaleX).toInt(),
-                            (barcodeBoundingBox.bottom * scaleY).toInt()
+                        (barcodeBoundingBox.left * scaleX).toInt(),
+                        (barcodeBoundingBox.top * scaleY).toInt(),
+                        (barcodeBoundingBox.right * scaleX).toInt(),
+                        (barcodeBoundingBox.bottom * scaleY).toInt()
                     )
-
-                    // Check if the scaled bounding box is within the frame rectangle
                     barcodeFrame.frameRect.contains(scaledBarcodeBoundingBox)
                 }
 
-                if(filteredBarcodes.isNotEmpty()){
+                if(filteredBarcodes.isNotEmpty()) {
                     onBarcodeRead(filteredBarcodes)
                 }
             }
