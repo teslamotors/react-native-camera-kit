@@ -309,12 +309,12 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
 
         if (scanBarcode) {
             val analyzer = QRCodeAnalyzer { barcodes, imageSize ->
-                if(barcodes.isEmpty()) {
+                if (barcodes.isEmpty()) {
                     return@QRCodeAnalyzer
                 }
 
                 val barcodeFrame = barcodeFrame;
-                if(barcodeFrame == null) {
+                if (barcodeFrame == null) {
                     onBarcodeRead(barcodes)
                     return@QRCodeAnalyzer
                 }
@@ -334,7 +334,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
                     barcodeFrame.frameRect.contains(scaledBarcodeBoundingBox)
                 }
 
-                if(filteredBarcodes.isNotEmpty()) {
+                if (filteredBarcodes.isNotEmpty()) {
                     onBarcodeRead(filteredBarcodes)
                 }
             }
