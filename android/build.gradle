@@ -64,7 +64,7 @@ dependencies {
     // If you want to additionally use the CameraX Extensions library
     // implementation "androidx.camera:camera-extensions:${camerax_version}"
 
-    implementation 'com.google.mlkit:barcode-scanning:17.0.2'
+    implementation 'com.google.mlkit:barcode-scanning:17.3.0'
 }
 repositories {
     mavenCentral()
