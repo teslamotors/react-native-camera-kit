@@ -64,7 +64,7 @@ class RNCameraKitModule(private val reactContext: ReactApplicationContext) : Nat
      * Captures a photo using the camera.
      *
      * @param options The options for the capture operation.
-     * @param viewTag The tag of the camera view.
+     * @param tag The tag of the camera view.
      * @param promise The promise to resolve the capture result.
      */
     @ReactMethod
@@ -74,7 +74,19 @@ class RNCameraKitModule(private val reactContext: ReactApplicationContext) : Nat
             val uiManager = UIManagerHelper.getUIManagerForReactTag(reactContext, viewTag)
             reactContext.runOnUiQueueThread {
                 val camera = uiManager?.resolveView(viewTag) as CKCamera
-                camera.capture(options.toHashMap(), promise)
+                val optionsMap = options.toHashMap()
+                    .mapValues { (_, value) ->
+                        when (value) {
+                            is ReadableMap -> value.toHashMap()
+                            is ReadableArray -> value.toArrayList()
+                            else -> value
+                        }
+                    }
+                    .mapNotNull { (key, value) ->
+                        if (value != null) key to value else null
+                    }
+                    .toMap()
+                camera.capture(optionsMap, promise)
             }
         } else {
             promise.reject("E_CAPTURE_FAILED", "options or/and tag arguments are null, options: $options, tag: $viewTag")
