@@ -244,30 +244,6 @@ if (uri.startsWith('file://')) {
 }
 ```
 
-#### checkDeviceCameraAuthorizationStatus (**iOS only**)
-
-```ts
-const isCameraAuthorized = await Camera.checkDeviceCameraAuthorizationStatus();
-```
-
-return values:
-
-`AVAuthorizationStatusAuthorized` returns `true`
-
-`AVAuthorizationStatusNotDetermined` returns `-1`
-
-otherwise, returns `false`
-
-#### requestDeviceCameraAuthorization (**iOS only**)
-
-```ts
-const isUserAuthorizedCamera = await Camera.requestDeviceCameraAuthorization();
-```
-
-`AVAuthorizationStatusAuthorized` returns `true`
-
-otherwise, returns `false`
-
 ## Using with Expo
 
 If you are using Expo Managed Workflow, you can use this library with a third-party plugin `expo-react-native-camera-kit`.
