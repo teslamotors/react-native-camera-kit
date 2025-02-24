@@ -97,6 +97,7 @@ export interface CameraProps extends ViewProps {
   showFrame?: boolean;
   laserColor?: number | string;
   frameColor?: number | string;
+  barcodeFrameSize?: { width: number; height: number };
   onReadCode?: (event: OnReadCodeData) => void;
   // Specific to iOS
   ratioOverlay?: string;

@@ -48,6 +48,8 @@ public class CameraView: UIView {
     @objc public var scanThrottleDelay = 2000
     @objc public var frameColor: UIColor?
     @objc public var laserColor: UIColor?
+    @objc public var barcodeFrameSize: NSDictionary?
+
     // other
     @objc public var onOrientationChange: RCTDirectEventBlock?
     @objc public var onZoom: RCTDirectEventBlock?
@@ -229,13 +231,17 @@ public class CameraView: UIView {
                                            })
         }
 
-
-
         if changedProps.contains("showFrame") || changedProps.contains("scanBarcode") {
             DispatchQueue.main.async {
                 self.scannerInterfaceView.isHidden = !self.showFrame
 
                 self.camera.update(scannerFrameSize: self.showFrame ? self.scannerInterfaceView.frameSize : nil)
+            }
+        }
+        
+        if changedProps.contains("barcodeFrameSize"), let barcodeFrameSize, showFrame, scanBarcode {
+            if let width = barcodeFrameSize["width"] as? CGFloat, let height = barcodeFrameSize["height"] as? CGFloat {
+                self.scannerInterfaceView.update(frameSize: CGSize(width: width, height: height))
             }
         }
 
