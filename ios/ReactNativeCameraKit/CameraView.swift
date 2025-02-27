@@ -80,7 +80,12 @@ public class CameraView: UIView {
     private func setupCamera() {
         if hasPropBeenSetup && hasPermissionBeenGranted && !hasCameraBeenSetup {
             hasCameraBeenSetup = true
+            #if targetEnvironment(macCatalyst)
+            // Force front camera on Mac Catalyst during initial setup
+            camera.setup(cameraType: .front, supportedBarcodeType: scanBarcode && onReadCode != nil ? supportedBarcodeType : [])
+            #else
             camera.setup(cameraType: cameraType, supportedBarcodeType: scanBarcode && onReadCode != nil ? supportedBarcodeType : [])
+            #endif
         }
     }
 
@@ -124,6 +129,7 @@ public class CameraView: UIView {
     }
     
     private func configureHardwareInteraction() {
+        #if !targetEnvironment(macCatalyst)
         // Create a new capture event interaction with a handler that captures a photo.
         if #available(iOS 17.2, *) {
             let interaction = AVCaptureEventInteraction { event in
@@ -138,6 +144,7 @@ public class CameraView: UIView {
             self.addInteraction(interaction)
             eventInteraction = interaction
         }
+        #endif
     }
 
     override public func removeFromSuperview() {
@@ -155,7 +162,10 @@ public class CameraView: UIView {
     
     @objc public func updateSubviewsBounds(_ frame: CGRect) {
         camera.previewView.frame = bounds
-
+        #if targetEnvironment(macCatalyst)
+        // Do not apply any transform on Mac Catalyst
+        // (macCatalyst orientation is managed by AVFoundation as set in RealCamera)
+        #endif
         scannerInterfaceView.frame = bounds
         // If frame size changes, we have to update the scanner
         camera.update(scannerFrameSize: showFrame ? scannerInterfaceView.frameSize : nil)
@@ -177,7 +187,12 @@ public class CameraView: UIView {
 
         // Camera settings
         if changedProps.contains("cameraType") {
+            #if targetEnvironment(macCatalyst)
+            // Force front camera on Mac Catalyst regardless of what's passed
+            camera.update(cameraType: .front)
+            #else
             camera.update(cameraType: cameraType)
+            #endif
         }
         if changedProps.contains("flashMode") {
             camera.update(flashMode: flashMode)
@@ -314,6 +329,26 @@ public class CameraView: UIView {
     }
 
     private func handleCameraPermission() {
+        #if targetEnvironment(macCatalyst)
+        // On macOS, camera permissions are handled differently
+        if #available(macCatalyst 14.0, *) {
+            switch AVCaptureDevice.authorizationStatus(for: .video) {
+            case .authorized:
+                hasPermissionBeenGranted = true
+            case .notDetermined:
+                AVCaptureDevice.requestAccess(for: .video) { [weak self] granted in
+                    if granted {
+                        DispatchQueue.main.async {
+                            self?.hasPermissionBeenGranted = true
+                        }
+                    }
+                }
+            default:
+                break
+            }
+        }
+        #else
+        // iOS permission handling
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .authorized:
             // The user has previously granted access to the camera.
@@ -329,6 +364,7 @@ public class CameraView: UIView {
             // The user has previously denied access.
             break
         }
+        #endif
     }
 
     private func writeCaptured(imageData: Data,

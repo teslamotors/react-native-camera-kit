@@ -55,6 +55,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
     // MARK: - Lifecycle
     
+    #if !targetEnvironment(macCatalyst)
     override init() {
         super.init()
 
@@ -68,6 +69,12 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
                                                queue: nil,
                                                using: { _ in self.setVideoOrientationToInterfaceOrientation() })
     }
+    #else
+    override init() {
+        super.init()
+        // Mac Catalyst doesn't support device orientation notifications
+    }
+    #endif
     
     @available(*, unavailable)
     required init?(coder aDecoder: NSCoder) {
@@ -82,11 +89,13 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
             }
         }
 
+        #if !targetEnvironment(macCatalyst)
         motionManager?.stopAccelerometerUpdates()
 
         NotificationCenter.default.removeObserver(self, name: UIDevice.orientationDidChangeNotification, object: UIDevice.current)
 
         UIDevice.current.endGeneratingDeviceOrientationNotifications()
+        #endif
     }
 
     deinit {
@@ -123,6 +132,12 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
            DispatchQueue.main.async {
                self.setVideoOrientationToInterfaceOrientation()
            }
+
+           #if targetEnvironment(macCatalyst)
+           if let connection = self.cameraPreview.previewLayer.connection {
+               connection.videoOrientation = .portrait
+           }
+           #endif
         }
     }
 
@@ -591,6 +606,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     // MARK: - Private device orientation from accelerometer
 
     private func initializeMotionManager() {
+        #if !targetEnvironment(macCatalyst)
         motionManager = CMMotionManager()
         motionManager?.accelerometerUpdateInterval = 0.2
         motionManager?.gyroUpdateInterval = 0.2
@@ -612,6 +628,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
             self.deviceOrientation = newOrientation
             self.onOrientationChange?(["orientation": Orientation.init(from: newOrientation)!.rawValue])
         })
+        #endif
     }
 
     private func deviceOrientation(from acceleration: CMAcceleration) -> UIDeviceOrientation? {
@@ -678,6 +695,14 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     }
 
     private func setVideoOrientationToInterfaceOrientation() {
+        #if targetEnvironment(macCatalyst)
+        if let connection = self.cameraPreview.previewLayer.connection {
+            connection.automaticallyAdjustsVideoMirroring = false  // Disable automatic mirroring
+            connection.videoOrientation = .portrait         // Force portrait
+            connection.isVideoMirrored = false                      // Ensure no mirroring
+        }
+        self.cameraPreview.previewLayer.setAffineTransform(.identity)
+        #else
         var interfaceOrientation: UIInterfaceOrientation
         if #available(iOS 13.0, *) {
             interfaceOrientation = self.previewView.window?.windowScene?.interfaceOrientation ?? .portrait
@@ -685,6 +710,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
             interfaceOrientation = UIApplication.shared.statusBarOrientation
         }
         self.cameraPreview.previewLayer.connection?.videoOrientation = self.videoOrientation(from: interfaceOrientation)
+        #endif
     }
 
     private func sessionRuntimeError(notification: Notification) {
