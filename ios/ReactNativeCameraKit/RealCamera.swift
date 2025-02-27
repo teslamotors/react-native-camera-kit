@@ -54,7 +54,6 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     private var inProgressPhotoCaptureDelegates = [Int64: PhotoCaptureDelegate]()
 
     // MARK: - Lifecycle
-    
     #if !targetEnvironment(macCatalyst)
     override init() {
         super.init()
@@ -75,8 +74,8 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         // Mac Catalyst doesn't support device orientation notifications
     }
     #endif
-    
-    @available(*, unavailable)
+
+@available(*, unavailable)
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
