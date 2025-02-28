@@ -698,8 +698,8 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         }
         self.cameraPreview.previewLayer.connection?.videoOrientation = self.videoOrientation(from: interfaceOrientation)
         #else
-        // Mac Catalyst always uses landscape orientation
-        self.cameraPreview.previewLayer.connection?.videoOrientation = .landscapeRight
+        // Mac Catalyst always uses portrait orientation
+        self.cameraPreview.previewLayer.connection?.videoOrientation = .portrait
         #endif
     }
 
