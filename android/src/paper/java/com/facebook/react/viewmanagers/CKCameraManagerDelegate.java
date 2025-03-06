@@ -12,6 +12,7 @@ package com.facebook.react.viewmanagers;
 import android.view.View;
 import androidx.annotation.Nullable;
 import com.facebook.react.bridge.ColorPropConverter;
+import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.uimanager.BaseViewManager;
 import com.facebook.react.uimanager.BaseViewManagerDelegate;
 import com.facebook.react.uimanager.LayoutShadowNode;
@@ -55,6 +56,9 @@ public class CKCameraManagerDelegate<T extends View, U extends BaseViewManager<T
         break;
       case "frameColor":
         mViewManager.setFrameColor(view, ColorPropConverter.getColor(value, view.getContext()));
+        break;
+      case "barcodeFrameSize":
+        mViewManager.setBarcodeFrameSize(view, value == null ? null : (ReadableMap) value);
         break;
       case "ratioOverlay":
         mViewManager.setRatioOverlay(view, value == null ? null : (String) value);

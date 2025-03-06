@@ -147,6 +147,7 @@ const BarcodeExample = ({ onBack }: { onBack: () => void }) => {
           frameColor="white"
           scanBarcode
           showFrame
+          barcodeFrameSize={{ width: 300, height: 150 }}
           onReadCode={(event) => {
             Vibration.vibrate(100);
             setBarcode(event.nativeEvent.codeStringValue);

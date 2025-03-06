@@ -2,6 +2,8 @@ package com.rncamerakit.barcode
 
 import android.content.Context
 import android.graphics.*
+import android.util.Log
+import android.util.Size
 import android.view.View
 import androidx.annotation.ColorInt
 
@@ -14,6 +16,7 @@ class BarcodeFrame(context: Context) : View(context) {
     private var laserPaint: Paint = Paint()
     var frameRect: Rect = Rect()
 
+    private var barcodeFrameSize = DEFAULT_SIZE
     private var frameWidth = 0
     private var frameHeight = 0
     private var borderMargin = 0
@@ -31,14 +34,18 @@ class BarcodeFrame(context: Context) : View(context) {
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+        calculateFrameRect()
+    }
+
+    private fun calculateFrameRect() {
         val marginHeight = 40
         val marginWidth = 40
-        val frameMaxWidth = 1200
-        val frameMaxHeight = 600
+        val frameMaxWidth = barcodeFrameSize.width * context.resources.displayMetrics.density
+        val frameMaxHeight = barcodeFrameSize.height * context.resources.displayMetrics.density
         val frameMinWidth = 100
         val frameMinHeight = 100
-        frameWidth = max(frameMinWidth, min(frameMaxWidth, measuredWidth - (marginWidth * 2)))
-        frameHeight = max(frameMinHeight, min(frameMaxHeight, measuredHeight - (marginHeight * 2)))
+        frameWidth = max(frameMinWidth, min(frameMaxWidth.toInt(), measuredWidth - (marginWidth * 2)))
+        frameHeight = max(frameMinHeight, min(frameMaxHeight.toInt(), measuredHeight - (marginHeight * 2)))
         frameRect.left = (measuredWidth / 2) - (frameWidth / 2)
         frameRect.right = (measuredWidth / 2) + (frameWidth / 2)
         frameRect.top = (measuredHeight / 2) - (frameHeight / 2)
@@ -79,9 +86,15 @@ class BarcodeFrame(context: Context) : View(context) {
         laserPaint.color = laserColor
     }
 
+    fun setFrameSize(size: Size?) {
+        barcodeFrameSize = size ?: DEFAULT_SIZE
+        calculateFrameRect()
+    }
+
     companion object {
         private const val STROKE_WIDTH = 5
         private const val ANIMATION_SPEED = 4
+        private val DEFAULT_SIZE = Size(300, 150)
     }
 
     init {

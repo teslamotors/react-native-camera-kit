@@ -42,6 +42,7 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.RectF
+import android.util.Size
 import com.facebook.react.uimanager.UIManagerHelper
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.rncamerakit.events.*
@@ -106,6 +107,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
     private var scanBarcode: Boolean = false
     private var frameColor = Color.GREEN
     private var laserColor = Color.RED
+    private var barcodeFrameSize: Size? = null
 
     private fun getActivity() : Activity {
         return currentContext.currentActivity!!
@@ -653,6 +655,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
     fun setShowFrame(enabled: Boolean) {
         if (enabled) {
             barcodeFrame = BarcodeFrame(context)
+            barcodeFrame!!.setFrameSize(barcodeFrameSize)
             val actualPreviewWidth = resources.displayMetrics.widthPixels
             val actualPreviewHeight = resources.displayMetrics.heightPixels
             val height: Int = convertDeviceHeightToSupportedAspectRatio(actualPreviewWidth, actualPreviewHeight)
@@ -677,6 +680,13 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
         frameColor = color
         if (barcodeFrame != null) {
             barcodeFrame!!.setFrameColor(color)
+        }
+    }
+
+    fun setBarcodeFrameSize(size: Size) {
+        barcodeFrameSize = size
+        if (barcodeFrame != null) {
+            barcodeFrame!!.setFrameSize(size)
         }
     }
 
