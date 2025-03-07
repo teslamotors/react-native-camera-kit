@@ -168,7 +168,7 @@ static id CKConvertFollyDynamicToId(const folly::dynamic &dyn)
     id maxPhotoQualityPrioritization = CKConvertFollyDynamicToId(newProps.maxPhotoQualityPrioritization);
     if (maxPhotoQualityPrioritization != nil && [maxPhotoQualityPrioritization isKindOfClass:NSString.class]) {
         _view.maxPhotoQualityPrioritization = [flashMode isEqualToString:@"balanced"] ? CKMaxPhotoQualityPrioritizationBalanced :  [flashMode isEqualToString:@"quality"] ? CKMaxPhotoQualityPrioritizationQuality : CKMaxPhotoQualityPrioritizationSpeed;
-        [changedProps addObject:@"flashMode"];
+        [changedProps addObject:@"maxPhotoQualityPrioritization"];
     }
     id torchMode = CKConvertFollyDynamicToId(newProps.torchMode);
     if (torchMode != nil && [torchMode isKindOfClass:NSString.class]) {
