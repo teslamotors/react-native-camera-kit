@@ -29,6 +29,9 @@ public class CKCameraManagerDelegate<T extends View, U extends BaseViewManager<T
       case "focusMode":
         mViewManager.setFocusMode(view, value == null ? null : (String) value);
         break;
+      case "maxPhotoQualityPrioritization":
+        mViewManager.setMaxPhotoQualityPrioritization(view, value == null ? null : (String) value);
+        break;
       case "zoomMode":
         mViewManager.setZoomMode(view, value == null ? null : (String) value);
         break;
