@@ -242,6 +242,7 @@ public class CameraView: UIView {
         if changedProps.contains("barcodeFrameSize"), let barcodeFrameSize, showFrame, scanBarcode {
             if let width = barcodeFrameSize["width"] as? CGFloat, let height = barcodeFrameSize["height"] as? CGFloat {
                 self.scannerInterfaceView.update(frameSize: CGSize(width: width, height: height))
+                self.camera.update(scannerFrameSize: self.showFrame ? self.scannerInterfaceView.frameSize : nil)
             }
         }
 
