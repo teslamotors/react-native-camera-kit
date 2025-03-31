@@ -284,12 +284,13 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
 
     private fun bindCameraUseCases() {
         if (viewFinder.display == null) return
-        // Get screen metrics used to setup camera for full screen resolution
-        val metrics = DisplayMetrics().also { viewFinder.display.getRealMetrics(it) }
-        Log.d(TAG, "Screen metrics: ${metrics.widthPixels} x ${metrics.heightPixels}")
 
-        val screenAspectRatio = aspectRatio(metrics.widthPixels, metrics.heightPixels)
-        Log.d(TAG, "Preview aspect ratio: $screenAspectRatio")
+        val previewWidth = viewFinder.getWidth();
+        val previewHeight = viewFinder.getHeight();
+        Log.d(TAG, "Preview dimensions: $previewWidth x $previewHeight")
+
+        val previewAspectRatio = aspectRatio(previewWidth, previewHeight)
+        Log.d(TAG, "Preview aspect ratio: $previewAspectRatio")
 
         val rotation = viewFinder.display.rotation
 
@@ -303,7 +304,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
         // Preview
         preview = Preview.Builder()
                 // We request aspect ratio but no resolution
-                .setTargetAspectRatio(screenAspectRatio)
+                .setTargetAspectRatio(previewAspectRatio)
                 // Set initial target rotation
                 .setTargetRotation(rotation)
                 .build()
@@ -313,7 +314,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
             .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
             // We request aspect ratio but no resolution to match preview config, but letting
             // CameraX optimize for whatever specific resolution best fits our use cases
-            .setTargetAspectRatio(screenAspectRatio)
+            .setTargetAspectRatio(previewAspectRatio)
             // Set initial target rotation, we will have to call this again if rotation changes
             // during the lifecycle of this use case
             .setTargetRotation(rotation)
@@ -322,7 +323,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
         // ImageAnalysis
         imageAnalyzer = ImageAnalysis.Builder()
             .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-            .setTargetAspectRatio(screenAspectRatio)
+            .setTargetAspectRatio(previewAspectRatio)
             .build()
 
         val useCases = mutableListOf(preview, imageCapture)
