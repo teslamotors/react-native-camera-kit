@@ -11,6 +11,7 @@ package com.facebook.react.viewmanagers;
 
 import android.view.View;
 import androidx.annotation.Nullable;
+import com.facebook.react.bridge.ReadableMap;
 
 public interface CKCameraManagerInterface<T extends View> {
   void setFlashMode(T view, @Nullable String value);
@@ -24,6 +25,7 @@ public interface CKCameraManagerInterface<T extends View> {
   void setShowFrame(T view, boolean value);
   void setLaserColor(T view, @Nullable Integer value);
   void setFrameColor(T view, @Nullable Integer value);
+  void setBarcodeFrameSize(T view, @Nullable ReadableMap value);
   void setRatioOverlay(T view, @Nullable String value);
   void setRatioOverlayColor(T view, @Nullable Integer value);
   void setResetFocusTimeout(T view, int value);

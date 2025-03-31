@@ -38,6 +38,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     private var focusFinished: (() -> Void)?
     private var onBarcodeRead: ((_ barcode: String,_ codeFormat : CodeFormat) -> Void)?
     private var scannerFrameSize: CGRect? = nil
+    private var barcodeFrameSize: CGSize? = nil
     private var onOrientationChange: RCTDirectEventBlock?
     private var onZoomCallback: RCTDirectEventBlock?
     private var lastOnZoom: Double?
@@ -394,6 +395,10 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
                 self.update(torchMode: self.torchMode)
             }
         }
+    }
+
+    func update(barcodeFrameSize: CGSize?) {
+        self.barcodeFrameSize = barcodeFrameSize
     }
 
     func update(scannerFrameSize: CGRect?) {
