@@ -196,11 +196,12 @@ Additionally, the Camera can be used for barcode scanning
 | `resizeMode`                   | `'cover' / 'contain'`            | Determines the scaling and cropping behavior of content within the view. `cover` (resizeAspectFill on iOS) scales the content to fill the view completely, potentially cropping content if its aspect ratio differs from the view. `contain` (resizeAspect on iOS) scales the content to fit within the view's bounds without cropping, ensuring all content is visible but may introduce letterboxing. Default behavior depends on the specific use case. |
 | `scanThrottleDelay`            | `number`                         | Duration between scan detection in milliseconds. Default 2000 (2s)                                                                                                                                                                                                                                                                                                                                                                                         |
 | `maxPhotoQualityPrioritization`            | `'balanced'` / `'quality'` / `'speed'`                         | [iOS 13 and newer](https://developer.apple.com/documentation/avfoundation/avcapturephotooutput/3182995-maxphotoqualityprioritization). `'speed'` provides a 60-80% median capture time reduction vs 'quality' setting. Tested on iPhone 6S Max (66% faster) and iPhone 15 Pro Max (76% faster!). Default `balanced`                                                                                                                                                                                                                                                                                                                                                                                         |
-| `onCaptureButtonPressIn`       | Function                         | Callback when iPhone capture button is pressed in. Ex: `onCaptureButtonPressIn={() => console.log("volume button pressed in")}`                                                                                                                  |
-| `onCaptureButtonPressOut`      | Function                         | Callback when iPhone capture button is released. Ex: `onCaptureButtonPressOut={() => console.log("volume button released")}`                                                                                                                  |
+| `onCaptureButtonPressIn`       | Function                         | Callback when iPhone capture button is pressed in or Android volume or camera button is pressed in. Ex: `onCaptureButtonPressIn={() => console.log("volume button pressed in")}`                                                                                                                  |
+| `onCaptureButtonPressOut`      | Function                         | Callback when iPhone capture button is released or Android volume or camera button is released. Ex: `onCaptureButtonPressOut={() => console.log("volume button released")}`                                                                                                                  |
 | **Barcode only**               |
 | `scanBarcode`                  | `boolean`                        | Enable barcode scanner. Default: `false`                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | `showFrame`                    | `boolean`                        | Show frame in barcode scanner. Default: `false`                                                                                                                                                                                                                                                                                                                                                                                                            |
+| `barcodeFrameSize`                    | `object`                        | Frame size of barcode scanner. Default: `{ width: 300, height: 150 }`                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `laserColor`                   | Color                            | Color of barcode scanner laser visualization. Default: `red`                                                                                                                                                                                                                                                                                                                                                                                               |
 | `frameColor`                   | Color                            | Color of barcode scanner frame visualization. Default: `yellow`                                                                                                                                                                                                                                                                                                                                                                                            |
 | `onReadCode`                   | Function                         | Callback when scanner successfully reads barcode. Returned event contains `codeStringValue`. Default: `null`. Ex: `onReadCode={(event) => console.log(event.nativeEvent.codeStringValue)}`                                                                                                                                                                                                                                                                 |
@@ -243,30 +244,6 @@ if (uri.startsWith('file://')) {
   uri = `file://${destFilePath}`;
 }
 ```
-
-#### checkDeviceCameraAuthorizationStatus (**iOS only**)
-
-```ts
-const isCameraAuthorized = await Camera.checkDeviceCameraAuthorizationStatus();
-```
-
-return values:
-
-`AVAuthorizationStatusAuthorized` returns `true`
-
-`AVAuthorizationStatusNotDetermined` returns `-1`
-
-otherwise, returns `false`
-
-#### requestDeviceCameraAuthorization (**iOS only**)
-
-```ts
-const isUserAuthorizedCamera = await Camera.requestDeviceCameraAuthorization();
-```
-
-`AVAuthorizationStatusAuthorized` returns `true`
-
-otherwise, returns `false`
 
 ## Using with Expo
 

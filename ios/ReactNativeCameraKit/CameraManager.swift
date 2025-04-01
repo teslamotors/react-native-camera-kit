@@ -28,15 +28,35 @@ import Foundation
 
     @objc public static func checkDeviceCameraAuthorizationStatus(_ resolve: @escaping RCTPromiseResolveBlock,
                                                     reject: @escaping RCTPromiseRejectBlock) {
-        switch AVCaptureDevice.authorizationStatus(for: .video) {
-        case .authorized: resolve(true)
-        case .notDetermined: resolve(-1)
-        default: resolve(false)
+        #if targetEnvironment(macCatalyst)
+        if #available(macCatalyst 14.0, *) {
+            switch AVCaptureDevice.authorizationStatus(for: .video) {
+            case .authorized: resolve(true)
+            case .notDetermined: resolve(-1)
+            default: resolve(false)
+            }
+        } else {
+            resolve(false)
         }
+        #else
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
+            case .authorized: resolve(true)
+            case .notDetermined: resolve(-1)
+            default: resolve(false)
+        }
+        #endif
     }
 
     @objc public static func requestDeviceCameraAuthorization(_ resolve: @escaping RCTPromiseResolveBlock,
                                                 reject: @escaping RCTPromiseRejectBlock) {
+        #if targetEnvironment(macCatalyst)
+        if #available(macCatalyst 14.0, *) {
+            AVCaptureDevice.requestAccess(for: .video, completionHandler: { resolve($0) })
+        } else {
+            resolve(false)
+        }
+        #else
         AVCaptureDevice.requestAccess(for: .video, completionHandler: { resolve($0) })
+        #endif
     }
 }

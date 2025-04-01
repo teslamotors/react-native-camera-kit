@@ -15,10 +15,12 @@ class ScannerInterfaceView: UIView {
     private let leftOverlayView = UIView()
     private let rightOverlayView = UIView()
 
+    private var barcodeFrameWidth: CGFloat = 300
+    private var barcodeFrameHeight: CGFloat = 150
+
     // MARK: - Constants
 
     private let frameOffset: CGFloat = 30
-    private let frameHeight: CGFloat = 200
     private let overlayColor: UIColor = .black.withAlphaComponent(0.4)
 
     // MARK: - Lifecycle
@@ -46,7 +48,7 @@ class ScannerInterfaceView: UIView {
     override func draw(_ rect: CGRect) {
         super.draw(rect)
 
-        frameView.frame = CGRect(x: 0, y: 0, width: bounds.size.width - 2 * frameOffset, height: frameHeight)
+        frameView.frame = CGRect(x: 0, y: 0, width: barcodeFrameWidth, height: barcodeFrameHeight)
         frameView.center = center
 
         updateOverlaySize(frameView.frame)
@@ -74,16 +76,23 @@ class ScannerInterfaceView: UIView {
         frameView.update(laserColor: laserColor)
     }
 
+    func update(frameSize: CGSize) {
+        barcodeFrameWidth = frameSize.width
+        barcodeFrameHeight = frameSize.height
+        frameView.setNeedsDisplay()
+        setNeedsDisplay()
+    }
+
     // MARK: - Private
 
     private func updateOverlaySize(_ frameRect: CGRect) {
         topOverlayView.frame = CGRect(x: 0, y: 0, width: frame.size.width, height: frameRect.origin.y)
-        leftOverlayView.frame = CGRect(x: 0, y: frameRect.origin.y, width: frameOffset, height: frameHeight)
-        rightOverlayView.frame = CGRect(x: frameRect.size.width + frameOffset, y: frameRect.origin.y, width: frameOffset, height: frameHeight)
+        leftOverlayView.frame = CGRect(x: 0, y: frameRect.origin.y, width: (frame.size.width - barcodeFrameWidth) / 2, height: barcodeFrameHeight)
+        rightOverlayView.frame = CGRect(x: (frame.size.width - barcodeFrameWidth) / 2 + barcodeFrameWidth, y: frameRect.origin.y, width: (frame.size.width - barcodeFrameWidth) / 2, height: barcodeFrameHeight)
         bottomOverlayView.frame = CGRect(
             x: 0,
-            y: frameRect.origin.y + frameHeight,
+            y: frameRect.origin.y + barcodeFrameHeight,
             width: frame.size.width,
-            height: frame.size.height - frameRect.origin.y - frameHeight)
+            height: frame.size.height - frameRect.origin.y - barcodeFrameHeight)
     }
 }

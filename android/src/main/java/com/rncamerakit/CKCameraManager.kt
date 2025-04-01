@@ -2,8 +2,10 @@ package com.rncamerakit
 
 import android.graphics.Color
 import android.util.Log
+import android.util.Size
 import androidx.annotation.ColorInt
 import com.facebook.react.bridge.ReadableArray
+import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.ReadableType
 import com.facebook.react.common.MapBuilder
 import com.facebook.react.common.ReactConstants.TAG
@@ -55,7 +57,9 @@ class CKCameraManager : SimpleViewManager<CKCamera>(), CKCameraManagerInterface<
             ReadCodeEvent.EVENT_NAME, MapBuilder.of("registrationName", "onReadCode"),
             PictureTakenEvent.EVENT_NAME, MapBuilder.of("registrationName", "onPictureTaken"),
             ZoomEvent.EVENT_NAME, MapBuilder.of("registrationName", "onZoom"),
-            ErrorEvent.EVENT_NAME, MapBuilder.of("registrationName", "onError")
+            ErrorEvent.EVENT_NAME, MapBuilder.of("registrationName", "onError"),
+            CaptureButtonPressInEvent.EVENT_NAME, MapBuilder.of("registrationName", "onCaptureButtonPressIn"),
+            CaptureButtonPressOutEvent.EVENT_NAME, MapBuilder.of("registrationName", "onCaptureButtonPressOut")
         )
     }
 
@@ -112,6 +116,16 @@ class CKCameraManager : SimpleViewManager<CKCamera>(), CKCameraManagerInterface<
     @ReactProp(name = "frameColor", defaultInt = Color.GREEN)
     override fun setFrameColor(view: CKCamera, @ColorInt color: Int?) {
         view.setFrameColor(color ?: Color.GREEN)
+    }
+
+    @ReactProp(name = "barcodeFrameSize")
+    override fun setBarcodeFrameSize(view: CKCamera, frameSize: ReadableMap?) {
+        if (frameSize == null || !frameSize.hasKey("width") || !frameSize.hasKey("height")) {
+            return
+        }
+        val width = frameSize.getInt("width")
+        val height = frameSize.getInt("height")
+        view.setBarcodeFrameSize(Size(width, height))
     }
 
     @ReactProp(name = "outputPath")
