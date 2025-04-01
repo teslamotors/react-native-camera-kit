@@ -167,7 +167,7 @@ static id CKConvertFollyDynamicToId(const folly::dynamic &dyn)
     }
     id maxPhotoQualityPrioritization = CKConvertFollyDynamicToId(newProps.maxPhotoQualityPrioritization);
     if (maxPhotoQualityPrioritization != nil && [maxPhotoQualityPrioritization isKindOfClass:NSString.class]) {
-        _view.maxPhotoQualityPrioritization = [flashMode isEqualToString:@"balanced"] ? CKMaxPhotoQualityPrioritizationBalanced :  [flashMode isEqualToString:@"quality"] ? CKMaxPhotoQualityPrioritizationQuality : CKMaxPhotoQualityPrioritizationSpeed;
+        _view.maxPhotoQualityPrioritization = [maxPhotoQualityPrioritization isEqualToString:@"balanced"] ? CKMaxPhotoQualityPrioritizationBalanced :  [maxPhotoQualityPrioritization isEqualToString:@"quality"] ? CKMaxPhotoQualityPrioritizationQuality : CKMaxPhotoQualityPrioritizationSpeed;
         [changedProps addObject:@"maxPhotoQualityPrioritization"];
     }
     id torchMode = CKConvertFollyDynamicToId(newProps.torchMode);
@@ -237,6 +237,13 @@ static id CKConvertFollyDynamicToId(const folly::dynamic &dyn)
         _view.maxZoom = maxZoom;
         [changedProps addObject:@"maxZoom"];
     }
+    float barcodeWidth = newProps.barcodeFrameSize.width;
+    float barcodeHeight = newProps.barcodeFrameSize.height;
+    if (barcodeWidth != [_view.barcodeFrameSize[@"width"] floatValue] || barcodeHeight != [_view.barcodeFrameSize[@"height"] floatValue]) {
+        _view.barcodeFrameSize = @{@"width": @(barcodeWidth), @"height": @(barcodeHeight)};
+        [changedProps addObject:@"barcodeFrameSize"];
+    }
+    
     
     [super updateProps:props oldProps:oldProps];
     [_view didSetProps:changedProps];

@@ -4,6 +4,8 @@ import type {
   DirectEventHandler,
   Int32,
   Double,
+  WithDefault,
+  Float,
 } from 'react-native/Libraries/Types/CodegenTypes';
 
 type OnReadCodeData = {
@@ -42,6 +44,7 @@ export interface NativeProps extends ViewProps {
   resetFocusWhenMotionDetected?: boolean;
   resizeMode?: string;
   scanThrottleDelay?: Int32;
+  barcodeFrameSize?: { width?: WithDefault<Float, 300>; height?: WithDefault<Float, 150> };
   shutterPhotoSound?: boolean;
   onCaptureButtonPressIn?: DirectEventHandler<{}>;
   onCaptureButtonPressOut?: DirectEventHandler<{}>;

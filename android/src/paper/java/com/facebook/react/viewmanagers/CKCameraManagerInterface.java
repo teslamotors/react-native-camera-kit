@@ -26,13 +26,13 @@ public interface CKCameraManagerInterface<T extends View> {
   void setShowFrame(T view, boolean value);
   void setLaserColor(T view, @Nullable Integer value);
   void setFrameColor(T view, @Nullable Integer value);
-  void setBarcodeFrameSize(T view, @Nullable ReadableMap value);
   void setRatioOverlay(T view, @Nullable String value);
   void setRatioOverlayColor(T view, @Nullable Integer value);
   void setResetFocusTimeout(T view, int value);
   void setResetFocusWhenMotionDetected(T view, boolean value);
   void setResizeMode(T view, @Nullable String value);
   void setScanThrottleDelay(T view, int value);
+  void setBarcodeFrameSize(T view, @Nullable ReadableMap value);
   void setShutterPhotoSound(T view, boolean value);
   void setShutterAnimationDuration(T view, int value);
   void setOutputPath(T view, @Nullable String value);
