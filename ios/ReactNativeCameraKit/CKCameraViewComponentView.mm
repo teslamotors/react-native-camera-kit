@@ -165,6 +165,11 @@ static id CKConvertFollyDynamicToId(const folly::dynamic &dyn)
         _view.flashMode = [flashMode isEqualToString:@"auto"] ? CKFlashModeAuto :  [flashMode isEqualToString:@"on"] ? CKFlashModeOn : CKFlashModeOff;
         [changedProps addObject:@"flashMode"];
     }
+    id maxPhotoQualityPrioritization = CKConvertFollyDynamicToId(newProps.maxPhotoQualityPrioritization);
+    if (maxPhotoQualityPrioritization != nil && [maxPhotoQualityPrioritization isKindOfClass:NSString.class]) {
+        _view.maxPhotoQualityPrioritization = [maxPhotoQualityPrioritization isEqualToString:@"balanced"] ? CKMaxPhotoQualityPrioritizationBalanced :  [maxPhotoQualityPrioritization isEqualToString:@"quality"] ? CKMaxPhotoQualityPrioritizationQuality : CKMaxPhotoQualityPrioritizationSpeed;
+        [changedProps addObject:@"maxPhotoQualityPrioritization"];
+    }
     id torchMode = CKConvertFollyDynamicToId(newProps.torchMode);
     if (torchMode != nil && [torchMode isKindOfClass:NSString.class]) {
         _view.torchMode = [torchMode isEqualToString:@"on"] ? CKTorchModeOn : CKTorchModeOff;
@@ -180,14 +185,12 @@ static id CKConvertFollyDynamicToId(const folly::dynamic &dyn)
         _view.ratioOverlayColor = ratioOverlayColor;
         [changedProps addObject:@"ratioOverlayColor"];
     }
-    id scanBarcode = CKConvertFollyDynamicToId(newProps.scanBarcode);
-    if (scanBarcode != nil) {
-        _view.scanBarcode = scanBarcode;
+    if (_view.scanBarcode != newProps.scanBarcode) {
+        _view.scanBarcode = newProps.scanBarcode;
         [changedProps addObject:@"scanBarcode"];
     }
-    id showFrame = CKConvertFollyDynamicToId(newProps.showFrame);
-    if (showFrame != nil) {
-        _view.showFrame = showFrame;
+    if (_view.showFrame != newProps.showFrame) {
+        _view.showFrame = newProps.showFrame;
         [changedProps addObject:@"showFrame"];
     }
     id scanThrottleDelay = CKConvertFollyDynamicToId(newProps.scanThrottleDelay);
@@ -210,9 +213,8 @@ static id CKConvertFollyDynamicToId(const folly::dynamic &dyn)
         _view.resetFocusTimeout = [resetFocusTimeout intValue];
         [changedProps addObject:@"resetFocusTimeout"];
     }
-    id resetFocusWhenMotionDetected = CKConvertFollyDynamicToId(newProps.resetFocusWhenMotionDetected);
-    if (resetFocusWhenMotionDetected != nil) {
-        _view.resetFocusWhenMotionDetected = resetFocusWhenMotionDetected;
+    if (_view.resetFocusWhenMotionDetected != newProps.resetFocusWhenMotionDetected) {
+        _view.resetFocusWhenMotionDetected = newProps.resetFocusWhenMotionDetected;
         [changedProps addObject:@"resetFocusWhenMotionDetected"];
     }
     id focusMode = CKConvertFollyDynamicToId(newProps.focusMode);
@@ -235,6 +237,13 @@ static id CKConvertFollyDynamicToId(const folly::dynamic &dyn)
         _view.maxZoom = maxZoom;
         [changedProps addObject:@"maxZoom"];
     }
+    float barcodeWidth = newProps.barcodeFrameSize.width;
+    float barcodeHeight = newProps.barcodeFrameSize.height;
+    if (barcodeWidth != [_view.barcodeFrameSize[@"width"] floatValue] || barcodeHeight != [_view.barcodeFrameSize[@"height"] floatValue]) {
+        _view.barcodeFrameSize = @{@"width": @(barcodeWidth), @"height": @(barcodeHeight)};
+        [changedProps addObject:@"barcodeFrameSize"];
+    }
+    
     
     [super updateProps:props oldProps:oldProps];
     [_view didSetProps:changedProps];
