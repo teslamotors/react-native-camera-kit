@@ -236,7 +236,7 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
             }}
             torchMode={torchMode ? 'on' : 'off'}
             shutterPhotoSound
-            maxPhotoQualityPrioritization="quality"
+            maxPhotoQualityPrioritization="speed"
             onCaptureButtonPressIn={() => {
               console.log('capture button pressed in');
             }}

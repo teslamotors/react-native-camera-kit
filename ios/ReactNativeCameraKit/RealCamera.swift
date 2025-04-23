@@ -274,9 +274,9 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         guard maxPhotoQualityPrioritization != self.maxPhotoQualityPrioritization else { return }
         if #available(iOS 13.0, *) {
             self.session.beginConfiguration()
+            defer { self.session.commitConfiguration() }
             self.maxPhotoQualityPrioritization = maxPhotoQualityPrioritization
             self.photoOutput.maxPhotoQualityPrioritization = maxPhotoQualityPrioritization?.avQualityPrioritization ?? .balanced
-            self.session.commitConfiguration()
         }
     }
 
@@ -296,6 +296,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
             self.removeObservers()
             self.session.beginConfiguration()
+            defer { self.session.commitConfiguration() }
 
             // Remove the existing device input first, since using the front and back camera simultaneously is not supported.
             self.session.removeInput(currentViewDeviceInput)
@@ -309,7 +310,6 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
                 self.session.addInput(currentViewDeviceInput)
             }
 
-            self.session.commitConfiguration()
             self.addObservers()
 
             // We need to reapply the configuration after reloading the camera
@@ -502,6 +502,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         }
 
         session.beginConfiguration()
+        defer { session.commitConfiguration() }
 
         session.sessionPreset = .photo
         
@@ -544,8 +545,6 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
             metadataOutput.metadataObjectTypes = filteredTypes
         }
         
-        session.commitConfiguration()
-
         return .success
     }
 
