@@ -40,6 +40,7 @@ import kotlin.math.max
 import kotlin.math.min
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.graphics.Rect
 import android.graphics.RectF
 import com.facebook.react.uimanager.UIManagerHelper
 import com.google.mlkit.vision.barcode.common.Barcode
@@ -307,9 +308,34 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
         val useCases = mutableListOf(preview, imageCapture)
 
         if (scanBarcode) {
-            val analyzer = QRCodeAnalyzer { barcodes ->
-                if (barcodes.isNotEmpty()) {
+            val analyzer = QRCodeAnalyzer { barcodes, imageSize ->
+                if (barcodes.isEmpty()) {
+                    return@QRCodeAnalyzer
+                }
+
+                val barcodeFrame = barcodeFrame;
+                if (barcodeFrame == null) {
                     onBarcodeRead(barcodes)
+                    return@QRCodeAnalyzer
+                }
+
+                // Calculate scaling factors (image is always rotated by 90 degrees)
+                val scaleX = viewFinder.width.toFloat() / imageSize.height
+                val scaleY = viewFinder.height.toFloat() / imageSize.width
+
+                val filteredBarcodes = barcodes.filter { barcode ->
+                    val barcodeBoundingBox = barcode.boundingBox ?: return@filter false;
+                    val scaledBarcodeBoundingBox = Rect(
+                        (barcodeBoundingBox.left * scaleX).toInt(),
+                        (barcodeBoundingBox.top * scaleY).toInt(),
+                        (barcodeBoundingBox.right * scaleX).toInt(),
+                        (barcodeBoundingBox.bottom * scaleY).toInt()
+                    )
+                    barcodeFrame.frameRect.contains(scaledBarcodeBoundingBox)
+                }
+
+                if (filteredBarcodes.isNotEmpty()) {
+                    onBarcodeRead(filteredBarcodes)
                 }
             }
             imageAnalyzer!!.setAnalyzer(cameraExecutor, analyzer)
