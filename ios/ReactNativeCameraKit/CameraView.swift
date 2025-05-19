@@ -38,6 +38,7 @@ public class CameraView: UIView {
     @objc public var flashMode: FlashMode = .auto
     @objc public var torchMode: TorchMode = .off
     @objc public var maxPhotoQualityPrioritization: MaxPhotoQualityPrioritization = .balanced
+    @objc public var shutterPhotoSound: Bool = true
     // ratio overlay
     @objc public var ratioOverlay: String?
     @objc public var ratioOverlayColor: UIColor?
@@ -287,6 +288,10 @@ public class CameraView: UIView {
 
         if changedProps.contains("maxZoom") {
             camera.update(maxZoom: maxZoom?.doubleValue)
+        }
+
+        if changedProps.contains("shutterPhotoSound") {
+            camera.update(shutterPhotoSound: shutterPhotoSound)
         }
     }
 

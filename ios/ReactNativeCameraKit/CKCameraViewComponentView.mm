@@ -243,8 +243,12 @@ static id CKConvertFollyDynamicToId(const folly::dynamic &dyn)
         _view.barcodeFrameSize = @{@"width": @(barcodeWidth), @"height": @(barcodeHeight)};
         [changedProps addObject:@"barcodeFrameSize"];
     }
-    
-    
+    bool shutterPhotoSound = newProps.shutterPhotoSound;
+    if (shutterPhotoSound != _view.shutterPhotoSound) {
+        _view.shutterPhotoSound = shutterPhotoSound;
+        [changedProps addObject:@"shutterPhotoSound"];
+    }
+
     [super updateProps:props oldProps:oldProps];
     [_view didSetProps:changedProps];
 }

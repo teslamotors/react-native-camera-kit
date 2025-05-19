@@ -21,6 +21,7 @@ protocol CameraProtocol: AnyObject, FocusInterfaceViewDelegate {
     func update(resizeMode: ResizeMode)
     func update(maxPhotoQualityPrioritization: MaxPhotoQualityPrioritization?)
     func update(barcodeFrameSize: CGSize?)
+    func update(shutterPhotoSound: Bool)
 
     func zoomPinchStart()
     func zoomPinchChange(pinchScale: CGFloat)

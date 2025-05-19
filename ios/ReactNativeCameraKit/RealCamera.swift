@@ -44,6 +44,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     private var lastOnZoom: Double?
     private var zoom: Double?
     private var maxZoom: Double?
+    private var shutterPhotoSound: Bool? = true
 
     private var deviceOrientation = UIDeviceOrientation.unknown
     private var motionManager: CMMotionManager?
@@ -326,6 +327,10 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
                 self.cameraPreview.previewLayer.videoGravity = .resizeAspect
             }
         }
+    }
+
+    func update(shutterPhotoSound: Bool) {
+        self.shutterPhotoSound = shutterPhotoSound
     }
 
     func capturePicture(onWillCapture: @escaping () -> Void,
