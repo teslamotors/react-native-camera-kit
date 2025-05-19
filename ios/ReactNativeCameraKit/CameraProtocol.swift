@@ -7,6 +7,7 @@ import AVFoundation
 
 protocol CameraProtocol: AnyObject, FocusInterfaceViewDelegate {
     var previewView: UIView { get }
+    var imageBuffer: CMSampleBuffer? { get }
 
     func setup(cameraType: CameraType, supportedBarcodeType: [CodeFormat])
     func cameraRemovedFromSuperview()

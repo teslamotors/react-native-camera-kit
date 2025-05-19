@@ -21,6 +21,7 @@ class SimulatorCamera: CameraProtocol {
     private var barcodeFrameSize: CGSize?
     private var shutterPhotoSound: Bool? = true
 
+    private(set) var imageBuffer: CMSampleBuffer?
     var previewView: UIView { mockPreview }
 
     private var fakeFocusFinishedTimer: Timer?

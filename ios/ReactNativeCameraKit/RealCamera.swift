@@ -13,8 +13,9 @@ import CoreMotion
  * Real camera implementation that uses AVFoundation
  */
 // swiftlint:disable:next type_body_length
-class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelegate {
+class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelegate, AVCaptureVideoDataOutputSampleBufferDelegate {
     var previewView: UIView { cameraPreview }
+    private(set) var imageBuffer: CMSampleBuffer?
 
     private let cameraPreview = RealPreviewView(frame: .zero)
     private let session = AVCaptureSession()
@@ -29,6 +30,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     private var videoDeviceInput: AVCaptureDeviceInput?
     private let photoOutput = AVCapturePhotoOutput()
     private let metadataOutput = AVCaptureMetadataOutput()
+    private let videoDataOutput = AVCaptureVideoDataOutput()
 
     private var resizeMode: ResizeMode = .contain
     private var flashMode: FlashMode = .auto
@@ -447,6 +449,14 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         onBarcodeRead?(codeStringValue,barcodeType)
     }
 
+    // MARK: - AVCaptureVideoDataOutputSampleBufferDelegate
+    
+    func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+        if output == videoDataOutput {
+            imageBuffer = sampleBuffer
+        }
+    }
+
     // MARK: - Private
 
     private func videoOrientation(from deviceOrientation: UIDeviceOrientation) -> AVCaptureVideoOrientation? {
@@ -549,7 +559,19 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
             metadataOutput.metadataObjectTypes = filteredTypes
         }
-        
+
+        if session.canAddOutput(videoDataOutput) {
+            session.addOutput(videoDataOutput)
+            videoDataOutput.alwaysDiscardsLateVideoFrames = true
+            videoDataOutput.setSampleBufferDelegate(self, queue: sessionQueue)
+
+            if let connection = videoDataOutput.connection(with: .video) {
+                connection.videoOrientation = .portrait
+            }
+        } else {
+            return .sessionConfigurationFailed
+        }
+
         return .success
     }
 
@@ -705,10 +727,18 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         } else {
             interfaceOrientation = UIApplication.shared.statusBarOrientation
         }
-        self.cameraPreview.previewLayer.connection?.videoOrientation = self.videoOrientation(from: interfaceOrientation)
+        let videoOrientation = self.videoOrientation(from: interfaceOrientation)
+        self.cameraPreview.previewLayer.connection?.videoOrientation = videoOrientation
+
+        if let videoDataOutputConnection = videoDataOutput.connection(with: .video) {
+            videoDataOutputConnection.videoOrientation = videoOrientation
+        }
         #else
         // Mac Catalyst always uses portrait orientation
         self.cameraPreview.previewLayer.connection?.videoOrientation = .portrait
+        if let videoDataOutputConnection = videoDataOutput.connection(with: .video) {
+            videoDataOutputConnection.videoOrientation = .portrait
+        }
         #endif
     }
 

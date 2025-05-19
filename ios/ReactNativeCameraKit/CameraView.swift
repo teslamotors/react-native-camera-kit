@@ -66,6 +66,14 @@ public class CameraView: UIView {
     
     var eventInteraction: Any? = nil
 
+    var isSimulator: Bool {
+#if targetEnvironment(simulator)
+        true
+#else
+        false
+#endif
+    }
+
     // MARK: - Setup
 
     // This is used to delay camera setup until we have both granted permission & received default props
@@ -298,26 +306,30 @@ public class CameraView: UIView {
     // MARK: Public
 
     @objc public func capture(onSuccess: @escaping (_ imageObject: [String: Any]) -> Void,
-                 onError: @escaping (_ error: String) -> Void) {
-        camera.capturePicture(onWillCapture: { [weak self] in
-            // Flash/dim preview to indicate shutter action
-            DispatchQueue.main.async {
-                self?.camera.previewView.alpha = 0
-                UIView.animate(withDuration: 0.35, animations: {
-                    self?.camera.previewView.alpha = 1
-                })
-            }
-        }, onSuccess: { [weak self] imageData, thumbnailData, dimensions in
-            DispatchQueue.global(qos: .default).async {
-                self?.writeCaptured(imageData: imageData,
-                                    thumbnailData: thumbnailData,
-                                    dimensions: dimensions,
-                                    onSuccess: onSuccess,
-                                    onError: onError)
+                              onError: @escaping (_ error: String) -> Void) {
+        if isSimulator || shutterPhotoSound {
+            camera.capturePicture(onWillCapture: { [weak self] in
+                // Flash/dim preview to indicate shutter action
+                DispatchQueue.main.async {
+                    self?.camera.previewView.alpha = 0
+                    UIView.animate(withDuration: 0.35, animations: {
+                        self?.camera.previewView.alpha = 1
+                    })
+                }
+            }, onSuccess: { [weak self] imageData, thumbnailData, dimensions in
+                DispatchQueue.global(qos: .default).async {
+                    self?.writeCaptured(imageData: imageData,
+                                        thumbnailData: thumbnailData,
+                                        dimensions: dimensions,
+                                        onSuccess: onSuccess,
+                                        onError: onError)
 
-                self?.focusInterfaceView.resetFocus()
-            }
-        }, onError: onError)
+                    self?.focusInterfaceView.resetFocus()
+                }
+            }, onError: onError)
+        } else {
+            self.silentCapture(onSuccess: onSuccess, onError: onError)
+        }
     }
 
     // MARK: - Private Helper
@@ -426,6 +438,87 @@ public class CameraView: UIView {
         lastBarcodeDetectedTime = now
 
         onReadCode?(["codeStringValue": barcode,"codeFormat":codeFormat.rawValue])
+    }
+
+    private func silentCapture(onSuccess: @escaping (_ imageObject: [String: Any]) -> Void,
+                               onError: @escaping (_ error: String) -> Void) {
+        self.camera.previewView.alpha = 0
+        UIView.animate(withDuration: 0.35) {
+            self.camera.previewView.alpha = 1
+        }
+
+        guard let imageBuffer = self.camera.imageBuffer,
+              let cvPixelBuffer = CMSampleBufferGetImageBuffer(imageBuffer) else {
+            onError("Failed to get image buffer")
+            return
+        }
+
+        let ciImage = CIImage(cvPixelBuffer: cvPixelBuffer)
+        let ciImageContext = CIContext()
+
+        guard let cgImage = ciImageContext.createCGImage(ciImage, from: ciImage.extent) else {
+            onError("Failed to create CGImage")
+            return
+        }
+
+        let isPhone = UIDevice.current.userInterfaceIdiom == .phone
+        let orientation = self.imageOrientation(
+            deviceOrientation: isPhone ? self.screenOrientation : UIDevice.current.orientation,
+            cameraPosition: self.cameraType.avPosition)
+
+        let image = UIImage(cgImage: cgImage, scale: 1.0, orientation: orientation)
+
+        // convert image to JPEG
+        guard let imageData = image.jpegData(compressionQuality: 0.85) else {
+            onError("Failed to convert image to data")
+            return
+        }
+
+        let thumbnailData = image.jpegData(compressionQuality: 0.5)
+        let dimensions = CMVideoDimensions(width: Int32(image.size.width), height: Int32(image.size.height))
+
+        DispatchQueue.global(qos: .default).async { [weak self] in
+            self?.writeCaptured(
+                imageData: imageData,
+                thumbnailData: thumbnailData,
+                dimensions: dimensions,
+                onSuccess: onSuccess,
+                onError: onError
+            )
+
+            self?.focusInterfaceView.resetFocus()
+        }
+    }
+
+    private func imageOrientation(deviceOrientation: UIDeviceOrientation, cameraPosition: AVCaptureDevice.Position) -> UIImage.Orientation {
+        switch deviceOrientation {
+        case .portrait:
+            return cameraPosition == .front ? .upMirrored : .up
+        case .portraitUpsideDown:
+            return cameraPosition == .front ? .downMirrored : .down
+        case .landscapeLeft:
+            return cameraPosition == .front ? .leftMirrored : .left
+        case .landscapeRight:
+            return cameraPosition == .front ? .rightMirrored : .right
+        default:
+            return cameraPosition == .front ? .upMirrored : .up
+        }
+    }
+
+    private var screenOrientation: UIDeviceOrientation {
+        let orientation = UIApplication.shared.windows.first?.windowScene?.interfaceOrientation
+        switch orientation {
+        case .portrait:
+            return .portrait
+        case .portraitUpsideDown:
+            return .portraitUpsideDown
+        case .landscapeLeft:
+            return .landscapeRight // UIInterfaceOrientation's landscapeLeft == UIDeviceOrientation's landscapeRight
+        case .landscapeRight:
+            return .landscapeLeft // vice versa!
+        default:
+            return .portrait
+        }
     }
 
     // MARK: - Gesture selectors
