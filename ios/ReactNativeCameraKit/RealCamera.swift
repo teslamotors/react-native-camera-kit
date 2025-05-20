@@ -58,7 +58,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     private var inProgressPhotoCaptureDelegates = [Int64: PhotoCaptureDelegate]()
 
     // MARK: - Lifecycle
-    
+
     #if !targetEnvironment(macCatalyst)
     override init() {
         super.init()
@@ -79,7 +79,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         // Mac Catalyst doesn't support device orientation notifications
     }
     #endif
-    
+
     @available(*, unavailable)
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -272,7 +272,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     func update(flashMode: FlashMode) {
         self.flashMode = flashMode
     }
-    
+
     func update(maxPhotoQualityPrioritization: MaxPhotoQualityPrioritization?) {
         guard maxPhotoQualityPrioritization != self.maxPhotoQualityPrioritization else { return }
         if #available(iOS 13.0, *) {
@@ -450,7 +450,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     }
 
     // MARK: - AVCaptureVideoDataOutputSampleBufferDelegate
-    
+
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         if output == videoDataOutput {
             imageBuffer = sampleBuffer
@@ -520,13 +520,13 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         defer { session.commitConfiguration() }
 
         session.sessionPreset = .photo
-        
+
         if #available(iOS 13.0, *) {
             if let maxPhotoQualityPrioritization {
                 photoOutput.maxPhotoQualityPrioritization = maxPhotoQualityPrioritization.avQualityPrioritization
             }
         }
-        
+
         if session.canAddInput(videoDeviceInput) {
             session.addInput(videoDeviceInput)
 
@@ -670,6 +670,19 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
             // Device is not clearly pointing in either direction
             // (e.g. it's flat on the table, so stick with the same orientation)
             return nil
+        }
+    }
+
+    // MARK: Private image orientation from device orientation
+
+    private func imageOrientation(from deviceOrientation: UIDeviceOrientation) -> UIImage.Orientation {
+        switch deviceOrientation {
+        case .portrait: return .up
+        case .portraitUpsideDown: return .down
+        case .landscapeLeft: return .left
+        case .landscapeRight: return .right
+        case .unknown: return .up
+        @unknown default: return .up
         }
     }
 
