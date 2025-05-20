@@ -195,3 +195,11 @@ extension AVCaptureDevice.FocusMode: CustomStringConvertible {
         }
     }
 }
+
+public struct CaptureOptions {
+    public var shutterPhotoSound: Bool = true
+    
+    public init(shutterPhotoSound: Bool = true) {
+        self.shutterPhotoSound = shutterPhotoSound
+    }
+}
