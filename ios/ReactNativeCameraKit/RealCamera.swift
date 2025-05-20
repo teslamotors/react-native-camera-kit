@@ -335,48 +335,58 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         self.shutterPhotoSound = shutterPhotoSound
     }
 
-    func capturePicture(onWillCapture: @escaping () -> Void,
+    func capturePicture(captureOptions: CaptureOptions,
+                        onWillCapture: @escaping () -> Void,
                         onSuccess: @escaping (_ imageData: Data, _ thumbnailData: Data?, _ dimensions: CMVideoDimensions) -> Void,
                         onError: @escaping (_ message: String) -> Void) {
-        /*
-         Retrieve the video preview layer's video orientation on the main queue before
-         entering the session queue. Do this to ensure that UI elements are accessed on
-         the main thread and session configuration is done on the session queue.
-         */
-        DispatchQueue.main.async {
-            let videoPreviewLayerOrientation =
+
+        let shutterPhotoSound = captureOptions.shutterPhotoSound
+
+        if shutterPhotoSound == false {
+            DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+                self?.silentCapture(onSuccess: onSuccess, onError: onError)
+            }
+        } else {
+            /*
+             Retrieve the video preview layer's video orientation on the main queue before
+             entering the session queue. Do this to ensure that UI elements are accessed on
+             the main thread and session configuration is done on the session queue.
+             */
+            DispatchQueue.main.async {
+                let videoPreviewLayerOrientation =
                 self.videoOrientation(from: self.deviceOrientation) ?? self.cameraPreview.previewLayer.connection?.videoOrientation
 
-            self.sessionQueue.async {
-                if let photoOutputConnection = self.photoOutput.connection(with: .video), let videoPreviewLayerOrientation {
-                    photoOutputConnection.videoOrientation = videoPreviewLayerOrientation
-                }
-
-                let settings = AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecType.jpeg])
-                if #available(iOS 13.0, *) {
-                    settings.photoQualityPrioritization = self.photoOutput.maxPhotoQualityPrioritization
-                }
-
-                if self.videoDeviceInput?.device.isFlashAvailable == true {
-                    settings.flashMode = self.flashMode.avFlashMode
-                }
-
-                let photoCaptureDelegate = PhotoCaptureDelegate(
-                    with: settings,
-                    onWillCapture: onWillCapture,
-                    onCaptureSuccess: { uniqueID, imageData, thumbnailData, dimensions in
-                        self.inProgressPhotoCaptureDelegates[uniqueID] = nil
-                        
-                        onSuccess(imageData, thumbnailData, dimensions)
-                    },
-                    onCaptureError: { uniqueID, errorMessage in
-                        self.inProgressPhotoCaptureDelegates[uniqueID] = nil
-                        onError(errorMessage)
+                self.sessionQueue.async {
+                    if let photoOutputConnection = self.photoOutput.connection(with: .video), let videoPreviewLayerOrientation {
+                        photoOutputConnection.videoOrientation = videoPreviewLayerOrientation
                     }
-                )
 
-                self.inProgressPhotoCaptureDelegates[photoCaptureDelegate.requestedPhotoSettings.uniqueID] = photoCaptureDelegate
-                self.photoOutput.capturePhoto(with: settings, delegate: photoCaptureDelegate)
+                    let settings = AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecType.jpeg])
+                    if #available(iOS 13.0, *) {
+                        settings.photoQualityPrioritization = self.photoOutput.maxPhotoQualityPrioritization
+                    }
+
+                    if self.videoDeviceInput?.device.isFlashAvailable == true {
+                        settings.flashMode = self.flashMode.avFlashMode
+                    }
+
+                    let photoCaptureDelegate = PhotoCaptureDelegate(
+                        with: settings,
+                        onWillCapture: onWillCapture,
+                        onCaptureSuccess: { uniqueID, imageData, thumbnailData, dimensions in
+                            self.inProgressPhotoCaptureDelegates[uniqueID] = nil
+
+                            onSuccess(imageData, thumbnailData, dimensions)
+                        },
+                        onCaptureError: { uniqueID, errorMessage in
+                            self.inProgressPhotoCaptureDelegates[uniqueID] = nil
+                            onError(errorMessage)
+                        }
+                    )
+
+                    self.inProgressPhotoCaptureDelegates[photoCaptureDelegate.requestedPhotoSettings.uniqueID] = photoCaptureDelegate
+                    self.photoOutput.capturePhoto(with: settings, delegate: photoCaptureDelegate)
+                }
             }
         }
     }
@@ -791,5 +801,44 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         }
 
         // FIXME: Missing use of showResumeButton
+    }
+
+    private func silentCapture(onSuccess: @escaping (_ imageData: Data, _ thumbnailData: Data?, _ dimensions: CMVideoDimensions) -> Void,
+                               onError: @escaping (_ message: String) -> Void) {
+
+        guard let imageBuffer = self.imageBuffer,
+              let cvPixelBuffer = CMSampleBufferGetImageBuffer(imageBuffer) else {
+            DispatchQueue.main.async {
+                onError("Failed to get image buffer")
+            }
+            return
+        }
+
+        let ciImage = CIImage(cvPixelBuffer: cvPixelBuffer)
+        let ciImageContext = CIContext()
+
+        guard let cgImage = ciImageContext.createCGImage(ciImage, from: ciImage.extent) else {
+            DispatchQueue.main.async {
+                onError("Failed to create CGImage")
+            }
+            return
+        }
+
+        let orientation = self.imageOrientation(from: self.deviceOrientation)
+        let image = UIImage(cgImage: cgImage, scale: 1.0, orientation: orientation)
+
+        guard let imageData = image.jpegData(compressionQuality: 0.85) else {
+            DispatchQueue.main.async {
+                onError("Failed to convert image to data")
+            }
+            return
+        }
+
+        let thumbnailData = image.jpegData(compressionQuality: 0.5)
+        let dimensions = CMVideoDimensions(width: Int32(image.size.width), height: Int32(image.size.height))
+
+        DispatchQueue.main.async {
+            onSuccess(imageData, thumbnailData, dimensions)
+        }
     }
 }

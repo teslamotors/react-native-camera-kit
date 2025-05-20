@@ -180,9 +180,14 @@ class SimulatorCamera: CameraProtocol {
                                  onBarcodeRead: ((_ barcode: String,_ codeFormat:CodeFormat) -> Void)?) {}
     func update(scannerFrameSize: CGRect?) {}
 
-    func capturePicture(onWillCapture: @escaping () -> Void,
+    func capturePicture(captureOptions: CaptureOptions,
+                        onWillCapture: @escaping () -> Void,
                         onSuccess: @escaping (_ imageData: Data, _ thumbnailData: Data?, _ dimensions: CMVideoDimensions) -> Void,
                         onError: @escaping (_ message: String) -> Void) {
+        /* 
+        We don't need to care about captureOptions.shutterPhotoSound in simulator.
+        because simulator doesn't have shutter sound.
+        */
         onWillCapture()
 
         DispatchQueue.main.async {
