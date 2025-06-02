@@ -8,6 +8,7 @@ import androidx.camera.core.ImageProxy
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 
 class QRCodeAnalyzer (
     private val onQRCodesDetected: (qrCodes: List<Barcode>, imageSize: Size) -> Unit
@@ -19,7 +20,9 @@ class QRCodeAnalyzer (
 
         val inputImage = InputImage.fromMediaImage(mediaImage, image.imageInfo.rotationDegrees)
 
-        val scanner = BarcodeScanning.getClient()
+        val options = BarcodeScannerOptions.Builder().setBarcodeFormats(Barcode.FORMAT_QR_CODE).build()
+                
+        val scanner = BarcodeScanning.getClient(options)
         scanner.process(inputImage)
             .addOnSuccessListener { barcodes ->
                 val strBarcodes = mutableListOf<Barcode>()
