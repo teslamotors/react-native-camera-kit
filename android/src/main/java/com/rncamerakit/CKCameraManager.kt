@@ -154,7 +154,10 @@ class CKCameraManager : SimpleViewManager<CKCamera>(), CKCameraManagerInterface<
 
     override fun setResizeMode(view: CKCamera?, value: String?) = Unit
 
-    override fun setScanThrottleDelay(view: CKCamera?, value: Int) = Unit
+    @ReactProp(name = "scanThrottleDelay")
+    override fun setScanThrottleDelay(view: CKCamera?, value: Int) {
+        view!!.setScanThrottleDelay(value)
+    }
 
     override fun setMaxPhotoQualityPrioritization(view: CKCamera?, value: String?) = Unit
 }
