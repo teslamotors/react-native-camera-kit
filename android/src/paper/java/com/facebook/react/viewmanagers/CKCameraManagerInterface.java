@@ -22,6 +22,7 @@ public interface CKCameraManagerInterface<T extends View> {
   void setMaxZoom(T view, double value);
   void setTorchMode(T view, @Nullable String value);
   void setCameraType(T view, @Nullable String value);
+  void setOrientation(T view, @Nullable String value);
   void setScanBarcode(T view, boolean value);
   void setShowFrame(T view, boolean value);
   void setLaserColor(T view, @Nullable Integer value);

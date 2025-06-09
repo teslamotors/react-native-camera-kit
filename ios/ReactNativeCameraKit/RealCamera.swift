@@ -44,7 +44,8 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     private var lastOnZoom: Double?
     private var zoom: Double?
     private var maxZoom: Double?
-
+    private var orientation: OrientationMode = .auto
+    
     private var deviceOrientation = UIDeviceOrientation.unknown
     private var motionManager: CMMotionManager?
 
@@ -266,6 +267,14 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         }
     }
 
+    func update(orientation: OrientationMode) {
+        self.orientation = orientation
+
+        DispatchQueue.main.async {
+            self.setVideoOrientationToInterfaceOrientation()
+        }
+    }
+
     func update(flashMode: FlashMode) {
         self.flashMode = flashMode
     }
@@ -337,11 +346,44 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
          the main thread and session configuration is done on the session queue.
          */
         DispatchQueue.main.async {
-            let videoPreviewLayerOrientation =
-                self.videoOrientation(from: self.deviceOrientation) ?? self.cameraPreview.previewLayer.connection?.videoOrientation
+            let videoPreviewLayerOrientation: AVCaptureVideoOrientation
+            
+            // Check if orientation is locked to a specific mode
+            if self.orientation != .auto {
+                // Get current device/interface orientation for intelligent selection
+                var currentInterfaceOrientation: UIInterfaceOrientation
+                if #available(iOS 13.0, *) {
+                    currentInterfaceOrientation = self.previewView.window?.windowScene?.interfaceOrientation ?? .portrait
+                } else {
+                    currentInterfaceOrientation = UIApplication.shared.statusBarOrientation
+                }
+                
+                switch self.orientation {
+                case .portrait:
+                    if currentInterfaceOrientation == .portraitUpsideDown {
+                        videoPreviewLayerOrientation = .portraitUpsideDown
+                    } else {
+                        videoPreviewLayerOrientation = .portrait
+                    }
+                case .landscape:
+                    if currentInterfaceOrientation == .landscapeRight {
+                        videoPreviewLayerOrientation = .landscapeRight
+                    } else {
+                        videoPreviewLayerOrientation = .landscapeLeft
+                    }
+                default:
+                    // Fallback to auto behavior
+                    videoPreviewLayerOrientation =
+                        self.videoOrientation(from: self.deviceOrientation) ?? self.cameraPreview.previewLayer.connection?.videoOrientation ?? .portrait
+                }
+            } else {
+                // Use device orientation or fallback to preview layer orientation
+                videoPreviewLayerOrientation =
+                    self.videoOrientation(from: self.deviceOrientation) ?? self.cameraPreview.previewLayer.connection?.videoOrientation ?? .portrait
+            }
 
             self.sessionQueue.async {
-                if let photoOutputConnection = self.photoOutput.connection(with: .video), let videoPreviewLayerOrientation {
+                if let photoOutputConnection = self.photoOutput.connection(with: .video) {
                     photoOutputConnection.videoOrientation = videoPreviewLayerOrientation
                 }
 
@@ -694,6 +736,43 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
     private func setVideoOrientationToInterfaceOrientation() {
         #if !targetEnvironment(macCatalyst)
+        if self.orientation != .auto {
+            let targetOrientation: AVCaptureVideoOrientation
+            
+            // Get current device/interface orientation for intelligent selection
+            var currentInterfaceOrientation: UIInterfaceOrientation
+            if #available(iOS 13.0, *) {
+                currentInterfaceOrientation = self.previewView.window?.windowScene?.interfaceOrientation ?? .portrait
+            } else {
+                currentInterfaceOrientation = UIApplication.shared.statusBarOrientation
+            }
+            
+            switch self.orientation {
+            case .portrait:
+            // Lock to portrait, choose best portrait orientation based on current state
+                if currentInterfaceOrientation == .portraitUpsideDown {
+                    targetOrientation = .portraitUpsideDown
+                } else {
+                    targetOrientation = .portrait
+                }
+            case .landscape:
+            // Lock to landscape, choose best landscape orientation based on current state
+                if currentInterfaceOrientation == .landscapeRight {
+                    targetOrientation = .landscapeRight
+                } else {
+                    targetOrientation = .landscapeLeft
+                }
+            default:
+            // Fallback to auto behavior
+                targetOrientation = self.videoOrientation(from: currentInterfaceOrientation)
+            }
+
+        
+            self.cameraPreview.previewLayer.connection?.videoOrientation = targetOrientation
+            return
+        }
+        
+        // Use device/interface orientation if not locked (auto mode)
         var interfaceOrientation: UIInterfaceOrientation
         if #available(iOS 13.0, *) {
             interfaceOrientation = self.previewView.window?.windowScene?.interfaceOrientation ?? .portrait

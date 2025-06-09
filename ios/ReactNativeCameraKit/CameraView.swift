@@ -52,6 +52,7 @@ public class CameraView: UIView {
 
     // other
     @objc public var onOrientationChange: RCTDirectEventBlock?
+    @objc public var orientation: NSString?
     @objc public var onZoom: RCTDirectEventBlock?
     @objc public var resetFocusTimeout = 0
     @objc public var resetFocusWhenMotionDetected = false
@@ -88,6 +89,10 @@ public class CameraView: UIView {
             #else
             camera.setup(cameraType: cameraType, supportedBarcodeType: scanBarcode && onReadCode != nil ? supportedBarcodeType : [])
             #endif
+            
+            // Apply initial orientation lock after camera setup
+            let orientationMode = convertOrientationStringToMode(orientation as String?)
+            camera.update(orientation: orientationMode)
         }
     }
 
@@ -288,6 +293,12 @@ public class CameraView: UIView {
         if changedProps.contains("maxZoom") {
             camera.update(maxZoom: maxZoom?.doubleValue)
         }
+
+        if changedProps.contains("orientation") {
+            let orientationMode = convertOrientationStringToMode(orientation as String?)
+            camera.update(orientation: orientationMode)
+        }
+
     }
 
     // MARK: Public
@@ -316,6 +327,18 @@ public class CameraView: UIView {
     }
 
     // MARK: - Private Helper
+
+    private func convertOrientationStringToMode(_ orientationString: String?) -> OrientationMode {
+        guard let orientationString = orientationString else { return .auto }
+        switch orientationString {
+        case "portrait":
+            return .portrait
+        case "landscape":
+            return .landscape
+        default:
+            return .auto
+        }
+    }
 
     private func update(zoomMode: ZoomMode) {
         if zoomMode == .on {

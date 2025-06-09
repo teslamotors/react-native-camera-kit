@@ -237,6 +237,11 @@ static id CKConvertFollyDynamicToId(const folly::dynamic &dyn)
         _view.maxZoom = maxZoom;
         [changedProps addObject:@"maxZoom"];
     }
+    id orientation = CKConvertFollyDynamicToId(newProps.orientation);
+    if (orientation != nil) {
+        _view.orientation = orientation;
+        [changedProps addObject:@"orientation"];
+    }
     float barcodeWidth = newProps.barcodeFrameSize.width;
     float barcodeHeight = newProps.barcodeFrameSize.height;
     if (barcodeWidth != [_view.barcodeFrameSize[@"width"] floatValue] || barcodeHeight != [_view.barcodeFrameSize[@"height"] floatValue]) {

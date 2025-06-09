@@ -149,6 +149,21 @@ enum SetupResult: Int {
     case sessionConfigurationFailed
 }
 
+@objc(CKOrientationMode)
+public enum OrientationMode: Int, CustomStringConvertible {
+    case auto
+    case portrait
+    case landscape
+
+    public var description: String {
+        switch self {
+        case .auto: return "auto"
+        case .portrait: return "portrait"  
+        case .landscape: return "landscape"
+        }
+    }
+}
+
 enum Orientation: Int {
     case portrait = 0 // ⬆️
     case landscapeLeft = 1 // ⬅️

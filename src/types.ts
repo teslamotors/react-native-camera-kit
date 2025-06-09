@@ -28,6 +28,8 @@ export type ZoomMode = 'on' | 'off';
 
 export type ResizeMode = 'cover' | 'contain';
 
+export type OrientationMode = 'auto' | 'portrait' | 'landscape';
+
 export type CaptureData = {
   uri: string;
   name: string;
