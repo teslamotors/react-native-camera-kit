@@ -11,7 +11,7 @@ import {
   Vibration,
 } from 'react-native';
 import Camera from '../../src/Camera';
-import { CameraApi, CameraType } from '../../src/types';
+import { type CameraApi, CameraType } from '../../src/types';
 import { Orientation } from '../../src';
 
 const flashImages = {
