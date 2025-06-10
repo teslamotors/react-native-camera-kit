@@ -14,6 +14,7 @@ protocol CameraProtocol: AnyObject, FocusInterfaceViewDelegate {
     func update(torchMode: TorchMode)
     func update(flashMode: FlashMode)
     func update(cameraType: CameraType)
+    func update(orientation: OrientationMode)
     func update(onOrientationChange: RCTDirectEventBlock?)
     func update(onZoom: RCTDirectEventBlock?)
     func update(zoom: Double?)

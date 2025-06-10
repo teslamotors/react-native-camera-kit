@@ -7,6 +7,7 @@ import {
   type TorchMode,
   type ResizeMode,
   type CodeFormat,
+  type OrientationMode,
 } from './types';
 import { Orientation } from './index';
 
@@ -77,6 +78,7 @@ export interface CameraProps extends ViewProps {
   maxZoom?: number;
   torchMode?: TorchMode;
   cameraType?: CameraType;
+  orientation?: OrientationMode;
   onOrientationChange?: (event: OnOrientationChangeData) => void;
   /**
    * Callback triggered when user pinches to zoom and on startup.

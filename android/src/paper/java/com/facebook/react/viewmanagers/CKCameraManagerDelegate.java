@@ -60,6 +60,9 @@ public class CKCameraManagerDelegate<T extends View, U extends BaseViewManager<T
       case "frameColor":
         mViewManager.setFrameColor(view, ColorPropConverter.getColor(value, view.getContext()));
         break;
+      case "orientation":
+        mViewManager.setOrientation(view, value == null ? null : (String) value);
+        break;
       case "ratioOverlay":
         mViewManager.setRatioOverlay(view, value == null ? null : (String) value);
         break;

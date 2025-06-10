@@ -32,6 +32,7 @@ class SimulatorCamera: CameraProtocol {
     func setup(cameraType: CameraType, supportedBarcodeType: [CodeFormat]) {
         DispatchQueue.main.async {
             self.mockPreview.cameraTypeLabel.text = "Camera type: \(cameraType)"
+            self.mockPreview.orientationLabel.text = "Orientation: auto"
         }
 
         // Listen to orientation changes
@@ -133,6 +134,19 @@ class SimulatorCamera: CameraProtocol {
         DispatchQueue.main.async {
             self.mockPreview.cameraTypeLabel.text = "Camera type: \(cameraType)"
             self.mockPreview.randomize()
+        }
+    }
+
+    func update(orientation: OrientationMode) {
+        DispatchQueue.main.async {
+            switch orientation {
+            case .auto:
+                self.mockPreview.orientationLabel.text = "Orientation: auto"
+            case .portrait:
+                self.mockPreview.orientationLabel.text = "Orientation: locked to portrait"
+            case .landscape:
+                self.mockPreview.orientationLabel.text = "Orientation: locked to landscape"
+            }
         }
     }
 

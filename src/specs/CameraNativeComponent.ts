@@ -30,6 +30,7 @@ export interface NativeProps extends ViewProps {
   maxZoom?: Double;
   torchMode?: string;
   cameraType?: string;
+  orientation?: string;
   onOrientationChange?: DirectEventHandler<OnOrientationChangeData>;
   onZoom?: DirectEventHandler<OnZoom>;
   onError?: DirectEventHandler<{errorMessage: string }>;
