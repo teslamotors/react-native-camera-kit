@@ -271,8 +271,9 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     }
     
     func update(maxPhotoQualityPrioritization: MaxPhotoQualityPrioritization?) {
+        guard #available(iOS 13.0, *) else { return }
         guard maxPhotoQualityPrioritization != self.maxPhotoQualityPrioritization else { return }
-        if #available(iOS 13.0, *) {
+        sessionQueue.async {
             self.session.beginConfiguration()
             defer { self.session.commitConfiguration() }
             self.maxPhotoQualityPrioritization = maxPhotoQualityPrioritization

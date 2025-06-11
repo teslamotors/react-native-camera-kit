@@ -1,8 +1,10 @@
-import React, { useState, useRef } from 'react';
+import type React from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Image, SafeAreaView, Animated, StatusBar, ScrollView } from 'react-native';
 import Camera from '../../src/Camera';
-import { CameraApi, CameraType, CaptureData } from '../../src/types';
+import { type CameraApi, CameraType, type CaptureData } from '../../src/types';
 import { Orientation } from '../../src';
+import type { CameraProps } from '../../src/CameraProps';
 
 const flashImages = {
   on: require('../images/flashOn.png'),
@@ -26,9 +28,9 @@ const flashArray = [
 ] as const;
 
 function median(values: number[]): number {
-  values = [...values].sort((a, b) => a - b);
-  const half = Math.floor(values.length / 2);
-  return values.length % 2 ? values[half] : (values[half - 1] + values[half]) / 2;
+  const sortedValues = [...values].sort((a, b) => a - b);
+  const half = Math.floor(sortedValues.length / 2);
+  return sortedValues.length % 2 ? sortedValues[half] : (sortedValues[half - 1] + sortedValues[half]) / 2;
 }
 
 const CameraExample = ({ onBack }: { onBack: () => void }) => {
@@ -53,11 +55,11 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
     const numberTook = captureImages.length;
     if (numberTook >= 2) {
       return numberTook;
-    } else if (captured) {
+    } 
+    if (captured) {
       return '1';
-    } else {
-      return '';
     }
+    return '';
   };
 
   const onSwitchCameraPressed = () => {
@@ -113,11 +115,11 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
   };
 
   function CaptureButton({ onPress, children }: { onPress: () => void; children?: React.ReactNode }) {
-    const w = 80,
-      brdW = 4,
-      spc = 6;
-    const cInner = 'white',
-      cOuter = 'white';
+    const w = 80;
+    const brdW = 4;
+    const spc = 6;
+    const cInner = 'white';
+    const cOuter = 'white';
     return (
       <TouchableOpacity onPress={onPress} style={{ width: w, height: w }}>
         <View
@@ -169,7 +171,6 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
 
   return (
     <View style={styles.screen}>
-      <StatusBar hidden />
       <SafeAreaView style={styles.topButtons}>
         {flashData.image && (
           <TouchableOpacity style={styles.topButton} onPress={onSetFlash}>

@@ -58,6 +58,7 @@ public enum MaxPhotoQualityPrioritization: Int, CustomStringConvertible {
     case balanced
     case quality
     
+    @available(iOS 13.0, *)
     var avQualityPrioritization: AVCapturePhotoOutput.QualityPrioritization {
         switch self {
         case .speed: return .speed
