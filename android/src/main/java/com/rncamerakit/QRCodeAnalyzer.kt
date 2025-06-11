@@ -13,7 +13,7 @@ class QRCodeAnalyzer (
     private val scanThrottleDelay: () -> Int,
     private val onQRCodesDetected: (qrCodes: List<Barcode>, imageSize: Size) -> Unit
 ) : ImageAnalysis.Analyzer {
-    private var lastScanTime: Long = 0 // 添加上一次扫描时间的变量
+    private var lastScanTime: Long = 0
 
     @SuppressLint("UnsafeExperimentalUsageError")
     @ExperimentalGetImage
@@ -21,7 +21,6 @@ class QRCodeAnalyzer (
         val currentTime = System.currentTimeMillis()
         val delay = scanThrottleDelay();
         if (currentTime - lastScanTime < delay) {
-            println("QRCodeAnalyzer: Scanned at $currentTime，scanThrottleDelay=[${delay}],diff=[${currentTime - lastScanTime }]")
             image.close()
             return
         }
@@ -38,7 +37,6 @@ class QRCodeAnalyzer (
                 barcodes.forEach { barcode ->
                     strBarcodes.add(barcode ?: return@forEach)
                 }
-                println("QRCodeAnalyzer: onQRCodesDetected")
                 onQRCodesDetected(strBarcodes, Size(image.width, image.height))
             }
             .addOnCompleteListener {
