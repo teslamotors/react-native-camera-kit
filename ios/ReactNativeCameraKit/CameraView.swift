@@ -49,6 +49,7 @@ public class CameraView: UIView {
     @objc public var frameColor: UIColor?
     @objc public var laserColor: UIColor?
     @objc public var barcodeFrameSize: NSDictionary?
+    @objc public var forbiddenBarcodeTypes: NSArray?
 
     // other
     @objc public var onOrientationChange: RCTDirectEventBlock?
@@ -81,12 +82,14 @@ public class CameraView: UIView {
     }
     private func setupCamera() {
         if hasPropBeenSetup && hasPermissionBeenGranted && !hasCameraBeenSetup {
+            let allowedBarcodeTypes = convertAllowedBarcodeTypes()
+
             hasCameraBeenSetup = true
             #if targetEnvironment(macCatalyst)
             // Force front camera on Mac Catalyst during initial setup
-            camera.setup(cameraType: .front, supportedBarcodeType: scanBarcode && onReadCode != nil ? supportedBarcodeType : [])
+            camera.setup(cameraType: .front, supportedBarcodeType: scanBarcode && onReadCode != nil ? allowedBarcodeTypes : [])
             #else
-            camera.setup(cameraType: cameraType, supportedBarcodeType: scanBarcode && onReadCode != nil ? supportedBarcodeType : [])
+            camera.setup(cameraType: cameraType, supportedBarcodeType: scanBarcode && onReadCode != nil ? allowedBarcodeTypes : [])
             #endif
         }
     }
@@ -235,9 +238,11 @@ public class CameraView: UIView {
         }
 
         // Scanner
-        if changedProps.contains("scanBarcode") || changedProps.contains("onReadCode") {
+        if changedProps.contains("scanBarcode") || changedProps.contains("onReadCode") || changedProps.contains("forbiddenBarcodeTypes") {
+            let allowedBarcodeTypes: [CodeFormat] = convertAllowedBarcodeTypes()
+
             camera.isBarcodeScannerEnabled(scanBarcode,
-                                           supportedBarcodeTypes: supportedBarcodeType,
+                                           supportedBarcodeTypes: allowedBarcodeTypes,
                                            onBarcodeRead: { [weak self] (barcode, codeFormat) in
                                                self?.onBarcodeRead(barcode: barcode, codeFormat: codeFormat)
                                            })
@@ -421,6 +426,20 @@ public class CameraView: UIView {
         lastBarcodeDetectedTime = now
 
         onReadCode?(["codeStringValue": barcode,"codeFormat":codeFormat.rawValue])
+    }
+
+    private func convertAllowedBarcodeTypes() -> [CodeFormat] {
+        guard let forbiddenTypes = forbiddenBarcodeTypes as? [String] else {
+            return CodeFormat.allCases
+        }
+
+        let forbiddenFormats = forbiddenTypes.compactMap { type in
+            return CodeFormat(rawValue: type)
+        }
+
+        return CodeFormat.allCases.filter { codeFormat in
+            !forbiddenFormats.contains(codeFormat)
+        }
     }
 
     // MARK: - Gesture selectors

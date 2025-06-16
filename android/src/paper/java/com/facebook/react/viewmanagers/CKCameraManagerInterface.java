@@ -12,6 +12,7 @@ package com.facebook.react.viewmanagers;
 import android.view.View;
 import androidx.annotation.Nullable;
 import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.ReadableArray;
 
 public interface CKCameraManagerInterface<T extends View> {
   void setFlashMode(T view, @Nullable String value);
@@ -36,4 +37,5 @@ public interface CKCameraManagerInterface<T extends View> {
   void setShutterPhotoSound(T view, boolean value);
   void setShutterAnimationDuration(T view, int value);
   void setOutputPath(T view, @Nullable String value);
+  void setForbiddenBarcodeTypes(T view, @Nullable ReadableArray value);
 }

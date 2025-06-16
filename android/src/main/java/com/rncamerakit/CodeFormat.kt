@@ -10,6 +10,7 @@ enum class CodeFormat(val code: String) {
     EAN_13("ean-13"),
     EAN_8("ean-8"),
     ITF("itf"),
+    UPC_A("upc-a"),
     UPC_E("upc-e"),
     QR("qr"),
     PDF_417("pdf-417"),
@@ -26,6 +27,7 @@ enum class CodeFormat(val code: String) {
             EAN_13 -> Barcode.FORMAT_EAN_13
             EAN_8 -> Barcode.FORMAT_EAN_8
             ITF -> Barcode.FORMAT_ITF
+            UPC_A -> Barcode.FORMAT_UPC_A
             UPC_E -> Barcode.FORMAT_UPC_E
             QR -> Barcode.FORMAT_QR_CODE
             PDF_417 -> Barcode.FORMAT_PDF417
@@ -45,6 +47,7 @@ enum class CodeFormat(val code: String) {
                 Barcode.FORMAT_EAN_13 -> EAN_13
                 Barcode.FORMAT_EAN_8 -> EAN_8
                 Barcode.FORMAT_ITF -> ITF
+                Barcode.FORMAT_UPC_A -> UPC_A
                 Barcode.FORMAT_UPC_E -> UPC_E
                 Barcode.FORMAT_QR_CODE -> QR
                 Barcode.FORMAT_PDF417 -> PDF_417
@@ -52,5 +55,9 @@ enum class CodeFormat(val code: String) {
                 Barcode.FORMAT_DATA_MATRIX -> DATA_MATRIX
                 else -> UNKNOWN
             }
+        fun getBarcodeType(typeString: String?): Int {
+            val codeFormat = values().firstOrNull { it.code == typeString } ?: UNKNOWN
+            return codeFormat.toBarcodeType()
+        }
     }
 }

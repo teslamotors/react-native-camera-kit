@@ -13,6 +13,7 @@ import android.view.View;
 import androidx.annotation.Nullable;
 import com.facebook.react.bridge.ColorPropConverter;
 import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.uimanager.BaseViewManager;
 import com.facebook.react.uimanager.BaseViewManagerDelegate;
 import com.facebook.react.uimanager.LayoutShadowNode;
@@ -86,6 +87,9 @@ public class CKCameraManagerDelegate<T extends View, U extends BaseViewManager<T
         break;
       case "shutterAnimationDuration":
         mViewManager.setShutterAnimationDuration(view, value == null ? 0 : ((Double) value).intValue());
+        break;
+      case "forbiddenBarcodeTypes":
+        mViewManager.setForbiddenBarcodeTypes(view, (ReadableArray) value);
         break;
       case "outputPath":
         mViewManager.setOutputPath(view, value == null ? null : (String) value);
