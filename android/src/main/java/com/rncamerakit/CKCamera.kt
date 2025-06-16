@@ -28,6 +28,7 @@ import androidx.lifecycle.LifecycleObserver
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.WritableMap
+import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.events.RCTEventEmitter
 import com.rncamerakit.barcode.BarcodeFrame
@@ -108,6 +109,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
     private var frameColor = Color.GREEN
     private var laserColor = Color.RED
     private var barcodeFrameSize: Size? = null
+    private var forbiddenBarcodeTypes: ReadableArray? = null
 
     private fun getActivity() : Activity {
         return currentContext.currentActivity!!
@@ -334,9 +336,23 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
                     return@QRCodeAnalyzer
                 }
 
+                val forbiddenTypes = convertForbiddenBarcodeTypes()
+
+                val filteredByType = if (forbiddenTypes.isEmpty()) {
+                    barcodes
+                } else {
+                    barcodes.filterNot { barcode ->
+                        forbiddenTypes.contains(barcode.format)
+                    }
+                }
+
+                if (filteredByType.isEmpty()) {
+                    return@QRCodeAnalyzer
+                }
+
                 val barcodeFrame = barcodeFrame;
                 if (barcodeFrame == null) {
-                    onBarcodeRead(barcodes)
+                    onBarcodeRead(filteredByType)
                     return@QRCodeAnalyzer
                 }
 
@@ -344,7 +360,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
                 val scaleX = viewFinder.width.toFloat() / imageSize.height
                 val scaleY = viewFinder.height.toFloat() / imageSize.width
 
-                val filteredBarcodes = barcodes.filter { barcode ->
+                val filteredBarcodes = filteredByType.filter { barcode ->
                     val barcodeBoundingBox = barcode.boundingBox ?: return@filter false;
                     val scaledBarcodeBoundingBox = Rect(
                         (barcodeBoundingBox.left * scaleX).toInt(),
@@ -691,6 +707,10 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
         }
     }
 
+    fun setForbiddenBarcodeTypes(types: ReadableArray?) {
+        forbiddenBarcodeTypes = types
+    }
+
     private fun convertDeviceHeightToSupportedAspectRatio(actualWidth: Int, actualHeight: Int): Int {
         val maxScreenRatio = 16 / 9f
         return (if (actualHeight / actualWidth > maxScreenRatio) actualWidth * maxScreenRatio else actualHeight).toInt()
@@ -709,6 +729,18 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
                 42 // random callback identifier
         )
         return false
+    }
+
+    private fun convertForbiddenBarcodeTypes(): Set<Int> {
+        val types = forbiddenBarcodeTypes
+        if (types == null || types.size() == 0) {
+            return emptySet()
+        }
+
+        return (0 until types.size()).mapNotNull { index ->
+            val typeName = types.getString(index) ?: return@mapNotNull null
+            CodeFormat.getBarcodeType(typeName)
+        }.toSet()
     }
 
     companion object {

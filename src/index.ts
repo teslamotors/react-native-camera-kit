@@ -10,6 +10,7 @@ import {
   type TorchMode,
   type ZoomMode,
   type ResizeMode,
+  type CodeFormat,
 } from './types';
 
 const { CameraKit } = NativeModules;
@@ -25,4 +26,13 @@ export const Orientation = {
 export default CameraKit;
 
 export { Camera, CameraType };
-export type { TorchMode, FlashMode, FocusMode, ZoomMode, CameraApi, CaptureData, ResizeMode };
+export type {
+    TorchMode,
+    FlashMode,
+    FocusMode,
+    ZoomMode,
+    CameraApi,
+    CaptureData,
+    ResizeMode,
+    CodeFormat,
+};

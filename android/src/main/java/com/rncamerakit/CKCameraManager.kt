@@ -143,6 +143,11 @@ class CKCameraManager : SimpleViewManager<CKCamera>(), CKCameraManagerInterface<
         view.setShutterPhotoSound(enabled);
     }
 
+    @ReactProp(name = "forbiddenBarcodeTypes")
+    override fun setForbiddenBarcodeTypes(view: CKCamera, types: ReadableArray?) {
+        view.setForbiddenBarcodeTypes(types)
+    }
+
     // Methods only available on iOS
     override fun setRatioOverlay(view: CKCamera?, value: String?) = Unit
 
