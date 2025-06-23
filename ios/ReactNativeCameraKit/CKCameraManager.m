@@ -32,6 +32,7 @@ RCT_EXPORT_VIEW_PROPERTY(frameColor, UIColor)
 RCT_EXPORT_VIEW_PROPERTY(barcodeFrameSize, NSDictionary)
 
 RCT_EXPORT_VIEW_PROPERTY(onOrientationChange, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(orientation, NSString)
 RCT_EXPORT_VIEW_PROPERTY(onCaptureButtonPressIn, RCTDirectEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onCaptureButtonPressOut, RCTDirectEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onZoom, RCTDirectEventBlock)

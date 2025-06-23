@@ -143,6 +143,11 @@ class CKCameraManager : SimpleViewManager<CKCamera>(), CKCameraManagerInterface<
         view.setShutterPhotoSound(enabled);
     }
 
+    @ReactProp(name = "orientation")
+    override fun setOrientation(view: CKCamera, orientation: String?) {
+        view.setOrientation(orientation)
+    }
+
     // Methods only available on iOS
     override fun setRatioOverlay(view: CKCamera?, value: String?) = Unit
 
