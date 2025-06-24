@@ -7,6 +7,7 @@ import AVFoundation
 
 protocol CameraProtocol: AnyObject, FocusInterfaceViewDelegate {
     var previewView: UIView { get }
+    var imageBuffer: CMSampleBuffer? { get }
 
     func setup(cameraType: CameraType, supportedBarcodeType: [CodeFormat])
     func cameraRemovedFromSuperview()
@@ -21,6 +22,7 @@ protocol CameraProtocol: AnyObject, FocusInterfaceViewDelegate {
     func update(resizeMode: ResizeMode)
     func update(maxPhotoQualityPrioritization: MaxPhotoQualityPrioritization?)
     func update(barcodeFrameSize: CGSize?)
+    func update(shutterPhotoSound: Bool)
 
     func zoomPinchStart()
     func zoomPinchChange(pinchScale: CGFloat)
@@ -31,7 +33,8 @@ protocol CameraProtocol: AnyObject, FocusInterfaceViewDelegate {
 
     func update(scannerFrameSize: CGRect?)
 
-    func capturePicture(onWillCapture: @escaping () -> Void,
+    func capturePicture(captureOptions: CaptureOptions,
+                        onWillCapture: @escaping () -> Void,
                         onSuccess: @escaping (_ imageData: Data, _ thumbnailData: Data?, _ dimensions: CMVideoDimensions) -> Void,
                         onError: @escaping (_ message: String) -> Void)
 }
