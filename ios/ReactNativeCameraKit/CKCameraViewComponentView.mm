@@ -224,7 +224,7 @@ static id CKConvertFollyDynamicToId(const folly::dynamic &dyn)
     }
     id zoomMode = CKConvertFollyDynamicToId(newProps.zoomMode);
     if (zoomMode != nil) {
-        _view.zoomMode = [focusMode isEqualToString:@"on"] ? CKZoomModeOn : CKZoomModeOff;
+        _view.zoomMode = [zoomMode isEqualToString:@"on"] ? CKZoomModeOn : CKZoomModeOff;
         [changedProps addObject:@"zoomMode"];
     }
     id zoom = CKConvertFollyDynamicToId(newProps.zoom);
