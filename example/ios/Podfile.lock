@@ -1509,7 +1509,7 @@ PODS:
     - React-logger (= 0.76.3)
     - React-perflogger (= 0.76.3)
     - React-utils (= 0.76.3)
-  - ReactNativeCameraKit (15.0.1):
+  - ReactNativeCameraKit (15.1.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1753,16 +1753,16 @@ SPEC CHECKSUMS:
   React-CoreModules: 42b62e50cb4ac9a8ca92b48b263355cebcc1a523
   React-cxxreact: 846f1d9eb37a3dec19738d195d313deb7e9ee36b
   React-debug: 931ca94abd6b1bcab539e356e20df788afecae8f
-  React-defaultsnativemodule: 6f56c95a8cd7b7fcfa6f983b19270753000c1a4e
-  React-domnativemodule: 42711869923d77713e8d090f489580c330ff2033
+  React-defaultsnativemodule: 6bf85ecab795c74bfc1662ab34dd2428e65d2f29
+  React-domnativemodule: bdcc445e1893ba53706a5229b1ba2dd17b0cc9f6
   React-Fabric: 2709bcae28c5b567337b3bad4ec1aa8b81aa1241
   React-FabricComponents: f35e150acf873109d244bd8c4535425d51f26672
   React-FabricImage: 6dd7af0496dae7924553f8b3cd2b134d86256a48
   React-featureflags: 7c7a74b65ee5a228f520b387ebfe0e8d9cecc622
-  React-featureflagsnativemodule: 2e98d69110ccee1cf10acafad34041940457545c
+  React-featureflagsnativemodule: 5bfa52be77b3cd0d05fadd9694e5304705079095
   React-graphics: ba13cb82b71ec2e0ad9dac2ae31867b5656d5a28
   React-hermes: 4bfb5c90304c4d2aa36b3404ddd00df591dcae8a
-  React-idlecallbacksnativemodule: 4a77976e6b6d74ebe2008ade2e46c69484a69f45
+  React-idlecallbacksnativemodule: 5f0b9b4b18f28b43d80eb0cf94e1f559da6ceaba
   React-ImageManager: 0464b2fac74d9d06d44abc3e85035424fc0d1a70
   React-jserrorhandler: 4c8ee0547d89d1bfe9cd740ca83d229934cc94e4
   React-jsi: 927e83b5aef299ca42842cd1ad696c4cf301d5eb
@@ -1771,16 +1771,16 @@ SPEC CHECKSUMS:
   React-jsitracing: f6f65398e2d58bd24523ba210b277681e9cf2ee0
   React-logger: 2736a90a3fdaed3dab1e2e9c5a5e9b3be00c287d
   React-Mapbuffer: bd6a2ffbf401f11cfc8b5e8f38acab9fe117620c
-  React-microtasksnativemodule: e3e161b03573a22cf4e05434fe5309c7847ef197
+  React-microtasksnativemodule: 2fa3b8c7a876b84bd8166f11e07f101929a87f97
   React-nativeconfig: aeed6e2a8ac02b2df54476afcc7c663416c12bf7
   React-NativeModulesApple: c0783e5e21c71aa2764ac33120abc96208466fa6
   React-perflogger: 2991d4258277af250eb7a2705980ebb3ef9ba85e
   React-performancetimeline: 76a55d0be7293adfce8603eafb8dbae92234352d
   React-RCTActionSheet: c940a35d71686941ac2b96dd07bde11ea0f0c34f
   React-RCTAnimation: db10ffa5b463794089b5319818f1df1e0b996422
-  React-RCTAppDelegate: c398e067ecde4909eab8b48adf06bf03783cd335
+  React-RCTAppDelegate: 9ab258d9de05f6ed56ea1f6b20e5adc6baaaf13f
   React-RCTBlob: 2ede907cfc8039c5f5da32b3ba9e144b663c3c98
-  React-RCTFabric: 9612452b193ce3daa3a05fdbeba4ffea756b17f8
+  React-RCTFabric: 6c5f6469b8a46a2c61cf954b20d36fdb1c6f010a
   React-RCTImage: 3d6b5cc404c62d2b2cd767061a56bd48b4300f5e
   React-RCTLinking: 548cf5c3fe935f3d0c8df5dc3c234283df48cea6
   React-RCTNetwork: 59f683fee79f9187b8ee4c270343b474ad37b42c
@@ -1799,10 +1799,10 @@ SPEC CHECKSUMS:
   React-utils: ee370a52b08a000963af1a60c31e6c87a70620a5
   ReactCodegen: 5148a0102fc8f0a1f9b05d955da886b44447679d
   ReactCommon: b8485556b596ef2f44f59bc586113bda138fb804
-  ReactNativeCameraKit: d2ffcd92bf48cc9a756081e4008e7f4c21f6cddb
+  ReactNativeCameraKit: 0d263fe37ae58f032d77aa3658d85d560a5c9d9d
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: 3deb2471faa9916c8a82dda2a22d3fba2620ad37
 
-PODFILE CHECKSUM: 524ac10193bd141037823410ec04333512b26d30
+PODFILE CHECKSUM: 5c1c36a19e1368575033d1eb803bfd3d9060fea9
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.16.2
