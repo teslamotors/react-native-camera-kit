@@ -243,6 +243,15 @@ static id CKConvertFollyDynamicToId(const folly::dynamic &dyn)
         _view.barcodeFrameSize = @{@"width": @(barcodeWidth), @"height": @(barcodeHeight)};
         [changedProps addObject:@"barcodeFrameSize"];
     }
+    folly::dynamic allowedBarcodeTypesDynamic = folly::dynamic::array();
+    for (const auto& type : newProps.allowedBarcodeTypes) {
+        allowedBarcodeTypesDynamic.push_back(type);
+    }
+    id allowedBarcodeTypes = CKConvertFollyDynamicToId(allowedBarcodeTypesDynamic);
+    if (allowedBarcodeTypes != nil && [allowedBarcodeTypes isKindOfClass:NSArray.class]) {
+        _view.allowedBarcodeTypes = allowedBarcodeTypes;
+        [changedProps addObject:@"allowedBarcodeTypes"];
+    }
     
     
     [super updateProps:props oldProps:oldProps];
