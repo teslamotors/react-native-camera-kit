@@ -113,5 +113,5 @@ export interface CameraProps extends ViewProps {
   shutterPhotoSound?: boolean;
   onCaptureButtonPressIn?: ({ nativeEvent: {} }) => void;
   onCaptureButtonPressOut?: ({ nativeEvent: {} }) => void;
-  forbiddenBarcodeTypes?: CodeFormat[];
+  allowedBarcodeTypes?: CodeFormat[];
 }

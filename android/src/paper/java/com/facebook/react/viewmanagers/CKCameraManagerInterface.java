@@ -37,5 +37,5 @@ public interface CKCameraManagerInterface<T extends View> {
   void setShutterPhotoSound(T view, boolean value);
   void setShutterAnimationDuration(T view, int value);
   void setOutputPath(T view, @Nullable String value);
-  void setForbiddenBarcodeTypes(T view, @Nullable ReadableArray value);
+  void setAllowedBarcodeTypes(T view, @Nullable ReadableArray value);
 }

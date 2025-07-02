@@ -49,7 +49,7 @@ public class CameraView: UIView {
     @objc public var frameColor: UIColor?
     @objc public var laserColor: UIColor?
     @objc public var barcodeFrameSize: NSDictionary?
-    @objc public var forbiddenBarcodeTypes: NSArray?
+    @objc public var allowedBarcodeTypes: NSArray?
 
     // other
     @objc public var onOrientationChange: RCTDirectEventBlock?
@@ -238,7 +238,7 @@ public class CameraView: UIView {
         }
 
         // Scanner
-        if changedProps.contains("scanBarcode") || changedProps.contains("onReadCode") || changedProps.contains("forbiddenBarcodeTypes") {
+        if changedProps.contains("scanBarcode") || changedProps.contains("onReadCode") || changedProps.contains("allowedBarcodeTypes") {
             let allowedBarcodeTypes: [CodeFormat] = convertAllowedBarcodeTypes()
 
             camera.isBarcodeScannerEnabled(scanBarcode,
@@ -429,17 +429,11 @@ public class CameraView: UIView {
     }
 
     private func convertAllowedBarcodeTypes() -> [CodeFormat] {
-        guard let forbiddenTypes = forbiddenBarcodeTypes as? [String] else {
+        guard let allowedTypes = allowedBarcodeTypes as? [String] else {
             return CodeFormat.allCases
         }
 
-        let forbiddenFormats = forbiddenTypes.compactMap { type in
-            return CodeFormat(rawValue: type)
-        }
-
-        return CodeFormat.allCases.filter { codeFormat in
-            !forbiddenFormats.contains(codeFormat)
-        }
+        return allowedTypes.compactMap { CodeFormat(rawValue: $0) }
     }
 
     // MARK: - Gesture selectors

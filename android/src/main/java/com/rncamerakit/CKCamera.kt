@@ -109,7 +109,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
     private var frameColor = Color.GREEN
     private var laserColor = Color.RED
     private var barcodeFrameSize: Size? = null
-    private var forbiddenBarcodeTypes: ReadableArray? = null
+    private var allowedBarcodeTypes: ReadableArray? = null
 
     private fun getActivity() : Activity {
         return currentContext.currentActivity!!
@@ -336,13 +336,13 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
                     return@QRCodeAnalyzer
                 }
 
-                val forbiddenTypes = convertForbiddenBarcodeTypes()
+                val allowedTypes = convertAllowedBarcodeTypes()
 
-                val filteredByType = if (forbiddenTypes.isEmpty()) {
+                val filteredByType = if (allowedTypes.isEmpty()) {
                     barcodes
                 } else {
-                    barcodes.filterNot { barcode ->
-                        forbiddenTypes.contains(barcode.format)
+                    barcodes.filter { barcode ->
+                        allowedTypes.contains(barcode.format)
                     }
                 }
 
@@ -707,8 +707,8 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
         }
     }
 
-    fun setForbiddenBarcodeTypes(types: ReadableArray?) {
-        forbiddenBarcodeTypes = types
+    fun setAllowedBarcodeTypes(types: ReadableArray?) {
+        allowedBarcodeTypes = types
     }
 
     private fun convertDeviceHeightToSupportedAspectRatio(actualWidth: Int, actualHeight: Int): Int {
@@ -731,8 +731,8 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
         return false
     }
 
-    private fun convertForbiddenBarcodeTypes(): Set<Int> {
-        val types = forbiddenBarcodeTypes
+    private fun convertAllowedBarcodeTypes(): Set<Int> {
+        val types = allowedBarcodeTypes
         if (types == null || types.size() == 0) {
             return emptySet()
         }

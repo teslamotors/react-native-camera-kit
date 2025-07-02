@@ -88,8 +88,8 @@ public class CKCameraManagerDelegate<T extends View, U extends BaseViewManager<T
       case "shutterAnimationDuration":
         mViewManager.setShutterAnimationDuration(view, value == null ? 0 : ((Double) value).intValue());
         break;
-      case "forbiddenBarcodeTypes":
-        mViewManager.setForbiddenBarcodeTypes(view, (ReadableArray) value);
+      case "allowedBarcodeTypes":
+        mViewManager.setAllowedBarcodeTypes(view, (ReadableArray) value);
         break;
       case "outputPath":
         mViewManager.setOutputPath(view, value == null ? null : (String) value);
