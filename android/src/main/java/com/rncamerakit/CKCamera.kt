@@ -575,7 +575,10 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
         val camera = camera ?: return
         when (mode) {
             "on" -> {
+                //pause camera preview to avoid flickering
+                preview?.setSurfaceProvider(null)
                 camera.cameraControl.enableTorch(true)
+                preview?.setSurfaceProvider(viewFinder.surfaceProvider)
             }
             "off" -> {
                 camera.cameraControl.enableTorch(false)
