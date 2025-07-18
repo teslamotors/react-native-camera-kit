@@ -1,6 +1,13 @@
+//
+//  CKCameraViewComponentView.h
+//  ReactNativeCameraKit
+//
+
 #ifdef RCT_NEW_ARCH_ENABLED
 
 #import "CKCameraViewComponentView.h"
+
+#import "NewArchCameraEventEmitter.h"
 
 #import <React/RCTBridge+Private.h>
 #import <React/RCTConversions.h>
@@ -8,7 +15,6 @@
 #import <folly/dynamic.h>
 
 #import <react/renderer/components/rncamerakit_specs/ComponentDescriptors.h>
-#import <react/renderer/components/rncamerakit_specs/EventEmitters.h>
 #import <react/renderer/components/rncamerakit_specs/Props.h>
 #import <react/renderer/components/rncamerakit_specs/RCTComponentViewHelpers.h>
 
@@ -64,6 +70,10 @@ static id CKConvertFollyDynamicToId(const folly::dynamic &dyn)
     CKCameraView *_view;
 }
 
+- (facebook::react::SharedViewEventEmitter)eventEmitter {
+    return _eventEmitter;
+}
+
 // Needed because of this: https://github.com/facebook/react-native/pull/37274
 + (void)load
 {
@@ -83,53 +93,11 @@ static id CKConvertFollyDynamicToId(const folly::dynamic &dyn)
 
 - (void)prepareView
 {
-    _view =  [[CKCameraView alloc] init];
-    
-    // just need to pass something, it won't really be used on fabric, but it's used to create events (it won't impact sending them)
+    _view = [[CKCameraView alloc] init];
     _view.reactTag = @-1;
     
-    __weak __typeof__(self) weakSelf = self;
+    _view.eventEmitter = [[NewArchCameraEventEmitter alloc] initWithCameraViewComponentView:self];
 
-    [_view setOnReadCode:^(NSDictionary* event) {
-        __typeof__(self) strongSelf = weakSelf;
-
-        if (strongSelf != nullptr && strongSelf->_eventEmitter != nullptr) {
-            std::string codeStringValue = [event valueForKey:@"codeStringValue"] == nil ? "" : std::string([[event valueForKey:@"codeStringValue"] UTF8String]);
-            std::string codeFormat = [event valueForKey:@"codeFormat"] == nil ? "" : std::string([[event valueForKey:@"codeFormat"] UTF8String]);
-            std::dynamic_pointer_cast<const facebook::react::CKCameraEventEmitter>(strongSelf->_eventEmitter)->onReadCode({.codeStringValue = codeStringValue, .codeFormat = codeFormat});
-          }
-    }];
-    [_view setOnOrientationChange:^(NSDictionary* event) {
-        __typeof__(self) strongSelf = weakSelf;
-
-        if (strongSelf != nullptr && strongSelf->_eventEmitter != nullptr) {
-            id orientation = [event valueForKey:@"orientation"] == nil ? 0 : [event valueForKey:@"orientation"];
-            std::dynamic_pointer_cast<const facebook::react::CKCameraEventEmitter>(strongSelf->_eventEmitter)->onOrientationChange({.orientation = [orientation intValue]});
-          }
-    }];
-    [_view setOnZoom:^(NSDictionary* event) {
-        __typeof__(self) strongSelf = weakSelf;
-
-        if (strongSelf != nullptr && strongSelf->_eventEmitter != nullptr) {
-            id zoom = [event valueForKey:@"zoom"] == nil ? 0 : [event valueForKey:@"zoom"];
-            std::dynamic_pointer_cast<const facebook::react::CKCameraEventEmitter>(strongSelf->_eventEmitter)->onZoom({.zoom = [zoom doubleValue]});
-          }
-    }];
-    [_view setOnCaptureButtonPressIn:^(NSDictionary* event) {
-        __typeof__(self) strongSelf = weakSelf;
-
-        if (strongSelf != nullptr && strongSelf->_eventEmitter != nullptr) {
-            std::dynamic_pointer_cast<const facebook::react::CKCameraEventEmitter>(strongSelf->_eventEmitter)->onCaptureButtonPressIn({});
-          }
-    }];
-    [_view setOnCaptureButtonPressOut:^(NSDictionary* event) {
-        __typeof__(self) strongSelf = weakSelf;
-
-        if (strongSelf != nullptr && strongSelf->_eventEmitter != nullptr) {
-            std::dynamic_pointer_cast<const facebook::react::CKCameraEventEmitter>(strongSelf->_eventEmitter)->onCaptureButtonPressOut({});
-          }
-    }];
-    
     self.contentView = _view;
 }
 
@@ -137,7 +105,7 @@ static id CKConvertFollyDynamicToId(const folly::dynamic &dyn)
 
 + (ComponentDescriptorProvider)componentDescriptorProvider
 {
-  return concreteComponentDescriptorProvider<CKCameraComponentDescriptor>();
+    return concreteComponentDescriptorProvider<CKCameraComponentDescriptor>();
 }
 
 - (void)updateLayoutMetrics:(const facebook::react::LayoutMetrics &)layoutMetrics oldLayoutMetrics:(const facebook::react::LayoutMetrics &)oldLayoutMetrics
@@ -218,17 +186,18 @@ static id CKConvertFollyDynamicToId(const folly::dynamic &dyn)
         [changedProps addObject:@"resetFocusWhenMotionDetected"];
     }
     id focusMode = CKConvertFollyDynamicToId(newProps.focusMode);
-    if (focusMode != nil) {
+    if (focusMode != nil && ![focusMode isEqual: @""]) {
         _view.focusMode = [focusMode isEqualToString:@"on"] ? CKFocusModeOn : CKFocusModeOff;
         [changedProps addObject:@"focusMode"];
     }
     id zoomMode = CKConvertFollyDynamicToId(newProps.zoomMode);
-    if (zoomMode != nil) {
+    if (zoomMode != nil && ![zoomMode isEqual: @""]) {
         _view.zoomMode = [zoomMode isEqualToString:@"on"] ? CKZoomModeOn : CKZoomModeOff;
         [changedProps addObject:@"zoomMode"];
     }
     id zoom = CKConvertFollyDynamicToId(newProps.zoom);
     if (zoom != nil) {
+        NSLog(@"Zoom received: %@", zoom);
         _view.zoom = zoom;
         [changedProps addObject:@"zoom"];
     }
@@ -244,7 +213,6 @@ static id CKConvertFollyDynamicToId(const folly::dynamic &dyn)
         [changedProps addObject:@"barcodeFrameSize"];
     }
     
-    
     [super updateProps:props oldProps:oldProps];
     [_view didSetProps:changedProps];
 }
@@ -259,7 +227,7 @@ static id CKConvertFollyDynamicToId(const folly::dynamic &dyn)
 
 Class<RCTComponentViewProtocol> CKCameraCls(void)
 {
-  return CKCameraViewComponentView.class;
+    return CKCameraViewComponentView.class;
 }
 
 #endif // RCT_NEW_ARCH_ENABLED

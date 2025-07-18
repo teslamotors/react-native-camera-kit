@@ -11,11 +11,11 @@ protocol CameraProtocol: AnyObject, FocusInterfaceViewDelegate {
     func setup(cameraType: CameraType, supportedBarcodeType: [CodeFormat])
     func cameraRemovedFromSuperview()
 
+    func update(eventEmitter: CameraEventEmitter?)
+
     func update(torchMode: TorchMode)
     func update(flashMode: FlashMode)
     func update(cameraType: CameraType)
-    func update(onOrientationChange: RCTDirectEventBlock?)
-    func update(onZoom: RCTDirectEventBlock?)
     func update(zoom: Double?)
     func update(maxZoom: Double?)
     func update(resizeMode: ResizeMode)

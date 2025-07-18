@@ -10,8 +10,8 @@ import UIKit
  * Fake camera implementation to be used on simulator
  */
 class SimulatorCamera: CameraProtocol {
-    private var onOrientationChange: RCTDirectEventBlock?
-    private var onZoom: RCTDirectEventBlock?
+    private weak var eventEmitter: CameraEventEmitter?
+
     private var videoDeviceZoomFactor: Double = 1.0
     private var videoDeviceMaxAvailableVideoZoomFactor: Double = 150.0
     private var wideAngleZoomFactor: Double = 2.0
@@ -49,7 +49,7 @@ class SimulatorCamera: CameraProtocol {
             return
         }
 
-        self.onOrientationChange?(["orientation": orientation.rawValue])
+        self.eventEmitter?.onOrientationChange(orientation: orientation.rawValue)
     }
 
     func cameraRemovedFromSuperview() {
@@ -57,12 +57,8 @@ class SimulatorCamera: CameraProtocol {
 
     }
 
-    func update(onOrientationChange: RCTDirectEventBlock?) {
-        self.onOrientationChange = onOrientationChange
-    }
-
-    func update(onZoom: RCTDirectEventBlock?) {
-        self.onZoom = onZoom
+    func update(eventEmitter: CameraEventEmitter?) {
+        self.eventEmitter = eventEmitter
     }
 
     func setVideoDevice(zoomFactor: Double) {
@@ -74,7 +70,6 @@ class SimulatorCamera: CameraProtocol {
     func zoomPinchStart() {
         DispatchQueue.main.async {
             self.zoomStartedAt = self.videoDeviceZoomFactor
-            self.mockPreview.zoomLabel.text = "Zoom start"
         }
     }
 
@@ -95,7 +90,7 @@ class SimulatorCamera: CameraProtocol {
                 if self.zoom == nil {
                     self.setVideoDevice(zoomFactor: zoomForDevice)
                 }
-                self.onZoom?(["zoom": zoomForDevice])
+                self.eventEmitter?.onZoom(zoom: zoomForDevice)
             }
         }
     }
@@ -160,7 +155,7 @@ class SimulatorCamera: CameraProtocol {
             // If they wanted to reset, tell them what the default zoom turned out to be
             // regardless if it's controlled
             if self.zoom == nil || zoom == 0 {
-                self.onZoom?(["zoom": zoomForDevice])
+                self.eventEmitter?.onZoom(zoom: zoomForDevice)
             }
         }
     }
