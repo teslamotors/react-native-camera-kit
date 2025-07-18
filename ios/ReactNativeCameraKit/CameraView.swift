@@ -134,12 +134,12 @@ public class CameraView: UIView {
         #if !targetEnvironment(macCatalyst)
         // Create a new capture event interaction with a handler that captures a photo.
         if #available(iOS 17.2, *) {
-            let interaction = AVCaptureEventInteraction { event in
+            let interaction = AVCaptureEventInteraction { [weak self] event in
                 // Capture a photo on "press up" of a hardware button.
                 if event.phase == .began {
-                    self.onCaptureButtonPressIn?(nil)
+                    self?.onCaptureButtonPressIn?(nil)
                 } else if event.phase == .ended {
-                    self.onCaptureButtonPressOut?(nil)
+                    self?.onCaptureButtonPressOut?(nil)
                 }
             }
             // Add the interaction to the view controller's view.
