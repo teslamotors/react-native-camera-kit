@@ -102,7 +102,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
     private var maxZoom: Double? = null
     private var zoomStartedAt = 1.0f
     private var pinchGestureStartedAt = 0.0f
-    private var scanThrottleDelay:Int = 2000
+    private var scanThrottleDelay:Int = 0 // ms
 
 
     // Barcode Props
