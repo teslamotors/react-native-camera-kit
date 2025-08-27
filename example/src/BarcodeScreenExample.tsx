@@ -147,13 +147,13 @@ const BarcodeExample = ({ onBack }: { onBack: () => void }) => {
           frameColor="white"
           scanBarcode
           showFrame
+          scanThrottleDelay={500}
           barcodeFrameSize={{ width: 300, height: 150 }}
           onReadCode={(event) => {
             Vibration.vibrate(100);
             setBarcode(event.nativeEvent.codeStringValue);
             console.log('barcode', event.nativeEvent.codeStringValue);
             console.log('codeFormat', event.nativeEvent.codeFormat);
-
           }}
         />
       </View>
@@ -232,8 +232,7 @@ const styles = StyleSheet.create({
   backBtnContainer: {
     alignItems: 'flex-start',
   },
-  captureButtonContainer: {
-  },
+  captureButtonContainer: {},
   textNumberContainer: {
     position: 'absolute',
     top: 0,
