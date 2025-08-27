@@ -1,10 +1,10 @@
 import type React from 'react';
-import { useState, useRef, useEffect, useCallback } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Image, SafeAreaView, Animated, StatusBar, ScrollView } from 'react-native';
+import { useState, useRef } from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, Image, Animated, ScrollView } from 'react-native';
 import Camera from '../../src/Camera';
 import { type CameraApi, CameraType, type CaptureData } from '../../src/types';
 import { Orientation } from '../../src';
-import type { CameraProps } from '../../src/CameraProps';
+import SafeAreaView from './SafeAreaView';
 
 const flashImages = {
   on: require('../images/flashOn.png'),
@@ -55,7 +55,7 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
     const numberTook = captureImages.length;
     if (numberTook >= 2) {
       return numberTook;
-    } 
+    }
     if (captured) {
       return '1';
     }

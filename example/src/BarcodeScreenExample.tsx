@@ -5,7 +5,6 @@ import {
   View,
   TouchableOpacity,
   Image,
-  SafeAreaView,
   StatusBar,
   useWindowDimensions,
   Vibration,
@@ -13,6 +12,7 @@ import {
 import Camera from '../../src/Camera';
 import { type CameraApi, CameraType } from '../../src/types';
 import { Orientation } from '../../src';
+import SafeAreaView from './SafeAreaView';
 
 const flashImages = {
   on: require('../images/flashOn.png'),
@@ -38,12 +38,12 @@ const flashArray = [
 const BarcodeExample = ({ onBack }: { onBack: () => void }) => {
   const cameraRef = useRef<CameraApi>(null);
   const [currentFlashArrayPosition, setCurrentFlashArrayPosition] = useState(0);
-  
+
   const [flashData, setFlashData] = useState(flashArray[currentFlashArrayPosition]);
   const [torchMode, setTorchMode] = useState(false);
   // const [ratios, setRatios] = useState([]);
   // const [ratioArrayPosition, setRatioArrayPosition] = useState(-1);
-  
+
   const [cameraType, setCameraType] = useState(CameraType.Back);
   const [barcode, setBarcode] = useState<string>('');
 
@@ -124,7 +124,7 @@ const BarcodeExample = ({ onBack }: { onBack: () => void }) => {
             // We recommend locking the camera UI to portrait (using a different library)
             // and rotating the UI elements counter to the orientation
             // However, we include onOrientationChange so you can match your UI to what the camera does
-            switch(e.nativeEvent.orientation) {
+            switch (e.nativeEvent.orientation) {
               case Orientation.LANDSCAPE_LEFT:
                 console.log('orientationChange', 'LANDSCAPE_LEFT');
                 break;
@@ -140,7 +140,7 @@ const BarcodeExample = ({ onBack }: { onBack: () => void }) => {
               default:
                 console.log('orientationChange', e.nativeEvent);
                 break;
-              }
+            }
           }}
           // ratioOverlay={ratios[ratioArrayPosition]}
           laserColor="red"

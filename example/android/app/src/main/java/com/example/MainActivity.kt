@@ -1,4 +1,4 @@
-package com.example.reactnativecamerakit;
+package com.example.reactnativecamerakit
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate

@@ -14,12 +14,10 @@ const App = () => {
   const onBack = () => setExample(undefined);
 
   return (
-    <ScrollView style={{ flex: 1 }}>
-      <View style={styles.headerContainer}>
+    <ScrollView style={styles.scroll}>
+      <View style={styles.container}>
         <Text style={{ fontSize: 60 }}>🎈</Text>
         <Text style={styles.headerText}>React Native Camera Kit</Text>
-      </View>
-      <View style={styles.container}>
         <TouchableOpacity style={styles.button} onPress={() => setExample(<CameraExample onBack={onBack} />)}>
           <Text style={styles.buttonText}>Camera</Text>
         </TouchableOpacity>
@@ -34,34 +32,33 @@ const App = () => {
 export default App;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: 30,
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-    paddingHorizontal: 24,
+  scroll: {
+    flexGrow: 1,
+    backgroundColor: '#000000',
   },
-  headerContainer: {
-    flexDirection: 'column',
-    backgroundColor: '#F5FCFF',
+  container: {
+    flexGrow: 1,
+    paddingTop: 100,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: 100,
+    paddingHorizontal: 24,
   },
   headerText: {
-    color: 'black',
+    color: 'white',
     fontSize: 24,
     fontWeight: 'bold',
+    marginBlockEnd: 24,
   },
   button: {
     height: 60,
     borderRadius: 30,
     marginVertical: 12,
     width: '100%',
-    backgroundColor: '#dddddd',
+    backgroundColor: '#666666',
     justifyContent: 'center',
   },
   buttonText: {
+    color: 'white',
     textAlign: 'center',
     fontSize: 20,
   },
