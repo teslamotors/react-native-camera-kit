@@ -13,7 +13,8 @@
   "dependencies": {
     "react": "18.3.1",
     "react-native": "0.76.3",
-    "react-native-camera-kit": "link:../"
+    "react-native-camera-kit": "link:../",
+    "react-native-permissions": "^5.4.1"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
