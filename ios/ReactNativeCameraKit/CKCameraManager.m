@@ -30,6 +30,7 @@ RCT_EXPORT_VIEW_PROPERTY(scanThrottleDelay, NSInteger)
 RCT_EXPORT_VIEW_PROPERTY(laserColor, UIColor)
 RCT_EXPORT_VIEW_PROPERTY(frameColor, UIColor)
 RCT_EXPORT_VIEW_PROPERTY(barcodeFrameSize, NSDictionary)
+RCT_EXPORT_VIEW_PROPERTY(allowedBarcodeTypes, NSArray)
 
 RCT_EXPORT_VIEW_PROPERTY(onOrientationChange, RCTDirectEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onCaptureButtonPressIn, RCTDirectEventBlock)
