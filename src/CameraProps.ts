@@ -34,10 +34,14 @@ export interface CameraProps extends ViewProps {
   flashMode?: FlashMode;
   focusMode?: FocusMode;
   /**
-   * Enable or disable the pinch gesture handler
-   * Example:
+   * Enable or disable the pinch gesture handler.
+   * If `zoomMode` is `on`, you must pass `zoom` as `undefined`, or
+   * avoid setting `zoom` it to allow pinch to zoom.
+   * Examples:
    * ```
    * <Camera zoomMode="on" />
+   * <Camera zoomMode="on" zoom={undefined} />
+   * <Camera zoomMode="off" zoom={1.0} />
    * ```
    */
   zoomMode?: ZoomMode;
