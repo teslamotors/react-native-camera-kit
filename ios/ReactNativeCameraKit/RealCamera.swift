@@ -15,6 +15,8 @@ import CoreMotion
 // swiftlint:disable:next type_body_length
 class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelegate {
     var previewView: UIView { cameraPreview }
+    
+    private weak var eventEmitter: CameraEventEmitter?
 
     private let cameraPreview = RealPreviewView(frame: .zero)
     private let session = AVCaptureSession()
@@ -39,8 +41,6 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     private var onBarcodeRead: ((_ barcode: String,_ codeFormat : CodeFormat) -> Void)?
     private var scannerFrameSize: CGRect? = nil
     private var barcodeFrameSize: CGSize? = nil
-    private var onOrientationChange: RCTDirectEventBlock?
-    private var onZoomCallback: RCTDirectEventBlock?
     private var lastOnZoom: Double?
     private var zoom: Double?
     private var maxZoom: Double?
@@ -164,21 +164,28 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         }
     }
 
+    func update(eventEmitter: CameraEventEmitter?) {
+        self.eventEmitter = eventEmitter
+    }
+
     func update(maxZoom: Double?) {
         self.maxZoom = maxZoom
 
         // Re-update zoom value in case the max was increased
+        print("maxZoom updated!? \(maxZoom) update zoom with \(self.zoom)")
         self.update(zoom: self.zoom)
     }
 
     func update(zoom: Double?) {
+        self.zoom = zoom
         sessionQueue.async {
-            self.zoom = zoom
+            print("Zoom updating to \(zoom)")
             guard let videoDevice = self.videoDeviceInput?.device else { return }
             guard let zoom else { return }
 
             let zoomForDevice = self.getValidZoom(forDevice: videoDevice, zoom: zoom)
             self.setZoomFor(videoDevice, to: zoomForDevice)
+            print("Zoom updated to \(zoom)")
         }
     }
 
@@ -200,11 +207,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         }
 
         lastOnZoom = desiredOrCameraZoom
-        self.onZoomCallback?(["zoom": desiredOrCameraZoom])
-    }
-
-    func update(onZoom: RCTDirectEventBlock?) {
-        self.onZoomCallback = onZoom
+        self.eventEmitter?.onZoom(zoom: desiredOrCameraZoom)
     }
 
     func focus(at touchPoint: CGPoint, focusBehavior: FocusBehavior) {
@@ -243,10 +246,6 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
                 }
             }
         }
-    }
-
-    func update(onOrientationChange: RCTDirectEventBlock?) {
-        self.onOrientationChange = onOrientationChange
     }
 
     func update(torchMode: TorchMode) {
@@ -625,7 +624,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
             }
 
             self.deviceOrientation = newOrientation
-            self.onOrientationChange?(["orientation": Orientation.init(from: newOrientation)!.rawValue])
+            self.eventEmitter?.onOrientationChange(orientation: Orientation.init(from: newOrientation)!.rawValue)
         })
         #endif
     }

@@ -15,6 +15,13 @@ import AVKit
 public class CameraView: UIView {
     private let camera: CameraProtocol
 
+    // expose event native -> react
+    @objc public var eventEmitter: CameraEventEmitter? {
+        didSet {
+            camera.update(eventEmitter: eventEmitter)
+        }
+    }
+
     // Focus
     private let focusInterfaceView: FocusInterfaceView
 
@@ -44,25 +51,25 @@ public class CameraView: UIView {
     // scanner
     @objc public var scanBarcode = false
     @objc public var showFrame = false
-    @objc public var onReadCode: RCTDirectEventBlock?
     @objc public var scanThrottleDelay = 2000
     @objc public var frameColor: UIColor?
     @objc public var laserColor: UIColor?
     @objc public var barcodeFrameSize: NSDictionary?
-
     // other
-    @objc public var onOrientationChange: RCTDirectEventBlock?
-    @objc public var onZoom: RCTDirectEventBlock?
     @objc public var resetFocusTimeout = 0
     @objc public var resetFocusWhenMotionDetected = false
     @objc public var focusMode: FocusMode = .on
     @objc public var zoomMode: ZoomMode = .on
     @objc public var zoom: NSNumber?
     @objc public var maxZoom: NSNumber?
-
+    // callbacks (only defined for old architecture)
+    @objc public var onReadCode: RCTDirectEventBlock?
+    @objc public var onOrientationChange: RCTDirectEventBlock?
+    @objc public var onZoom: RCTDirectEventBlock?
     @objc public var onCaptureButtonPressIn: RCTDirectEventBlock?
     @objc public var onCaptureButtonPressOut: RCTDirectEventBlock?
     
+    // interaction on physical volume button
     var eventInteraction: Any? = nil
 
     // MARK: - Setup
@@ -84,9 +91,9 @@ public class CameraView: UIView {
             hasCameraBeenSetup = true
             #if targetEnvironment(macCatalyst)
             // Force front camera on Mac Catalyst during initial setup
-            camera.setup(cameraType: .front, supportedBarcodeType: scanBarcode && onReadCode != nil ? supportedBarcodeType : [])
+            camera.setup(cameraType: .front, supportedBarcodeType: scanBarcode ? supportedBarcodeType : [])
             #else
-            camera.setup(cameraType: cameraType, supportedBarcodeType: scanBarcode && onReadCode != nil ? supportedBarcodeType : [])
+            camera.setup(cameraType: cameraType, supportedBarcodeType: scanBarcode ? supportedBarcodeType : [])
             #endif
         }
     }
@@ -153,13 +160,13 @@ public class CameraView: UIView {
             let interaction = AVCaptureEventInteraction { [weak self] event in
                 // Capture a photo on "press up" of a hardware button.
                 if event.phase == .began {
-                    self?.onCaptureButtonPressIn?(nil)
+                    self?.eventEmitter?.onCaptureButtonPressIn()
                 } else if event.phase == .ended {
-                    self?.onCaptureButtonPressOut?(nil)
+                    self?.eventEmitter?.onCaptureButtonPressOut()
                 }
             }
             // Add the interaction to the view controller's view.
-            self.addInteraction(interaction)
+            addInteraction(interaction)
             eventInteraction = interaction
         }
         #endif
@@ -200,6 +207,18 @@ public class CameraView: UIView {
     override public func didSetProps(_ changedProps: [String]) {
         hasPropBeenSetup = true
 
+        // Initialized here for old architecture, initialized in CKCameraViewComponentView for new architecture
+        if (eventEmitter == nil) {
+            eventEmitter = OldArchCameraEventEmitter(
+                onReadCodeProp: onReadCode,
+                onOrientationChangeProp: onOrientationChange,
+                onZoomProp: onZoom,
+                onCaptureButtonPressInProp: onCaptureButtonPressIn,
+                onCaptureButtonPressOutProp: onCaptureButtonPressOut
+            )
+            camera.update(eventEmitter: eventEmitter)
+        }
+
         // Camera settings
         if changedProps.contains("cameraType") {
             #if targetEnvironment(macCatalyst)
@@ -217,14 +236,6 @@ public class CameraView: UIView {
         }
         if changedProps.contains("maxPhotoQualityPrioritization") {
             camera.update(maxPhotoQualityPrioritization: maxPhotoQualityPrioritization)
-        }
-
-        if changedProps.contains("onOrientationChange") {
-            camera.update(onOrientationChange: onOrientationChange)
-        }
-
-        if changedProps.contains("onZoom") {
-            camera.update(onZoom: onZoom)
         }
         
         if changedProps.contains("resizeMode") {
@@ -251,7 +262,7 @@ public class CameraView: UIView {
         }
 
         // Scanner
-        if changedProps.contains("scanBarcode") || changedProps.contains("onReadCode") {
+        if changedProps.contains("scanBarcode") || changedProps.contains("onReadCode") /* only old arch. */ {
             camera.isBarcodeScannerEnabled(scanBarcode,
                                            supportedBarcodeTypes: supportedBarcodeType,
                                            onBarcodeRead: { [weak self] (barcode, codeFormat) in
@@ -436,7 +447,7 @@ public class CameraView: UIView {
 
         lastBarcodeDetectedTime = now
 
-        onReadCode?(["codeStringValue": barcode,"codeFormat":codeFormat.rawValue])
+        eventEmitter?.onReadCode(codeStringValue: barcode, codeFormat: codeFormat.rawValue)
     }
 
     // MARK: - Gesture selectors
