@@ -37,10 +37,10 @@ public class CKCameraManagerDelegate<T extends View, U extends BaseViewManager<T
         mViewManager.setZoomMode(view, value == null ? null : (String) value);
         break;
       case "zoom":
-        mViewManager.setZoom(view, value == null ? 0f : ((Double) value).doubleValue());
+        mViewManager.setZoom(view, value == null ? -1f : ((Double) value).doubleValue());
         break;
       case "maxZoom":
-        mViewManager.setMaxZoom(view, value == null ? 0f : ((Double) value).doubleValue());
+        mViewManager.setMaxZoom(view, value == null ? -1f : ((Double) value).doubleValue());
         break;
       case "torchMode":
         mViewManager.setTorchMode(view, value == null ? null : (String) value);
@@ -67,7 +67,7 @@ public class CKCameraManagerDelegate<T extends View, U extends BaseViewManager<T
         mViewManager.setRatioOverlayColor(view, ColorPropConverter.getColor(value, view.getContext()));
         break;
       case "resetFocusTimeout":
-        mViewManager.setResetFocusTimeout(view, value == null ? 0 : ((Double) value).intValue());
+        mViewManager.setResetFocusTimeout(view, value == null ? -1 : ((Double) value).intValue());
         break;
       case "resetFocusWhenMotionDetected":
         mViewManager.setResetFocusWhenMotionDetected(view, value == null ? false : (boolean) value);
@@ -76,7 +76,7 @@ public class CKCameraManagerDelegate<T extends View, U extends BaseViewManager<T
         mViewManager.setResizeMode(view, value == null ? null : (String) value);
         break;
       case "scanThrottleDelay":
-        mViewManager.setScanThrottleDelay(view, value == null ? 0 : ((Double) value).intValue());
+        mViewManager.setScanThrottleDelay(view, value == null ? -1 : ((Double) value).intValue());
         break;
       case "barcodeFrameSize":
         mViewManager.setBarcodeFrameSize(view, (ReadableMap) value);
@@ -85,7 +85,7 @@ public class CKCameraManagerDelegate<T extends View, U extends BaseViewManager<T
         mViewManager.setShutterPhotoSound(view, value == null ? false : (boolean) value);
         break;
       case "shutterAnimationDuration":
-        mViewManager.setShutterAnimationDuration(view, value == null ? 0 : ((Double) value).intValue());
+        mViewManager.setShutterAnimationDuration(view, value == null ? -1 : ((Double) value).intValue());
         break;
       case "outputPath":
         mViewManager.setOutputPath(view, value == null ? null : (String) value);

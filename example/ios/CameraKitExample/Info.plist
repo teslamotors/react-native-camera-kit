@@ -34,7 +34,7 @@
 	<key>NSCameraUsageDescription</key>
 	<string>For taking photos</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string>debugging</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>For saving photos</string>
 	<key>RCTNewArchEnabled</key>

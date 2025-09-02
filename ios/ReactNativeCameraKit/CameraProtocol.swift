@@ -4,6 +4,7 @@
 //
 
 import AVFoundation
+import React
 
 protocol CameraProtocol: AnyObject, FocusInterfaceViewDelegate {
     var previewView: UIView { get }

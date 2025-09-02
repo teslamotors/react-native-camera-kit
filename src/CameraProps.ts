@@ -109,7 +109,7 @@ export interface CameraProps extends ViewProps {
   resetFocusTimeout?: number;
   resetFocusWhenMotionDetected?: boolean;
   resizeMode?: ResizeMode;
-  /** **iOS Only**. Throttle how often the barcode scanner triggers a new scan */
+  /** Throttle how often the barcode scanner triggers a new scan */
   scanThrottleDelay?: number;
   /** **iOS Only**. 'speed' provides 60-80% faster image capturing */
   maxPhotoQualityPrioritization?: 'balanced' | 'quality' | 'speed';
