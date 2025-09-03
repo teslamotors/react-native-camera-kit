@@ -11,6 +11,7 @@ export type CodeFormat =
   | 'ean-13'
   | 'ean-8'
   | 'itf'
+  | 'upc-a'
   | 'upc-e'
   | 'qr'
   | 'pdf-417'
