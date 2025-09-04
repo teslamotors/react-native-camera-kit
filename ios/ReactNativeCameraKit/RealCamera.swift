@@ -8,6 +8,7 @@
 import AVFoundation
 import UIKit
 import CoreMotion
+import React
 
 /*
  * Real camera implementation that uses AVFoundation

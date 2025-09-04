@@ -143,6 +143,11 @@ class CKCameraManager : SimpleViewManager<CKCamera>(), CKCameraManagerInterface<
         view.setShutterPhotoSound(enabled);
     }
 
+    @ReactProp(name = "scanThrottleDelay")
+    override fun setScanThrottleDelay(view: CKCamera?, value: Int) {
+        view?.setScanThrottleDelay(value)
+    }
+
     // Methods only available on iOS
     override fun setRatioOverlay(view: CKCamera?, value: String?) = Unit
 
@@ -153,8 +158,6 @@ class CKCameraManager : SimpleViewManager<CKCamera>(), CKCameraManagerInterface<
     override fun setResetFocusWhenMotionDetected(view: CKCamera?, value: Boolean) = Unit
 
     override fun setResizeMode(view: CKCamera?, value: String?) = Unit
-
-    override fun setScanThrottleDelay(view: CKCamera?, value: Int) = Unit
 
     override fun setMaxPhotoQualityPrioritization(view: CKCamera?, value: String?) = Unit
 }

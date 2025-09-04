@@ -5,6 +5,7 @@
 
 import AVFoundation
 import UIKit
+import React
 
 /*
  * Fake camera implementation to be used on simulator

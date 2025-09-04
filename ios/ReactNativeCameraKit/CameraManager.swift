@@ -5,6 +5,7 @@
 
 import AVFoundation
 import Foundation
+import React
 
 /*
  * Class managing the communication between React Native and the native implementation

@@ -7,10 +7,10 @@
 #import <React/RCTFabricComponentsPlugins.h>
 #import <folly/dynamic.h>
 
-#import <react/renderer/components/rncamerakit_specs/ComponentDescriptors.h>
-#import <react/renderer/components/rncamerakit_specs/EventEmitters.h>
-#import <react/renderer/components/rncamerakit_specs/Props.h>
-#import <react/renderer/components/rncamerakit_specs/RCTComponentViewHelpers.h>
+#import "../generated/rncamerakit_specs/ComponentDescriptors.h"
+#import "../generated/rncamerakit_specs/EventEmitters.h"
+#import "../generated/rncamerakit_specs/Props.h"
+#import "../generated/rncamerakit_specs/RCTComponentViewHelpers.h"
 
 #import "ReactNativeCameraKit-Swift.pre.h"
 
@@ -148,31 +148,42 @@ static id CKConvertFollyDynamicToId(const folly::dynamic &dyn)
 
 - (void)updateProps:(const Props::Shared &)props oldProps:(const Props::Shared &)oldProps
 {
-    const auto &newProps = static_cast<const CKCameraProps &>(*props);
+    const auto &oldViewProps = *std::static_pointer_cast<CKCameraProps const>(_props);
+    const auto &newProps = *std::static_pointer_cast<CKCameraProps const>(props);
+
     NSMutableArray<NSString *> *changedProps = [NSMutableArray new];
-    id cameraType = CKConvertFollyDynamicToId(newProps.cameraType);
-    if (cameraType != nil && [cameraType isKindOfClass:NSString.class]) {
-        _view.cameraType = [cameraType isEqualToString:@"back"] ? CKCameraTypeBack : CKCameraTypeFront;
+    
+    // Keep changedProps aligned with CameraView.swift didSetProps
+    // Include event-related props so CameraView can update listeners/state
+    [changedProps addObject:@"onOrientationChange"];
+    [changedProps addObject:@"onZoom"];
+    [changedProps addObject:@"onReadCode"];
+
+    if (oldViewProps.cameraType != newProps.cameraType) {
+        _view.cameraType = newProps.cameraType == "back" ? CKCameraTypeBack : CKCameraTypeFront;
         [changedProps addObject:@"cameraType"];
     }
-    id resizeMode = CKConvertFollyDynamicToId(newProps.resizeMode);
-    if (resizeMode != nil && [resizeMode isKindOfClass:NSString.class]) {
-        _view.resizeMode = [resizeMode isEqualToString:@"contain"] ? CKResizeModeContain : CKResizeModeCover;
+    if (oldViewProps.resizeMode != newProps.resizeMode) {
+        _view.resizeMode = newProps.resizeMode == "contain" ? CKResizeModeContain : CKResizeModeCover;
         [changedProps addObject:@"resizeMode"];
     }
     id flashMode = CKConvertFollyDynamicToId(newProps.flashMode);
-    if (flashMode != nil && [flashMode isKindOfClass:NSString.class]) {
+    if (oldViewProps.flashMode != newProps.flashMode) {
         _view.flashMode = [flashMode isEqualToString:@"auto"] ? CKFlashModeAuto :  [flashMode isEqualToString:@"on"] ? CKFlashModeOn : CKFlashModeOff;
         [changedProps addObject:@"flashMode"];
     }
-    id maxPhotoQualityPrioritization = CKConvertFollyDynamicToId(newProps.maxPhotoQualityPrioritization);
-    if (maxPhotoQualityPrioritization != nil && [maxPhotoQualityPrioritization isKindOfClass:NSString.class]) {
-        _view.maxPhotoQualityPrioritization = [maxPhotoQualityPrioritization isEqualToString:@"balanced"] ? CKMaxPhotoQualityPrioritizationBalanced :  [maxPhotoQualityPrioritization isEqualToString:@"quality"] ? CKMaxPhotoQualityPrioritizationQuality : CKMaxPhotoQualityPrioritizationSpeed;
+    if (oldViewProps.maxPhotoQualityPrioritization != newProps.maxPhotoQualityPrioritization) {
+        if (newProps.maxPhotoQualityPrioritization == "balanced") {
+            _view.maxPhotoQualityPrioritization = CKMaxPhotoQualityPrioritizationBalanced;
+        } else if (newProps.maxPhotoQualityPrioritization == "quality") {
+            _view.maxPhotoQualityPrioritization = CKMaxPhotoQualityPrioritizationQuality;
+        } else {
+            _view.maxPhotoQualityPrioritization = CKMaxPhotoQualityPrioritizationSpeed;
+        }
         [changedProps addObject:@"maxPhotoQualityPrioritization"];
     }
-    id torchMode = CKConvertFollyDynamicToId(newProps.torchMode);
-    if (torchMode != nil && [torchMode isKindOfClass:NSString.class]) {
-        _view.torchMode = [torchMode isEqualToString:@"on"] ? CKTorchModeOn : CKTorchModeOff;
+    if (oldViewProps.torchMode != newProps.torchMode) {
+        _view.torchMode = newProps.torchMode == "on" ? CKTorchModeOn : CKTorchModeOff;
         [changedProps addObject:@"torchMode"];
     }
     id ratioOverlay = CKConvertFollyDynamicToId(newProps.ratioOverlay);
@@ -180,9 +191,8 @@ static id CKConvertFollyDynamicToId(const folly::dynamic &dyn)
         _view.ratioOverlay = ratioOverlay;
         [changedProps addObject:@"ratioOverlay"];
     }
-    UIColor *ratioOverlayColor = RCTUIColorFromSharedColor(newProps.ratioOverlayColor);
-    if (ratioOverlayColor != nil) {
-        _view.ratioOverlayColor = ratioOverlayColor;
+    if (oldViewProps.ratioOverlayColor != newProps.ratioOverlayColor) {
+        _view.ratioOverlayColor = RCTUIColorFromSharedColor(newProps.ratioOverlayColor);
         [changedProps addObject:@"ratioOverlayColor"];
     }
     if (_view.scanBarcode != newProps.scanBarcode) {
@@ -193,48 +203,43 @@ static id CKConvertFollyDynamicToId(const folly::dynamic &dyn)
         _view.showFrame = newProps.showFrame;
         [changedProps addObject:@"showFrame"];
     }
-    id scanThrottleDelay = CKConvertFollyDynamicToId(newProps.scanThrottleDelay);
-    if (scanThrottleDelay != nil) {
-        _view.scanThrottleDelay = [scanThrottleDelay intValue];
+    if (newProps.scanThrottleDelay > -1) {
+        _view.scanThrottleDelay = newProps.scanThrottleDelay;
         [changedProps addObject:@"scanThrottleDelay"];
     }
-    UIColor *frameColor = RCTUIColorFromSharedColor(newProps.frameColor);
-    if (frameColor != nil) {
-        _view.frameColor = frameColor;
+    if (oldViewProps.frameColor != newProps.frameColor) {
+        _view.frameColor = RCTUIColorFromSharedColor(newProps.frameColor);
         [changedProps addObject:@"frameColor"];
     }
-    UIColor *laserColor = RCTUIColorFromSharedColor(newProps.laserColor);
-    if (laserColor != nil) {
+    if (oldViewProps.laserColor != newProps.laserColor) {
+        UIColor *laserColor = RCTUIColorFromSharedColor(newProps.laserColor);
         _view.laserColor = laserColor;
         [changedProps addObject:@"laserColor"];
     }
-    id resetFocusTimeout = CKConvertFollyDynamicToId(newProps.resetFocusTimeout);
-    if (resetFocusTimeout != nil) {
-        _view.resetFocusTimeout = [resetFocusTimeout intValue];
+    if (oldViewProps.resetFocusTimeout != newProps.resetFocusTimeout) {
+        _view.resetFocusTimeout = newProps.resetFocusTimeout;
         [changedProps addObject:@"resetFocusTimeout"];
     }
     if (_view.resetFocusWhenMotionDetected != newProps.resetFocusWhenMotionDetected) {
         _view.resetFocusWhenMotionDetected = newProps.resetFocusWhenMotionDetected;
         [changedProps addObject:@"resetFocusWhenMotionDetected"];
     }
-    id focusMode = CKConvertFollyDynamicToId(newProps.focusMode);
-    if (focusMode != nil) {
+    if (oldViewProps.focusMode != newProps.focusMode) {
+        id focusMode = CKConvertFollyDynamicToId(newProps.focusMode);
         _view.focusMode = [focusMode isEqualToString:@"on"] ? CKFocusModeOn : CKFocusModeOff;
         [changedProps addObject:@"focusMode"];
     }
-    id zoomMode = CKConvertFollyDynamicToId(newProps.zoomMode);
-    if (zoomMode != nil) {
+    if (oldViewProps.zoomMode != newProps.zoomMode) {
+        id zoomMode = CKConvertFollyDynamicToId(newProps.zoomMode);
         _view.zoomMode = [zoomMode isEqualToString:@"on"] ? CKZoomModeOn : CKZoomModeOff;
         [changedProps addObject:@"zoomMode"];
     }
-    id zoom = CKConvertFollyDynamicToId(newProps.zoom);
-    if (zoom != nil) {
-        _view.zoom = zoom;
+    if (oldViewProps.zoom != newProps.zoom) {
+        _view.zoom = newProps.zoom > -1 ? @(newProps.zoom) : nil;
         [changedProps addObject:@"zoom"];
     }
-    id maxZoom = CKConvertFollyDynamicToId(newProps.maxZoom);
-    if (maxZoom != nil) {
-        _view.maxZoom = maxZoom;
+    if (oldViewProps.maxZoom != newProps.maxZoom) {
+        _view.maxZoom = newProps.maxZoom > -1 ? @(newProps.maxZoom) : nil;
         [changedProps addObject:@"maxZoom"];
     }
     float barcodeWidth = newProps.barcodeFrameSize.width;
@@ -247,6 +252,14 @@ static id CKConvertFollyDynamicToId(const folly::dynamic &dyn)
     
     [super updateProps:props oldProps:oldProps];
     [_view didSetProps:changedProps];
+}
+
++ (BOOL)shouldBeRecycled
+{
+    // Disable recycling as cameras are expensive to keep in memory and may cause unintended behaviors
+    // (we need to reset the camera properly when recycling)
+    // We can enable it later if find that the performance is needed
+    return NO;
 }
 
 - (void)prepareForRecycle

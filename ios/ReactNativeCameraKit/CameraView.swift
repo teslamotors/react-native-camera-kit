@@ -6,6 +6,7 @@
 import AVFoundation
 import UIKit
 import AVKit
+import React
 
 /*
  * View abtracting the logic unrelated to the actual camera

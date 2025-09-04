@@ -10,8 +10,11 @@ import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
 
 class QRCodeAnalyzer (
-    private val onQRCodesDetected: (qrCodes: List<Barcode>, imageSize: Size) -> Unit
+    private val onQRCodesDetected: (qrCodes: List<Barcode>, imageSize: Size) -> Unit,
+    private val scanThrottleDelay: Long = 0L
 ) : ImageAnalysis.Analyzer {
+    // Time in milliseconds of the last time we dispatched detected barcodes
+    private var lastBarcodeDetectedTime: Long = 0L
     @SuppressLint("UnsafeExperimentalUsageError")
     @ExperimentalGetImage
     override fun analyze(image: ImageProxy) {
@@ -22,11 +25,21 @@ class QRCodeAnalyzer (
         val scanner = BarcodeScanning.getClient()
         scanner.process(inputImage)
             .addOnSuccessListener { barcodes ->
+                // Throttle callback invocations based on scanThrottleDelay (ms)
+                val now = System.currentTimeMillis()
+                if (scanThrottleDelay > 0 && (now - lastBarcodeDetectedTime) < scanThrottleDelay) {
+                    return@addOnSuccessListener
+                }
+
                 val strBarcodes = mutableListOf<Barcode>()
                 barcodes.forEach { barcode ->
                     strBarcodes.add(barcode ?: return@forEach)
                 }
-                onQRCodesDetected(strBarcodes, Size(image.width, image.height))
+
+                if (strBarcodes.isNotEmpty()) {
+                    lastBarcodeDetectedTime = now
+                    onQRCodesDetected(strBarcodes, Size(image.width, image.height))
+                }
             }
             .addOnCompleteListener {
                 image.close()

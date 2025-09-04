@@ -2,6 +2,7 @@ package com.rncamerakit
 
 import com.facebook.react.bridge.*
 import com.facebook.react.uimanager.UIManagerHelper
+import com.facebook.fbreact.specs.NativeCameraKitModuleSpec
 
 /**
  * Native module for interacting with the camera in React Native applications.

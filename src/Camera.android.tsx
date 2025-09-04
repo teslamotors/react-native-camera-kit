@@ -8,6 +8,13 @@ import NativeCameraKitModule from './specs/NativeCameraKitModule';
 const Camera = React.forwardRef<CameraApi, CameraProps>((props, ref) => {
   const nativeRef = React.useRef(null);
 
+  // RN doesn't support optional view props yet (sigh)
+  // so we have to use -1 to indicate 'undefined'
+  // All int/float/double props from src/specs/CameraNativeComponent.ts need be mentioned here
+  props.zoom = props.zoom ?? -1;
+  props.maxZoom = props.maxZoom ?? -1;
+  props.scanThrottleDelay = props.scanThrottleDelay ?? -1;
+
   React.useImperativeHandle(ref, () => ({
     capture: async (options = {}) => {
       return await NativeCameraKitModule.capture(options, findNodeHandle(nativeRef.current) ?? undefined);
