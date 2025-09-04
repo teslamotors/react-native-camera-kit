@@ -38,6 +38,7 @@ public class CameraView: UIView {
     @objc public var flashMode: FlashMode = .auto
     @objc public var torchMode: TorchMode = .off
     @objc public var maxPhotoQualityPrioritization: MaxPhotoQualityPrioritization = .balanced
+    @objc public var shutterPhotoSound: Bool = true
     // ratio overlay
     @objc public var ratioOverlay: String?
     @objc public var ratioOverlayColor: UIColor?
@@ -64,6 +65,14 @@ public class CameraView: UIView {
     @objc public var onCaptureButtonPressOut: RCTDirectEventBlock?
     
     var eventInteraction: Any? = nil
+
+    var isSimulator: Bool {
+#if targetEnvironment(simulator)
+        true
+#else
+        false
+#endif
+    }
 
     // MARK: - Setup
 
@@ -304,31 +313,38 @@ public class CameraView: UIView {
         if changedProps.contains("maxZoom") {
             camera.update(maxZoom: maxZoom?.doubleValue)
         }
+
+        if changedProps.contains("shutterPhotoSound") {
+            camera.update(shutterPhotoSound: shutterPhotoSound)
+        }
     }
 
     // MARK: Public
 
     @objc public func capture(onSuccess: @escaping (_ imageObject: [String: Any]) -> Void,
-                 onError: @escaping (_ error: String) -> Void) {
-        camera.capturePicture(onWillCapture: { [weak self] in
-            // Flash/dim preview to indicate shutter action
-            DispatchQueue.main.async {
-                self?.camera.previewView.alpha = 0
-                UIView.animate(withDuration: 0.35, animations: {
-                    self?.camera.previewView.alpha = 1
-                })
-            }
-        }, onSuccess: { [weak self] imageData, thumbnailData, dimensions in
-            DispatchQueue.global(qos: .default).async {
-                self?.writeCaptured(imageData: imageData,
-                                    thumbnailData: thumbnailData,
-                                    dimensions: dimensions,
-                                    onSuccess: onSuccess,
-                                    onError: onError)
+                              onError: @escaping (_ error: String) -> Void) {
+        let captureOptions = CaptureOptions(shutterPhotoSound: shutterPhotoSound)
 
-                self?.focusInterfaceView.resetFocus()
-            }
-        }, onError: onError)
+        camera.capturePicture(captureOptions: captureOptions,
+            onWillCapture: { [weak self] in
+                // Flash/dim preview to indicate shutter action
+                DispatchQueue.main.async {
+                    self?.camera.previewView.alpha = 0
+                    UIView.animate(withDuration: 0.35, animations: {
+                        self?.camera.previewView.alpha = 1
+                    })
+                }
+            }, onSuccess: { [weak self] imageData, thumbnailData, dimensions in
+                DispatchQueue.global(qos: .default).async {
+                    self?.writeCaptured(imageData: imageData,
+                                        thumbnailData: thumbnailData,
+                                        dimensions: dimensions,
+                                        onSuccess: onSuccess,
+                                        onError: onError)
+
+                    self?.focusInterfaceView.resetFocus()
+                }
+            }, onError: onError)
     }
 
     // MARK: - Private Helper

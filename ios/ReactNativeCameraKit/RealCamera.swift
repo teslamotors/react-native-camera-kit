@@ -13,8 +13,9 @@ import CoreMotion
  * Real camera implementation that uses AVFoundation
  */
 // swiftlint:disable:next type_body_length
-class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelegate {
+class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelegate, AVCaptureVideoDataOutputSampleBufferDelegate {
     var previewView: UIView { cameraPreview }
+    private(set) var imageBuffer: CMSampleBuffer?
 
     private let cameraPreview = RealPreviewView(frame: .zero)
     private let session = AVCaptureSession()
@@ -29,6 +30,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     private var videoDeviceInput: AVCaptureDeviceInput?
     private let photoOutput = AVCapturePhotoOutput()
     private let metadataOutput = AVCaptureMetadataOutput()
+    private let videoDataOutput = AVCaptureVideoDataOutput()
 
     private var resizeMode: ResizeMode = .contain
     private var flashMode: FlashMode = .auto
@@ -44,6 +46,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     private var lastOnZoom: Double?
     private var zoom: Double?
     private var maxZoom: Double?
+    private var shutterPhotoSound: Bool? = true
 
     private var deviceOrientation = UIDeviceOrientation.unknown
     private var motionManager: CMMotionManager?
@@ -55,7 +58,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     private var inProgressPhotoCaptureDelegates = [Int64: PhotoCaptureDelegate]()
 
     // MARK: - Lifecycle
-    
+
     #if !targetEnvironment(macCatalyst)
     override init() {
         super.init()
@@ -76,7 +79,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         // Mac Catalyst doesn't support device orientation notifications
     }
     #endif
-    
+
     @available(*, unavailable)
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -269,7 +272,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     func update(flashMode: FlashMode) {
         self.flashMode = flashMode
     }
-    
+
     func update(maxPhotoQualityPrioritization: MaxPhotoQualityPrioritization?) {
         guard #available(iOS 13.0, *) else { return }
         guard maxPhotoQualityPrioritization != self.maxPhotoQualityPrioritization else { return }
@@ -329,48 +332,62 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         }
     }
 
-    func capturePicture(onWillCapture: @escaping () -> Void,
+    func update(shutterPhotoSound: Bool) {
+        self.shutterPhotoSound = shutterPhotoSound
+    }
+
+    func capturePicture(captureOptions: CaptureOptions,
+                        onWillCapture: @escaping () -> Void,
                         onSuccess: @escaping (_ imageData: Data, _ thumbnailData: Data?, _ dimensions: CMVideoDimensions) -> Void,
                         onError: @escaping (_ message: String) -> Void) {
-        /*
-         Retrieve the video preview layer's video orientation on the main queue before
-         entering the session queue. Do this to ensure that UI elements are accessed on
-         the main thread and session configuration is done on the session queue.
-         */
-        DispatchQueue.main.async {
-            let videoPreviewLayerOrientation =
+
+        let shutterPhotoSound = captureOptions.shutterPhotoSound
+
+        if shutterPhotoSound == false {
+            DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+                self?.silentCapture(onSuccess: onSuccess, onError: onError)
+            }
+        } else {
+            /*
+             Retrieve the video preview layer's video orientation on the main queue before
+             entering the session queue. Do this to ensure that UI elements are accessed on
+             the main thread and session configuration is done on the session queue.
+             */
+            DispatchQueue.main.async {
+                let videoPreviewLayerOrientation =
                 self.videoOrientation(from: self.deviceOrientation) ?? self.cameraPreview.previewLayer.connection?.videoOrientation
 
-            self.sessionQueue.async {
-                if let photoOutputConnection = self.photoOutput.connection(with: .video), let videoPreviewLayerOrientation {
-                    photoOutputConnection.videoOrientation = videoPreviewLayerOrientation
-                }
-
-                let settings = AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecType.jpeg])
-                if #available(iOS 13.0, *) {
-                    settings.photoQualityPrioritization = self.photoOutput.maxPhotoQualityPrioritization
-                }
-
-                if self.videoDeviceInput?.device.isFlashAvailable == true {
-                    settings.flashMode = self.flashMode.avFlashMode
-                }
-
-                let photoCaptureDelegate = PhotoCaptureDelegate(
-                    with: settings,
-                    onWillCapture: onWillCapture,
-                    onCaptureSuccess: { uniqueID, imageData, thumbnailData, dimensions in
-                        self.inProgressPhotoCaptureDelegates[uniqueID] = nil
-                        
-                        onSuccess(imageData, thumbnailData, dimensions)
-                    },
-                    onCaptureError: { uniqueID, errorMessage in
-                        self.inProgressPhotoCaptureDelegates[uniqueID] = nil
-                        onError(errorMessage)
+                self.sessionQueue.async {
+                    if let photoOutputConnection = self.photoOutput.connection(with: .video), let videoPreviewLayerOrientation {
+                        photoOutputConnection.videoOrientation = videoPreviewLayerOrientation
                     }
-                )
 
-                self.inProgressPhotoCaptureDelegates[photoCaptureDelegate.requestedPhotoSettings.uniqueID] = photoCaptureDelegate
-                self.photoOutput.capturePhoto(with: settings, delegate: photoCaptureDelegate)
+                    let settings = AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecType.jpeg])
+                    if #available(iOS 13.0, *) {
+                        settings.photoQualityPrioritization = self.photoOutput.maxPhotoQualityPrioritization
+                    }
+
+                    if self.videoDeviceInput?.device.isFlashAvailable == true {
+                        settings.flashMode = self.flashMode.avFlashMode
+                    }
+
+                    let photoCaptureDelegate = PhotoCaptureDelegate(
+                        with: settings,
+                        onWillCapture: onWillCapture,
+                        onCaptureSuccess: { uniqueID, imageData, thumbnailData, dimensions in
+                            self.inProgressPhotoCaptureDelegates[uniqueID] = nil
+
+                            onSuccess(imageData, thumbnailData, dimensions)
+                        },
+                        onCaptureError: { uniqueID, errorMessage in
+                            self.inProgressPhotoCaptureDelegates[uniqueID] = nil
+                            onError(errorMessage)
+                        }
+                    )
+
+                    self.inProgressPhotoCaptureDelegates[photoCaptureDelegate.requestedPhotoSettings.uniqueID] = photoCaptureDelegate
+                    self.photoOutput.capturePhoto(with: settings, delegate: photoCaptureDelegate)
+                }
             }
         }
     }
@@ -443,6 +460,14 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         onBarcodeRead?(codeStringValue,barcodeType)
     }
 
+    // MARK: - AVCaptureVideoDataOutputSampleBufferDelegate
+
+    func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+        if output == videoDataOutput {
+            imageBuffer = sampleBuffer
+        }
+    }
+
     // MARK: - Private
 
     private func videoOrientation(from deviceOrientation: UIDeviceOrientation) -> AVCaptureVideoOrientation? {
@@ -506,13 +531,13 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         defer { session.commitConfiguration() }
 
         session.sessionPreset = .photo
-        
+
         if #available(iOS 13.0, *) {
             if let maxPhotoQualityPrioritization {
                 photoOutput.maxPhotoQualityPrioritization = maxPhotoQualityPrioritization.avQualityPrioritization
             }
         }
-        
+
         if session.canAddInput(videoDeviceInput) {
             session.addInput(videoDeviceInput)
 
@@ -545,7 +570,19 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
             metadataOutput.metadataObjectTypes = filteredTypes
         }
-        
+
+        if session.canAddOutput(videoDataOutput) {
+            session.addOutput(videoDataOutput)
+            videoDataOutput.alwaysDiscardsLateVideoFrames = true
+            videoDataOutput.setSampleBufferDelegate(self, queue: sessionQueue)
+
+            if let connection = videoDataOutput.connection(with: .video) {
+                connection.videoOrientation = .portrait
+            }
+        } else {
+            return .sessionConfigurationFailed
+        }
+
         return .success
     }
 
@@ -647,6 +684,19 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         }
     }
 
+    // MARK: Private image orientation from device orientation
+
+    private func imageOrientation(from deviceOrientation: UIDeviceOrientation) -> UIImage.Orientation {
+        switch deviceOrientation {
+        case .portrait: return .up
+        case .portraitUpsideDown: return .down
+        case .landscapeLeft: return .left
+        case .landscapeRight: return .right
+        case .unknown: return .up
+        @unknown default: return .up
+        }
+    }
+
     // MARK: Private observers
 
     private func addObservers() {
@@ -701,10 +751,18 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         } else {
             interfaceOrientation = UIApplication.shared.statusBarOrientation
         }
-        self.cameraPreview.previewLayer.connection?.videoOrientation = self.videoOrientation(from: interfaceOrientation)
+        let videoOrientation = self.videoOrientation(from: interfaceOrientation)
+        self.cameraPreview.previewLayer.connection?.videoOrientation = videoOrientation
+
+        if let videoDataOutputConnection = videoDataOutput.connection(with: .video) {
+            videoDataOutputConnection.videoOrientation = videoOrientation
+        }
         #else
         // Mac Catalyst always uses portrait orientation
         self.cameraPreview.previewLayer.connection?.videoOrientation = .portrait
+        if let videoDataOutputConnection = videoDataOutput.connection(with: .video) {
+            videoDataOutputConnection.videoOrientation = .portrait
+        }
         #endif
     }
 
@@ -744,5 +802,44 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         }
 
         // FIXME: Missing use of showResumeButton
+    }
+
+    private func silentCapture(onSuccess: @escaping (_ imageData: Data, _ thumbnailData: Data?, _ dimensions: CMVideoDimensions) -> Void,
+                               onError: @escaping (_ message: String) -> Void) {
+
+        guard let imageBuffer = self.imageBuffer,
+              let cvPixelBuffer = CMSampleBufferGetImageBuffer(imageBuffer) else {
+            DispatchQueue.main.async {
+                onError("Failed to get image buffer")
+            }
+            return
+        }
+
+        let ciImage = CIImage(cvPixelBuffer: cvPixelBuffer)
+        let ciImageContext = CIContext()
+
+        guard let cgImage = ciImageContext.createCGImage(ciImage, from: ciImage.extent) else {
+            DispatchQueue.main.async {
+                onError("Failed to create CGImage")
+            }
+            return
+        }
+
+        let orientation = self.imageOrientation(from: self.deviceOrientation)
+        let image = UIImage(cgImage: cgImage, scale: 1.0, orientation: orientation)
+
+        guard let imageData = image.jpegData(compressionQuality: 0.85) else {
+            DispatchQueue.main.async {
+                onError("Failed to convert image to data")
+            }
+            return
+        }
+
+        let thumbnailData = image.jpegData(compressionQuality: 0.5)
+        let dimensions = CMVideoDimensions(width: Int32(image.size.width), height: Int32(image.size.height))
+
+        DispatchQueue.main.async {
+            onSuccess(imageData, thumbnailData, dimensions)
+        }
     }
 }
