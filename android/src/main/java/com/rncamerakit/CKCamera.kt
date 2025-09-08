@@ -480,6 +480,10 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
                     imageInfo.putInt("height", height)
                     imageInfo.putString("path", path)
 
+                    val imageFile = File(path)
+                    val imageSize = imageFile.length() // size in bytes
+                    imageInfo.putDouble("size", imageSize.toDouble()) 
+                    
                     promise.resolve(imageInfo)
                 } catch (ex: Exception) {
                     Log.e(TAG, "Error while saving or decoding saved photo: ${ex.message}", ex)
