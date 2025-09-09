@@ -7,10 +7,10 @@
 #import <React/RCTFabricComponentsPlugins.h>
 #import <folly/dynamic.h>
 
-#import "../generated/rncamerakit_specs/ComponentDescriptors.h"
-#import "../generated/rncamerakit_specs/EventEmitters.h"
-#import "../generated/rncamerakit_specs/Props.h"
-#import "../generated/rncamerakit_specs/RCTComponentViewHelpers.h"
+#import <react/renderer/components/NativeCameraKitSpec/ComponentDescriptors.h>
+#import <react/renderer/components/NativeCameraKitSpec/EventEmitters.h>
+#import <react/renderer/components/NativeCameraKitSpec/Props.h>
+#import <react/renderer/components/NativeCameraKitSpec/RCTComponentViewHelpers.h>
 
 #import "ReactNativeCameraKit-Swift.pre.h"
 

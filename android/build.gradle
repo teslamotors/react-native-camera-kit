@@ -36,7 +36,11 @@ android {
 
     sourceSets {
         main {
-            java.srcDirs += 'generated'
+            if (isNewArchitectureEnabled()) {
+                java.srcDirs += ['src/newarch']
+            } else {
+                java.srcDirs += ['src/oldarch']
+            }
         }
     }
 }

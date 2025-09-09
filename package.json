@@ -20,7 +20,7 @@
     "release:beta": "yarn clean && yarn build && yarn publish --tag beta --verbose",
     "release:local": "yarn clean && yarn build && tmp=$(mktemp) && yarn pack --filename $tmp.tar.gz && open -R $tmp.tar.gz",
     "start": "watchman watch-del-all && node node_modules/react-native/local-cli/cli.js start",
-    "codegen": "react-native codegen --verbose --path . --platform ios --source library --outputPath ios/generated && react-native codegen --verbose --path . --platform android --source library --outputPath android/generated",
+    "codegen": "react-native codegen --verbose --path . --platform ios --source library && react-native codegen --verbose --path . --platform android --source library",
     "bootstrap": "cd example/ && bundle install && yarn && cd ios/ && bundle exec pod install",
     "bootstrap-linux": "cd example/ && yarn"
   },
@@ -59,13 +59,8 @@
     "node": ">=18"
   },
   "codegenConfig": {
-    "name": "rncamerakit_specs",
+    "name": "NativeCameraKitSpec",
     "type": "all",
-    "outputDir": {
-      "ios": "ios/generated",
-      "android": "android/generated"
-    },
-    "includesGeneratedCode": true,
     "jsSrcsDir": "src/specs",
     "android": {
       "javaPackageName": "com.rncamerakit"
