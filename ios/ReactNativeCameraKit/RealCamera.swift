@@ -46,8 +46,10 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     private var zoom: Double?
     private var maxZoom: Double?
 
+    // orientation
     private var deviceOrientation = UIDeviceOrientation.unknown
     private var motionManager: CMMotionManager?
+    private var orientationObserver: NSObjectProtocol?
 
     // KVO observation
     private var adjustingFocusObservation: NSKeyValueObservation?
@@ -66,7 +68,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         // When UIDevice reports rotation to the left, UI is rotated right to compensate, but that means we need to re-rotate left
         // to make camera appear correctly (see self.uiOrientationChanged)
         UIDevice.current.beginGeneratingDeviceOrientationNotifications()
-        NotificationCenter.default.addObserver(forName: UIDevice.orientationDidChangeNotification,
+        orientationObserver = NotificationCenter.default.addObserver(forName: UIDevice.orientationDidChangeNotification,
                                                object: UIDevice.current,
                                                queue: nil,
                                                using: { _ in self.setVideoOrientationToInterfaceOrientation() })
@@ -677,6 +679,11 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     }
 
     private func removeObservers() {
+        if let orientationObserver = orientationObserver {
+            NotificationCenter.default.removeObserver(orientationObserver)
+            self.orientationObserver = nil
+        }
+        
         // swiftlint:disable:next notification_center_detachment
         NotificationCenter.default.removeObserver(self)
 
