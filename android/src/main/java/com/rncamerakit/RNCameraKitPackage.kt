@@ -9,12 +9,11 @@ import com.facebook.react.module.model.ReactModuleInfoProvider
 import com.facebook.react.uimanager.ViewManager
 import java.util.*
 
-@ReactModuleList(nativeModules = [RNCameraKitModule::class])
 class RNCameraKitPackage : TurboReactPackage() {
 
     override fun createViewManagers(reactContext: ReactApplicationContext): List<ViewManager<*, *>> {
         val viewManagers: MutableList<ViewManager<*, *>> = ArrayList()
-        viewManagers.add(CKCameraManager())
+        viewManagers.add(CKCameraManager(reactContext))
         return viewManagers
     }
 
