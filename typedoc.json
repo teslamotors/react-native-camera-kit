@@ -1,0 +1,39 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["src/index.ts"],
+  "tsconfig": "tsconfig.json",
+  "name": "react-native-camera-kit",
+  "out": "docs/site",
+  "readme": "README.md",
+  "exclude": [
+    "src/specs/**/*"
+  ],
+  "excludeExternals": false,
+  "excludeInternal": true,
+  "excludePrivate": true,
+  "excludeNotDocumented": true,
+  "includeVersion": true,
+  "categorizeByGroup": true,
+  "visibilityFilters": {
+    "protected": false,
+    "private": false,
+    "inherited": true,
+    "external": true
+  },
+  "searchCategoryBoosts": {
+    "Components": 2,
+    "Imperative API": 2
+  },
+  "githubPages": false,
+  "customCss": ["docs/typedoc-custom.css"],
+  "navigationLinks": {
+    "GitHub": "https://github.com/teslamotors/react-native-camera-kit",
+    "Tesla": "https://www.tesla.com"
+  },
+  "customFooterHtml": "Made by <a href=\"https://www.tesla.com\" target=\"_blank\" rel=\"noreferrer noopener\">Tesla</a> · Source on <a href=\"https://github.com/teslamotors/react-native-camera-kit\" target=\"_blank\" rel=\"noreferrer noopener\">GitHub</a>",
+  "validation": {
+    "invalidLink": true,
+    "notExported": false
+  },
+  "highlightLanguages": ["ts", "tsx", "js", "json", "xml", "java", "kotlin", "swift", "bash"]
+}
