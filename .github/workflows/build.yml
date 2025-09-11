@@ -13,35 +13,48 @@ jobs:
     name: build-example-ios
     runs-on: macos-latest
     steps:
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
-          ruby-version: '2.7.4'
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Install modules
-        run: yarn
-      - name: Install example
-        run: yarn bootstrap
-      - name: Build
-        run: cd example/ios && xcodebuild -workspace CameraKitExample.xcworkspace -configuration Debug -scheme CameraKitExample -sdk iphoneos build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: |
+          yarn
+          yarn bootstrap
+
+      - name: Rock Remote Build - iOS simulator
+        uses: callstackincubator/ios@041de517c0d8ddaff73bd62c33b9f5d77ed578d4 # v3
+        with:
+          destination: simulator
+          scheme: CameraKitExample
+          configuration: Debug
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          working-directory: example
+
   build-example-android:
     name: build-example-android
-    runs-on: ubuntu-latest # using linux runner for speed
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
-          java-version: '17'
-          distribution: 'zulu'
-          cache: 'gradle'
-      - name: Validate Gradle Wrapper
-        uses: gradle/wrapper-validation-action@v1
-      - name: Install modules
-        run: yarn
-      - name: Install example
-        run: yarn bootstrap-linux
-      - name: Build
-        run: cd example/android && ./gradlew assembleDebug
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: |
+          yarn
+          yarn bootstrap-linux
+
+      - name: Rock Remote Build - Android
+        uses: callstackincubator/android@3c81e08edf2fb43bd97267f223729b989661a25d # v3
+        with:
+          variant: debug
+          working-directory: example
+          github-token: ${{ secrets.GITHUB_TOKEN }}
