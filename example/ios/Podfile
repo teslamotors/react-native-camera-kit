@@ -17,7 +17,7 @@ if linkage != nil
 end
 
 target 'CameraKitExample' do
-  config = use_native_modules!
+  config = use_native_modules!(['npx', 'rock', 'config', '-p', 'ios'])
 
   use_react_native!(
     :path => config[:reactNativePath],
