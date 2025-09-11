@@ -1,0 +1,103 @@
+/* Make large Markdown tables responsive and prevent overflow */
+.tsd-typography table {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.tsd-typography th,
+.tsd-typography td {
+  /* Reset to saner defaults; specific column rules below */
+  word-break: normal;
+  white-space: nowrap;
+}
+/* Allow inline code in tables to wrap if needed */
+.tsd-typography td code,
+.tsd-typography th code {
+  /* Allow code to wrap only in description column (overridden below) */
+  white-space: nowrap;
+}
+
+/* 3-column prop tables: fix column behavior */
+.tsd-typography table th:nth-child(1),
+.tsd-typography table td:nth-child(1) {
+  min-width: 160px;
+}
+.tsd-typography table th:nth-child(2),
+.tsd-typography table td:nth-child(2) {
+  min-width: 160px;
+}
+.tsd-typography table th:nth-child(3),
+.tsd-typography table td:nth-child(3) {
+  /* Let the description occupy remaining width and wrap nicely */
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: anywhere;
+}
+.tsd-typography table td:nth-child(3) code,
+.tsd-typography table th:nth-child(3) code {
+  white-space: break-spaces;
+}
+
+/* Mobile adjustments: keep columns readable and avoid giant rows */
+@media (max-width: 720px) {
+  .tsd-typography table {
+    display: table;            /* restore native flow */
+    table-layout: fixed;       /* enforce column widths */
+  }
+  .tsd-typography th,
+  .tsd-typography td {
+    white-space: normal;       /* allow wrapping on small screens */
+  }
+  .tsd-typography table th:nth-child(1),
+  .tsd-typography table td:nth-child(1) {
+    width: 32%;
+    min-width: 0;
+  }
+  .tsd-typography table th:nth-child(2),
+  .tsd-typography table td:nth-child(2) {
+    width: 28%;
+    min-width: 0;
+  }
+  .tsd-typography table th:nth-child(3),
+  .tsd-typography table td:nth-child(3) {
+    width: 40%;
+  }
+  .tsd-typography td code,
+  .tsd-typography th code {
+    white-space: break-spaces; /* allow code to break if needed */
+  }
+}
+
+/* Tesla styling for the top toolbar */
+.tsd-page-toolbar {
+  /* Scope variable overrides to toolbar only */
+  --color-background-secondary: #E31937;
+  --dim-toolbar-border-bottom-width: 0;
+  background: var(--color-background-secondary) !important;
+  border-bottom: 0 !important;
+  color: #fff;
+}
+.tsd-page-toolbar a,
+.tsd-page-toolbar .title {
+  color: #fff !important;
+}
+.tsd-page-toolbar a:hover {
+  text-decoration: underline;
+}
+
+/* Dark theme background override */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: #000000;
+  }
+}
+/* Also support manual dark theme selection in UI */
+:root[data-theme="dark"] {
+  --color-background: #000000;
+}
+
+/* Remove footer border */
+body > footer {
+  border-top: 0 !important;
+}

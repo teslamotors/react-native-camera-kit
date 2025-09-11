@@ -13,6 +13,12 @@
   "scripts": {
     "build": "tsc --project tsconfig.json",
     "clean": "rm -rf dist/",
+    "docs:clean": "rm -rf docs/site",
+    "typedoc:raw": "typedoc",
+    "docs:build": "yarn docs:clean && yarn typedoc:raw && node scripts/postprocess-typedoc.mjs",
+    "docset:clean": "rm -rf docs/react-native-camera-kit.docset",
+    "docset:build": "yarn docs:build && node scripts/build-docset.mjs",
+    "docs:serve": "node scripts/serve-docs.mjs",
     "test": "jest",
     "lint": "yarn eslint -c .eslintrc.js",
     "check-ios": "scripts/check-ios.sh",
@@ -32,6 +38,7 @@
   "dependencies": {},
   "license": "MIT",
   "devDependencies": {
+    "typedoc": "^0.28.12",
     "@babel/core": "^7.25.2",
     "@babel/preset-env": "^7.25.3",
     "@babel/runtime": "^7.25.0",
