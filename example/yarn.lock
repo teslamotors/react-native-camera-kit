@@ -1513,78 +1513,78 @@
     invariant "^2.2.4"
     nullthrows "^1.1.1"
 
-"@rock-js/config@^0.11.0":
-  version "0.11.0"
-  resolved "https://registry.yarnpkg.com/@rock-js/config/-/config-0.11.0.tgz#bf63d760fb68a436643175c4c67b3dff14f0ca35"
-  integrity sha512-iclG4Ts9SBh4tZGHANF5dT7NRs8b+BdbtvrS/tdS+kd4BRdvZ7Q9aM+Zc3/2m7woLqP6GX5GqQHSmtpRFWNDpg==
+"@rock-js/config@^0.11.1":
+  version "0.11.1"
+  resolved "https://registry.yarnpkg.com/@rock-js/config/-/config-0.11.1.tgz#91ab3f7093dbabe46e2ccf459a392fe7f992ba21"
+  integrity sha512-BFAxWChmLyxwdWB/nL9oMihnTHIBxYR15V+/MhU0rf9p1KCeU6wh0pP2LNi7eB9zTwDiLUEGveSwjTVeygM32g==
   dependencies:
     "@babel/code-frame" "^7.26.2"
-    "@rock-js/provider-github" "^0.11.0"
-    "@rock-js/tools" "^0.11.0"
+    "@rock-js/provider-github" "^0.11.1"
+    "@rock-js/tools" "^0.11.1"
     joi "^17.13.3"
     tslib "^2.3.0"
 
-"@rock-js/platform-android@^0.11.0":
-  version "0.11.0"
-  resolved "https://registry.yarnpkg.com/@rock-js/platform-android/-/platform-android-0.11.0.tgz#5ecbb0b84ad8875b501638103e46a146209a5d38"
-  integrity sha512-3kEhbBuNfrihs5jzpESH+KlvWQaUG3rE0AhZOZMXiynonZer2JZz6pzUeMSrJ+gTrSq593GYh4wwiMGznaxs2Q==
+"@rock-js/platform-android@^0.11.1":
+  version "0.11.1"
+  resolved "https://registry.yarnpkg.com/@rock-js/platform-android/-/platform-android-0.11.1.tgz#cf8df984b213a9d2f76e8c9ea46ccaf70e2d2d30"
+  integrity sha512-5m9LSwefgGGfdqNIMkEd89rClf/eMXaBY7TlLvDmwGxkLReG09ihZEnqGaYlsM4qc21PSJxh0X8C7feYme0YXA==
   dependencies:
     "@react-native-community/cli-config-android" "^20.0.0"
-    "@rock-js/tools" "^0.11.0"
+    "@rock-js/tools" "^0.11.1"
     adm-zip "^0.5.16"
     tslib "^2.3.0"
 
-"@rock-js/platform-apple-helpers@^0.11.0":
-  version "0.11.0"
-  resolved "https://registry.yarnpkg.com/@rock-js/platform-apple-helpers/-/platform-apple-helpers-0.11.0.tgz#e3e6736c7580bf658cecf8c2feef1541f6b428cd"
-  integrity sha512-vCG5aZPyWPlq4MK5C+3bdJTAsPDUUEFoVuSli5g/RxIPCQ+vGCEUFJ90jiGQ4R1dtpeSy6jDbTf9qF6ZUy7SdA==
+"@rock-js/platform-apple-helpers@^0.11.1":
+  version "0.11.1"
+  resolved "https://registry.yarnpkg.com/@rock-js/platform-apple-helpers/-/platform-apple-helpers-0.11.1.tgz#354fdc94647f2ffa7e535ad21e4424cf33886fd9"
+  integrity sha512-CDydMZfJL+wBbjXDN72gvhY/CX0EB8Y5t+0aj/QYPWefgIjQ/BZw1STx4pY6PWAGSn6bnnwroVzhZLInkwZdMQ==
   dependencies:
     "@react-native-community/cli-config" "^20.0.0"
     "@react-native-community/cli-config-apple" "^20.0.0"
-    "@rock-js/tools" "^0.11.0"
+    "@rock-js/tools" "^0.11.1"
     "@types/adm-zip" "^0.5.7"
     adm-zip "^0.5.16"
     fast-glob "^3.3.2"
     fast-xml-parser "^4.5.0"
     tslib "^2.3.0"
 
-"@rock-js/platform-ios@^0.11.0":
-  version "0.11.0"
-  resolved "https://registry.yarnpkg.com/@rock-js/platform-ios/-/platform-ios-0.11.0.tgz#21a57078464ac8a26c262128c52bc9b8b155ca6e"
-  integrity sha512-0Cv3WOwEiXhNtVnGOXk4+jC8tsE2dJOKYbW9SkqrEGIJqVUFWIrgwsCabcSLrGOIhi5yD09pvfeMdGx7pFMTmg==
+"@rock-js/platform-ios@^0.11.1":
+  version "0.11.1"
+  resolved "https://registry.yarnpkg.com/@rock-js/platform-ios/-/platform-ios-0.11.1.tgz#c84de7eb984c8cdcbea365934cccc2cfa0799a74"
+  integrity sha512-H0ME56P1mg7+iNov4STwEoHVRQVmtEhLwGbgOOgPkYZ8n3RdT7NoNotUKqgNKUUYG4bkCu3YYdPBJteNIRPGoQ==
   dependencies:
     "@react-native-community/cli-config-apple" "^20.0.0"
     "@react-native-community/cli-types" "^20.0.0"
-    "@rock-js/platform-apple-helpers" "^0.11.0"
-    "@rock-js/tools" "^0.11.0"
+    "@rock-js/platform-apple-helpers" "^0.11.1"
+    "@rock-js/tools" "^0.11.1"
     tslib "^2.3.0"
 
-"@rock-js/plugin-metro@^0.11.0":
-  version "0.11.0"
-  resolved "https://registry.yarnpkg.com/@rock-js/plugin-metro/-/plugin-metro-0.11.0.tgz#01b40e259edf71d3e2b2bc80ca69325c7b3f4e02"
-  integrity sha512-7yth0App0Isvyvww8ZqFwTR7Xla5NrdYTr3hBJV4ZKxPxsd/z7buIKnqZveAAa5j+n43NoUUOeKb3Xw0mi3Q1g==
+"@rock-js/plugin-metro@^0.11.1":
+  version "0.11.1"
+  resolved "https://registry.yarnpkg.com/@rock-js/plugin-metro/-/plugin-metro-0.11.1.tgz#06a5a4139fd4f27c9521845f4e4bb0f234dad677"
+  integrity sha512-apYJi0VHyTm/iFg08YzTi2Imdx5O++h/+zEoPlbRTKMj/R1wOe2FzyPVJqbRYE+6llMGm+97H4e9Y9aBeKuoXw==
   dependencies:
     "@react-native-community/cli-server-api" "^20.0.0"
-    "@rock-js/tools" "^0.11.0"
+    "@rock-js/tools" "^0.11.1"
     metro "^0.83.1"
     metro-config "^0.83.1"
     metro-core "^0.83.1"
     metro-resolver "^0.83.1"
     tslib "^2.3.0"
 
-"@rock-js/provider-github@^0.11.0":
-  version "0.11.0"
-  resolved "https://registry.yarnpkg.com/@rock-js/provider-github/-/provider-github-0.11.0.tgz#47fe03399e8b98a930d7bc245b1e79bd71c66f3c"
-  integrity sha512-EBXgzTu3GwUU77SJ4VyZCnOZ6XAM4nbcVa/rC+dkUKp54Y361TfXqFeqfdoro1NiKI7zBnth8waDKOPfNfOy7g==
+"@rock-js/provider-github@^0.11.1":
+  version "0.11.1"
+  resolved "https://registry.yarnpkg.com/@rock-js/provider-github/-/provider-github-0.11.1.tgz#9165b371906f7da601612545a7b52a2a50c91937"
+  integrity sha512-rNy80Z9jE/y30H+p6gN0IlP7M+nYFiV2ovtGnYxDCy9BYINXOPjjW9Eg0khc9PBXzt3czHaDBvYm/AUeFj98sw==
   dependencies:
-    "@rock-js/tools" "^0.11.0"
+    "@rock-js/tools" "^0.11.1"
     ts-regex-builder "^1.8.2"
     tslib "^2.3.0"
 
-"@rock-js/tools@^0.11.0":
-  version "0.11.0"
-  resolved "https://registry.yarnpkg.com/@rock-js/tools/-/tools-0.11.0.tgz#226f671e222b1472f7ef4ab98a39b0affafa2939"
-  integrity sha512-/mVDk6GyDdgIgBnDgbEhJ5esjciDBPW+wWwdd5LSDeTjE1VAxo0maSFHFl02X4XQ3ygf2UBnlDjUOs9nF6gRdQ==
+"@rock-js/tools@^0.11.1":
+  version "0.11.1"
+  resolved "https://registry.yarnpkg.com/@rock-js/tools/-/tools-0.11.1.tgz#260a1025977744bccc7008ceb842731f6c29ee4f"
+  integrity sha512-Hvp30ZCTLG1oaD74kpBJWiTNsFxqQdi8wDjOmZWVGsVl+g5aa8BMYO5rQ3DqiTlPYhfli//RjkfP+MHzP+Nj9A==
   dependencies:
     "@clack/prompts" "^0.11.0"
     "@types/adm-zip" "^0.5.7"
@@ -4996,14 +4996,14 @@ rimraf@^3.0.2:
   dependencies:
     glob "^7.1.3"
 
-rock@^0.11.0:
-  version "0.11.0"
-  resolved "https://registry.yarnpkg.com/rock/-/rock-0.11.0.tgz#78e4d3816a3ddb74613a00c2ded19ec8e8192ab9"
-  integrity sha512-Kp8NC+ssMQnvmoY6wJmcSdexOHZ5BEJ+QcZHQcd0gG9uDY4pWdeRxCNt7zW9hptbeL+CxnL3bYzWU7MN5Iizog==
+rock@^0.11.1:
+  version "0.11.1"
+  resolved "https://registry.yarnpkg.com/rock/-/rock-0.11.1.tgz#1bb24c9ab3e9c289e2c346c89697646e2a70be68"
+  integrity sha512-14uaV6ERRPbPo9yyP5gwE54WDQt7KmrXDj5wuBeNSeaU9gdhG+/hW92aXGohlGbFCQJESOzqdfpF6NvGZukVOA==
   dependencies:
     "@react-native-community/cli-config" "^20.0.0"
-    "@rock-js/config" "^0.11.0"
-    "@rock-js/tools" "^0.11.0"
+    "@rock-js/config" "^0.11.1"
+    "@rock-js/tools" "^0.11.1"
     adm-zip "^0.5.16"
     commander "^12.1.0"
     tar "^7.4.3"
