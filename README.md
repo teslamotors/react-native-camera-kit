@@ -262,3 +262,18 @@ If you are using Expo Managed Workflow, you can use this library with a third-pa
 The MIT License.
 
 See [LICENSE](LICENSE)
+
+## Documentation and Dash Docset
+
+- Build API docs (TypeDoc HTML):
+  - `yarn docs:build` → outputs to `docs/site`
+  - `yarn docs:serve` → serves `docs/site` at `http://localhost:8080` (set a custom port with `DOCS_PORT=9000`)
+
+- Build Dash docset locally:
+  - `yarn docset:build` → creates `docs/react-native-camera-kit.docset`
+  - In Dash: Preferences → Docsets → “+” → Add Local Docset → select `docs/react-native-camera-kit.docset`
+
+- CI artifacts:
+  - Every push/PR builds TypeDoc and the Dash docset on Ubuntu (no macOS required).
+  - Artifacts: `typedoc-site` (HTML) and `react-native-camera-kit.docset` are uploaded in GitHub Actions.
+  - On tagged releases (`vX.Y.Z`), the `.docset` is attached to the GitHub Release.

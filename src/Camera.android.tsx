@@ -5,6 +5,14 @@ import type { CameraProps } from './CameraProps';
 import NativeCamera from './specs/CameraNativeComponent';
 import NativeCameraKitModule from './specs/NativeCameraKitModule';
 
+/**
+ * Android implementation of the {@link Camera} component.
+ *
+ * @remarks
+ * - Exposes `capture(options?)` on the ref. Authorization helpers are not implemented.
+ * - Transforms color props via `processColor`.
+ * - Optional numeric props are normalized to `-1` before passing to native.
+ */
 const Camera = React.forwardRef<CameraApi, CameraProps>((props, ref) => {
   const nativeRef = React.useRef(null);
 

@@ -75,6 +75,12 @@ yarn-error.log
 
 # Project specific
 
+# Generated documentation artifacts (do not commit)
+docs/site/
+docs/*.docset/
+docs/*.docset
+docs/*.docset.zip
+
 example/.yarn/*
 !example/.yarn/patches
 !example/.yarn/plugins
