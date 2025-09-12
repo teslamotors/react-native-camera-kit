@@ -29,8 +29,16 @@
   "source": "./src/",
   "types": "dist/index.d.ts",
   "react-native": "src/index",
-  "dependencies": {},
+  "files": [
+    "android",
+    "build",
+    "dist",
+    "ios",
+    "src",
+    "ReactNativeCameraKit.podspec"
+  ],
   "license": "MIT",
+  "dependencies": {},
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@babel/preset-env": "^7.25.3",
