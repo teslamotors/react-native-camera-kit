@@ -35,7 +35,6 @@
     "dist",
     "ios",
     "src",
-    "LICENSE",
     "ReactNativeCameraKit.podspec"
   ],
   "license": "MIT",
