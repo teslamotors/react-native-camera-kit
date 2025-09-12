@@ -10,7 +10,7 @@
     "start": "rock start --client-logs",
     "reinstall": "rm -rf ios/Pods && bundle && rm -rf ../node_modules/ ../android/build/ ./node_modules/ ./ios/Pods/ ./android/app/build/ ./android/app/.cxx && cd ../ && yarn && cd example && yarn",
     "reverse": "adb reverse tcp:8081 tcp:8081",
-    "postinstall": "cd ios && bundle exec pod install"
+    "postinstall": "cd ios && RCT_USE_PREBUILT_RNCORE=1 RCT_USE_RN_DEP=1 bundle exec pod install"
   },
   "dependencies": {
     "react": "19.1.0",
@@ -38,6 +38,6 @@
     "typescript": "^5.8.3"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   }
 }
