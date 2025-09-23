@@ -12,8 +12,8 @@ import { Orientation } from './index';
 
 /**
  * Payload for {@link CameraProps.onReadCode}.
+ * @category Events
  */
-/** @category Types */
 export type OnReadCodeData = {
   nativeEvent: {
     /** Decoded text of the detected barcode/QR. */
@@ -23,8 +23,9 @@ export type OnReadCodeData = {
   };
 };
 
-/** Payload for {@link CameraProps.onOrientationChange}. */
-/** @category Types */
+/** Payload for {@link CameraProps.onOrientationChange}.
+ * @category Events
+ */
 export type OnOrientationChangeData = {
   nativeEvent: {
     /** One of {@link Orientation}. */
@@ -32,8 +33,9 @@ export type OnOrientationChangeData = {
   };
 };
 
-/** Payload for {@link CameraProps.onZoom}. */
-/** @category Types */
+/** Payload for {@link CameraProps.onZoom}.
+ * @category Events
+ */
 export type OnZoom = {
   nativeEvent: {
     /** Current zoom factor after user gesture or initialization. */
@@ -45,11 +47,10 @@ export type OnZoom = {
  * Props for the `Camera` component.
  *
  * @remarks
- * - Optional numeric props are normalized to `-1` internally to represent
- *   “unset” (RN Codegen limitation for view props).
- * - Color props accept numbers or strings; on Android strings are converted
- *   via `processColor`.
+ * - Optional numeric props are normalized to `-1` internally to represent “unset” (RN Codegen limitation for view props).
+ * - Color props accept numbers or strings; on Android strings are converted via `processColor`.
  * - Platform‑specific behavior is noted per prop.
+ * - Controlled vs uncontrolled zoom: When `zoom` is provided (controlled), pinch does not change the native zoom; when `zoom` is `undefined` and `zoomMode='on'` (uncontrolled), pinch adjusts zoom and emits {@link CameraProps.onZoom}.
  *
  * Note: The component accepts all React Native `ViewProps` at runtime, but
  * for readability in the generated docs we hide inherited members.
@@ -62,10 +63,12 @@ export interface CameraProps extends ViewProps {
   /**
    * Photo capture flash mode.
    * Maps to the platform capture pipeline (not the continuous torch).
-   * @defaultValue `auto` (iOS), device default (Android)
+   * @defaultValue `auto`
    */
   flashMode?: FlashMode;
-  /** Autofocus mode. @defaultValue `on` */
+  /** Autofocus mode.
+   * @defaultValue `on`
+   */
   focusMode?: FocusMode;
   /**
    * Enable or disable the pinch gesture handler.
@@ -82,7 +85,7 @@ export interface CameraProps extends ViewProps {
   zoomMode?: ZoomMode;
   /**
    * Controls zoom. Higher values zoom in.
-   * Default zoom is `1.0`, relative to 'wide angle' camera.
+   * Default zoom is `1.0`, relative to the wide‑angle lens on multi‑camera devices.
    * Examples of minimum/widest zoom:
    * - iPhone 6S Plus minimum is `1.0`
    * - iPhone 14 Pro Max minimum `0.5`
@@ -99,6 +102,7 @@ export interface CameraProps extends ViewProps {
    *   }}
    * />
    * ```
+   * @defaultValue 1.0
   */
   zoom?: number;
   /**
@@ -136,12 +140,16 @@ export interface CameraProps extends ViewProps {
    * ```
    */
   onZoom?: (event: OnZoom) => void;
-  /** **Android only**. Triggered when camera fails to initialize. */
+  /** **Android only**. Triggered when camera fails to initialize or bind use cases. */
   onError?: (event: { nativeEvent: { errorMessage: string } }) => void;
   // Barcode only
-  /** Enable barcode/QR analysis. Emits {@link CameraProps.onReadCode}. */
+  /** Enable barcode/QR analysis. Emits {@link CameraProps.onReadCode}.
+   * @defaultValue `false`
+   */
   scanBarcode?: boolean;
-  /** Show a visual scanning frame overlay. @defaultValue `false` */
+  /** Show a visual scanning frame overlay.
+   * @defaultValue `false`
+   */
   showFrame?: boolean;
   /** Color of the animated scanning laser (when `showFrame` is true). */
   laserColor?: number | string;
@@ -169,23 +177,41 @@ export interface CameraProps extends ViewProps {
    * Example: `'1:1'`, `'4:3'`, `'16:9'`.
   */
   ratioOverlay?: string;
-  /** Overlay color used with {@link CameraProps.ratioOverlay}. */
+  /** Overlay color used with {@link CameraProps.ratioOverlay}.
+   * @remarks
+   * Default is semi‑transparent black if unset.
+   * @defaultValue `#0000004D`
+   */
   ratioOverlayColor?: number | string;
   /** Time in ms after which the focus rectangle resets; `0` disables auto‑reset.
    * @defaultValue `0`
    */
   resetFocusTimeout?: number;
-  /** Automatically reset focus when motion is detected. @defaultValue `true` */
+  /** Automatically reset focus when motion is detected.
+   * @remarks
+   * JS default is `true`; native default is `false` unless set by JS.
+   * @defaultValue `true`
+   */
   resetFocusWhenMotionDetected?: boolean;
-  /** How the preview fits its bounds. @defaultValue `contain` (iOS) */
+  /** How the preview fits its bounds.
+   * @remarks iOS only; Android preview is managed by CameraX.
+   * @defaultValue `contain`
+   */
   resizeMode?: ResizeMode;
   /** Throttle (ms) to limit how often barcode scans can fire.
-   * @defaultValue `2000` (iOS); platform default otherwise
+   * @remarks
+   * iOS: negative values effectively disable throttling.
+   * Android: negative values are coerced to `2000`; use `0` to disable.
+   * @defaultValue `2000`
    */
   scanThrottleDelay?: number;
-  /** iOS capture pipeline quality prioritization. @defaultValue `balanced` */
+  /** iOS capture pipeline quality prioritization.
+   * @defaultValue `balanced`
+   */
   maxPhotoQualityPrioritization?: 'balanced' | 'quality' | 'speed';
-  /** **Android only**. Play a shutter capture sound when capturing a photo. @defaultValue `true` */
+  /** **Android only**. Play a shutter capture sound when capturing a photo.
+   * @defaultValue `true`
+   */
   shutterPhotoSound?: boolean;
   /** Press‑in event from physical capture buttons (iOS 17.2+). */
   onCaptureButtonPressIn?: ({ nativeEvent: {} }) => void;

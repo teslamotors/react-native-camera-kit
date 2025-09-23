@@ -381,3 +381,44 @@ $now
 
 - Amended latest commit message to replace literal "\n" with real newlines (was 36a9a57 → now 421b219). Updated branch pointers so both `gm/documentation-2` and `gm/documentation-3` reference the amended commit.
 - Verified previous commit bodies; no other messages contain "\n" escapes.
+2025-09-23 11:20 UTC
+
+## Deep TSDoc Enhancements (grounded in native behavior)
+
+- src/types.ts:
+  - Clarified platform mappings for `CameraType`, `CodeFormat`, and `FlashMode`/`TorchMode` separation.
+  - Expanded `CaptureData` remarks: iOS caches path, Android MediaStore/content URIs; added Android content URI note; kept RNFS example.
+  - Added explicit focus/zoom semantics in type docs; noted iOS/Android differences.
+- src/CameraProps.ts:
+  - Categorized event payloads as `Events`.
+  - Added consistent `@defaultValue` tags (flashMode, focusMode, zoomMode, zoom=1.0, scanBarcode=false, showFrame=false, barcodeFrameSize default, resizeMode=contain (iOS), scanThrottleDelay=2000, shutterPhotoSound=true).
+  - Corrected `ratioOverlayColor` default to semi‑transparent black `#0000004D` (matches native RatioOverlayView).
+  - Documented controlled vs uncontrolled zoom and Android/iOS scan throttling behavior.
+  - Clarified `onError` (Android use case binding).
+- src/Camera.tsx:
+  - Added a concise “Common props” section and restored barcode example for discoverability.
+- src/Camera.ios.tsx / src/Camera.android.tsx:
+  - Tightened remarks; referenced authorization APIs (iOS) and `processColor` conversion (Android).
+- src/index.ts:
+  - Added explicit Orientation mapping list (0..3) to the constants docs.
+- docs/tsdoc-style.md:
+  - Added Tag Cheat Sheet, Controlled vs Uncontrolled guidance, and native‑backed platform semantics checklist.
+
+Next: optionally `yarn docs:build && yarn docs:serve` to verify rendering (categories, defaults, examples).
+2025-09-23 11:26 UTC
+
+## Documented codegen specs (internal TSDoc)
+
+- src/specs/NativeCameraKitModule.ts: Added module-level remarks, documented `CaptureData` and `Spec` methods (capture/authorization), clarified tag param usage and platform behavior; marked internal.
+- src/specs/CameraNativeComponent.ts: Added module-level remarks; documented all `NativeProps` members with platform notes and sentinel behavior; categorized event payloads and marked internal-only props/events.
+
+Rationale: Even though specs are excluded from TypeDoc output, maintaining high-quality TSDoc keeps codegen contracts self-documenting and ready if we decide to surface internal docs later.
+2025-09-23 11:32 UTC
+
+## Example App Documentation Pass
+
+- Annotated example/index.js with entry-point remarks and Fabric/Paper log intent.
+- example/src/App.tsx: documented the demo navigator and purpose of each flow.
+- example/src/CameraExample.tsx: added module header and function docs (median, props); clarified demo scope and usage.
+- example/src/BarcodeScreenExample.tsx: added module header, throttling tips, and prop/event highlights; documented props.
+- example/src/SafeAreaView.tsx: documented placeholder status and recommended real package.

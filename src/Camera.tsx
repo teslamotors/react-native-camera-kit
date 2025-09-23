@@ -11,6 +11,13 @@ import { Platform } from 'react-native';
  * - Ref API: {@link CameraApi}
  * - Platforms: iOS and Android (lazy‑loaded per platform)
  *
+ * Common props:
+ * - {@link CameraProps.cameraType | cameraType}: select front/back camera
+ * - {@link CameraProps.zoomMode | zoomMode} + {@link CameraProps.zoom | zoom}: gesture vs programmatic zoom
+ * - {@link CameraProps.maxZoom | maxZoom}: cap the maximum zoom factor
+ * - {@link CameraProps.flashMode | flashMode} vs {@link CameraProps.torchMode | torchMode}
+ * - {@link CameraProps.scanBarcode | scanBarcode} + {@link CameraProps.onReadCode | onReadCode}
+ *
  * @example Basic usage
  * ```tsx
  * import { Camera } from 'react-native-camera-kit';
@@ -37,6 +44,17 @@ import { Platform } from 'react-native';
  *     </>
  *   );
  * }
+ * ```
+ *
+ * @example Barcode scanning
+ * ```tsx
+ * <Camera
+ *   scanBarcode
+ *   showFrame
+ *   onReadCode={(e) => {
+ *     console.log('barcode', e.nativeEvent.codeStringValue, e.nativeEvent.codeFormat);
+ *   }}
+ * />
  * ```
  *
  * @category Components

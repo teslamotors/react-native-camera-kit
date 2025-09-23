@@ -10,7 +10,7 @@ import NativeCameraKitModule from './specs/NativeCameraKitModule';
  *
  * @remarks
  * - Normalizes optional numeric props to `-1` for RN Codegen.
- * - Converts color strings to ARGB numbers via `processColor`.
+ * - Converts color strings to ARGB numbers via `processColor` before passing to native.
  * - Exposes `capture()` on the ref.
  */
 const Camera = React.forwardRef<CameraApi, CameraProps>((props, ref) => {

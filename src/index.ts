@@ -38,6 +38,12 @@ import {
  *
  * Start with portrait/pointing up and increment while moving counter‑clockwise.
  *
+ * Mapping:
+ * - `PORTRAIT` = 0
+ * - `LANDSCAPE_LEFT` = 1
+ * - `PORTRAIT_UPSIDE_DOWN` = 2
+ * - `LANDSCAPE_RIGHT` = 3
+ *
  * @example
  * ```ts
  * const onOrientationChange = ({ nativeEvent }) => {

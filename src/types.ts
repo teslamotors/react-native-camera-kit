@@ -1,6 +1,11 @@
 /**
  * Lens facing direction used by {@link CameraProps.cameraType}.
  *
+ * @remarks
+ * Platform mappings:
+ * - iOS → `AVCaptureDevice.Position`
+ * - Android → CameraX `CameraSelector.LENS_FACING_*`
+ *
  * @example Switch cameras
  * ```tsx
  * <Camera cameraType={CameraType.Back} />
@@ -18,8 +23,10 @@ export enum CameraType {
  * Barcode/QR code format for {@link OnReadCodeData}.
  *
  * @remarks
- * Values mirror underlying platform analyzers (AVFoundation on iOS, ML Kit on Android).
- * Unknown or device‑specific formats map to `unknown`.
+ * Platform analyzers:
+ * - iOS → AVFoundation (`AVMetadataObject.ObjectType`)
+ * - Android → ML Kit (`Barcode` format)
+ * Unknown or device‑specific formats map to `'unknown'`.
  * @category Types
  */
 export type CodeFormat =
@@ -37,7 +44,10 @@ export type CodeFormat =
   | 'data-matrix'
   | 'unknown';
 
-/** Torch/flashlight state (continuous).
+/** Torch/flashlight state (continuous light during preview).
+ *
+ * @remarks
+ * Independent from {@link FlashMode}, which applies to still capture only.
  * @category Types
  */
 export type TorchMode = 'on' | 'off';
@@ -46,17 +56,23 @@ export type TorchMode = 'on' | 'off';
  * Photo capture flash mode.
  *
  * @remarks
- * Maps to the platform capture pipeline; independent from {@link TorchMode}.
+ * Applies only during still capture; independent from {@link TorchMode}.
+ * - iOS → `AVCaptureFlashMode`
+ * - Android → CameraX `ImageCapture.flashMode`
  * @category Types
  */
 export type FlashMode = 'on' | 'off' | 'auto';
 
 /** Autofocus mode.
+ *
+ * @remarks
+ * - iOS: `on` enables tap‑to‑focus UI and custom focus behavior; `off` removes the tap gesture and keeps continuous AF.
+ * - Android: `on` cancels manual metering points (continuous AF); `off` lets manual tap focus persist (no auto‑cancel).
  * @category Types
  */
 export type FocusMode = 'on' | 'off';
 
-/** Enables pinch‑to‑zoom gesture when 'on'.
+/** Enables pinch‑to‑zoom gesture when `'on'`.
  * @category Types
  */
 export type ZoomMode = 'on' | 'off';
@@ -70,12 +86,11 @@ export type ResizeMode = 'cover' | 'contain';
  * Result of a successful {@link CameraApi.capture | capture()} call.
  *
  * @remarks
- * - The image is written to a temporary, app‑scoped location. On iOS this is
- *   the Caches folder under a library‑specific subdirectory; on Android it is
- *   a temporary file created by the capture pipeline. You should move the file
- *   to a permanent location if you need to keep it (see example).
- * - Orientation is already encoded in pixel `width`/`height` and the image
- *   EXIF metadata. No additional rotation is necessary on JS.
+ * - iOS: Saves a JPEG under Caches at `.../Library/Caches/<bundleId>/com.tesla.react-native-camera-kit/<unique>.jpg`.
+ *   Includes `size` in bytes; `width`/`height` reflect the final pixel dimensions.
+ * - Android: Uses MediaStore/output file; returns a `file://` or `content://` URI.
+ *   `id`/`path` may be empty on some devices. `width`/`height` intend to describe the saved image.
+ * - Orientation is already encoded in pixels and EXIF. No JS rotation required.
  *
  * @example Move to app documents (react-native-fs)
  * ```ts
@@ -85,6 +100,12 @@ export type ResizeMode = 'cover' | 'contain';
  *   const fileName = photo.name;
  *   const dest = `${RNFS.DocumentDirectoryPath}/${fileName}`;
  *   await RNFS.moveFile(photo.uri.replace('file://', ''), dest);
+ * }
+ * ```
+ * @example Handling content URIs (Android)
+ * ```ts
+ * if (photo?.uri?.startsWith('content://')) {
+ *   // copy stream to app storage before long‑term use
  * }
  * ```
  * @category Types

@@ -1,3 +1,12 @@
+/**
+ * Example app entry point.
+ *
+ * @remarks
+ * Registers the example `App` component and logs whether the
+ * environment is using Fabric (New Architecture) or Paper (Old Architecture).
+ * This can help verify that the native view is running under the
+ * expected architecture when testing the library.
+ */
 import { AppRegistry } from 'react-native';
 import App from './src/App';
 import { name as appName } from './app.json';
