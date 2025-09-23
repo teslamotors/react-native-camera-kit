@@ -1,39 +1,38 @@
 {
   "$schema": "https://typedoc.org/schema.json",
-  "entryPoints": ["src/index.ts"],
-  "tsconfig": "tsconfig.json",
   "name": "react-native-camera-kit",
+  "entryPointStrategy": "resolve",
+  "entryPoints": ["src/index.ts"],
   "out": "docs/site",
+  "tsconfig": "tsconfig.json",
+  "customCss": ["docs/theme/tesla.css"],
+  "customFooterHtml": "<div class=\"container\">Made by <a href=\"https://www.tesla.com\" target=\"_blank\" rel=\"noreferrer noopener\">Tesla</a> · Source on <a href=\"https://github.com/teslamotors/react-native-camera-kit\" target=\"_blank\" rel=\"noreferrer noopener\">GitHub</a></div>",
+  "customFooterHtmlDisableWrapper": true,
+  "hideGenerator": true,
   "readme": "README.md",
-  "exclude": [
-    "src/specs/**/*"
+  "highlightLanguages": ["bash", "json", "ts", "tsx", "swift", "kt", "xml", "java"],
+  "excludeExternals": true,
+  "externalPattern": [
+    "**/node_modules/**"
   ],
-  "excludeExternals": false,
-  "excludeInternal": true,
-  "excludePrivate": true,
-  "excludeNotDocumented": true,
-  "includeVersion": true,
-  "categorizeByGroup": true,
   "visibilityFilters": {
-    "protected": false,
-    "private": false,
-    "inherited": true,
-    "external": true
+    "inherited": false,
+    "protected": true,
+    "private": true,
+    "external": false
   },
-  "searchCategoryBoosts": {
-    "Components": 2,
-    "Imperative API": 2
-  },
-  "githubPages": false,
-  "customCss": ["docs/typedoc-custom.css"],
-  "navigationLinks": {
-    "GitHub": "https://github.com/teslamotors/react-native-camera-kit",
-    "Tesla": "https://www.tesla.com"
-  },
-  "customFooterHtml": "Made by <a href=\"https://www.tesla.com\" target=\"_blank\" rel=\"noreferrer noopener\">Tesla</a> · Source on <a href=\"https://github.com/teslamotors/react-native-camera-kit\" target=\"_blank\" rel=\"noreferrer noopener\">GitHub</a>",
-  "validation": {
-    "invalidLink": true,
-    "notExported": false
-  },
-  "highlightLanguages": ["ts", "tsx", "js", "json", "xml", "java", "kotlin", "swift", "bash"]
+  "excludeInternal": true,
+  "plugin": [
+    "typedoc-plugin-no-inherit"
+  ],
+  "exclude": [
+    "**/__tests__/**",
+    "new-arch-minimal/**",
+    "src/specs/**"
+  ],
+  "includeVersion": true,
+  "excludePrivate": true,
+  "excludeProtected": false,
+  "categorizeByGroup": false,
+  "hideGenerator": false
 }

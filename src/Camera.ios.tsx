@@ -6,12 +6,12 @@ import NativeCamera from './specs/CameraNativeComponent';
 import NativeCameraKitModule from './specs/NativeCameraKitModule';
 
 /**
- * iOS implementation of the {@link Camera} component.
+ * iOS implementation of {@link Camera}.
  *
  * @remarks
- * - Exposes `capture()`, `requestDeviceCameraAuthorization()` and
- *   `checkDeviceCameraAuthorizationStatus()` on the ref.
- * - Optional numeric props are normalized to `-1` before passing to native.
+ * - Normalizes optional numeric props (`zoom`, `maxZoom`, `scanThrottleDelay`) to `-1` for RN Codegen.
+ * - Provides iOS‑only permission helpers on the ref.
+ * - Manages hardware capture button interactions at the native layer.
  */
 const Camera = React.forwardRef<CameraApi, CameraProps>((props, ref) => {
   const nativeRef = React.useRef(null);

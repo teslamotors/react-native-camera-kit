@@ -1,0 +1,77 @@
+/* Tesla-themed tweaks for TypeDoc */
+
+/* Accent color */
+:root {
+  --color-accent: #e31937; /* Tesla red */
+}
+
+/* Header bar */
+.tsd-page-toolbar { 
+  background: var(--color-accent);
+}
+.tsd-toolbar-contents .title { color: #fff !important; }
+
+/* Toolbar layout: flex + vertical centering */
+.tsd-page-toolbar .tsd-toolbar-contents {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+}
+.tsd-page-toolbar .tsd-toolbar-contents .title { margin-right: auto; }
+
+#tsd-toolbar-links {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Dark mode background */
+[data-theme="dark"] body { background: #000; }
+
+/* Remove footer border and soften */
+footer { border-top: none; opacity: 0.95; }
+
+/* Tables scroll instead of overflowing */
+.tsd-typography table { display: block; overflow-x: auto; max-width: 100%; }
+.tsd-typography table th, .tsd-typography table td { white-space: nowrap; }
+/* Subtle table borders (avoid accent color for grid lines) */
+.tsd-typography td,
+.tsd-typography th {
+  border: 1px solid var(--color-background-secondary) !important;
+}
+
+/* Sidebar link styling for added links */
+#tsd-sidebar-links .tsd-nav-link { display: inline-block; margin-right: 12px; color: #fff; }
+
+/* Header toolbar links (GitHub/Tesla) */
+#tsd-toolbar-links .tsd-widget {
+  margin-left: 12px;
+  color: #fff;
+  text-decoration: none;
+  height: auto !important; /* override theme's 2.5rem */
+  width: auto;             /* allow natural width */
+  line-height: normal;     /* remove artificial vertical sizing */
+  padding: 0;              /* tight layout like original */
+}
+#tsd-toolbar-links .tsd-widget:hover { text-decoration: underline; }
+
+/* Ensure icon buttons align nicely */
+#tsd-search-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  width: 32px;
+}
+
+/* Show/size hamburger only on mobile; keep theme's desktop display:none */
+@media (max-width: 769px) {
+  #tsd-toolbar-menu-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px;
+    width: 32px;
+  }
+}

@@ -1,112 +1,71 @@
-# TSDoc Style Guide (react-native-camera-kit)
+# TSDoc Style Guide — react-native-camera-kit
 
-Purpose: Make API docs consistent, complete, and TypeDoc-friendly so we can generate high‑quality site/Dash output.
+This project uses TSDoc + TypeDoc to generate API docs. Follow these rules to keep docs consistent and useful.
 
-Scope: Public TypeScript surface only (everything exported from `src`). Native spec files under `src/specs` are internal and should be tagged `@internal`.
+## Principles
 
-## General Rules
-- Audience: App developers using this library in React Native apps.
-- Voice: Direct, actionable, present tense. Avoid “This function…”.
-- One‑line summary first; end with a period.
-- Expand with a short paragraph under `@remarks` when useful (behavior, caveats, platform notes).
-- Prefer small, runnable `@example` blocks in TSX using functional components and `useRef`.
-- Put platform constraints in remarks as “Platform: iOS” / “Platform: Android”.
-- Use `@defaultValue` to document defaults (including sentinel `-1` used to represent “unset” due to RN Codegen limits).
-- Use `@deprecated`, `@since`, and `@see` when applicable.
-- Group with `@category` so TypeDoc sections are tidy: Components, Imperative API, Types, Enums, Events, Constants, Native Module.
-- Mark non‑public items with `@internal`.
+- Write for users of the library, not its implementation.
+- Prefer examples over prose; keep examples runnable and minimal.
+- Document the “why” when behavior is surprising or platform-specific.
 
-## Tag Cheat Sheet
-- `@public` for exported APIs (optional; exported implies public, but keep it explicit on top‑level items).
-- `@remarks` for nuanced behavior, platform notes, and warnings.
-- `@example` for concise TS/TSX usage.
-- `@param` and `@returns` for functions/methods.
-- `@defaultValue` for props/parameters with defaults.
-- `@see` to cross‑link related APIs or README sections.
-- `@deprecated`, `@since` as needed.
+## Blocks and Tags
 
-## Component Props (interfaces)
-Document each prop with a short summary, then specifics in remarks. Include platform and default when relevant.
+- Summary: 1–2 lines. Starts with an imperative description.
+- `@remarks`: Deeper context, platform notes, caveats.
+- `@example`: Use fenced code blocks with a short title (optional).
+- `@deprecated`: Include migration notes.
+- `@internal`: Hide from docs.
+- `@category`: One of: Components, Types, Enums, Constants, Utils.
 
-Example pattern:
+## Components
 
-```ts
+For component wrappers (e.g., `Camera`):
+
+```
 /**
- * Controls zoom. Higher values zoom in.
+ * Camera component (Fabric view wrapper).
  *
- * @remarks
- * - Default optical baseline is `1.0` (wide‑angle).
- * - Platform: iOS, Android.
- * - If `zoomMode` is `on`, treat `zoom` as uncontrolled (omit or set to `undefined`).
- *
- * @defaultValue 1.0 (device‑dependent minimum may be < 1.0)
- * @example
+ * @remarks Exposes a capture API via ref; props are declarative.
+ * @example Basic usage
  * ```tsx
- * const [zoom, setZoom] = useState(1.0);
- * <Camera
- *   zoom={zoom}
- *   onZoom={(e) => setZoom(e.nativeEvent.zoom)}
- * />
+ * <Camera style={{ flex: 1 }} />
  * ```
+ * @category Components
  */
-zoom?: number;
 ```
 
-Event props should describe the `nativeEvent` shape explicitly (even if typed) and when they fire.
+## Props Interfaces
 
-## Imperative API (component ref)
-Each method gets a clear contract, return type details, and file URL behavior.
-
-```ts
+```
 /**
- * Capture a JPEG and return file info.
- *
- * @remarks
- * - Returns a `file://` URI where supported; always a URI string for consistency.
- * - Move the file to a permanent location if you need it beyond the current session.
- * - Platform: iOS, Android.
- *
- * @returns Promise with `{ uri, name, width, height, size? }`.
- * @see README: Imperative API › capture()
+ * Props for the `Camera` component.
+ * @remarks Use numeric `-1` sentinels for optional RN Codegen props.
+ * @noInheritDoc
  */
-capture(): Promise<CaptureData>;
-```
-
-## Enums, Types, Constants
-- Enums: add a brief description for the enum and each member.
-- String‑literal unions: summarize allowed values where they are used.
-- Constants (e.g., `Orientation`): describe mapping and origin (native constants).
-
-## Platform Nuances to Capture
-- Optional numeric props normalized to `-1` before passing to native (RN Codegen limitation). Document this under each affected prop with `@remarks` and `@defaultValue -1 (treated as unset)` when appropriate.
-- Color props on Android are run through `processColor`.
-- iOS exposes `requestDeviceCameraAuthorization` and `checkDeviceCameraAuthorizationStatus` on the ref; Android throws “Not implemented”. Mark with platform notes.
-
-## Examples — Canonical Snippets
-Use concise TSX with hooks; show imports and refs.
-
-```tsx
-import React, { useRef } from 'react';
-import { Button } from 'react-native';
-import { Camera, type CameraApi } from 'react-native-camera-kit';
-
-export function CaptureExample() {
-  const ref = useRef<CameraApi>(null);
-  return (
-    <>
-      <Camera ref={ref} zoomMode="on" />
-      <Button title="Snap" onPress={async () => {
-        const photo = await ref.current?.capture();
-        console.log(photo?.uri);
-      }} />
-    </>
-  );
+export interface CameraProps extends ViewProps {
+  /** Enable or disable the pinch gesture handler. */
+  zoomMode?: ZoomMode;
+  /** Controls zoom. Higher values zoom in. Default is `1.0`. */
+  zoom?: number;
 }
 ```
 
-## Writing Style Notes
-- Sentence case; keep summaries ≤ 120 characters when possible.
-- Prefer active voice, avoid repetition of type names (“Returns a promise” vs “This method returns…”).
-- Keep examples minimal; highlight just one concept per example.
-- When in doubt, favor clarity over cleverness.
+## Types and Enums
+
+Add a one‑liner summary for each; include sample values or mapping where useful.
+
+```
+/** Lens facing direction. */
+export enum CameraType { Front = 'front', Back = 'back' }
+```
+
+## Platform Notes
+
+- Mark iOS‑only / Android‑only props in the doc comment.
+- Mention color conversions (`processColor`) and numeric sentinel behavior.
+
+## Don’ts
+
+- Don’t duplicate React Native’s `ViewProps` docs.
+- Don’t leak internal implementation details in public docs.
 

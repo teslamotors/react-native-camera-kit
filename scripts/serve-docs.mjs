@@ -1,88 +1,48 @@
 #!/usr/bin/env node
-import http from 'http';
-import { promises as fs } from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import http from 'node:http';
+import { createReadStream, existsSync, statSync } from 'node:fs';
+import { extname, join, resolve } from 'node:path';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const ROOT = path.join(__dirname, '..');
-const DOCS_DIR = path.join(ROOT, 'docs', 'site');
+const PORT = Number(process.env.DOCS_PORT) || 8080;
+const ROOT = resolve(process.cwd(), 'docs/site');
 
-const PORT = Number(process.env.DOCS_PORT || 8080);
-
-const MIME = new Map(Object.entries({
+const MIME = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
-  '.js': 'application/javascript; charset=utf-8',
+  '.js': 'text/javascript; charset=utf-8',
   '.svg': 'image/svg+xml',
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
   '.jpeg': 'image/jpeg',
+  '.gif': 'image/gif',
   '.json': 'application/json; charset=utf-8',
-}));
+  '.map': 'application/json; charset=utf-8',
+  '.woff': 'font/woff',
+  '.woff2': 'font/woff2'
+};
 
-function contentTypeFor(filePath) {
-  const ext = path.extname(filePath).toLowerCase();
-  return MIME.get(ext) || 'application/octet-stream';
-}
+const server = http.createServer((req, res) => {
+  const url = decodeURIComponent((req.url || '/').split('?')[0]);
+  let filePath = join(ROOT, url);
 
-async function ensureDocs() {
   try {
-    await fs.access(DOCS_DIR);
-  } catch {
-    console.error('[docs:serve] docs/site not found. Run `yarn docs:build` first.');
-    process.exit(1);
-  }
-}
-
-function sanitizeUrl(urlPath) {
-  try {
-    const decoded = decodeURIComponent(urlPath.split('?')[0]);
-    // Prevent path traversal
-    const p = path.normalize(decoded).replace(/^\/+/, '');
-    return p;
-  } catch {
-    return 'index.html';
-  }
-}
-
-async function serve() {
-  await ensureDocs();
-
-  const server = http.createServer(async (req, res) => {
-    const rel = sanitizeUrl(req.url || '/');
-    let filePath = path.join(DOCS_DIR, rel);
-
-    try {
-      const st = await fs.stat(filePath).catch(() => null);
-      if (!st) {
-        // Fallback for SPA-style links: try appending .html
-        if (!rel.endsWith('.html')) {
-          const tryHtml = filePath + '.html';
-          const stHtml = await fs.stat(tryHtml).catch(() => null);
-          if (stHtml) filePath = tryHtml;
-        }
-      } else if (st.isDirectory()) {
-        filePath = path.join(filePath, 'index.html');
-      }
-
-      const data = await fs.readFile(filePath);
-      res.writeHead(200, { 'Content-Type': contentTypeFor(filePath) });
-      res.end(data);
-    } catch (e) {
-      res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
-      res.end('Not found');
+    if (existsSync(filePath) && statSync(filePath).isDirectory()) {
+      filePath = join(filePath, 'index.html');
     }
-  });
-
-  server.listen(PORT, () => {
-    console.log(`[docs:serve] Serving ${DOCS_DIR} at http://localhost:${PORT}`);
-  });
-}
-
-serve().catch((e) => {
-  console.error('[docs:serve] Error:', e);
-  process.exit(1);
+    if (!existsSync(filePath)) {
+      // Fallback to index.html for SPA-like routing
+      filePath = join(ROOT, 'index.html');
+    }
+    const ext = extname(filePath).toLowerCase();
+    res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream' });
+    createReadStream(filePath).pipe(res);
+  } catch (err) {
+    res.writeHead(500, { 'Content-Type': 'text/plain' });
+    res.end('Internal Server Error');
+  }
 });
 
+server.listen(PORT, () => {
+  // eslint-disable-next-line no-console
+  console.log(`Docs server running at http://localhost:${PORT}`);
+});

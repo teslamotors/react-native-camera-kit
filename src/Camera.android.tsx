@@ -6,19 +6,19 @@ import NativeCamera from './specs/CameraNativeComponent';
 import NativeCameraKitModule from './specs/NativeCameraKitModule';
 
 /**
- * Android implementation of the {@link Camera} component.
+ * Android implementation of {@link Camera}.
  *
  * @remarks
- * - Exposes `capture(options?)` on the ref. Authorization helpers are not implemented.
- * - Transforms color props via `processColor`.
- * - Optional numeric props are normalized to `-1` before passing to native.
+ * - Normalizes optional numeric props to `-1` for RN Codegen.
+ * - Converts color strings to ARGB numbers via `processColor`.
+ * - Exposes `capture()` on the ref.
  */
 const Camera = React.forwardRef<CameraApi, CameraProps>((props, ref) => {
   const nativeRef = React.useRef(null);
 
-  // RN doesn't support optional view props yet (sigh)
-  // so we have to use -1 to indicate 'undefined'
-  // All int/float/double props from src/specs/CameraNativeComponent.ts need be mentioned here
+  // RN doesn't support optional view props yet (sigh),
+  // so we use -1 to indicate 'undefined'.
+  // All int/float/double props from src/specs/CameraNativeComponent.ts need to be normalized here.
   props.zoom = props.zoom ?? -1;
   props.maxZoom = props.maxZoom ?? -1;
   props.scanThrottleDelay = props.scanThrottleDelay ?? -1;

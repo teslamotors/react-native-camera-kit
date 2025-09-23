@@ -1,114 +1,47 @@
 #!/usr/bin/env node
-import { promises as fs } from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { readFileSync, writeFileSync, existsSync, readdirSync } from 'node:fs';
+import { join, extname } from 'node:path';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const ROOT = path.join(__dirname, '..');
-const CAMERA_PAGE = path.join(ROOT, 'docs', 'site', 'variables', 'Camera.html');
+const root = join(process.cwd(), 'docs/site');
 
-async function rewriteCameraHeading() {
-  try {
-    let html = await fs.readFile(CAMERA_PAGE, 'utf8');
-    // Replace the H1 heading label from "Variable Camera [Const]" to "Component Camera"
-    html = html.replace(/<h1>\s*Variable Camera(?:<code[^>]*>[^<]*<\/code>)?\s*<\/h1>/, '<h1>Component Camera<\/h1>');
-    await fs.writeFile(CAMERA_PAGE, html, 'utf8');
-    console.log('[postprocess] Rewrote Camera heading to "Component Camera"');
-  } catch (e) {
-    console.warn('[postprocess] Camera page not found or rewrite failed:', e.message);
+function patchAllHtml(dir = root) {
+  const entries = readdirSync(dir, { withFileTypes: true });
+  for (const d of entries) {
+    const p = join(dir, d.name);
+    if (d.isDirectory()) {
+      patchAllHtml(p);
+    } else if (d.isFile() && extname(p) === '.html') {
+      let html = readFileSync(p, 'utf8');
+      // Keep generator; restructure footer into a single container
+      // Case 1: <footer><p class="tsd-generator">...</p><div class="container">Made by ...</div></footer>
+      html = html.replace(
+        /<footer>\s*<p class=\"tsd-generator\">([\s\S]*?)<\/p>\s*<div class=\"container\">([\s\S]*?)<\/div>\s*<\/footer>/g,
+        '<footer><div class="container"><p class="tsd-generator">$1</p><p>$2</p></div></footer>'
+      );
+      // Case 2: <footer><div class="container">..</div><p class="tsd-generator">..</p></footer>
+      html = html.replace(
+        /<footer>\s*<div class=\"container\">([\s\S]*?)<\/div>\s*<p class=\"tsd-generator\">([\s\S]*?)<\/p>\s*<\/footer>/g,
+        '<footer><div class="container"><p class="tsd-generator">$2</p><p>$1</p></div></footer>'
+      );
+      // Insert static header links into empty toolbar container (no JS runtime)
+      html = html.replace(
+        /<div id=\"tsd-toolbar-links\"><\/div>/,
+        '<div id="tsd-toolbar-links"><a href="https://github.com/teslamotors/react-native-camera-kit" class="tsd-widget" target="_blank" rel="noreferrer noopener">GitHub</a><a href="https://www.tesla.com" class="tsd-widget" target="_blank" rel="noreferrer noopener">Tesla</a></div>'
+      );
+      writeFileSync(p, html);
+    }
   }
 }
 
-async function hardenInlineThemeScript() {
-  // Guard localStorage access so environments without it (e.g., some WebViews) don't break navigation
-  const DOCS_DIR = path.join(ROOT, 'docs', 'site');
-  /** @type {string[]} */
-  const stack = [DOCS_DIR];
-  const files = [];
-  while (stack.length) {
-    const dir = stack.pop();
-    const entries = await fs.readdir(dir, { withFileTypes: true });
-    for (const e of entries) {
-      const full = path.join(dir, e.name);
-      if (e.isDirectory()) stack.push(full);
-      else if (e.isFile() && e.name.endsWith('.html')) files.push(full);
-    }
-  }
-  let patched = 0;
-  for (const f of files) {
-    let html = await fs.readFile(f, 'utf8');
-    const before = html;
-    html = html.replace(
-      /document\.documentElement\.dataset\.theme\s*=\s*localStorage\.getItem\(("|')tsd-theme\1\)\s*\|\|\s*("|')os\2\s*;/,
-      'try{document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";}catch(_){document.documentElement.dataset.theme = "os";}'
-    );
-    if (html !== before) {
-      await fs.writeFile(f, html, 'utf8');
-      patched++;
-    }
-  }
-  console.log(`[postprocess] Hardened inline theme script in ${patched} file(s)`);
+function patchCameraHeading() {
+  const file = join(root, 'variables', 'Camera.html');
+  if (!existsSync(file)) return;
+  let html = readFileSync(file, 'utf8');
+  html = html.replace(/<h1>Variable Camera<code[^>]*>Const<\/code><\/h1>/, '<h1>Component Camera</h1>');
+  html = html.replace(/Variable Camera/g, 'Component Camera');
+  writeFileSync(file, html);
 }
 
-async function convertAsyncScriptsToDefer() {
-  const DOCS_DIR = path.join(ROOT, 'docs', 'site');
-  const files = [];
-  const stack = [DOCS_DIR];
-  while (stack.length) {
-    const dir = stack.pop();
-    const entries = await fs.readdir(dir, { withFileTypes: true });
-    for (const e of entries) {
-      const full = path.join(dir, e.name);
-      if (e.isDirectory()) stack.push(full);
-      else if (e.isFile() && e.name.endsWith('.html')) files.push(full);
-    }
-  }
-  let patched = 0;
-  for (const f of files) {
-    let html = await fs.readFile(f, 'utf8');
-    const before = html;
-    // Replace async with defer for TypeDoc asset scripts to preserve order
-    html = html.replace(/<script\s+async\s+src=\"assets\/(icons|search|navigation)\.js\"/g, '<script defer src="assets/$1.js"');
-    if (html !== before) {
-      await fs.writeFile(f, html, 'utf8');
-      patched++;
-    }
-  }
-  console.log(`[postprocess] Converted async->defer on ${patched} file(s)`);
-}
-
-async function reorderAssetScripts() {
-  const DOCS_DIR = path.join(ROOT, 'docs', 'site');
-  const files = [];
-  const stack = [DOCS_DIR];
-  while (stack.length) {
-    const dir = stack.pop();
-    const entries = await fs.readdir(dir, { withFileTypes: true });
-    for (const e of entries) {
-      const full = path.join(dir, e.name);
-      if (e.isDirectory()) stack.push(full);
-      else if (e.isFile() && e.name.endsWith('.html')) files.push(full);
-    }
-  }
-  let patched = 0;
-  for (const f of files) {
-    let html = await fs.readFile(f, 'utf8');
-    const before = html;
-    // Ensure navigation.js loads before main.js: move main.js defer tag after icons/search/navigation
-    html = html.replace(
-      /(\<link[^>]+custom\.css\"[^>]*\>\s*)(<script[^>]+src=\"assets\/main\.js\"[^>]*><\/script>)([\s\S]*?)(<script[^>]+src=\"assets\/navigation\.js\"[^>]*><\/script>)/,
-      (m, pre, mainTag, middle, navTag) => `${pre}${middle}${navTag}\n${mainTag}`
-    );
-    if (html !== before) {
-      await fs.writeFile(f, html, 'utf8');
-      patched++;
-    }
-  }
-  console.log(`[postprocess] Reordered scripts in ${patched} file(s)`);
-}
-
-await rewriteCameraHeading();
-await hardenInlineThemeScript();
-await convertAsyncScriptsToDefer();
-await reorderAssetScripts();
+patchAllHtml();
+patchCameraHeading();
+console.log('[postprocess-typedoc] Applied header/footer and headings tweaks.');

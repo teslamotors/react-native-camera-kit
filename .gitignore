@@ -75,12 +75,6 @@ yarn-error.log
 
 # Project specific
 
-# Generated documentation artifacts (do not commit)
-docs/site/
-docs/*.docset/
-docs/*.docset
-docs/*.docset.zip
-
 example/.yarn/*
 !example/.yarn/patches
 !example/.yarn/plugins
@@ -91,6 +85,9 @@ example/.yarn/*
 ios/build/
 ios/DerivedData/
 dist/
+ 
+# Generated documentation artifacts (do not commit)
+docs/site/
 ### Xcode ###
 *.xcodeproj/*
 !*.xcodeproj/project.pbxproj
