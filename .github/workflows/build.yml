@@ -18,7 +18,7 @@ jobs:
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '2.7.4'
+          ruby-version: '3.3.5'
           bundler-cache: true
         env:
           # Point bundler to the example app's Gemfile so cache keys match correctly
