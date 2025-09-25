@@ -4,7 +4,7 @@ run-name: ⚙️ Build examples on ${{ github.event_name == 'pull_request' && 'P
 on:
   push:
     branches:
-      - main
+      - master
   pull_request:
     types: [opened, synchronize, reopened]
 
@@ -17,10 +17,19 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '2.7.4'
+          bundler-cache: true
+        env:
+          # Point bundler to the example app's Gemfile so cache keys match correctly
+          BUNDLE_GEMFILE: example/Gemfile
       - name: Checkout
-        uses: actions/checkout@v3
-      - name: Install modules
-        run: yarn
+        uses: actions/checkout@v5
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: yarn
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
       - name: Install example
         run: yarn bootstrap
       - name: Build
@@ -30,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest # using linux runner for speed
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -38,10 +47,19 @@ jobs:
           distribution: 'zulu'
           cache: 'gradle'
       - name: Validate Gradle Wrapper
-        uses: gradle/wrapper-validation-action@v1
-      - name: Install modules
-        run: yarn
+        uses: gradle/actions/wrapper-validation@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: yarn
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
       - name: Install example
         run: yarn bootstrap-linux
+      - name: Setup Gradle (caching)
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: false
       - name: Build
         run: cd example/android && ./gradlew assembleDebug

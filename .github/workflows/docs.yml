@@ -1,0 +1,123 @@
+name: Docs (TypeDoc → GitHub Pages)
+
+# References (official docs):
+# - Pages deployment action: https://github.com/actions/deploy-pages
+# - Upload Pages artifact:   https://github.com/actions/upload-pages-artifact
+# - Configure Pages:         https://github.com/actions/configure-pages
+# - Setup Node:              https://github.com/actions/setup-node
+# - Checkout:                https://github.com/actions/checkout
+# - TypeDoc options:         https://typedoc.org/options/
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: "Deploy to GitHub Pages after building? (manual runs only)"
+        type: choice
+        options: ["true", "false"]
+        default: "true"
+        required: true
+
+# Required for Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build TypeDoc site
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        # https://github.com/actions/checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js (LTS 22)
+        # https://github.com/actions/setup-node
+        uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Configure GitHub Pages
+        # Provides the GitHub Pages URL and sets up permissions
+        # https://github.com/actions/configure-pages
+        uses: actions/configure-pages@v5
+
+      - name: Build documentation (TypeDoc)
+        # typedoc.json sets: out=docs/site, githubPages=true (.nojekyll), customCss
+        run: |
+          yarn docs:clean
+          yarn docs:build
+
+      - name: Upload artifact
+        # Upload the static site for Pages to deploy
+        # https://github.com/actions/upload-pages-artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/site
+
+  deploy:
+    name: Deploy to GitHub Pages
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    needs: build
+    runs-on: ubuntu-latest
+    # Deploy on push to master; for PRs use manual run (workflow_dispatch) with deploy=true.
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.deploy == 'true')
+    steps:
+      - name: Deploy
+        id: deployment
+        # https://github.com/actions/deploy-pages
+        uses: actions/deploy-pages@v4
+
+  pr-artifact:
+    name: Attach PR artifact (fallback)
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Download Pages artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: github-pages
+          path: docs-site-artifact
+      - name: Re-upload as standard artifact for PR review
+        uses: actions/upload-artifact@v4
+        with:
+          name: typedoc-site
+          path: docs-site-artifact
+
+# Usage:
+# 1. In GitHub → Settings → Pages, set "Source" to "GitHub Actions".
+# 2. Push to master, open a PR, or run manually via the "Run workflow" button.
+#    - Push: always builds and deploys to the production Pages site.
+#    - PR: builds but does not deploy automatically. Reviewers can download the
+#          attached "typedoc-site" artifact. Optionally, trigger a manual run
+#          (workflow_dispatch) from the PR branch with deploy=true to publish a preview.
+#    - Manual: choose deploy=true (build+deploy) or deploy=false (build only, no publish).
+# 3. The docs are NOT committed to the repo. They are built in CI and published
+#    from the uploaded Pages artifact. GitHub Pages hosts the result; no gh-pages branch
+#    is required when using the official Pages actions.
+# 4. Customize TypeDoc via typedoc.json (`out`, `customCss`, validation filters, etc.).
+# 5. Local preview: `yarn docs:build && yarn docs:serve` → http://localhost:8080
+# 6. Future: consider API Extractor to lock down published API and doc tags.
+#    https://api-extractor.com/
+#
+# Notes:
+# - The Pages environment requires the `pages:write` and `id-token:write` permissions.
+# - `githubPages: true` in typedoc.json ensures `.nojekyll` is emitted for correct asset serving.
+# - For monorepos or matrix builds, you can upload multiple artifacts and deploy from a single job.

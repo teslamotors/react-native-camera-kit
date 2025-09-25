@@ -1,0 +1,65 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "name": "react-native-camera-kit",
+  "entryPointStrategy": "resolve",
+  "entryPoints": ["src/index.ts"],
+  "out": "docs/site",
+  "tsconfig": "tsconfig.json",
+  "customCss": ["docs/theme/custom-typedocs.css"],
+  "githubPages": true,
+  "customFooterHtml": "<div class=\"container\">Made by <a href=\"https://www.tesla.com\" target=\"_blank\" rel=\"noreferrer noopener\">Tesla</a> · Source on <a href=\"https://github.com/teslamotors/react-native-camera-kit\" target=\"_blank\" rel=\"noreferrer noopener\">GitHub</a></div>",
+  "customFooterHtmlDisableWrapper": true,
+  "hideGenerator": true,
+  "readme": "README.md",
+  "highlightLanguages": ["bash", "json", "ts", "tsx", "swift", "kt", "xml", "java"],
+  "excludeExternals": true,
+  "externalPattern": [
+    "**/node_modules/**"
+  ],
+  "visibilityFilters": {
+    "inherited": false
+  },
+  "excludeInternal": true,
+  "validation": {
+    "notExported": false,
+    "invalidLink": true,
+    "notDocumented": true
+  },
+  "requiredToBeDocumented": [
+    "Class",
+    "Interface",
+    "Function",
+    "Method",
+    "TypeAlias",
+    "Enum",
+    "EnumMember",
+    "Variable",
+    "Property"
+  ],
+  "treatWarningsAsErrors": true,
+  "treatValidationWarningsAsErrors": true,
+  "exclude": [
+    "**/__tests__/**",
+    "new-arch-minimal/**",
+    "src/specs/**"
+  ],
+  "includeVersion": true,
+  "excludePrivate": true,
+  "excludeProtected": false,
+  "categorizeByGroup": false,
+  "navigation": {
+    "includeCategories": true,
+    "includeGroups": false,
+    "includeFolders": true
+  },
+  "categoryOrder": [
+    "Components",
+    "Constants",
+    "Enums",
+    "Events",
+    "Types",
+    "Other",
+    "*"
+  ],
+  "defaultCategory": "Other"
+}

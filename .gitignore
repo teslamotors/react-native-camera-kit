@@ -85,6 +85,9 @@ example/.yarn/*
 ios/build/
 ios/DerivedData/
 dist/
+ 
+# Generated documentation artifacts (do not commit)
+docs/site/
 ### Xcode ###
 *.xcodeproj/*
 !*.xcodeproj/project.pbxproj

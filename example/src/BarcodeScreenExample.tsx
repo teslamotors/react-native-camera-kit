@@ -35,6 +35,10 @@ const flashArray = [
   },
 ] as const;
 
+/**
+ * Barcode scanner example component.
+ * @param onBack Navigate back to the example menu.
+ */
 const BarcodeExample = ({ onBack }: { onBack: () => void }) => {
   const cameraRef = useRef<CameraApi>(null);
   const [currentFlashArrayPosition, setCurrentFlashArrayPosition] = useState(0);
@@ -255,3 +259,16 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
 });
+/**
+ * Barcode/QR scanner demo screen.
+ *
+ * @remarks
+ * Highlights scanning-related props and events:
+ * - `scanBarcode`, `showFrame`, `barcodeFrameSize`, `laserColor`, `frameColor`
+ * - `onReadCode` with decoded text and format
+ * - Orientation events demo and simple UI rotation
+ *
+ * Tip: Use `scanThrottleDelay` to limit how often `onReadCode` fires.
+ * iOS accepts negatives to disable throttling; Android coerces negatives
+ * to 2000 ms — use 0 to disable.
+ */

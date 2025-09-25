@@ -1,6 +1,5 @@
-<h1 align="center">
-    🎈 React Native Camera Kit
-</h1>
+[![react-native-camera-kit](./images/header.png)](https://github.com/teslamotors/react-native-camera-kit)
+
 
 <p align="center">
   A <strong>high performance, easy to use, rock solid</strong><br>
