@@ -131,10 +131,11 @@ Other useful scripts include:
 
 The documentation site is automatically built and deployed to GitHub Pages.
 
-*   **On Push to `master`:** Every time a change is merged into the `master` branch, the documentation is automatically re-built and published.
-*   **On Pull Requests:** For every PR, a preview of the documentation site will be generated and uploaded as a downloadable artifact called `typedoc-site`. This allows reviewers to easily check how documentation changes will look before they are merged.
+*   **On Push to `master`:** Changes merged to `master` rebuild and publish the production site.
+*   **On Pull Requests (PR Preview):** CI publishes an ephemeral preview URL via GitHub Pages. The link appears on the PR checks as the environment URL for the "Deploy (PR Preview)" job and is cleaned up automatically when the PR closes. For convenience, a `typedoc-site` artifact is also attached.
+*   **Manual Run on `master`:** From Actions → "Docs (TypeDoc → GitHub Pages)" → "Run workflow", choose `Branch: master` to trigger a production deploy on demand.
 
-Lint vs. deploy: `yarn lint` validates documentation coverage (no HTML generation). The Docs workflow is responsible for building and deploying the HTML site.
+Lint vs. deploy: `yarn lint` validates documentation coverage (no HTML). The Docs workflow builds the HTML site and deploys it.
 
 ---
 

@@ -14,13 +14,6 @@ on:
   pull_request:
     branches: [master]
   workflow_dispatch:
-    inputs:
-      deploy:
-        description: "Deploy to GitHub Pages after building? (manual runs only)"
-        type: choice
-        options: ["true", "false"]
-        default: "true"
-        required: true
 
 # Required for Pages
 permissions:
@@ -69,20 +62,41 @@ jobs:
         with:
           path: docs/site
 
-  deploy:
-    name: Deploy to GitHub Pages
+  deploy-production:
+    name: Deploy (Production)
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     needs: build
     runs-on: ubuntu-latest
-    # Deploy on push to master; for PRs use manual run (workflow_dispatch) with deploy=true.
-    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.deploy == 'true')
+    # Runs on push to master and manual dispatch. Manual runs should target the
+    # master branch via the UI (Run workflow → Branch: master).
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     steps:
-      - name: Deploy
+      - name: Require master branch for manual runs
+        run: |
+          if [ "${GITHUB_REF_NAME}" != "master" ]; then
+            echo "Manual runs must target 'master'. Selected: ${GITHUB_REF_NAME}";
+            exit 1;
+          fi
+      - name: Deploy to GitHub Pages
         id: deployment
-        # https://github.com/actions/deploy-pages
         uses: actions/deploy-pages@v4
+
+  deploy-preview:
+    name: Deploy (PR Preview)
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Deploy preview to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+        with:
+          preview: true
 
   pr-artifact:
     name: Attach PR artifact (fallback)
@@ -103,19 +117,17 @@ jobs:
 
 # Usage:
 # 1. In GitHub → Settings → Pages, set "Source" to "GitHub Actions".
-# 2. Push to master, open a PR, or run manually via the "Run workflow" button.
-#    - Push: always builds and deploys to the production Pages site.
-#    - PR: builds but does not deploy automatically. Reviewers can download the
-#          attached "typedoc-site" artifact. Optionally, trigger a manual run
-#          (workflow_dispatch) from the PR branch with deploy=true to publish a preview.
-#    - Manual: choose deploy=true (build+deploy) or deploy=false (build only, no publish).
-# 3. The docs are NOT committed to the repo. They are built in CI and published
+# 2. Push to master → builds and deploys to the production Pages site.
+# 3. Open a PR targeting master → builds and deploys an ephemeral PR Preview URL.
+#    The preview URL is exposed as the environment URL of the "Deploy (PR Preview)" job
+#    and in the PR checks. It is automatically cleaned up when the PR closes.
+# 4. Manual run: Actions → this workflow → Run workflow. Choose Branch: master.
+#    This performs a production deploy using the content of master.
+# 5. The docs are NOT committed to the repo. They are built in CI and published
 #    from the uploaded Pages artifact. GitHub Pages hosts the result; no gh-pages branch
 #    is required when using the official Pages actions.
-# 4. Customize TypeDoc via typedoc.json (`out`, `customCss`, validation filters, etc.).
-# 5. Local preview: `yarn docs:build && yarn docs:serve` → http://localhost:8080
-# 6. Future: consider API Extractor to lock down published API and doc tags.
-#    https://api-extractor.com/
+# 6. Customize TypeDoc via typedoc.json (`out`, `customCss`, validation filters, etc.).
+# 7. Local preview: `yarn docs:build && yarn docs:serve` → http://localhost:8080
 #
 # Notes:
 # - The Pages environment requires the `pages:write` and `id-token:write` permissions.
