@@ -13,6 +13,8 @@ jobs:
     name: build-example-ios
     runs-on: macos-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v5
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
@@ -21,19 +23,17 @@ jobs:
         env:
           # Point bundler to the example app's Gemfile so cache keys match correctly
           BUNDLE_GEMFILE: example/Gemfile
-      - name: Checkout
-        uses: actions/checkout@v5
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
-          node-version: '22'
+          node-version: '20'
           cache: yarn
       - name: Install dependencies
         run: yarn install --frozen-lockfile
       - name: Install example
         run: yarn bootstrap
       - name: Build
-        run: cd example/ios && xcodebuild -workspace CameraKitExample.xcworkspace -configuration Debug -scheme CameraKitExample -sdk iphoneos build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
+        run: cd example/ios && xcodebuild -workspace CameraKitExample.xcworkspace -configuration Debug -scheme CameraKitExample -sdk iphoneos build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
   build-example-android:
     name: build-example-android
     runs-on: ubuntu-latest # using linux runner for speed
@@ -46,20 +46,19 @@ jobs:
           java-version: '17'
           distribution: 'zulu'
           cache: 'gradle'
-      - name: Validate Gradle Wrapper
-        uses: gradle/actions/wrapper-validation@v3
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
-          node-version: '22'
+          node-version: '20'
           cache: yarn
       - name: Install dependencies
         run: yarn install --frozen-lockfile
       - name: Install example
         run: yarn bootstrap-linux
-      - name: Setup Gradle (caching)
+      - name: Setup Gradle (validation + caching)
         uses: gradle/actions/setup-gradle@v4
         with:
+          validate-wrappers: true
           cache-read-only: false
       - name: Build
         run: cd example/android && ./gradlew assembleDebug
