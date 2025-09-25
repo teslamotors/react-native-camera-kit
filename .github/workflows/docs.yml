@@ -90,30 +90,14 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     needs: build
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+    # Skip preview deploys for forked PRs and Dependabot to avoid failures
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false && github.actor != 'dependabot[bot]'
     steps:
       - name: Deploy preview to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
         with:
           preview: true
-
-  pr-artifact:
-    name: Attach PR artifact (fallback)
-    needs: build
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    steps:
-      - name: Download Pages artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: github-pages
-          path: docs-site-artifact
-      - name: Re-upload as standard artifact for PR review
-        uses: actions/upload-artifact@v4
-        with:
-          name: typedoc-site
-          path: docs-site-artifact
 
 # Usage:
 # 1. In GitHub → Settings → Pages, set "Source" to "GitHub Actions".

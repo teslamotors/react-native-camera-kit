@@ -132,10 +132,14 @@ Other useful scripts include:
 The documentation site is automatically built and deployed to GitHub Pages.
 
 *   **On Push to `master`:** Changes merged to `master` rebuild and publish the production site.
-*   **On Pull Requests (PR Preview):** CI publishes an ephemeral preview URL via GitHub Pages. The link appears on the PR checks as the environment URL for the "Deploy (PR Preview)" job and is cleaned up automatically when the PR closes. For convenience, a `typedoc-site` artifact is also attached.
+*   **On Pull Requests (PR Preview):** CI publishes an ephemeral preview URL via GitHub Pages for PRs whose branch lives in this repository. The link appears on the PR checks as the environment URL for the "Deploy (PR Preview)" job and is cleaned up automatically when the PR closes. For forked PRs and Dependabot PRs (read‑only token) or when environment rules block previews, the build still uploads the standard `github-pages` artifact. Reviewers can download that artifact from the Actions run if a preview URL isn’t available.
 *   **Manual Run on `master`:** From Actions → "Docs (TypeDoc → GitHub Pages)" → "Run workflow", choose `Branch: master` to trigger a production deploy on demand.
 
 Lint vs. deploy: `yarn lint` validates documentation coverage (no HTML). The Docs workflow builds the HTML site and deploys it.
+
+### Repository setting required for PR previews
+
+- Go to Settings → Environments → `github-pages` and set Deployment branches to "All branches" (or include your PR branch patterns). If restricted to only `master`, preview deploys from feature branches will be blocked by environment rules.
 
 ---
 
