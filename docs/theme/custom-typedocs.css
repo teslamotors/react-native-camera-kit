@@ -1,0 +1,100 @@
+/* Themed tweaks for TypeDoc */
+
+:root {
+  --color-red: #e31937;
+
+  --dark-color-background: #000;
+  --dark-color-background-active: var(--dark-color-background); 
+
+  --color-link: var(--color-red); 
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background-active: var(--dark-color-background-active);
+  }
+}
+
+
+/* Header bar */
+.tsd-page-toolbar { 
+  background: var(--color-red);
+}
+.tsd-toolbar-contents .title { color: #fff !important; }
+
+/* Toolbar layout: flex + vertical centering */
+.tsd-page-toolbar .tsd-toolbar-contents {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+}
+.tsd-page-toolbar .tsd-toolbar-contents .title { margin-right: auto; }
+
+#tsd-toolbar-links {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* colors */
+
+/* Remove footer border and soften */
+footer { border-top: none; opacity: 0.95; }
+
+/* Let wide columns wrap, keep first column tidy */
+.tsd-typography table { 
+  table-layout: fixed;
+  width: 100%;
+}
+.tsd-typography th, .tsd-typography td {
+  white-space: normal;              /* must allow wrapping when using fixed layout */
+  overflow-wrap: anywhere;
+}
+.tsd-typography table td:nth-child(2),
+.tsd-typography table th:nth-child(2),
+.tsd-typography table td:nth-child(3),
+.tsd-typography table th:nth-child(3) {
+  white-space: normal;              /* allow wrapping on Type/Description */
+  overflow-wrap: anywhere;          /* break long generic types, union types, etc. */
+}
+.tsd-typography td code,
+.tsd-typography th code {
+  white-space: normal;              /* TypeDoc often sets code to nowrap/pre */
+  overflow-wrap: anywhere;
+}
+
+/* Sidebar link styling for added links */
+#tsd-sidebar-links .tsd-nav-link { display: inline-block; margin-right: 12px; color: #fff; }
+
+/* Header toolbar links (GitHub/Tesla) */
+#tsd-toolbar-links .tsd-widget {
+  margin-left: 12px;
+  color: #fff;
+  text-decoration: none;
+  height: auto !important; /* override theme's 2.5rem */
+  width: auto;             /* allow natural width */
+  line-height: normal;     /* remove artificial vertical sizing */
+  padding: 0;              /* tight layout like original */
+}
+#tsd-toolbar-links .tsd-widget:hover { text-decoration: underline; }
+
+/* Ensure icon buttons align nicely */
+#tsd-search-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  width: 32px;
+}
+
+/* Show/size hamburger only on mobile; keep theme's desktop display:none */
+@media (max-width: 769px) {
+  #tsd-toolbar-menu-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px;
+    width: 32px;
+  }
+}

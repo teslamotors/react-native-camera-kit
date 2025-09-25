@@ -4,7 +4,7 @@ run-name: 🩺 Code checks on ${{ github.event_name == 'pull_request' && 'PR' ||
 on:
   push:
     branches:
-      - main
+      - master
   pull_request:
     types: [opened, synchronize, reopened]
 
@@ -14,15 +14,14 @@ jobs:
     runs-on: ubuntu-latest # using linux runner for speed
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
-      - name: Install modules
-        run: yarn
-      - name: Install Bundler
-        run: sudo gem install bundler
-      - name: Install gems
-        run: cd example && sudo bundle install
-      - name: Install example
-        run: yarn bootstrap-linux
+        uses: actions/checkout@v5
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: yarn
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
       - name: Lint
         run: yarn lint
 
@@ -32,7 +31,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: Install dependencies

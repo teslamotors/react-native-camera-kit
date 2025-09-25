@@ -4,7 +4,7 @@ run-name: ⚙️ Build examples on ${{ github.event_name == 'pull_request' && 'P
 on:
   push:
     branches:
-      - main
+      - master
   pull_request:
     types: [opened, synchronize, reopened]
 
@@ -13,35 +13,52 @@ jobs:
     name: build-example-ios
     runs-on: macos-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v5
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '2.7.4'
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Install modules
-        run: yarn
+          ruby-version: '3.3.5'
+          bundler-cache: true
+        env:
+          # Point bundler to the example app's Gemfile so cache keys match correctly
+          BUNDLE_GEMFILE: example/Gemfile
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+          cache: yarn
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
       - name: Install example
         run: yarn bootstrap
       - name: Build
-        run: cd example/ios && xcodebuild -workspace CameraKitExample.xcworkspace -configuration Debug -scheme CameraKitExample -sdk iphoneos build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
+        run: cd example/ios && xcodebuild -workspace CameraKitExample.xcworkspace -configuration Debug -scheme CameraKitExample -sdk iphoneos build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
   build-example-android:
     name: build-example-android
     runs-on: ubuntu-latest # using linux runner for speed
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'zulu'
           cache: 'gradle'
-      - name: Validate Gradle Wrapper
-        uses: gradle/wrapper-validation-action@v1
-      - name: Install modules
-        run: yarn
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+          cache: yarn
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
       - name: Install example
         run: yarn bootstrap-linux
+      - name: Setup Gradle (validation + caching)
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          validate-wrappers: true
+          cache-read-only: false
       - name: Build
         run: cd example/android && ./gradlew assembleDebug

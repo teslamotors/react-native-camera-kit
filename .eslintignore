@@ -8,3 +8,4 @@ assets/
 .github/
 /.eslintrc.js
 /metro.config.js
+**/node_modules
