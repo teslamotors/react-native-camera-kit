@@ -23,7 +23,7 @@
     "codegen": "react-native codegen --verbose --path . --platform ios --source library && react-native codegen --verbose --path . --platform android --source library",
     "codegen:demo": "react-native codegen --verbose --path new-arch-minimal --platform ios --source library && react-native codegen --verbose --path new-arch-minimal --platform android --source library",
     "bootstrap": "cd example/ && bundle install && yarn && cd ios/ && bundle exec pod install",
-    "bootstrap-linux": "cd example/ && yarn",
+    "bootstrap-linux": "cd example/ && yarn --ignore-scripts",
     "docs:clean": "rm -rf docs/site",
     "docs:build": "typedoc && node scripts/postprocess-typedoc.mjs",
     "docs:check": "typedoc",
