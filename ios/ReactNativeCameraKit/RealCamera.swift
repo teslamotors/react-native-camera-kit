@@ -164,20 +164,20 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         }
     }
 
-    func update(maxZoom: Double?) {
-        self.maxZoom = maxZoom
+    func update(maxZoom maxZ: Double?) {
+        self.maxZoom = maxZ == -1 ? nil : maxZ
 
         // Re-update zoom value in case the max was increased
         self.update(zoom: self.zoom)
     }
 
-    func update(zoom: Double?) {
+    func update(zoom z: Double?) {
         sessionQueue.async {
-            self.zoom = zoom
+            self.zoom = z == -1 ? nil : z
             guard let videoDevice = self.videoDeviceInput?.device else { return }
-            guard let zoom else { return }
+            guard let zoomWithNil = self.zoom else { return }
 
-            let zoomForDevice = self.getValidZoom(forDevice: videoDevice, zoom: zoom)
+            let zoomForDevice = self.getValidZoom(forDevice: videoDevice, zoom: zoomWithNil)
             self.setZoomFor(videoDevice, to: zoomForDevice)
         }
     }
