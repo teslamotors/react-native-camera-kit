@@ -14,7 +14,7 @@
     "build": "tsc --project tsconfig.json",
     "clean": "rm -rf dist/",
     "test": "jest",
-    "lint": "yarn eslint -c .eslintrc.js",
+    "lint": "eslint . --max-warnings=0 && typedoc --emit none",
     "check-ios": "scripts/check-ios.sh",
     "release": "yarn clean && yarn build && yarn publish --verbose",
     "release:beta": "yarn clean && yarn build && yarn publish --tag beta --verbose",
@@ -22,7 +22,12 @@
     "start": "watchman watch-del-all && node node_modules/react-native/local-cli/cli.js start",
     "codegen": "react-native codegen --verbose --path . --platform ios --source library && react-native codegen --verbose --path . --platform android --source library",
     "bootstrap": "cd example/ && bundle install && yarn && cd ios/ && bundle exec pod install",
-    "bootstrap-linux": "cd example/ && yarn"
+    "bootstrap-linux": "cd example/ && yarn --ignore-scripts",
+    "docs:clean": "rm -rf docs/site",
+    "docs:build": "typedoc && node scripts/postprocess-typedoc.mjs",
+    "docs:check": "typedoc",
+    "docs:watch": "typedoc --watch",
+    "docs:serve": "node scripts/serve-docs.mjs"
   },
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -34,6 +39,7 @@
     "build",
     "dist",
     "ios",
+    "images",
     "src",
     "ReactNativeCameraKit.podspec"
   ],
@@ -52,11 +58,17 @@
     "@react-native/typescript-config": "0.79.0",
     "@types/react": "^19.0.0",
     "@types/react-test-renderer": "^19.0.0",
-    "eslint": "^8.19.0",
+    "@typescript-eslint/eslint-plugin": "^8.44.1",
+    "@typescript-eslint/parser": "^8.44.1",
+    "eslint": "^8.57.0",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-jest": "^29.0.1",
+    "eslint-plugin-tsdoc": "^0.3.0",
     "prettier": "2.8.8",
     "react": "19.0.0",
     "react-native": "0.79.0",
     "react-test-renderer": "19.0.0",
+    "typedoc": "^0.28.0",
     "typescript": "^5.8.3"
   },
   "peerDependencies": {
@@ -80,4 +92,12 @@
     }
   },
   "packageManager": "yarn@1.22.22"
+  ,
+  "resolutions": {
+    "@typescript-eslint/parser": "^8.44.1",
+    "@typescript-eslint/eslint-plugin": "^8.44.1",
+    "@typescript-eslint/utils": "^8.44.1",
+    "@typescript-eslint/typescript-estree": "^8.44.1",
+    "eslint-plugin-jest": "^29.0.1"
+  }
 }

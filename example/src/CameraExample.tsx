@@ -27,12 +27,21 @@ const flashArray = [
   },
 ] as const;
 
+/**
+ * Compute median of an array of numbers.
+ * @param values Input numbers.
+ * @returns Median value.
+ */
 function median(values: number[]): number {
   const sortedValues = [...values].sort((a, b) => a - b);
   const half = Math.floor(sortedValues.length / 2);
   return sortedValues.length % 2 ? sortedValues[half] : (sortedValues[half - 1] + sortedValues[half]) / 2;
 }
 
+/**
+ * Camera example component.
+ * @param onBack Navigate back to the example menu.
+ */
 const CameraExample = ({ onBack }: { onBack: () => void }) => {
   const cameraRef = useRef<CameraApi>(null);
   const [currentFlashArrayPosition, setCurrentFlashArrayPosition] = useState(0);
@@ -387,3 +396,17 @@ const styles = StyleSheet.create({
     marginEnd: 10,
   },
 });
+/**
+ * Camera demo screen.
+ *
+ * @remarks
+ * Demonstrates common features:
+ * - Live preview and still capture with `capture()`
+ * - Programmatic and pinch‑to‑zoom (controlled vs uncontrolled)
+ * - Flash/torch controls and lens switching
+ * - Orientation change events and basic UI rotation
+ * - iOS ratio overlay and resize mode toggling
+ *
+ * This demo favors clarity over architecture. In production, lift state
+ * where appropriate and persist captured files to a durable location.
+ */

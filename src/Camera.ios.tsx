@@ -5,6 +5,14 @@ import type { CameraProps } from './CameraProps';
 import NativeCamera from './specs/CameraNativeComponent';
 import NativeCameraKitModule from './specs/NativeCameraKitModule';
 
+/**
+ * iOS implementation of {@link Camera}.
+ *
+ * @remarks
+ * - Normalizes optional numeric props (`zoom`, `maxZoom`, `scanThrottleDelay`) to `-1` for RN Codegen.
+ * - Provides iOS‑only permission helpers on the ref (AVCaptureDevice authorization APIs via TurboModule).
+ * - Manages hardware capture/volume button press interactions at the native layer (iOS 17.2+).
+ */
 const Camera = React.forwardRef<CameraApi, CameraProps>((props, ref) => {
   const nativeRef = React.useRef(null);
 
@@ -23,7 +31,7 @@ const Camera = React.forwardRef<CameraApi, CameraProps>((props, ref) => {
       return await NativeCameraKitModule.capture({}, findNodeHandle(nativeRef.current) ?? undefined);
     },
     requestDeviceCameraAuthorization: async () => {
-      return await NativeCameraKitModule.checkDeviceCameraAuthorizationStatus();
+      return await NativeCameraKitModule.requestDeviceCameraAuthorization();
     },
     checkDeviceCameraAuthorizationStatus: async () => {
       return await NativeCameraKitModule.checkDeviceCameraAuthorizationStatus();

@@ -1,9 +1,22 @@
+/**
+ * Example navigator for React Native Camera Kit.
+ *
+ * @remarks
+ * Presents two demo flows:
+ * - Camera: preview, capture, zoom, flash/torch, orientation events
+ * - Barcode Scanner: scanning overlay and `onReadCode` handling
+ *
+ * This file intentionally keeps navigation minimal to make the demos
+ * easy to run and modify. In a real app, replace this with your
+ * preferred navigation solution.
+ */
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from 'react-native';
 
 import BarcodeScreenExample from './BarcodeScreenExample';
 import CameraExample from './CameraExample';
 
+/** Root example component. */
 const App = () => {
   const [example, setExample] = useState<JSX.Element>();
 
