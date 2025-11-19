@@ -109,7 +109,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
     private var frameColor = Color.GREEN
     private var laserColor = Color.RED
     private var barcodeFrameSize: Size? = null
-    private var allowedBarcodeTypes: ReadableArray? = null
+    private var allowedBarcodeTypes: Array<CodeFormat>? = null
 
     private fun getActivity() : Activity {
         return currentContext.currentActivity!!
@@ -332,9 +332,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
 
         if (scanBarcode) {
             val analyzer = QRCodeAnalyzer { barcodes, imageSize ->
-                if (barcodes.isEmpty()) {
-                    return@QRCodeAnalyzer
-                }
+                if (barcodes.isEmpty()) return@QRCodeAnalyzer
 
                 val allowedTypes = convertAllowedBarcodeTypes()
 
@@ -342,7 +340,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
                     barcodes
                 } else {
                     barcodes.filter { barcode ->
-                        allowedTypes.contains(barcode.format)
+                        barcode.format in allowedTypes
                     }
                 }
 
@@ -350,29 +348,35 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
                     return@QRCodeAnalyzer
                 }
 
-                val barcodeFrame = barcodeFrame;
-                if (barcodeFrame == null) {
+                val frame = barcodeFrame
+                val vf = viewFinder
+
+                // If there is no frame filter → return everything
+                if (frame == null) {
                     onBarcodeRead(filteredByType)
                     return@QRCodeAnalyzer
                 }
 
-                // Calculate scaling factors (image is always rotated by 90 degrees)
-                val scaleX = viewFinder.width.toFloat() / imageSize.height
-                val scaleY = viewFinder.height.toFloat() / imageSize.width
+                val frameRect = frame.frameRect
 
-                val filteredBarcodes = filteredByType.filter { barcode ->
-                    val barcodeBoundingBox = barcode.boundingBox ?: return@filter false;
+                // Calculate scaling factors (image is always rotated by 90 degrees)
+                val scaleX = vf.width.toFloat() / imageSize.height
+                val scaleY = vf.height.toFloat() / imageSize.width
+
+                // Keep only barcodes that fall inside the frame rect
+                val insideFrameBarcodes = formatFiltered.filter { barcode ->
+                    val barcodeBoundingBox = barcode.boundingBox ?: return@filter false
                     val scaledBarcodeBoundingBox = Rect(
                         (barcodeBoundingBox.left * scaleX).toInt(),
                         (barcodeBoundingBox.top * scaleY).toInt(),
                         (barcodeBoundingBox.right * scaleX).toInt(),
                         (barcodeBoundingBox.bottom * scaleY).toInt()
                     )
-                    barcodeFrame.frameRect.contains(scaledBarcodeBoundingBox)
+                    frameRect.contains(scaledBarcodeBoundingBox)
                 }
 
-                if (filteredBarcodes.isNotEmpty()) {
-                    onBarcodeRead(filteredBarcodes)
+                if (insideFrameBarcodes.isNotEmpty()) {
+                    onBarcodeRead(insideFrameBarcodes)
                 }
             }
             imageAnalyzer!!.setAnalyzer(cameraExecutor, analyzer)
@@ -708,7 +712,23 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
     }
 
     fun setAllowedBarcodeTypes(types: ReadableArray?) {
-        allowedBarcodeTypes = types
+        if (types == null || types.size() == 0) {
+            allowedBarcodeTypes = emptyArray()
+            return
+        }
+
+        // Convert only valid CodeFormat values
+        val converted = mutableListOf<CodeFormat>()
+
+        for (i in 0 until types.size()) {
+            val name = types.getString(i) ?: continue
+            val format = CodeFormat.fromName(name)
+            if (format != null) {
+                converted.add(format)
+            }
+        }
+
+        allowedBarcodeTypes = converted.toTypedArray()
     }
 
     private fun convertDeviceHeightToSupportedAspectRatio(actualWidth: Int, actualHeight: Int): Int {
@@ -732,15 +752,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
     }
 
     private fun convertAllowedBarcodeTypes(): Set<Int> {
-        val types = allowedBarcodeTypes
-        if (types == null || types.size() == 0) {
-            return emptySet()
-        }
-
-        return (0 until types.size()).mapNotNull { index ->
-            val typeName = types.getString(index) ?: return@mapNotNull null
-            CodeFormat.getBarcodeType(typeName)
-        }.toSet()
+        return allowedBarcodeTypes?.map { it.barcodeType }?.toSet() ?: emptySet()
     }
 
     companion object {
