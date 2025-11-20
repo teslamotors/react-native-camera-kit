@@ -372,7 +372,6 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
                         (barcodeBoundingBox.right * scaleX).toInt(),
                         (barcodeBoundingBox.bottom * scaleY).toInt()
                     )
-
                     frameRect.contains(scaledBarcodeBoundingBox)
                 }
 
@@ -380,9 +379,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
                 if (filteredBarcodes.isNotEmpty()) {
                     onBarcodeRead(filteredBarcodes)
                 }
-
             }, scanThrottleDelay)
-
             imageAnalyzer!!.setAnalyzer(cameraExecutor, analyzer)
             useCases.add(imageAnalyzer)
         }
