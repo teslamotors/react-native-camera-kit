@@ -34,10 +34,12 @@ android {
         warning 'InvalidPackage'
     }
 
-    if (!isNewArchitectureEnabled()) {
-        sourceSets {
-            main {
-                java.srcDirs += 'src/paper/java'
+    sourceSets {
+        main {
+            if (isNewArchitectureEnabled()) {
+                java.srcDirs += ['src/newarch']
+            } else {
+                java.srcDirs += ['src/oldarch']
             }
         }
     }

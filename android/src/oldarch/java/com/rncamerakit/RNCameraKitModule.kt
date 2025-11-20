@@ -11,7 +11,7 @@ import com.facebook.react.uimanager.UIManagerHelper
  *
  * @param reactContext The application's ReactApplicationContext.
  */
-class RNCameraKitModule(private val reactContext: ReactApplicationContext) : NativeCameraKitModuleSpec(reactContext) {
+class RNCameraKitModule(private val reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
 
     companion object {
         // Constants for camera orientation
@@ -56,9 +56,9 @@ class RNCameraKitModule(private val reactContext: ReactApplicationContext) : Nat
         )
     }
 
-    override fun requestDeviceCameraAuthorization(promise: Promise?) = Unit
+    fun requestDeviceCameraAuthorization(promise: Promise?) = Unit
 
-    override fun checkDeviceCameraAuthorizationStatus(promise: Promise?) = Unit
+    fun checkDeviceCameraAuthorizationStatus(promise: Promise?) = Unit
 
     /**
      * Captures a photo using the camera.
@@ -68,7 +68,7 @@ class RNCameraKitModule(private val reactContext: ReactApplicationContext) : Nat
      * @param promise The promise to resolve the capture result.
      */
     @ReactMethod
-    override fun capture(options: ReadableMap?, tag: Double?, promise: Promise) {
+    fun capture(options: ReadableMap?, tag: Double?, promise: Promise) {
         val viewTag = tag?.toInt()
         if (viewTag != null && options != null) {
             val uiManager = UIManagerHelper.getUIManagerForReactTag(reactContext, viewTag)

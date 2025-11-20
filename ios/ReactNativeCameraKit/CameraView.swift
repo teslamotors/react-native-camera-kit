@@ -6,6 +6,7 @@
 import AVFoundation
 import UIKit
 import AVKit
+import React
 
 /*
  * View abtracting the logic unrelated to the actual camera
@@ -91,6 +92,17 @@ public class CameraView: UIView {
         }
     }
 
+    // Use constraints for FABRIC 0.80.0
+    private func addFullSizeSubview(_ subview: UIView) {
+        subview.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(subview)
+        NSLayoutConstraint.activate([
+            subview.topAnchor.constraint(equalTo: self.topAnchor),
+            subview.bottomAnchor.constraint(equalTo: self.bottomAnchor),
+            subview.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+            subview.trailingAnchor.constraint(equalTo: self.trailingAnchor)
+        ])
+    }
 
     // MARK: Lifecycle
 
@@ -123,6 +135,11 @@ public class CameraView: UIView {
         scannerInterfaceView.isHidden = true
 
         addSubview(focusInterfaceView)
+
+        addFullSizeSubview(camera.previewView)
+        addFullSizeSubview(scannerInterfaceView)
+        addFullSizeSubview(focusInterfaceView)
+
         focusInterfaceView.delegate = camera
 
         handleCameraPermission()
@@ -134,12 +151,12 @@ public class CameraView: UIView {
         #if !targetEnvironment(macCatalyst)
         // Create a new capture event interaction with a handler that captures a photo.
         if #available(iOS 17.2, *) {
-            let interaction = AVCaptureEventInteraction { event in
+            let interaction = AVCaptureEventInteraction { [weak self] event in
                 // Capture a photo on "press up" of a hardware button.
                 if event.phase == .began {
-                    self.onCaptureButtonPressIn?(nil)
+                    self?.onCaptureButtonPressIn?(nil)
                 } else if event.phase == .ended {
-                    self.onCaptureButtonPressOut?(nil)
+                    self?.onCaptureButtonPressOut?(nil)
                 }
             }
             // Add the interaction to the view controller's view.

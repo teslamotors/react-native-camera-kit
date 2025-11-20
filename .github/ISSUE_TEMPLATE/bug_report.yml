@@ -1,0 +1,58 @@
+name: Bug report
+description: Create a report to help us improve
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: The list of steps that reproduce the issue.
+      placeholder: |
+        1. Install the application with `yarn android`
+        2. Click on the button on the Home
+        3. Notice the crash
+    validations:
+      required: true
+  - type: textarea
+    id: react-native-info
+    attributes:
+      label: Output of `npx @react-native-community/cli info`
+      description: Run `npx @react-native-community/cli info` in your terminal, copy and paste the results here.
+      placeholder: |
+        Paste the output of `npx @react-native-community/cli info` here. The output looks like:
+        ...
+        System:
+          OS: macOS 14.1.1
+          CPU: (10) arm64 Apple M1 Max
+          Memory: 417.81 MB / 64.00 GB
+          Shell:
+            version: "5.9"
+            path: /bin/zsh
+        Binaries:
+          Node: ...
+            version: 22.14.0
+        ...
+      render: text
+    validations:
+      required: true
+  - type: input
+    id: reproducer
+    attributes:
+      label: MANDATORY Reproducer
+      description: A link to either a failing RNTesterPlayground.js file, an Expo Snack or a public repository from [this template](https://github.com/react-native-community/reproducer-react-native) that reproduces this bug. Reproducers are **mandatory**, issues without a reproducer will be closed.
+      placeholder: "https://github.com/<myuser>/<myreproducer>"
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Screenshots and Videos
+      description: |
+        Please provide screenshot or a video of your bug if relevant.
+        Issues with videos and screenshots are more likely to **get prioritized**.

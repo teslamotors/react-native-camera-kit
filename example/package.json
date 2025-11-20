@@ -7,31 +7,33 @@
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "lint": "eslint .",
-    "start": "react-native start",
-    "reverse": "adb reverse tcp:8081 tcp:8081"
+    "start": "react-native start --client-logs",
+    "reinstall": "rm -rf ios/Pods && bundle && rm -rf ../node_modules/ ../android/build/ ./node_modules/ ./ios/Pods/ ./android/app/build/ ./android/app/.cxx && cd ../ && yarn && cd example && yarn",
+    "reverse": "adb reverse tcp:8081 tcp:8081",
+    "postinstall": "cd ios && bundle exec pod install"
   },
   "dependencies": {
-    "react": "18.3.1",
-    "react-native": "0.76.3",
+    "react": "19.1.0",
+    "react-native": "0.81.0",
     "react-native-camera-kit": "link:../"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@babel/preset-env": "^7.25.3",
     "@babel/runtime": "^7.25.0",
-    "@react-native-community/cli": "15.0.1",
-    "@react-native-community/cli-platform-android": "15.0.1",
-    "@react-native-community/cli-platform-ios": "15.0.1",
-    "@react-native/babel-preset": "0.76.3",
-    "@react-native/eslint-config": "0.76.3",
-    "@react-native/metro-config": "0.76.3",
-    "@react-native/typescript-config": "0.76.3",
-    "@types/react": "^18.2.6",
-    "@types/react-test-renderer": "^18.0.0",
-    "babel-jest": "^29.6.3",
+    "@react-native-community/cli": "20.0.0",
+    "@react-native-community/cli-platform-android": "20.0.0",
+    "@react-native-community/cli-platform-ios": "20.0.0",
+    "@react-native/babel-preset": "0.81.0",
+    "@react-native/eslint-config": "0.81.0",
+    "@react-native/metro-config": "0.81.0",
+    "@react-native/typescript-config": "0.81.0",
+    "@types/react": "^19.1.0",
+    "@types/react-test-renderer": "^19.1.0",
     "eslint": "^8.19.0",
     "prettier": "2.8.8",
-    "typescript": "5.0.4"
+    "react-test-renderer": "19.1.0",
+    "typescript": "^5.8.3"
   },
   "engines": {
     "node": ">=18"

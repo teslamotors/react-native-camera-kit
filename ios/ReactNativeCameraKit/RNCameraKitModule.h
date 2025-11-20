@@ -2,7 +2,7 @@
 #import <UIKit/UIKit.h>
 
 #ifdef RCT_NEW_ARCH_ENABLED
-#import "rncamerakit_specs/rncamerakit_specs.h"
+#import <NativeCameraKitSpec/NativeCameraKitSpec.h>
 #else
 #import <React/RCTBridge.h>
 #endif

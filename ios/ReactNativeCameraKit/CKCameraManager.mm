@@ -3,7 +3,7 @@
 //  ReactNativeCameraKit
 //
 
-@import AVFoundation;
+#import <AVFoundation/AVFoundation.h>
 
 #if __has_include(<React/RCTBridge.h>)
 #import <React/RCTViewManager.h>

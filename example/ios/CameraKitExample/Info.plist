@@ -26,7 +26,6 @@
 	<true/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
-	  <!-- Do not change NSAllowsArbitraryLoads to true, or you will risk app rejection! -->
 		<key>NSAllowsArbitraryLoads</key>
 		<false/>
 		<key>NSAllowsLocalNetworking</key>
@@ -35,9 +34,11 @@
 	<key>NSCameraUsageDescription</key>
 	<string>For taking photos</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string>debugging</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>For saving photos</string>
+	<key>RCTNewArchEnabled</key>
+	<true/>
 	<key>UIFileSharingEnabled</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
