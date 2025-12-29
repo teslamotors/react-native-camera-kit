@@ -186,7 +186,17 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
         val cameraProviderFuture = ProcessCameraProvider.getInstance(getActivity())
         cameraProviderFuture.addListener({
             // Used to bind the lifecycle of cameras to the lifecycle owner
-            cameraProvider = cameraProviderFuture.get()
+            try {
+                cameraProvider = cameraProviderFuture.get()
+            } catch (exc: Exception) {
+                val rootCause = exc.cause?.cause?.message ?: exc.cause?.message ?: exc.message ?: "Camera initialization failed"
+                Log.e(TAG, "Camera initialization failed: $rootCause", exc)
+                val surfaceId = UIManagerHelper.getSurfaceId(currentContext)
+                UIManagerHelper
+                    .getEventDispatcherForReactTag(currentContext, id)
+                    ?.dispatchEvent(ErrorEvent(surfaceId, id, rootCause))
+                return@addListener
+            }
 
             // Rotate the image according to device orientation, even when UI orientation is locked
             orientationListener = object : OrientationEventListener(context, SensorManager.SENSOR_DELAY_UI) {
