@@ -22,6 +22,7 @@ RCT_EXPORT_VIEW_PROPERTY(torchMode, CKTorchMode)
 RCT_EXPORT_VIEW_PROPERTY(ratioOverlay, NSString)
 RCT_EXPORT_VIEW_PROPERTY(ratioOverlayColor, UIColor)
 RCT_EXPORT_VIEW_PROPERTY(resizeMode, CKResizeMode)
+RCT_EXPORT_VIEW_PROPERTY(iOsSleepBeforeStarting, NSNumber)
 
 RCT_EXPORT_VIEW_PROPERTY(scanBarcode, BOOL)
 RCT_EXPORT_VIEW_PROPERTY(onReadCode, RCTDirectEventBlock)

@@ -14,6 +14,7 @@ const Camera = React.forwardRef<CameraApi, CameraProps>((props, ref) => {
   props.zoom = props.zoom ?? -1;
   props.maxZoom = props.maxZoom ?? -1;
   props.scanThrottleDelay = props.scanThrottleDelay ?? -1;
+  props.iOsSleepBeforeStarting = props.iOsSleepBeforeStarting ?? -1;
 
   props.allowedBarcodeTypes = props.allowedBarcodeTypes ?? supportedCodeFormats;
 
