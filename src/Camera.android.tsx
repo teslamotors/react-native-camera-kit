@@ -1,6 +1,6 @@
 import React from 'react';
 import { findNodeHandle, processColor } from 'react-native';
-import type { CameraApi } from './types';
+import { supportedCodeFormats, type CameraApi } from './types';
 import type { CameraProps } from './CameraProps';
 import NativeCamera from './specs/CameraNativeComponent';
 import NativeCameraKitModule from './specs/NativeCameraKitModule';
@@ -14,6 +14,8 @@ const Camera = React.forwardRef<CameraApi, CameraProps>((props, ref) => {
   props.zoom = props.zoom ?? -1;
   props.maxZoom = props.maxZoom ?? -1;
   props.scanThrottleDelay = props.scanThrottleDelay ?? -1;
+
+  props.allowedBarcodeTypes = props.allowedBarcodeTypes ?? supportedCodeFormats;
 
   React.useImperativeHandle(ref, () => ({
     capture: async (options = {}) => {
