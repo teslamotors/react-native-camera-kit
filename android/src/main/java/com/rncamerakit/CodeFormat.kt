@@ -55,9 +55,9 @@ enum class CodeFormat(val code: String) {
                 Barcode.FORMAT_DATA_MATRIX -> DATA_MATRIX
                 else -> UNKNOWN
             }
-        fun getBarcodeType(typeString: String?): Int {
-            val codeFormat = values().firstOrNull { it.code == typeString } ?: UNKNOWN
-            return codeFormat.toBarcodeType()
+        
+        fun fromName(name: String?): CodeFormat? {
+            return values().firstOrNull { it.code == name }
         }
     }
 }

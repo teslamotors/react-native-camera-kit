@@ -764,7 +764,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
     }
 
     private fun convertAllowedBarcodeTypes(): Set<Int> {
-        return allowedBarcodeTypes?.map { it.barcodeType }?.toSet() ?: emptySet()
+        return allowedBarcodeTypes?.map { it.toBarcodeType() }?.toSet() ?: emptySet()
     }
 
     companion object {
