@@ -113,6 +113,8 @@ export interface CameraProps extends ViewProps {
   scanThrottleDelay?: number;
   /** **iOS Only**. 'speed' provides 60-80% faster image capturing */
   maxPhotoQualityPrioritization?: 'balanced' | 'quality' | 'speed';
+  /** **iOS Only**. Delay in milliseconds before the camera session starts; default `100`. Set to `0` to skip. Helpful to ensure `session.commitConfiguration()` finishes before `session.startRunning()`, reducing occasional startup crashes when toggling cameras repeatedly. */
+  iOsSleepBeforeStarting?: number;
   /** **Android only**. Play a shutter capture sound when capturing a photo */
   shutterPhotoSound?: boolean;
   onCaptureButtonPressIn?: ({ nativeEvent: {} }) => void;

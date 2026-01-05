@@ -58,6 +58,7 @@ public class CameraView: UIView {
     @objc public var zoomMode: ZoomMode = .on
     @objc public var zoom: NSNumber?
     @objc public var maxZoom: NSNumber?
+    @objc public var iOsSleepBeforeStarting: NSNumber?
 
     @objc public var onCaptureButtonPressIn: RCTDirectEventBlock?
     @objc public var onCaptureButtonPressOut: RCTDirectEventBlock?
@@ -81,6 +82,8 @@ public class CameraView: UIView {
     private func setupCamera() {
         if hasPropBeenSetup && hasPermissionBeenGranted && !hasCameraBeenSetup {
            let convertedAllowedTypes = convertAllowedBarcodeTypes()
+
+            camera.update(iOsSleepBeforeStartingMs: iOsSleepBeforeStarting?.intValue)
 
             hasCameraBeenSetup = true
             #if targetEnvironment(macCatalyst)
@@ -286,6 +289,9 @@ public class CameraView: UIView {
         }
 
         // Others
+        if changedProps.contains("iOsSleepBeforeStarting") {
+            camera.update(iOsSleepBeforeStartingMs: iOsSleepBeforeStarting?.intValue)
+        }
         if changedProps.contains("focusMode") {
             focusInterfaceView.update(focusMode: focusMode)
         }

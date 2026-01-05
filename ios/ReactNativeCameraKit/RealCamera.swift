@@ -21,7 +21,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     private let session = AVCaptureSession()
     // Communicate with the session and other session objects on this queue.
     private let sessionQueue = DispatchQueue(label: "com.tesla.react-native-camera-kit")
-
+    
     // utilities
     private var setupResult: SetupResult = .notStarted
     private var isSessionRunning: Bool = false
@@ -45,6 +45,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     private var lastOnZoom: Double?
     private var zoom: Double?
     private var maxZoom: Double?
+    private var sleepBeforeStartingMs: Int = 100
 
     // orientation
     private var deviceOrientation = UIDeviceOrientation.unknown
@@ -127,6 +128,12 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
             self.addObservers()
 
             if self.setupResult == .success {
+                let delay = self.sleepBeforeStartingMs
+                // Guard against calling startRunning while commitConfiguration is still finishing.
+                // See README iOsSleepBeforeStarting for details about preventing occasional crashes.
+                if delay > 0 {
+                    Thread.sleep(forTimeInterval: Double(delay) / 1000.0)
+                }
                 self.session.startRunning()
             }
 
@@ -205,6 +212,12 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
     func update(onZoom: RCTDirectEventBlock?) {
         self.onZoomCallback = onZoom
+    }
+
+    func update(iOsSleepBeforeStartingMs: Int?) {
+        let defaultDelayMs = 100
+        let providedDelay = iOsSleepBeforeStartingMs ?? defaultDelayMs
+        sleepBeforeStartingMs = max(0, providedDelay)
     }
 
     func focus(at touchPoint: CGPoint, focusBehavior: FocusBehavior) {

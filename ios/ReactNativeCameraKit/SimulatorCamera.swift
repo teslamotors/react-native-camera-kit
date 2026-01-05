@@ -66,6 +66,10 @@ class SimulatorCamera: CameraProtocol {
         self.onZoom = onZoom
     }
 
+    func update(iOsSleepBeforeStartingMs: Int?) {
+        // No-op on simulator; startup delay only applies to real devices.
+    }
+
     func setVideoDevice(zoomFactor: Double) {
         self.videoDeviceZoomFactor = zoomFactor
         self.mockPreview.zoomLabel.text = "Zoom: \(zoomFactor)"

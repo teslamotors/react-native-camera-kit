@@ -1,5 +1,5 @@
 import type React from 'react';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Image, Animated, ScrollView } from 'react-native';
 import Camera from '../../src/Camera';
 import { type CameraApi, CameraType, type CaptureData } from '../../src/types';
@@ -33,7 +33,7 @@ function median(values: number[]): number {
   return sortedValues.length % 2 ? sortedValues[half] : (sortedValues[half - 1] + sortedValues[half]) / 2;
 }
 
-const CameraExample = ({ onBack }: { onBack: () => void }) => {
+const CameraExample = ({ onBack, stress }: { onBack: () => void; stress?: boolean }) => {
   const cameraRef = useRef<CameraApi>(null);
   const [currentFlashArrayPosition, setCurrentFlashArrayPosition] = useState(0);
   const [captureImages, setCaptureImages] = useState<CaptureData[]>([]);
@@ -45,6 +45,15 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
   const [zoom, setZoom] = useState<number | undefined>();
   const [orientationAnim] = useState(new Animated.Value(3));
   const [resize, setResize] = useState<'contain' | 'cover'>('contain');
+
+  // zoom to random positions every 10ms:
+  useEffect(() => {
+    if (stress !== true) return;
+    const interval = setInterval(() => {
+      setZoom(Math.random() * 10);
+    }, 500);
+    return () => clearInterval(interval);
+  }, [stress]);
 
   // iOS will error out if capturing too fast,
   // so block capturing until the current capture is done
@@ -107,7 +116,7 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
       if (!image) return;
 
       setCaptured(true);
-      setCaptureImages(prev => [...prev, image]);
+      setCaptureImages((prev) => [...prev, image]);
       console.log('image', image);
       times.push(Date.now() - start);
     }
@@ -215,10 +224,7 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
 
       <View style={styles.cameraContainer}>
         {showImageUri ? (
-          <ScrollView
-            maximumZoomScale={10}
-            contentContainerStyle={{ flexGrow: 1 }}
-          >
+          <ScrollView maximumZoomScale={10} contentContainerStyle={{ flexGrow: 1 }}>
             <Image source={{ uri: showImageUri }} style={styles.cameraPreview} />
           </ScrollView>
         ) : (
@@ -237,6 +243,7 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
             }}
             torchMode={torchMode ? 'on' : 'off'}
             shutterPhotoSound
+            iOsSleepBeforeStarting={100}
             maxPhotoQualityPrioritization="speed"
             onCaptureButtonPressIn={() => {
               console.log('capture button pressed in');
@@ -299,8 +306,7 @@ const CameraExample = ({ onBack }: { onBack: () => void }) => {
                 } else {
                   setShowImageUri(captureImages[captureImages.length - 1].uri);
                 }
-              }}
-            >
+              }}>
               <Image source={{ uri: captureImages[captureImages.length - 1].uri }} style={styles.thumbnail} />
             </TouchableOpacity>
           )}
