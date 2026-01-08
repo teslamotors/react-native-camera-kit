@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Button, Alert, TextInput } from 'react-native';
 
 import BarcodeScreenExample from './BarcodeScreenExample';
@@ -10,6 +10,7 @@ const App = () => {
   const [interval, setIntervalId] = useState<number | null>(null);
   const [speed, setSpeed] = useState('1000');
   const onBack = () => setExample(undefined);
+  const testStart = useRef(0);
 
   if (example) {
     return example;
@@ -53,12 +54,22 @@ const App = () => {
                         {
                           text: 'OK',
                           onPress: () => {
+                            testStart.current = Date.now();
+                            setTestNo(0);
                             setIntervalId(
                               setInterval(() => {
                                 setTestNo((prev) => {
                                   const newR = prev + 1;
                                   if (newR % 2 === 0) {
-                                    setExample(<CameraExample key={String(Math.random())} stress onBack={onBack} />);
+                                    const elapsedMs = Date.now() - (testStart.current ?? Date.now());
+                                    const minutes = Math.floor(elapsedMs / 60000);
+                                    const seconds = Math.floor((elapsedMs % 60000) / 1000);
+                                    console.log(
+                                      `Stress test iteration ${newR / 2}${
+                                        testStart.current ? `, elapsed time: ${minutes}m ${seconds}s` : ''
+                                      }`,
+                                    );
+                                    setExample(<CameraExample key={`test-${Date.now()}`} stress onBack={onBack} />);
                                   } else {
                                     setExample(undefined);
                                   }

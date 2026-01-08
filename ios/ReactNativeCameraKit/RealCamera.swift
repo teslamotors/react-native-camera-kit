@@ -110,11 +110,15 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     // MARK: - Public
 
     func setup(cameraType: CameraType, supportedBarcodeType: [CodeFormat]) {
-        DispatchQueue.main.async {
+        // cameraPreview.session = ... causes begin/commitConfiguration on the current thread
+        // so it must be on the same thread as setupCaptureSession to avoid startRunning executing inbetween
+        // Observe this with a breakpoint on `.session = X` and look in Console.app for
+        // "AVCaptureSession beginConfiguration" from the com.apple.cameracapture subsystem
+        sessionQueue.async {
             self.cameraPreview.session = self.session
             self.cameraPreview.previewLayer.videoGravity = .resizeAspect
         }
-
+        
         self.initializeMotionManager()
 
         // Setup the capture session.
@@ -124,7 +128,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         // so that the main queue isn't blocked, which keeps the UI responsive.
         sessionQueue.async {
             self.setupResult = self.setupCaptureSession(cameraType: cameraType, supportedBarcodeType: supportedBarcodeType)
-
+            
             self.addObservers()
 
             if self.setupResult == .success {
@@ -137,9 +141,9 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
                 self.session.startRunning()
             }
 
-           DispatchQueue.main.async {
-               self.setVideoOrientationToInterfaceOrientation()
-           }
+            DispatchQueue.main.async {
+                self.setVideoOrientationToInterfaceOrientation()
+            }
         }
     }
 
