@@ -4,8 +4,8 @@
 //
 
 import AVFoundation
-import UIKit
 import React
+import UIKit
 
 /*
  * Fake camera implementation to be used on simulator
@@ -37,16 +37,20 @@ class SimulatorCamera: CameraProtocol {
 
         // Listen to orientation changes
         UIDevice.current.beginGeneratingDeviceOrientationNotifications()
-        NotificationCenter.default.addObserver(forName: UIDevice.orientationDidChangeNotification,
-                                               object: UIDevice.current,
-                                               queue: nil,
-                                               using: { [weak self] notification in self?.orientationChanged(notification: notification) })
+        NotificationCenter.default.addObserver(
+            forName: UIDevice.orientationDidChangeNotification,
+            object: UIDevice.current,
+            queue: nil,
+            using: { [weak self] notification in
+                self?.orientationChanged(notification: notification)
+            })
 
     }
 
     private func orientationChanged(notification: Notification) {
         guard let device = notification.object as? UIDevice,
-              let orientation = Orientation(from: device.orientation) else {
+            let orientation = Orientation(from: device.orientation)
+        else {
             return
         }
 
@@ -54,7 +58,8 @@ class SimulatorCamera: CameraProtocol {
     }
 
     func cameraRemovedFromSuperview() {
-        NotificationCenter.default.removeObserver(self, name: UIDevice.orientationDidChangeNotification, object: UIDevice.current)
+        NotificationCenter.default.removeObserver(
+            self, name: UIDevice.orientationDidChangeNotification, object: UIDevice.current)
 
     }
 
@@ -68,6 +73,10 @@ class SimulatorCamera: CameraProtocol {
 
     func update(iOsSleepBeforeStartingMs: Int?) {
         // No-op on simulator; startup delay only applies to real devices.
+    }
+
+    func update(iOsDeferredStartEnabled: Bool?) {
+        // Not applicable on simulator; deferred start only matters for real capture outputs.
     }
 
     func setVideoDevice(zoomFactor: Double) {
@@ -107,13 +116,15 @@ class SimulatorCamera: CameraProtocol {
 
     func focus(at: CGPoint, focusBehavior: FocusBehavior) {
         DispatchQueue.main.async {
-            self.mockPreview.focusAtLabel.text = "Focus at: (\(Int(at.x)), \(Int(at.y))), focusMode: \(focusBehavior.avFocusMode)"
+            self.mockPreview.focusAtLabel.text =
+                "Focus at: (\(Int(at.x)), \(Int(at.y))), focusMode: \(focusBehavior.avFocusMode)"
         }
 
         // Fake focus finish after a second
         fakeFocusFinishedTimer?.invalidate()
-        if case let .customFocus(_, _, focusFinished) = focusBehavior {
-            fakeFocusFinishedTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: false) { _ in
+        if case .customFocus(_, _, let focusFinished) = focusBehavior {
+            fakeFocusFinishedTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: false) {
+                _ in
                 focusFinished()
             }
         }
@@ -124,7 +135,7 @@ class SimulatorCamera: CameraProtocol {
             self.mockPreview.torchModeLabel.text = "Torch mode: \(torchMode)"
         }
     }
-    
+
     func update(maxPhotoQualityPrioritization: MaxPhotoQualityPrioritization?) {
     }
 
@@ -176,16 +187,21 @@ class SimulatorCamera: CameraProtocol {
             self.mockPreview.randomize()
         }
     }
-    
 
-    func isBarcodeScannerEnabled(_ isEnabled: Bool,
-                                 supportedBarcodeTypes: [CodeFormat],
-                                 onBarcodeRead: ((_ barcode: String,_ codeFormat:CodeFormat) -> Void)?) {}
+    func isBarcodeScannerEnabled(
+        _ isEnabled: Bool,
+        supportedBarcodeTypes: [CodeFormat],
+        onBarcodeRead: ((_ barcode: String, _ codeFormat: CodeFormat) -> Void)?
+    ) {}
     func update(scannerFrameSize: CGRect?) {}
 
-    func capturePicture(onWillCapture: @escaping () -> Void,
-                        onSuccess: @escaping (_ imageData: Data, _ thumbnailData: Data?, _ dimensions: CMVideoDimensions) -> Void,
-                        onError: @escaping (_ message: String) -> Void) {
+    func capturePicture(
+        onWillCapture: @escaping () -> Void,
+        onSuccess:
+            @escaping (_ imageData: Data, _ thumbnailData: Data?, _ dimensions: CMVideoDimensions)
+            -> Void,
+        onError: @escaping (_ message: String) -> Void
+    ) {
         onWillCapture()
 
         DispatchQueue.main.async {

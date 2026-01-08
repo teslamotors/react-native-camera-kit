@@ -47,6 +47,7 @@ export interface NativeProps extends ViewProps {
   resizeMode?: string;
   scanThrottleDelay?: WithDefault<Int32, -1>;
   iOsSleepBeforeStarting?: WithDefault<Int32, -1>;
+  iOsDeferredStart?: boolean;
   barcodeFrameSize?: { width?: WithDefault<Float, 300>; height?: WithDefault<Float, 150> };
   shutterPhotoSound?: boolean;
   onOrientationChange?: DirectEventHandler<OnOrientationChangeData>;

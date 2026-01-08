@@ -6,9 +6,9 @@
 // swiftlint:disable file_length
 
 import AVFoundation
-import UIKit
 import CoreMotion
 import React
+import UIKit
 
 /*
  * Real camera implementation that uses AVFoundation
@@ -21,7 +21,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     private let session = AVCaptureSession()
     // Communicate with the session and other session objects on this queue.
     private let sessionQueue = DispatchQueue(label: "com.tesla.react-native-camera-kit")
-    
+
     // utilities
     private var setupResult: SetupResult = .notStarted
     private var isSessionRunning: Bool = false
@@ -37,7 +37,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     private var maxPhotoQualityPrioritization: MaxPhotoQualityPrioritization?
     private var resetFocus: (() -> Void)?
     private var focusFinished: (() -> Void)?
-    private var onBarcodeRead: ((_ barcode: String,_ codeFormat : CodeFormat) -> Void)?
+    private var onBarcodeRead: ((_ barcode: String, _ codeFormat: CodeFormat) -> Void)?
     private var scannerFrameSize: CGRect? = nil
     private var barcodeFrameSize: CGSize? = nil
     private var onOrientationChange: RCTDirectEventBlock?
@@ -46,6 +46,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     private var zoom: Double?
     private var maxZoom: Double?
     private var sleepBeforeStartingMs: Int = 100
+    private var deferredStartEnabled: Bool = true
 
     // orientation
     private var deviceOrientation = UIDeviceOrientation.unknown
@@ -59,28 +60,29 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     private var inProgressPhotoCaptureDelegates = [Int64: PhotoCaptureDelegate]()
 
     // MARK: - Lifecycle
-    
-    #if !targetEnvironment(macCatalyst)
-    override init() {
-        super.init()
 
-        // In addition to using accelerometer to determine REAL orientation
-        // we also listen to UI orientation changes (UIDevice does not report rotation if orientation lock is on, so photos aren't rotated correctly)
-        // When UIDevice reports rotation to the left, UI is rotated right to compensate, but that means we need to re-rotate left
-        // to make camera appear correctly (see self.uiOrientationChanged)
-        UIDevice.current.beginGeneratingDeviceOrientationNotifications()
-        orientationObserver = NotificationCenter.default.addObserver(forName: UIDevice.orientationDidChangeNotification,
-                                               object: UIDevice.current,
-                                               queue: nil,
-                                               using: { _ in self.setVideoOrientationToInterfaceOrientation() })
-    }
+    #if !targetEnvironment(macCatalyst)
+        override init() {
+            super.init()
+
+            // In addition to using accelerometer to determine REAL orientation
+            // we also listen to UI orientation changes (UIDevice does not report rotation if orientation lock is on, so photos aren't rotated correctly)
+            // When UIDevice reports rotation to the left, UI is rotated right to compensate, but that means we need to re-rotate left
+            // to make camera appear correctly (see self.uiOrientationChanged)
+            UIDevice.current.beginGeneratingDeviceOrientationNotifications()
+            orientationObserver = NotificationCenter.default.addObserver(
+                forName: UIDevice.orientationDidChangeNotification,
+                object: UIDevice.current,
+                queue: nil,
+                using: { _ in self.setVideoOrientationToInterfaceOrientation() })
+        }
     #else
-    override init() {
-        super.init()
-        // Mac Catalyst doesn't support device orientation notifications
-    }
+        override init() {
+            super.init()
+            // Mac Catalyst doesn't support device orientation notifications
+        }
     #endif
-    
+
     @available(*, unavailable)
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -95,11 +97,12 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         }
 
         #if !targetEnvironment(macCatalyst)
-        motionManager?.stopAccelerometerUpdates()
+            motionManager?.stopAccelerometerUpdates()
 
-        NotificationCenter.default.removeObserver(self, name: UIDevice.orientationDidChangeNotification, object: UIDevice.current)
+            NotificationCenter.default.removeObserver(
+                self, name: UIDevice.orientationDidChangeNotification, object: UIDevice.current)
 
-        UIDevice.current.endGeneratingDeviceOrientationNotifications()
+            UIDevice.current.endGeneratingDeviceOrientationNotifications()
         #endif
     }
 
@@ -114,35 +117,36 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         // so it must be on the same thread as setupCaptureSession to avoid startRunning executing inbetween
         // Observe this with a breakpoint on `.session = X` and look in Console.app for
         // "AVCaptureSession beginConfiguration" from the com.apple.cameracapture subsystem
-        sessionQueue.async {
+        DispatchQueue.main.async {
             self.cameraPreview.session = self.session
             self.cameraPreview.previewLayer.videoGravity = .resizeAspect
-        }
-        
-        self.initializeMotionManager()
 
-        // Setup the capture session.
-        // In general, it is not safe to mutate an AVCaptureSession or any of its inputs, outputs, or connections from multiple threads at the same time.
-        // Why not do all of this on the main queue?
-        // Because -[AVCaptureSession startRunning] is a blocking call which can take a long time. We dispatch session setup to the sessionQueue
-        // so that the main queue isn't blocked, which keeps the UI responsive.
-        sessionQueue.async {
-            self.setupResult = self.setupCaptureSession(cameraType: cameraType, supportedBarcodeType: supportedBarcodeType)
-            
-            self.addObservers()
+            self.initializeMotionManager()
 
-            if self.setupResult == .success {
-                let delay = self.sleepBeforeStartingMs
-                // Guard against calling startRunning while commitConfiguration is still finishing.
-                // See README iOsSleepBeforeStarting for details about preventing occasional crashes.
-                if delay > 0 {
-                    Thread.sleep(forTimeInterval: Double(delay) / 1000.0)
+            // Setup the capture session.
+            // In general, it is not safe to mutate an AVCaptureSession or any of its inputs, outputs, or connections from multiple threads at the same time.
+            // Why not do all of this on the main queue?
+            // Because -[AVCaptureSession startRunning] is a blocking call which can take a long time. We dispatch session setup to the sessionQueue
+            // so that the main queue isn't blocked, which keeps the UI responsive.
+            self.sessionQueue.async {
+                self.setupResult = self.setupCaptureSession(
+                    cameraType: cameraType, supportedBarcodeType: supportedBarcodeType)
+
+                self.addObservers()
+
+                if self.setupResult == .success {
+                    let delay = self.sleepBeforeStartingMs
+                    // Guard against calling startRunning while commitConfiguration is still finishing.
+                    // See README iOsSleepBeforeStarting for details about preventing occasional crashes.
+                    if delay > 0 {
+                        Thread.sleep(forTimeInterval: Double(delay) / 1000.0)
+                    }
+                    self.session.startRunning()
                 }
-                self.session.startRunning()
-            }
 
-            DispatchQueue.main.async {
-                self.setVideoOrientationToInterfaceOrientation()
+                DispatchQueue.main.async {
+                    self.setVideoOrientationToInterfaceOrientation()
+                }
             }
         }
     }
@@ -161,7 +165,8 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         sessionQueue.async {
             guard let videoDevice = self.videoDeviceInput?.device else { return }
 
-            let desiredZoomFactor = (self.zoomStartedAt / self.defaultZoomFactor(for: videoDevice)) * pinchScale
+            let desiredZoomFactor =
+                (self.zoomStartedAt / self.defaultZoomFactor(for: videoDevice)) * pinchScale
             let zoomForDevice = self.getValidZoom(forDevice: videoDevice, zoom: desiredZoomFactor)
 
             if zoomForDevice != self.normalizedZoom(for: videoDevice) {
@@ -224,14 +229,26 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         sleepBeforeStartingMs = max(0, providedDelay)
     }
 
+    func update(iOsDeferredStartEnabled: Bool?) {
+        let defaultDeferredStart = true
+        let shouldEnableDeferredStart = iOsDeferredStartEnabled ?? defaultDeferredStart
+
+        sessionQueue.async {
+            guard shouldEnableDeferredStart != self.deferredStartEnabled else { return }
+            self.deferredStartEnabled = shouldEnableDeferredStart
+            self.applyDeferredStartConfiguration()
+        }
+    }
+
     func focus(at touchPoint: CGPoint, focusBehavior: FocusBehavior) {
         DispatchQueue.main.async {
-            let devicePoint = self.cameraPreview.previewLayer.captureDevicePointConverted(fromLayerPoint: touchPoint)
+            let devicePoint = self.cameraPreview.previewLayer.captureDevicePointConverted(
+                fromLayerPoint: touchPoint)
 
             self.sessionQueue.async {
                 guard let videoDevice = self.videoDeviceInput?.device else { return }
 
-                if case let .customFocus(_, resetFocus, focusFinished) = focusBehavior {
+                if case .customFocus(_, let resetFocus, let focusFinished) = focusBehavior {
                     self.resetFocus = resetFocus
                     self.focusFinished = focusFinished
                 } else {
@@ -243,17 +260,22 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
                     try videoDevice.lockForConfiguration()
                     self.reconfigureLockedVideoDevice(videoDevice)
 
-                    if videoDevice.isFocusPointOfInterestSupported && videoDevice.isFocusModeSupported(focusBehavior.avFocusMode) {
+                    if videoDevice.isFocusPointOfInterestSupported
+                        && videoDevice.isFocusModeSupported(focusBehavior.avFocusMode)
+                    {
                         videoDevice.focusPointOfInterest = devicePoint
                         videoDevice.focusMode = focusBehavior.avFocusMode
                     }
 
-                    if videoDevice.isExposurePointOfInterestSupported && videoDevice.isExposureModeSupported(focusBehavior.exposureMode) {
+                    if videoDevice.isExposurePointOfInterestSupported
+                        && videoDevice.isExposureModeSupported(focusBehavior.exposureMode)
+                    {
                         videoDevice.exposurePointOfInterest = devicePoint
                         videoDevice.exposureMode = focusBehavior.exposureMode
                     }
 
-                    videoDevice.isSubjectAreaChangeMonitoringEnabled = focusBehavior.isSubjectAreaChangeMonitoringEnabled
+                    videoDevice.isSubjectAreaChangeMonitoringEnabled =
+                        focusBehavior.isSubjectAreaChangeMonitoringEnabled
 
                     videoDevice.unlockForConfiguration()
                 } catch {
@@ -270,7 +292,9 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     func update(torchMode: TorchMode) {
         sessionQueue.async {
             self.torchMode = torchMode
-            guard let videoDevice = self.videoDeviceInput?.device, videoDevice.torchMode != torchMode.avTorchMode else { return }
+            guard let videoDevice = self.videoDeviceInput?.device,
+                videoDevice.torchMode != torchMode.avTorchMode
+            else { return }
 
             do {
                 try videoDevice.lockForConfiguration()
@@ -285,7 +309,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     func update(flashMode: FlashMode) {
         self.flashMode = flashMode
     }
-    
+
     func update(maxPhotoQualityPrioritization: MaxPhotoQualityPrioritization?) {
         guard #available(iOS 13.0, *) else { return }
         guard maxPhotoQualityPrioritization != self.maxPhotoQualityPrioritization else { return }
@@ -293,7 +317,8 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
             self.session.beginConfiguration()
             defer { self.session.commitConfiguration() }
             self.maxPhotoQualityPrioritization = maxPhotoQualityPrioritization
-            self.photoOutput.maxPhotoQualityPrioritization = maxPhotoQualityPrioritization?.avQualityPrioritization ?? .balanced
+            self.photoOutput.maxPhotoQualityPrioritization =
+                maxPhotoQualityPrioritization?.avQualityPrioritization ?? .balanced
         }
     }
 
@@ -305,9 +330,10 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
             // Avoid chaining device inputs when camera input is denied by the user, since both front and rear vido input devices will be nil
             guard self.setupResult == .success,
-                  let currentViewDeviceInput = self.videoDeviceInput,
-                  let videoDevice = self.getBestDevice(for: cameraType),
-                  let videoDeviceInput = try? AVCaptureDeviceInput(device: videoDevice) else {
+                let currentViewDeviceInput = self.videoDeviceInput,
+                let videoDevice = self.getBestDevice(for: cameraType),
+                let videoDeviceInput = try? AVCaptureDeviceInput(device: videoDevice)
+            else {
                 return
             }
 
@@ -344,9 +370,13 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         }
     }
 
-    func capturePicture(onWillCapture: @escaping () -> Void,
-                        onSuccess: @escaping (_ imageData: Data, _ thumbnailData: Data?, _ dimensions: CMVideoDimensions) -> Void,
-                        onError: @escaping (_ message: String) -> Void) {
+    func capturePicture(
+        onWillCapture: @escaping () -> Void,
+        onSuccess:
+            @escaping (_ imageData: Data, _ thumbnailData: Data?, _ dimensions: CMVideoDimensions)
+            -> Void,
+        onError: @escaping (_ message: String) -> Void
+    ) {
         /*
          Retrieve the video preview layer's video orientation on the main queue before
          entering the session queue. Do this to ensure that UI elements are accessed on
@@ -354,16 +384,22 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
          */
         DispatchQueue.main.async {
             let videoPreviewLayerOrientation =
-                self.videoOrientation(from: self.deviceOrientation) ?? self.cameraPreview.previewLayer.connection?.videoOrientation
+                self.videoOrientation(from: self.deviceOrientation)
+                ?? self.cameraPreview.previewLayer.connection?.videoOrientation
 
             self.sessionQueue.async {
-                if let photoOutputConnection = self.photoOutput.connection(with: .video), let videoPreviewLayerOrientation {
+                if let photoOutputConnection = self.photoOutput.connection(with: .video),
+                    let videoPreviewLayerOrientation
+                {
                     photoOutputConnection.videoOrientation = videoPreviewLayerOrientation
                 }
 
-                let settings = AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecType.jpeg])
+                let settings = AVCapturePhotoSettings(format: [
+                    AVVideoCodecKey: AVVideoCodecType.jpeg
+                ])
                 if #available(iOS 13.0, *) {
-                    settings.photoQualityPrioritization = self.photoOutput.maxPhotoQualityPrioritization
+                    settings.photoQualityPrioritization =
+                        self.photoOutput.maxPhotoQualityPrioritization
                 }
 
                 if self.videoDeviceInput?.device.isFlashAvailable == true {
@@ -375,7 +411,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
                     onWillCapture: onWillCapture,
                     onCaptureSuccess: { uniqueID, imageData, thumbnailData, dimensions in
                         self.inProgressPhotoCaptureDelegates[uniqueID] = nil
-                        
+
                         onSuccess(imageData, thumbnailData, dimensions)
                     },
                     onCaptureError: { uniqueID, errorMessage in
@@ -384,22 +420,25 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
                     }
                 )
 
-                self.inProgressPhotoCaptureDelegates[photoCaptureDelegate.requestedPhotoSettings.uniqueID] = photoCaptureDelegate
+                self.inProgressPhotoCaptureDelegates[
+                    photoCaptureDelegate.requestedPhotoSettings.uniqueID] = photoCaptureDelegate
                 self.photoOutput.capturePhoto(with: settings, delegate: photoCaptureDelegate)
             }
         }
     }
 
-    func isBarcodeScannerEnabled(_ isEnabled: Bool,
-                                 supportedBarcodeTypes supportedBarcodeType: [CodeFormat],
-                                 onBarcodeRead: ((_ barcode: String,_ codeFormat:CodeFormat) -> Void)?) {
+    func isBarcodeScannerEnabled(
+        _ isEnabled: Bool,
+        supportedBarcodeTypes supportedBarcodeType: [CodeFormat],
+        onBarcodeRead: ((_ barcode: String, _ codeFormat: CodeFormat) -> Void)?
+    ) {
         sessionQueue.async {
             self.onBarcodeRead = onBarcodeRead
             let newTypes: [AVMetadataObject.ObjectType]
             if isEnabled && onBarcodeRead != nil {
                 let availableTypes = self.metadataOutput.availableMetadataObjectTypes
                 newTypes = supportedBarcodeType.map { $0.toAVMetadataObjectType() }
-                                                        .filter { availableTypes.contains($0) }
+                    .filter { availableTypes.contains($0) }
             } else {
                 newTypes = []
             }
@@ -425,7 +464,8 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
             DispatchQueue.main.async {
                 var visibleRect: CGRect?
                 if scannerFrameSize != nil && scannerFrameSize != .zero {
-                    visibleRect = self.cameraPreview.previewLayer.metadataOutputRectConverted(fromLayerRect: scannerFrameSize!)
+                    visibleRect = self.cameraPreview.previewLayer.metadataOutputRectConverted(
+                        fromLayerRect: scannerFrameSize!)
                 }
 
                 self.sessionQueue.async {
@@ -433,7 +473,8 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
                         return
                     }
 
-                    self.metadataOutput.rectOfInterest = visibleRect ?? CGRect(x: 0, y: 0, width: 1, height: 1)
+                    self.metadataOutput.rectOfInterest =
+                        visibleRect ?? CGRect(x: 0, y: 0, width: 1, height: 1)
                 }
             }
         }
@@ -441,21 +482,29 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
     // MARK: - AVCaptureMetadataOutputObjectsDelegate
 
-    func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection) {
+    func metadataOutput(
+        _ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject],
+        from connection: AVCaptureConnection
+    ) {
         // Try to retrieve the barcode from the metadata extracted
-        guard let machineReadableCodeObject = metadataObjects.first as? AVMetadataMachineReadableCodeObject,
-              let codeStringValue = machineReadableCodeObject.stringValue else {
+        guard
+            let machineReadableCodeObject = metadataObjects.first
+                as? AVMetadataMachineReadableCodeObject,
+            let codeStringValue = machineReadableCodeObject.stringValue
+        else {
             return
         }
         // Determine the barcode type and convert it to CodeFormat
-          let barcodeType = CodeFormat.fromAVMetadataObjectType(machineReadableCodeObject.type)
+        let barcodeType = CodeFormat.fromAVMetadataObjectType(machineReadableCodeObject.type)
 
-        onBarcodeRead?(codeStringValue,barcodeType)
+        onBarcodeRead?(codeStringValue, barcodeType)
     }
 
     // MARK: - Private
 
-    private func videoOrientation(from deviceOrientation: UIDeviceOrientation) -> AVCaptureVideoOrientation? {
+    private func videoOrientation(from deviceOrientation: UIDeviceOrientation)
+        -> AVCaptureVideoOrientation?
+    {
         // Device orientation counter-rotate interface when in landscapeLeft/Right so it appears level
         // (note how landscapeLeft sets landscapeRight)
         switch deviceOrientation {
@@ -472,7 +521,9 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         }
     }
 
-    private func videoOrientation(from interfaceOrientation: UIInterfaceOrientation) -> AVCaptureVideoOrientation {
+    private func videoOrientation(from interfaceOrientation: UIInterfaceOrientation)
+        -> AVCaptureVideoOrientation
+    {
         switch interfaceOrientation {
         case .portrait:
             return .portrait
@@ -489,26 +540,37 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
     private func getBestDevice(for cameraType: CameraType) -> AVCaptureDevice? {
         if #available(iOS 13.0, *) {
-            if let device = AVCaptureDevice.default(.builtInTripleCamera, for: .video, position: cameraType.avPosition) {
-                return device // multi-lens/logical device, ultra-wide & wide & tele
+            if let device = AVCaptureDevice.default(
+                .builtInTripleCamera, for: .video, position: cameraType.avPosition)
+            {
+                return device  // multi-lens/logical device, ultra-wide & wide & tele
             }
-            if let device = AVCaptureDevice.default(.builtInDualWideCamera, for: .video, position: cameraType.avPosition) {
-                return device // multi-lens/logical device, ultra-wide & wide
+            if let device = AVCaptureDevice.default(
+                .builtInDualWideCamera, for: .video, position: cameraType.avPosition)
+            {
+                return device  // multi-lens/logical device, ultra-wide & wide
             }
         }
-        if let device = AVCaptureDevice.default(.builtInDualCamera, for: .video, position: cameraType.avPosition) {
-            return device // multi-lens/logical device, wide & tele (no ultra-wide)
+        if let device = AVCaptureDevice.default(
+            .builtInDualCamera, for: .video, position: cameraType.avPosition)
+        {
+            return device  // multi-lens/logical device, wide & tele (no ultra-wide)
         }
-        if let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: cameraType.avPosition) {
-            return device // single-lens/physical device
+        if let device = AVCaptureDevice.default(
+            .builtInWideAngleCamera, for: .video, position: cameraType.avPosition)
+        {
+            return device  // single-lens/physical device
         }
         return nil
     }
 
-    private func setupCaptureSession(cameraType: CameraType,
-                                     supportedBarcodeType: [CodeFormat]) -> SetupResult {
+    private func setupCaptureSession(
+        cameraType: CameraType,
+        supportedBarcodeType: [CodeFormat]
+    ) -> SetupResult {
         guard let videoDevice = self.getBestDevice(for: cameraType),
-              let videoDeviceInput = try? AVCaptureDeviceInput(device: videoDevice) else {
+            let videoDeviceInput = try? AVCaptureDeviceInput(device: videoDevice)
+        else {
             return .sessionConfigurationFailed
         }
 
@@ -519,13 +581,14 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         }
 
         session.sessionPreset = .photo
-        
+
         if #available(iOS 13.0, *) {
             if let maxPhotoQualityPrioritization {
-                photoOutput.maxPhotoQualityPrioritization = maxPhotoQualityPrioritization.avQualityPrioritization
+                photoOutput.maxPhotoQualityPrioritization =
+                    maxPhotoQualityPrioritization.avQualityPrioritization
             }
         }
-        
+
         if session.canAddInput(videoDeviceInput) {
             session.addInput(videoDeviceInput)
             self.videoDeviceInput = videoDeviceInput
@@ -550,14 +613,31 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
             metadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
 
             let availableTypes = self.metadataOutput.availableMetadataObjectTypes
-            let filteredTypes = supportedBarcodeType
-              .map { $0.toAVMetadataObjectType() }
-              .filter { availableTypes.contains($0) }
+            let filteredTypes =
+                supportedBarcodeType
+                .map { $0.toAVMetadataObjectType() }
+                .filter { availableTypes.contains($0) }
 
             metadataOutput.metadataObjectTypes = filteredTypes
         }
-        
+
+        applyDeferredStartConfiguration()
+
         return .success
+    }
+
+    private func applyDeferredStartConfiguration() {
+        guard #available(iOS 26.0, *) else { return }
+
+        let enableDeferredStart = deferredStartEnabled
+
+        if photoOutput.isDeferredStartSupported {
+            photoOutput.isDeferredStartEnabled = enableDeferredStart
+        }
+
+        if metadataOutput.isDeferredStartSupported {
+            metadataOutput.isDeferredStartEnabled = enableDeferredStart
+        }
     }
 
     private func defaultZoomFactor(for videoDevice: AVCaptureDevice) -> CGFloat {
@@ -567,11 +647,14 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         // Devices that have multiple physical cameras are hidden behind one virtual camera input
         // The zoom factor defines what physical camera it actually uses
         // The default lens on the native camera app is the wide angle
-        if let wideAngleIndex = videoDevice.constituentDevices.firstIndex(where: { $0.deviceType == .builtInWideAngleCamera }) {
+        if let wideAngleIndex = videoDevice.constituentDevices.firstIndex(where: {
+            $0.deviceType == .builtInWideAngleCamera
+        }) {
             // .virtualDeviceSwitchOverVideoZoomFactors has the .constituentDevices zoom factor which borders the NEXT device
             // so we grab the one PRIOR to the wide angle to get the wide angle's zoom factor
             guard wideAngleIndex >= 1 else { return fallback }
-            return videoDevice.virtualDeviceSwitchOverVideoZoomFactors[wideAngleIndex - 1].doubleValue
+            return videoDevice.virtualDeviceSwitchOverVideoZoomFactors[wideAngleIndex - 1]
+                .doubleValue
         }
 
         return fallback
@@ -588,7 +671,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
             print("CKCameraKit: setZoomFor error: \(error))")
         }
     }
-    
+
     // Torch mode will turn off unless set again when the videoDevice is locked and unlocked
     private func reconfigureLockedVideoDevice(_ videoDevice: AVCaptureDevice) {
         if videoDevice.isTorchModeSupported(torchMode.avTorchMode) && videoDevice.hasTorch {
@@ -625,27 +708,34 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
     private func initializeMotionManager() {
         #if !targetEnvironment(macCatalyst)
-        motionManager = CMMotionManager()
-        motionManager?.accelerometerUpdateInterval = 0.2
-        motionManager?.gyroUpdateInterval = 0.2
-        motionManager?.startAccelerometerUpdates(to: OperationQueue(), withHandler: { (accelerometerData, error) -> Void in
-            guard error == nil else {
-                print("\(error!)")
-                return
-            }
-            guard let accelerometerData else {
-                print("no acceleration data")
-                return
-            }
+            motionManager = CMMotionManager()
+            motionManager?.accelerometerUpdateInterval = 0.2
+            motionManager?.gyroUpdateInterval = 0.2
+            motionManager?.startAccelerometerUpdates(
+                to: OperationQueue(),
+                withHandler: { (accelerometerData, error) -> Void in
+                    guard error == nil else {
+                        print("\(error!)")
+                        return
+                    }
+                    guard let accelerometerData else {
+                        print("no acceleration data")
+                        return
+                    }
 
-            guard let newOrientation = self.deviceOrientation(from: accelerometerData.acceleration),
-                  newOrientation != self.deviceOrientation else {
-                return
-            }
+                    guard
+                        let newOrientation = self.deviceOrientation(
+                            from: accelerometerData.acceleration),
+                        newOrientation != self.deviceOrientation
+                    else {
+                        return
+                    }
 
-            self.deviceOrientation = newOrientation
-            self.onOrientationChange?(["orientation": Orientation.init(from: newOrientation)!.rawValue])
-        })
+                    self.deviceOrientation = newOrientation
+                    self.onOrientationChange?([
+                        "orientation": Orientation.init(from: newOrientation)!.rawValue
+                    ])
+                })
         #endif
     }
 
@@ -671,26 +761,36 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     private func addObservers() {
         guard adjustingFocusObservation == nil else { return }
 
-        adjustingFocusObservation = videoDeviceInput?.device.observe(\.isAdjustingFocus,
-                                                                      options: .new,
-                                                                      changeHandler: { [weak self] _, change in
-            guard let self, let isFocusing = change.newValue else { return }
+        adjustingFocusObservation = videoDeviceInput?.device.observe(
+            \.isAdjustingFocus,
+            options: .new,
+            changeHandler: { [weak self] _, change in
+                guard let self, let isFocusing = change.newValue else { return }
 
-            self.isAdjustingFocus(isFocusing: isFocusing)
-        })
+                self.isAdjustingFocus(isFocusing: isFocusing)
+            })
 
-        NotificationCenter.default.addObserver(forName: .AVCaptureDeviceSubjectAreaDidChange,
-                                               object: videoDeviceInput?.device,
-                                               queue: nil,
-                                               using: { [weak self] notification in self?.subjectAreaDidChange(notification: notification) })
-        NotificationCenter.default.addObserver(forName: .AVCaptureSessionRuntimeError,
-                                               object: session,
-                                               queue: nil,
-                                               using: { [weak self] notification in self?.sessionRuntimeError(notification: notification) })
-        NotificationCenter.default.addObserver(forName: .AVCaptureSessionWasInterrupted,
-                                               object: session,
-                                               queue: nil,
-                                               using: { [weak self] notification in self?.sessionWasInterrupted(notification: notification) })
+        NotificationCenter.default.addObserver(
+            forName: .AVCaptureDeviceSubjectAreaDidChange,
+            object: videoDeviceInput?.device,
+            queue: nil,
+            using: { [weak self] notification in
+                self?.subjectAreaDidChange(notification: notification)
+            })
+        NotificationCenter.default.addObserver(
+            forName: .AVCaptureSessionRuntimeError,
+            object: session,
+            queue: nil,
+            using: { [weak self] notification in
+                self?.sessionRuntimeError(notification: notification)
+            })
+        NotificationCenter.default.addObserver(
+            forName: .AVCaptureSessionWasInterrupted,
+            object: session,
+            queue: nil,
+            using: { [weak self] notification in
+                self?.sessionWasInterrupted(notification: notification)
+            })
 
     }
 
@@ -699,7 +799,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
             NotificationCenter.default.removeObserver(orientationObserver)
             self.orientationObserver = nil
         }
-        
+
         // swiftlint:disable:next notification_center_detachment
         NotificationCenter.default.removeObserver(self)
 
@@ -719,21 +819,25 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
     private func setVideoOrientationToInterfaceOrientation() {
         #if !targetEnvironment(macCatalyst)
-        var interfaceOrientation: UIInterfaceOrientation
-        if #available(iOS 13.0, *) {
-            interfaceOrientation = self.previewView.window?.windowScene?.interfaceOrientation ?? .portrait
-        } else {
-            interfaceOrientation = UIApplication.shared.statusBarOrientation
-        }
-        self.cameraPreview.previewLayer.connection?.videoOrientation = self.videoOrientation(from: interfaceOrientation)
+            var interfaceOrientation: UIInterfaceOrientation
+            if #available(iOS 13.0, *) {
+                interfaceOrientation =
+                    self.previewView.window?.windowScene?.interfaceOrientation ?? .portrait
+            } else {
+                interfaceOrientation = UIApplication.shared.statusBarOrientation
+            }
+            self.cameraPreview.previewLayer.connection?.videoOrientation = self.videoOrientation(
+                from: interfaceOrientation)
         #else
-        // Mac Catalyst always uses portrait orientation
-        self.cameraPreview.previewLayer.connection?.videoOrientation = .portrait
+            // Mac Catalyst always uses portrait orientation
+            self.cameraPreview.previewLayer.connection?.videoOrientation = .portrait
         #endif
     }
 
     private func sessionRuntimeError(notification: Notification) {
-        guard let error = notification.userInfo?[AVCaptureSessionErrorKey] as? AVError else { return }
+        guard let error = notification.userInfo?[AVCaptureSessionErrorKey] as? AVError else {
+            return
+        }
 
         print("Capture session runtime error: \(error)")
 
@@ -759,10 +863,13 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         var showResumeButton = false
 
         if let reasonValue = notification.userInfo?[AVCaptureSessionInterruptionReasonKey] as? Int,
-           let reason = AVCaptureSession.InterruptionReason(rawValue: reasonValue) {
+            let reason = AVCaptureSession.InterruptionReason(rawValue: reasonValue)
+        {
             print("Capture session was interrupted with reason \(reason)")
 
-            if reason == .audioDeviceInUseByAnotherClient || reason == .videoDeviceInUseByAnotherClient {
+            if reason == .audioDeviceInUseByAnotherClient
+                || reason == .videoDeviceInUseByAnotherClient
+            {
                 showResumeButton = true
             }
         }

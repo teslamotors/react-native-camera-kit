@@ -115,6 +115,8 @@ export interface CameraProps extends ViewProps {
   maxPhotoQualityPrioritization?: 'balanced' | 'quality' | 'speed';
   /** **iOS Only**. Delay in milliseconds before the camera session starts; default `100`. Set to `0` to skip. Helpful to ensure `session.commitConfiguration()` finishes before `session.startRunning()`, reducing occasional startup crashes when toggling cameras repeatedly. */
   iOsSleepBeforeStarting?: number;
+  /** **iOS Only (iOS 26+)**. Enables `AVCaptureOutput.deferredStartEnabled` when supported to prioritize getting the preview visible faster. Default: `true`. When enabled, the first capture may be delayed by a few hundred milliseconds. Not supported on Android. */
+  iOsDeferredStart?: boolean;
   /** **Android only**. Play a shutter capture sound when capturing a photo */
   shutterPhotoSound?: boolean;
   onCaptureButtonPressIn?: ({ nativeEvent: {} }) => void;

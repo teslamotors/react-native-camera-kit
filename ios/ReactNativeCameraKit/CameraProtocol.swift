@@ -18,6 +18,7 @@ protocol CameraProtocol: AnyObject, FocusInterfaceViewDelegate {
     func update(onOrientationChange: RCTDirectEventBlock?)
     func update(onZoom: RCTDirectEventBlock?)
     func update(iOsSleepBeforeStartingMs: Int?)
+    func update(iOsDeferredStartEnabled: Bool?)
     func update(zoom: Double?)
     func update(maxZoom: Double?)
     func update(resizeMode: ResizeMode)
@@ -27,13 +28,17 @@ protocol CameraProtocol: AnyObject, FocusInterfaceViewDelegate {
     func zoomPinchStart()
     func zoomPinchChange(pinchScale: CGFloat)
 
-    func isBarcodeScannerEnabled(_ isEnabled: Bool,
-                                 supportedBarcodeTypes: [CodeFormat],
-                                 onBarcodeRead: ((_ barcode: String, _ codeFormat: CodeFormat) -> Void)?)
+    func isBarcodeScannerEnabled(
+        _ isEnabled: Bool,
+        supportedBarcodeTypes: [CodeFormat],
+        onBarcodeRead: ((_ barcode: String, _ codeFormat: CodeFormat) -> Void)?)
 
     func update(scannerFrameSize: CGRect?)
 
-    func capturePicture(onWillCapture: @escaping () -> Void,
-                        onSuccess: @escaping (_ imageData: Data, _ thumbnailData: Data?, _ dimensions: CMVideoDimensions) -> Void,
-                        onError: @escaping (_ message: String) -> Void)
+    func capturePicture(
+        onWillCapture: @escaping () -> Void,
+        onSuccess:
+            @escaping (_ imageData: Data, _ thumbnailData: Data?, _ dimensions: CMVideoDimensions)
+            -> Void,
+        onError: @escaping (_ message: String) -> Void)
 }
