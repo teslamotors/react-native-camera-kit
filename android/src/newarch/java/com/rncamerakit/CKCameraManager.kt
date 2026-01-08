@@ -167,5 +167,7 @@ class CKCameraManager(context: ReactApplicationContext) : SimpleViewManager<CKCa
 
     override fun setResizeMode(view: CKCamera?, value: String?) = Unit
 
+    override fun setIOsDeferredStart(view: CKCamera?, value: Boolean) = Unit
+
     override fun setMaxPhotoQualityPrioritization(view: CKCamera?, value: String?) = Unit
 }
