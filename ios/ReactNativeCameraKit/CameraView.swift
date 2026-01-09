@@ -58,7 +58,6 @@ public class CameraView: UIView {
     @objc public var zoomMode: ZoomMode = .on
     @objc public var zoom: NSNumber?
     @objc public var maxZoom: NSNumber?
-    @objc public var iOsSleepBeforeStarting: NSNumber?
     @objc public var iOsDeferredStart: Bool = true
 
     @objc public var onCaptureButtonPressIn: RCTDirectEventBlock?
@@ -84,7 +83,6 @@ public class CameraView: UIView {
         if hasPropBeenSetup && hasPermissionBeenGranted && !hasCameraBeenSetup {
             let convertedAllowedTypes = convertAllowedBarcodeTypes()
 
-            camera.update(iOsSleepBeforeStartingMs: iOsSleepBeforeStarting?.intValue)
             camera.update(iOsDeferredStartEnabled: iOsDeferredStart)
 
             hasCameraBeenSetup = true
@@ -304,9 +302,6 @@ public class CameraView: UIView {
         }
 
         // Others
-        if changedProps.contains("iOsSleepBeforeStarting") {
-            camera.update(iOsSleepBeforeStartingMs: iOsSleepBeforeStarting?.intValue)
-        }
         if changedProps.contains("iOsDeferredStart") {
             camera.update(iOsDeferredStartEnabled: iOsDeferredStart)
         }

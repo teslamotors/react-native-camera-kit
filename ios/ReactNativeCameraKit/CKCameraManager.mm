@@ -6,23 +6,23 @@
 #import <AVFoundation/AVFoundation.h>
 
 #if __has_include(<React/RCTBridge.h>)
-#import <React/RCTViewManager.h>
 #import <React/RCTConvert.h>
+#import <React/RCTViewManager.h>
 #else
-#import "RCTViewManager.h"
 #import "RCTConvert.h"
+#import "RCTViewManager.h"
 #endif
 
-@interface RCT_EXTERN_MODULE(CKCameraManager, RCTViewManager)
+@interface RCT_EXTERN_MODULE (CKCameraManager, RCTViewManager)
 
 RCT_EXPORT_VIEW_PROPERTY(cameraType, CKCameraType)
 RCT_EXPORT_VIEW_PROPERTY(flashMode, CKFlashMode)
-RCT_EXPORT_VIEW_PROPERTY(maxPhotoQualityPrioritization, CKMaxPhotoQualityPrioritization)
+RCT_EXPORT_VIEW_PROPERTY(maxPhotoQualityPrioritization,
+                         CKMaxPhotoQualityPrioritization)
 RCT_EXPORT_VIEW_PROPERTY(torchMode, CKTorchMode)
 RCT_EXPORT_VIEW_PROPERTY(ratioOverlay, NSString)
 RCT_EXPORT_VIEW_PROPERTY(ratioOverlayColor, UIColor)
 RCT_EXPORT_VIEW_PROPERTY(resizeMode, CKResizeMode)
-RCT_EXPORT_VIEW_PROPERTY(iOsSleepBeforeStarting, NSNumber)
 
 RCT_EXPORT_VIEW_PROPERTY(scanBarcode, BOOL)
 RCT_EXPORT_VIEW_PROPERTY(onReadCode, RCTDirectEventBlock)

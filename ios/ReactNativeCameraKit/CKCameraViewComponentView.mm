@@ -279,12 +279,6 @@ static id CKConvertFollyDynamicToId(const folly::dynamic &dyn) {
     _view.maxZoom = newProps.maxZoom > -1 ? @(newProps.maxZoom) : nil;
     [changedProps addObject:@"maxZoom"];
   }
-  if (oldViewProps.iOsSleepBeforeStarting != newProps.iOsSleepBeforeStarting) {
-    _view.iOsSleepBeforeStarting = newProps.iOsSleepBeforeStarting >= 0
-                                       ? @(newProps.iOsSleepBeforeStarting)
-                                       : nil;
-    [changedProps addObject:@"iOsSleepBeforeStarting"];
-  }
   if (oldViewProps.iOsDeferredStart != newProps.iOsDeferredStart) {
     _view.iOsDeferredStart = newProps.iOsDeferredStart;
     [changedProps addObject:@"iOsDeferredStart"];

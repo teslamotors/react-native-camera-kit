@@ -45,7 +45,6 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     private var lastOnZoom: Double?
     private var zoom: Double?
     private var maxZoom: Double?
-    private var sleepBeforeStartingMs: Int = 100
     private var deferredStartEnabled: Bool = true
 
     // orientation
@@ -135,12 +134,6 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
                 self.addObservers()
 
                 if self.setupResult == .success {
-                    let delay = self.sleepBeforeStartingMs
-                    // Guard against calling startRunning while commitConfiguration is still finishing.
-                    // See README iOsSleepBeforeStarting for details about preventing occasional crashes.
-                    if delay > 0 {
-                        Thread.sleep(forTimeInterval: Double(delay) / 1000.0)
-                    }
                     self.session.startRunning()
                 }
 
@@ -221,12 +214,6 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
     func update(onZoom: RCTDirectEventBlock?) {
         self.onZoomCallback = onZoom
-    }
-
-    func update(iOsSleepBeforeStartingMs: Int?) {
-        let defaultDelayMs = 100
-        let providedDelay = iOsSleepBeforeStartingMs ?? defaultDelayMs
-        sleepBeforeStartingMs = max(0, providedDelay)
     }
 
     func update(iOsDeferredStartEnabled: Bool?) {

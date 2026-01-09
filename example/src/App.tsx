@@ -21,12 +21,8 @@ const App = () => {
       <View style={styles.container}>
         <Text style={{ fontSize: 60 }}>🎈</Text>
         <Text style={styles.headerText}>React Native Camera Kit</Text>
-        <TouchableOpacity style={styles.button} onPress={() => setExample(<CameraExample onBack={onBack} />)}>
-          <Text style={styles.buttonText}>Camera</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => setExample(<BarcodeScreenExample onBack={onBack} />)}>
-          <Text style={styles.buttonText}>Barcode Scanner</Text>
-        </TouchableOpacity>
+        <Button title="Camera" onPress={() => setExample(<CameraExample onBack={onBack} />)}></Button>
+        <Button title="Barcode Scanner" onPress={() => setExample(<BarcodeScreenExample onBack={onBack} />)}></Button>
         <View>
           <Text style={[styles.stressHeader, { marginTop: 12 }]}>Mount Stress Test</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>

@@ -71,10 +71,6 @@ class SimulatorCamera: CameraProtocol {
         self.onZoom = onZoom
     }
 
-    func update(iOsSleepBeforeStartingMs: Int?) {
-        // No-op on simulator; startup delay only applies to real devices.
-    }
-
     func update(iOsDeferredStartEnabled: Bool?) {
         // Not applicable on simulator; deferred start only matters for real capture outputs.
     }

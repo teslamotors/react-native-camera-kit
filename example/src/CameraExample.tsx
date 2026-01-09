@@ -243,7 +243,6 @@ const CameraExample = ({ onBack, stress }: { onBack: () => void; stress?: boolea
             }}
             torchMode={torchMode ? 'on' : 'off'}
             shutterPhotoSound
-            iOsSleepBeforeStarting={100}
             maxPhotoQualityPrioritization="speed"
             onCaptureButtonPressIn={() => {
               console.log('capture button pressed in');
