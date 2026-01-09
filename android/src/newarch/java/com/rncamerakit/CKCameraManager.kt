@@ -155,6 +155,8 @@ class CKCameraManager(context: ReactApplicationContext) : SimpleViewManager<CKCa
     }
 
     // Methods only available on iOS
+    override fun setIOsSleepBeforeStarting(view: CKCamera?, value: Int) = Unit
+
     override fun setRatioOverlay(view: CKCamera?, value: String?) = Unit
 
     override fun setRatioOverlayColor(view: CKCamera?, value: Int?) = Unit
