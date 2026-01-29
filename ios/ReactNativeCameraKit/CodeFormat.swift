@@ -5,8 +5,8 @@
 //  Created by Imdad on 2023-12-22.
 //
 
-import Foundation
 import AVFoundation
+import Foundation
 
 enum CodeFormat: String, CaseIterable {
     case code128 = "code-128"
@@ -17,14 +17,14 @@ enum CodeFormat: String, CaseIterable {
     case ean8 = "ean-8"
     case itf14 = "itf-14"
     case upce = "upc-e"
-    case qr = "qr"
+    case qr
     case pdf417 = "pdf-417"
-    case aztec = "aztec"
+    case aztec
     case dataMatrix = "data-matrix"
     case interleaved2of5 = "interleaved-2of5"
-    case unknown = "unknown"
+    case unknown
     @available(iOS 15.4, *)
-    case codabar = "codabar"
+    case codabar
     @available(iOS 15.4, *)
     case gs1DataBar = "gs1-data-bar"
     @available(iOS 15.4, *)
@@ -34,17 +34,17 @@ enum CodeFormat: String, CaseIterable {
 
     static var allCases: [CodeFormat] {
         var supportedBarcodeTypes: [CodeFormat] =
-        [.upce, .code39, .code39Mod43,
-         .ean13, .ean8, .code93, .code128,
-         .pdf417, .qr, .itf14, .aztec,
-         .dataMatrix, .interleaved2of5]
-        
+            [.upce, .code39, .code39Mod43,
+             .ean13, .ean8, .code93, .code128,
+             .pdf417, .qr, .itf14, .aztec,
+             .dataMatrix, .interleaved2of5]
+
         if #available(iOS 15.4, *) {
             supportedBarcodeTypes.append(contentsOf: [
                 .codabar, .gs1DataBar, .gs1DataBarLimited, .gs1DataBarExpanded
             ])
         }
-        
+
         return supportedBarcodeTypes
     }
 
@@ -64,16 +64,20 @@ enum CodeFormat: String, CaseIterable {
         case .aztec: return .aztec
         case .dataMatrix: return .dataMatrix
         case .interleaved2of5: return .interleaved2of5
-        @available(iOS 15.4, *)
-        case .codabar: return .codabar
-        @available(iOS 15.4, *)
-        case .gs1DataBar: return .gs1DataBar
-        @available(iOS 15.4, *)
-        case .gs1DataBarLimited: return .gs1DataBarLimited
-        @available(iOS 15.4, *)
-        case .gs1DataBarExpanded: return .gs1DataBarExpanded
-        default: return .unknown
+        default: break
         }
+
+        if #available(iOS 15.4, *) {
+            switch type {
+            case .codabar: return .codabar
+            case .gs1DataBar: return .gs1DataBar
+            case .gs1DataBarLimited: return .gs1DataBarLimited
+            case .gs1DataBarExpanded: return .gs1DataBarExpanded
+            default: break
+            }
+        }
+
+        return .unknown
     }
 
     // Convert from CodeFormat to AVMetadataObject.ObjectType
@@ -92,15 +96,19 @@ enum CodeFormat: String, CaseIterable {
         case .aztec: return .aztec
         case .dataMatrix: return .dataMatrix
         case .interleaved2of5: return .interleaved2of5
-        @available(iOS 15.4, *)
-        case .codabar: return .codabar
-        @available(iOS 15.4, *)
-        case .gs1DataBar: return .gs1DataBar
-        @available(iOS 15.4, *)
-        case .gs1DataBarLimited: return .gs1DataBarLimited
-        @available(iOS 15.4, *)
-        case .gs1DataBarExpanded: return .gs1DataBarExpanded
-        case .unknown: return .init(rawValue: "unknown")
+        default: break
         }
+
+        if #available(iOS 15.4, *) {
+            switch self {
+            case .codabar: return .codabar
+            case .gs1DataBar: return .gs1DataBar
+            case .gs1DataBarLimited: return .gs1DataBarLimited
+            case .gs1DataBarExpanded: return .gs1DataBarExpanded
+            default: break
+            }
+        }
+
+        return .init(rawValue: "unknown")
     }
 }
