@@ -483,14 +483,6 @@ public class CameraView: UIView {
         return allowedTypes.compactMap { CodeFormat(rawValue: $0) }
     }
 
-    private func convertAllowedBarcodeTypes() -> [CodeFormat] {
-        guard let allowedTypes = allowedBarcodeTypes as? [String], !allowedTypes.isEmpty else {
-            return CodeFormat.allCases
-        }
-
-        return allowedTypes.compactMap { CodeFormat(rawValue: $0) }
-    }
-
     // MARK: - Gesture selectors
 
     @objc func handlePinchToZoomRecognizer(_ pinchRecognizer: UIPinchGestureRecognizer) {
