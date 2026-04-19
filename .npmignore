@@ -1,4 +1,5 @@
 node_modules/
+.codegen/
 old-example/
 example/
 example-js-code/
