@@ -202,7 +202,7 @@ The library is published to npm as `react-native-camera-kit` with the `files` ar
 ### Fork-Specific Code Preserved
 
 All QR-only Android architecture preserved:
-- `android/build.gradle` - Uses `implementation 'com.github.limpbrains:qr:v0.0.2'`
+- `android/build.gradle` - Uses `implementation 'com.github.limpbrains:qr:v0.0.3'`
 - `android/src/main/java/com/rncamerakit/QRCodeAnalyzer.kt` - Uses `QRDecoder.decode()` from limpbrains/qr
 - `android/src/main/java/com/rncamerakit/CodeFormat.kt` - Simplified enum (no ML Kit conversions)
 - `android/src/main/java/com/rncamerakit/CKCamera.kt` - String callback `onQRCodeDetected(String)`
