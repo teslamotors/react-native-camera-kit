@@ -25,6 +25,7 @@
         <li><h3>Cross Platform (iOS and Android)</h3></li>
         <li><h3>Optimized for performance and high photo capture rate</h3></li>
         <li><h3>QR / Barcode scanning support</h3></li>
+        <li><h3>Face detection support</h3></li>
         <li><h3>Camera preview support in iOS simulator</h3></li>
       </ul>
     </td>
@@ -170,6 +171,24 @@ Additionally, the Camera can be used for barcode scanning
 />
 ```
 
+#### Face Detection
+
+Detect faces in real time. iOS uses Apple Vision; Android uses Google ML Kit.
+
+```tsx
+<Camera
+  ...
+  faceDetectionEnabled={true}
+  faceDetectionThrottleMs={100} // optional, default 100ms (~10 events/sec)
+  onFaceDetected={(event) => {
+    // event.nativeEvent.faces: ReadonlyArray<FaceData>
+    // each: { id, yaw, pitch, roll, boundsX, boundsY, boundsWidth, boundsHeight }
+  }}
+/>
+```
+
+> **Android note:** Uses the unbundled `play-services-mlkit-face-detection` variant — the ML model is downloaded by Google Play Services on first use rather than bundled in the APK. Requires Play Services on the device.
+
 ### Camera Props (Optional)
 
 | Props                           | Type                                   | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                |
@@ -207,6 +226,10 @@ Additionally, the Camera can be used for barcode scanning
 | `laserColor`                    | Color                                  | Color of barcode scanner laser visualization. Default: `red`                                                                                                                                                                                                                                                                                                                                                                                               |
 | `frameColor`                    | Color                                  | Color of barcode scanner frame visualization. Default: `yellow`                                                                                                                                                                                                                                                                                                                                                                                            |
 | `onReadCode`                    | Function                               | Callback when scanner successfully reads barcode. Returned event contains `codeStringValue`. Default: `null`. Ex: `onReadCode={(event) => console.log(event.nativeEvent.codeStringValue)}`                                                                                                                                                                                                                                                                 |
+| **Face detection**              |
+| `faceDetectionEnabled`          | `boolean`                              | Enable real-time face detection. Default: `false`                                                                                                                                                                                                                                                                                                                                                                                                          |
+| `faceDetectionThrottleMs`       | `number`                               | Minimum milliseconds between `onFaceDetected` emits. Default: `100` (~10 events/sec)                                                                                                                                                                                                                                                                                                                                                                       |
+| `onFaceDetected`                | Function                               | Callback while face detection is active, with one entry per detected face (empty array if none). Each face has `id`, `yaw`, `pitch`, `roll` (degrees), and `boundsX/Y/Width/Height` (normalized 0–1, top-left, preview-space).                                                                                                                                                                                                                              |
 
 ### Imperative API
 

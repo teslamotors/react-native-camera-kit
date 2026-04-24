@@ -8,7 +8,6 @@ import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.ReadableType
-import com.facebook.react.common.MapBuilder
 import com.facebook.react.common.ReactConstants.TAG
 import com.facebook.react.uimanager.SimpleViewManager
 import com.facebook.react.uimanager.ThemedReactContext
@@ -47,14 +46,15 @@ class CKCameraManager(var context: ReactApplicationContext) : SimpleViewManager<
     }
 
     override fun getExportedCustomDirectEventTypeConstants(): Map<String, Any> {
-        return MapBuilder.of(
-            OrientationChangeEvent.EVENT_NAME, MapBuilder.of("registrationName", "onOrientationChange"),
-            ReadCodeEvent.EVENT_NAME, MapBuilder.of("registrationName", "onReadCode"),
-            PictureTakenEvent.EVENT_NAME, MapBuilder.of("registrationName", "onPictureTaken"),
-            ZoomEvent.EVENT_NAME, MapBuilder.of("registrationName", "onZoom"),
-            ErrorEvent.EVENT_NAME, MapBuilder.of("registrationName", "onError"),
-            CaptureButtonPressInEvent.EVENT_NAME, MapBuilder.of("registrationName", "onCaptureButtonPressIn"),
-            CaptureButtonPressOutEvent.EVENT_NAME, MapBuilder.of("registrationName", "onCaptureButtonPressOut")
+        return mapOf(
+            OrientationChangeEvent.EVENT_NAME to mapOf("registrationName" to "onOrientationChange"),
+            ReadCodeEvent.EVENT_NAME to mapOf("registrationName" to "onReadCode"),
+            PictureTakenEvent.EVENT_NAME to mapOf("registrationName" to "onPictureTaken"),
+            ZoomEvent.EVENT_NAME to mapOf("registrationName" to "onZoom"),
+            ErrorEvent.EVENT_NAME to mapOf("registrationName" to "onError"),
+            CaptureButtonPressInEvent.EVENT_NAME to mapOf("registrationName" to "onCaptureButtonPressIn"),
+            CaptureButtonPressOutEvent.EVENT_NAME to mapOf("registrationName" to "onCaptureButtonPressOut"),
+            FaceDetectedEvent.EVENT_NAME to mapOf("registrationName" to "onFaceDetected"),
         )
     }
 
@@ -96,6 +96,16 @@ class CKCameraManager(var context: ReactApplicationContext) : SimpleViewManager<
     @ReactProp(name = "scanBarcode")
     fun setScanBarcode(view: CKCamera, enabled: Boolean) {
         view.setScanBarcode(enabled)
+    }
+
+    @ReactProp(name = "faceDetectionEnabled")
+    fun setFaceDetectionEnabled(view: CKCamera, enabled: Boolean) {
+        view.setFaceDetectionEnabled(enabled)
+    }
+
+    @ReactProp(name = "faceDetectionThrottleMs")
+    fun setFaceDetectionThrottleMs(view: CKCamera?, value: Int) {
+        view?.setFaceDetectionThrottleMs(value)
     }
 
     @ReactProp(name = "showFrame")

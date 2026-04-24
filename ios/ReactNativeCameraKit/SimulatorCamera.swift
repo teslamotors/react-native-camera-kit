@@ -191,6 +191,13 @@ class SimulatorCamera: CameraProtocol {
     ) {}
     func update(scannerFrameSize: CGRect?) {}
 
+    func isFaceDetectionEnabled(
+        _ isEnabled: Bool,
+        onFaceDetected: ((_ payloads: [FaceDetectionPayload]) -> Void)?
+    ) {}
+
+    func update(faceDetectionThrottleMs: Int) {}
+
     func capturePicture(
         onWillCapture: @escaping () -> Void,
         onSuccess:

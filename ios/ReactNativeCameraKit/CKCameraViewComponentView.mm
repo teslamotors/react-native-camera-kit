@@ -151,6 +151,33 @@ static id CKConvertFollyDynamicToId(const folly::dynamic &dyn) {
           ->onCaptureButtonPressOut({});
     }
   }];
+  [_view setOnFaceDetected:^(NSDictionary *event) {
+    __typeof__(self) strongSelf = weakSelf;
+
+    if (strongSelf != nullptr && strongSelf->_eventEmitter != nullptr) {
+      NSArray *facesArray = [event valueForKey:@"faces"] ?: @[];
+      std::vector<facebook::react::CKCameraEventEmitter::OnFaceDetectedFaces> faces;
+      faces.reserve(facesArray.count);
+      for (NSDictionary *face in facesArray) {
+        faces.push_back({
+            .id = [face[@"id"] intValue],
+            .yaw = [face[@"yaw"] doubleValue],
+            .pitch = [face[@"pitch"] doubleValue],
+            .roll = [face[@"roll"] doubleValue],
+            .boundsX = [face[@"boundsX"] doubleValue],
+            .boundsY = [face[@"boundsY"] doubleValue],
+            .boundsWidth = [face[@"boundsWidth"] doubleValue],
+            .boundsHeight = [face[@"boundsHeight"] doubleValue],
+        });
+      }
+      facebook::react::CKCameraEventEmitter::OnFaceDetected payload = {
+          .faces = std::move(faces),
+      };
+      std::dynamic_pointer_cast<const facebook::react::CKCameraEventEmitter>(
+          strongSelf->_eventEmitter)
+          ->onFaceDetected(payload);
+    }
+  }];
 
   self.contentView = _view;
 }
@@ -290,6 +317,15 @@ static id CKConvertFollyDynamicToId(const folly::dynamic &dyn) {
     _view.barcodeFrameSize =
         @{@"width" : @(barcodeWidth), @"height" : @(barcodeHeight)};
     [changedProps addObject:@"barcodeFrameSize"];
+  }
+  if (_view.faceDetectionEnabled != newProps.faceDetectionEnabled) {
+    _view.faceDetectionEnabled = newProps.faceDetectionEnabled;
+    [changedProps addObject:@"faceDetectionEnabled"];
+  }
+  if (newProps.faceDetectionThrottleMs > -1 &&
+      _view.faceDetectionThrottleMs != newProps.faceDetectionThrottleMs) {
+    _view.faceDetectionThrottleMs = newProps.faceDetectionThrottleMs;
+    [changedProps addObject:@"faceDetectionThrottleMs"];
   }
   // Since viewprops optional props isn't supported in all RN versions,
   // we assume empty arrays mean it's not defined / ignore changes to it.

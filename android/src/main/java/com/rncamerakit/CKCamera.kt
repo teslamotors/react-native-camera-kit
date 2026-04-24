@@ -83,6 +83,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
     private var preview: Preview? = null
     private var imageCapture: ImageCapture? = null
     private var imageAnalyzer: ImageAnalysis? = null
+    private var faceAnalyzer: FaceAnalyzer? = null
     private var orientationListener: OrientationEventListener? = null
     private var viewFinder: PreviewView = PreviewView(context)
     private var rectOverlay: RectOverlay = RectOverlay(context)
@@ -111,6 +112,10 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
     private var laserColor = Color.RED
     private var barcodeFrameSize: Size? = null
     private var allowedBarcodeTypes: Array<CodeFormat>? = null
+
+    // Face detection props
+    private var faceDetectionEnabled: Boolean = false
+    private var faceDetectionThrottleMs: Long = FaceAnalyzer.DEFAULT_THROTTLE_MS
 
     private fun getActivity() : Activity {
         return currentContext.currentActivity!!
@@ -142,9 +147,19 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
 
+        faceAnalyzer?.close()
+        faceAnalyzer = null
         cameraExecutor.shutdown()
         orientationListener?.disable()
         cameraProvider?.unbindAll()
+    }
+
+    override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
+        super.onWindowFocusChanged(hasWindowFocus)
+        if (hasWindowFocus && cameraProvider == null &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            viewFinder.post { setupCamera() }
+        }
     }
 
     override fun dispatchKeyEvent(event: KeyEvent?): Boolean {
@@ -394,6 +409,20 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
             useCases.add(imageAnalyzer)
         }
 
+        faceAnalyzer?.close()
+        faceAnalyzer = null
+        if (faceDetectionEnabled) {
+            val analyzer = FaceAnalyzer(faceDetectionThrottleMs) { payloads -> onFaceDetected(payloads) }
+            faceAnalyzer = analyzer
+            useCases.add(
+                ImageAnalysis.Builder()
+                    .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                    .setTargetAspectRatio(previewAspectRatio)
+                    .build()
+                    .also { it.setAnalyzer(cameraExecutor, analyzer) }
+            )
+        }
+
         // Must unbind the use-cases before rebinding them
         cameraProvider.unbindAll()
 
@@ -547,6 +576,20 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
             ?.dispatchEvent(ReadCodeEvent(surfaceId, id, barcodes.first().rawValue, codeFormat.code))
     }
 
+    private fun onFaceDetected(payloads: List<FacePayload>) {
+        // CameraX auto-mirrors the front-camera Preview but not ImageAnalysis,
+        // so flip X here to keep bounds in preview-space for JS consumers.
+        val mirrored = if (lensType == CameraSelector.LENS_FACING_FRONT) {
+            payloads.map { it.copy(boundsX = 1.0 - it.boundsX - it.boundsWidth) }
+        } else {
+            payloads
+        }
+        val surfaceId = UIManagerHelper.getSurfaceId(currentContext)
+        UIManagerHelper
+            .getEventDispatcherForReactTag(currentContext, id)
+            ?.dispatchEvent(FaceDetectedEvent(surfaceId, id, mirrored))
+    }
+
     private fun onOrientationChange(orientation: Int) {
         val remappedOrientation = when (orientation) {
             Surface.ROTATION_0 -> RNCameraKitModule.PORTRAIT
@@ -672,6 +715,19 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
         val restartCamera = enabled != scanBarcode
         scanBarcode = enabled
         if (restartCamera) bindCameraUseCases()
+    }
+
+    fun setFaceDetectionEnabled(enabled: Boolean) {
+        val restartCamera = enabled != faceDetectionEnabled
+        faceDetectionEnabled = enabled
+        if (restartCamera) bindCameraUseCases()
+    }
+
+    fun setFaceDetectionThrottleMs(throttleMs: Int) {
+        val newThrottle = if (throttleMs < 0) FaceAnalyzer.DEFAULT_THROTTLE_MS else throttleMs.toLong()
+        if (faceDetectionThrottleMs == newThrottle) return
+        faceDetectionThrottleMs = newThrottle
+        faceAnalyzer?.throttleMs = newThrottle
     }
 
     fun setScanThrottleDelay(delayMs: Int) {

@@ -7,6 +7,7 @@
 
 import AVFoundation
 import CoreMotion
+import ImageIO
 import React
 import UIKit
 
@@ -14,13 +15,14 @@ import UIKit
  * Real camera implementation that uses AVFoundation
  */
 // swiftlint:disable:next type_body_length
-class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelegate {
+class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelegate, AVCaptureVideoDataOutputSampleBufferDelegate {
     var previewView: UIView { cameraPreview }
 
     private let cameraPreview = RealPreviewView(frame: .zero)
     private let session = AVCaptureSession()
     // Communicate with the session and other session objects on this queue.
     private let sessionQueue = DispatchQueue(label: "com.tesla.react-native-camera-kit")
+    private let visionQueue = DispatchQueue(label: "com.tesla.react-native-camera-kit.vision")
 
     // utilities
     private var setupResult: SetupResult = .notStarted
@@ -30,6 +32,11 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     private var videoDeviceInput: AVCaptureDeviceInput?
     private let photoOutput = AVCapturePhotoOutput()
     private let metadataOutput = AVCaptureMetadataOutput()
+    private let videoDataOutput = AVCaptureVideoDataOutput()
+    private var isVideoDataOutputAttached = false
+    private let faceDetector = FaceDetector()
+    private var onFaceDetected: (([FaceDetectionPayload]) -> Void)?
+    private var currentVisionOrientation: CGImagePropertyOrientation = .right
 
     private var resizeMode: ResizeMode = .contain
     private var flashMode: FlashMode = .auto
@@ -343,6 +350,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
             }
 
             self.addObservers()
+            self.refreshVisionOrientation()
         }
     }
 
@@ -467,6 +475,43 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         }
     }
 
+    func update(faceDetectionThrottleMs: Int) {
+        sessionQueue.async {
+            self.faceDetector.update(throttleMs: faceDetectionThrottleMs)
+        }
+    }
+
+    func isFaceDetectionEnabled(
+        _ isEnabled: Bool,
+        onFaceDetected: ((_ payloads: [FaceDetectionPayload]) -> Void)?
+    ) {
+        sessionQueue.async {
+            self.onFaceDetected = onFaceDetected
+
+            let shouldAttach = isEnabled && onFaceDetected != nil
+            if shouldAttach == self.isVideoDataOutputAttached { return }
+
+            self.session.beginConfiguration()
+            defer { self.session.commitConfiguration() }
+
+            if shouldAttach {
+                self.videoDataOutput.alwaysDiscardsLateVideoFrames = true
+                self.videoDataOutput.videoSettings = [
+                    kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA,
+                ]
+                self.videoDataOutput.setSampleBufferDelegate(self, queue: self.visionQueue)
+                if self.session.canAddOutput(self.videoDataOutput) {
+                    self.session.addOutput(self.videoDataOutput)
+                    self.isVideoDataOutputAttached = true
+                }
+            } else {
+                self.videoDataOutput.setSampleBufferDelegate(nil, queue: nil)
+                self.session.removeOutput(self.videoDataOutput)
+                self.isVideoDataOutputAttached = false
+            }
+        }
+    }
+
     // MARK: - AVCaptureMetadataOutputObjectsDelegate
 
     func metadataOutput(
@@ -485,6 +530,44 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         let barcodeType = CodeFormat.fromAVMetadataObjectType(machineReadableCodeObject.type)
 
         onBarcodeRead?(codeStringValue, barcodeType)
+    }
+
+    // MARK: - Vision orientation
+
+    private func visionOrientation(for cameraPosition: AVCaptureDevice.Position) -> CGImagePropertyOrientation {
+        let isFront = cameraPosition == .front
+        switch deviceOrientation {
+        case .landscapeLeft:      return isFront ? .downMirrored  : .up
+        case .landscapeRight:     return isFront ? .upMirrored    : .down
+        case .portraitUpsideDown: return isFront ? .rightMirrored : .left
+        default:                  return isFront ? .leftMirrored  : .right
+        }
+    }
+
+    private func refreshVisionOrientation() {
+        guard let position = videoDeviceInput?.device.position else { return }
+        currentVisionOrientation = visionOrientation(for: position)
+    }
+
+    // MARK: - AVCaptureVideoDataOutputSampleBufferDelegate
+
+    func captureOutput(
+        _ output: AVCaptureOutput,
+        didOutput sampleBuffer: CMSampleBuffer,
+        from connection: AVCaptureConnection
+    ) {
+        guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
+
+        guard let payloads = faceDetector.process(
+            pixelBuffer: pixelBuffer,
+            orientation: currentVisionOrientation
+        ) else {
+            return
+        }
+
+        DispatchQueue.main.async {
+            self.onFaceDetected?(payloads)
+        }
     }
 
     // MARK: - Private
@@ -579,6 +662,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         if session.canAddInput(videoDeviceInput) {
             session.addInput(videoDeviceInput)
             self.videoDeviceInput = videoDeviceInput
+            self.refreshVisionOrientation()
         } else {
             return .sessionConfigurationFailed
         }
@@ -719,6 +803,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
                     }
 
                     self.deviceOrientation = newOrientation
+                    self.refreshVisionOrientation()
                     self.onOrientationChange?([
                         "orientation": Orientation.init(from: newOrientation)!.rawValue
                     ])

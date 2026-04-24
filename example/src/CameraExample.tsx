@@ -1,9 +1,10 @@
 import type React from 'react';
-import { useState, useRef, useEffect } from 'react';
+import { useCallback, useState, useRef, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Image, Animated, ScrollView } from 'react-native';
 import Camera from '../../src/Camera';
 import { type CameraApi, CameraType, type CaptureData } from '../../src/types';
 import { Orientation } from '../../src';
+import { type FaceData, type OnFaceDetectedData } from '../../src/CameraProps';
 import SafeAreaView from './SafeAreaView';
 
 const flashImages = {
@@ -33,6 +34,103 @@ function median(values: number[]): number {
   return sortedValues.length % 2 ? sortedValues[half] : (sortedValues[half - 1] + sortedValues[half]) / 2;
 }
 
+const FACING_THRESHOLD_DEG = 15;
+const CENTERING_TOLERANCE = 0.2;
+function isFacingCamera(face: FaceData): boolean {
+  const orientationOk = Math.abs(face.yaw) < FACING_THRESHOLD_DEG && Math.abs(face.pitch) < FACING_THRESHOLD_DEG;
+  const centerX = face.boundsX + face.boundsWidth / 2;
+  const centerY = face.boundsY + face.boundsHeight / 2;
+  const centeredOk = Math.abs(centerX - 0.5) < CENTERING_TOLERANCE && Math.abs(centerY - 0.5) < CENTERING_TOLERANCE;
+  return orientationOk && centeredOk;
+}
+
+function CaptureButton({ onPress, children }: { onPress: () => void; children?: React.ReactNode }) {
+  const w = 80;
+  const brdW = 4;
+  const spc = 6;
+  const cInner = 'white';
+  const cOuter = 'white';
+  return (
+    <TouchableOpacity onPress={onPress} style={{ width: w, height: w }}>
+      <View
+        style={{
+          position: 'absolute',
+          left: 0,
+          top: 0,
+          width: w,
+          height: w,
+          borderColor: cOuter,
+          borderWidth: brdW,
+          borderRadius: w / 2,
+        }}
+      />
+      <View
+        style={{
+          position: 'absolute',
+          left: brdW + spc,
+          top: brdW + spc,
+          width: w - (brdW + spc) * 2,
+          height: w - (brdW + spc) * 2,
+          backgroundColor: cInner,
+          borderRadius: (w - (brdW + spc) * 2) / 2,
+        }}
+      />
+      {children}
+    </TouchableOpacity>
+  );
+}
+
+function FaceFrame({ face, layout }: { face: FaceData; layout: { width: number; height: number } }) {
+  if (!layout.width || !layout.height) return null;
+  const facing = isFacingCamera(face);
+  const color = facing ? '#22c55e' : '#facc15';
+  const left = face.boundsX * layout.width;
+  const top = face.boundsY * layout.height;
+  const height = face.boundsHeight * layout.height;
+  return (
+    <>
+      <View
+        pointerEvents="none"
+        style={[
+          styles.faceFrame,
+          {
+            left,
+            top,
+            width: face.boundsWidth * layout.width,
+            height,
+            borderColor: color,
+          },
+        ]}
+      />
+      <View pointerEvents="none" style={[styles.faceIdBadge, { left, top: top + height + 4, borderColor: color }]}>
+        <Text style={[styles.faceIdText, { color }]}>ID {face.id}</Text>
+      </View>
+    </>
+  );
+}
+
+function FaceStats({ faces }: { faces: readonly FaceData[] }) {
+  const face = faces[0];
+  return (
+    <View style={styles.statsBox} pointerEvents="none">
+      <Text style={styles.statsText}>Faces: {faces.length}</Text>
+      {face && (
+        <>
+          <Text style={styles.statsText}>id: {face.id}</Text>
+          <Text style={styles.statsText}>Yaw: {face.yaw.toFixed(1)}°</Text>
+          <Text style={styles.statsText}>Pitch: {face.pitch.toFixed(1)}°</Text>
+          <Text style={styles.statsText}>Roll: {face.roll.toFixed(1)}°</Text>
+          <Text style={styles.statsText}>Facing: {isFacingCamera(face) ? 'yes' : 'no'}</Text>
+          <Text style={styles.statsText}>
+            Box: {face.boundsX.toFixed(2)},{face.boundsY.toFixed(2)} {face.boundsWidth.toFixed(2)}×
+            {face.boundsHeight.toFixed(2)}
+          </Text>
+        </>
+      )}
+    </View>
+  );
+}
+
 const CameraExample = ({ onBack, stress }: { onBack: () => void; stress?: boolean }) => {
   const cameraRef = useRef<CameraApi>(null);
   const [currentFlashArrayPosition, setCurrentFlashArrayPosition] = useState(0);
@@ -45,6 +143,13 @@ const CameraExample = ({ onBack, stress }: { onBack: () => void; stress?: boolea
   const [zoom, setZoom] = useState<number | undefined>();
   const [orientationAnim] = useState(new Animated.Value(3));
   const [resize, setResize] = useState<'contain' | 'cover'>('contain');
+  const [faceDetection, setFaceDetection] = useState(false);
+  const [faces, setFaces] = useState<readonly FaceData[]>([]);
+  const [cameraLayout, setCameraLayout] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    if (!faceDetection) setFaces([]);
+  }, [faceDetection]);
 
   // zoom to random positions every 10ms:
   useEffect(() => {
@@ -95,6 +200,20 @@ const CameraExample = ({ onBack, stress }: { onBack: () => void; stress?: boolea
     setTorchMode(!torchMode);
   };
 
+  const onSetFaceDetection = () => {
+    setFaceDetection(!faceDetection);
+  };
+
+  const onFaceDetected = useCallback((e: OnFaceDetectedData) => {
+    const next = e.nativeEvent.faces;
+    setFaces((prev) => (prev.length === 0 && next.length === 0 ? prev : next));
+  }, []);
+
+  const onCameraLayout = useCallback((e: { nativeEvent: { layout: { width: number; height: number } } }) => {
+    const { width, height } = e.nativeEvent.layout;
+    setCameraLayout((prev) => (prev.width === width && prev.height === height ? prev : { width, height }));
+  }, []);
+
   const onCaptureImagePressed = async () => {
     const times: number[] = [];
     for (let i = 1; i <= 5; i++) {
@@ -122,42 +241,6 @@ const CameraExample = ({ onBack, stress }: { onBack: () => void; stress?: boolea
     }
     console.log(`median capture time: ${median(times)}ms`);
   };
-
-  function CaptureButton({ onPress, children }: { onPress: () => void; children?: React.ReactNode }) {
-    const w = 80;
-    const brdW = 4;
-    const spc = 6;
-    const cInner = 'white';
-    const cOuter = 'white';
-    return (
-      <TouchableOpacity onPress={onPress} style={{ width: w, height: w }}>
-        <View
-          style={{
-            position: 'absolute',
-            left: 0,
-            top: 0,
-            width: w,
-            height: w,
-            borderColor: cOuter,
-            borderWidth: brdW,
-            borderRadius: w / 2,
-          }}
-        />
-        <View
-          style={{
-            position: 'absolute',
-            left: brdW + spc,
-            top: brdW + spc,
-            width: w - (brdW + spc) * 2,
-            height: w - (brdW + spc) * 2,
-            backgroundColor: cInner,
-            borderRadius: (w - (brdW + spc) * 2) / 2,
-          }}
-        />
-        {children}
-      </TouchableOpacity>
-    );
-  }
 
   // Counter-rotate the icons to indicate the actual orientation of the captured photo.
   // For this example, it'll behave incorrectly since UI orientation is allowed (and already-counter rotates the entire screen)
@@ -213,6 +296,16 @@ const CameraExample = ({ onBack, stress }: { onBack: () => void; stress?: boolea
           />
         </TouchableOpacity>
 
+        <TouchableOpacity
+          style={[styles.topButton, faceDetection && styles.topButtonActive]}
+          onPress={onSetFaceDetection}>
+          <Animated.Image
+            source={require('../images/faceDetection.png')}
+            resizeMode="contain"
+            style={[styles.topButtonImg, uiRotationStyle]}
+          />
+        </TouchableOpacity>
+
         <TouchableOpacity style={styles.topButton} onPress={onSetResize}>
           <Animated.Image
             source={require('../images/resize.png')}
@@ -244,6 +337,10 @@ const CameraExample = ({ onBack, stress }: { onBack: () => void; stress?: boolea
             torchMode={torchMode ? 'on' : 'off'}
             shutterPhotoSound
             maxPhotoQualityPrioritization="speed"
+            faceDetectionEnabled={faceDetection}
+            faceDetectionThrottleMs={100}
+            onLayout={onCameraLayout}
+            onFaceDetected={onFaceDetected}
             onCaptureButtonPressIn={() => {
               console.log('capture button pressed in');
             }}
@@ -278,6 +375,15 @@ const CameraExample = ({ onBack, stress }: { onBack: () => void; stress?: boolea
               }
             }}
           />
+        )}
+
+        {faceDetection && !showImageUri && faces.length > 0 && (
+          <>
+            {faces.map((face) => (
+              <FaceFrame key={face.id} face={face} layout={cameraLayout} />
+            ))}
+            <FaceStats faces={faces} />
+          </>
         )}
       </View>
 
@@ -336,10 +442,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  topButtonActive: {
+    backgroundColor: '#1e7eff',
+  },
   topButtonImg: {
     margin: 10,
     width: 24,
     height: 24,
+    tintColor: 'white',
   },
   cameraContainer: {
     justifyContent: 'center',
@@ -390,5 +500,37 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 4,
     marginEnd: 10,
+  },
+  faceFrame: {
+    position: 'absolute',
+    borderWidth: 3,
+    borderRadius: 8,
+  },
+  faceIdBadge: {
+    position: 'absolute',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    borderWidth: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+  },
+  faceIdText: {
+    fontSize: 11,
+    fontWeight: '600',
+    fontVariant: ['tabular-nums'],
+  },
+  statsBox: {
+    position: 'absolute',
+    top: 10,
+    right: 25,
+    backgroundColor: 'rgba(0,0,0,0.55)',
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    borderRadius: 6,
+  },
+  statsText: {
+    color: 'white',
+    fontSize: 11,
+    fontVariant: ['tabular-nums'],
   },
 });

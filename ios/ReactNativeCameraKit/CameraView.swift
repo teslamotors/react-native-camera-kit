@@ -49,6 +49,11 @@ public class CameraView: UIView {
     @objc public var barcodeFrameSize: NSDictionary?
     @objc public var allowedBarcodeTypes: NSArray?
 
+    // face detection
+    @objc public var faceDetectionEnabled = false
+    @objc public var faceDetectionThrottleMs: Int = FaceDetector.defaultThrottleMs
+    @objc public var onFaceDetected: RCTDirectEventBlock?
+
     // other
     @objc public var onOrientationChange: RCTDirectEventBlock?
     @objc public var onZoom: RCTDirectEventBlock?
@@ -273,6 +278,18 @@ public class CameraView: UIView {
                 onBarcodeRead: { [weak self] (barcode, codeFormat) in
                     self?.onBarcodeRead(barcode: barcode, codeFormat: codeFormat)
                 })
+        }
+
+        // Face detection
+        if changedProps.contains("faceDetectionEnabled") {
+            camera.isFaceDetectionEnabled(
+                faceDetectionEnabled,
+                onFaceDetected: { [weak self] payloads in
+                    self?.onFaceDetected?(["faces": payloads.map { $0.asDictionary }])
+                })
+        }
+        if changedProps.contains("faceDetectionThrottleMs") {
+            camera.update(faceDetectionThrottleMs: faceDetectionThrottleMs)
         }
 
         if changedProps.contains("showFrame") || changedProps.contains("scanBarcode") {
