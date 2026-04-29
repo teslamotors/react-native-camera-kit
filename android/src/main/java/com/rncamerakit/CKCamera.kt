@@ -412,7 +412,12 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
         faceAnalyzer?.close()
         faceAnalyzer = null
         if (faceDetectionEnabled) {
-            val analyzer = FaceAnalyzer(faceDetectionThrottleMs) { payloads -> onFaceDetected(payloads) }
+            val analyzer = FaceAnalyzer(
+                faceDetectionThrottleMs,
+                context,
+                { state -> onFaceDetectionInstallStatus(state) },
+                { payloads -> onFaceDetected(payloads) }
+            )
             faceAnalyzer = analyzer
             useCases.add(
                 ImageAnalysis.Builder()
@@ -588,6 +593,13 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
         UIManagerHelper
             .getEventDispatcherForReactTag(currentContext, id)
             ?.dispatchEvent(FaceDetectedEvent(surfaceId, id, mirrored))
+    }
+
+    private fun onFaceDetectionInstallStatus(state: String) {
+        val surfaceId = UIManagerHelper.getSurfaceId(currentContext)
+        UIManagerHelper
+            .getEventDispatcherForReactTag(currentContext, id)
+            ?.dispatchEvent(FaceDetectionInstallStatusEvent(surfaceId, id, state))
     }
 
     private fun onOrientationChange(orientation: Int) {

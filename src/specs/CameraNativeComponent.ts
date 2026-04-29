@@ -75,6 +75,7 @@ export interface NativeProps extends ViewProps {
   faceDetectionEnabled?: boolean;
   faceDetectionThrottleMs?: WithDefault<Int32, -1>;
   onFaceDetected?: DirectEventHandler<OnFaceDetectedData>;
+  onFaceDetectionInstallStatus?: DirectEventHandler<{ state: string }>;
 
   // not mentioned in props but available on the native side
   shutterAnimationDuration?: WithDefault<Int32, -1>;

@@ -42,7 +42,15 @@ export type FaceData = {
 
 export type OnFaceDetectedData = {
   nativeEvent: {
-    faces: ReadonlyArray<FaceData>;
+    faces: FaceData[];
+  };
+};
+
+export type FaceDetectionInstallState = 'pending' | 'downloading' | 'installing' | 'ready' | 'failed';
+
+export type OnFaceDetectionInstallStatusData = {
+  nativeEvent: {
+    state: FaceDetectionInstallState;
   };
 };
 
@@ -143,4 +151,6 @@ export interface CameraProps extends ViewProps {
   faceDetectionThrottleMs?: number;
   /** Fires per frame while face detection is active; bounds are normalized 0–1 in preview space */
   onFaceDetected?: (event: OnFaceDetectedData) => void;
+  /** **Android only**. Fires while the MLKit face detection module is being downloaded by Play Services on first use */
+  onFaceDetectionInstallStatus?: (event: OnFaceDetectionInstallStatusData) => void;
 }

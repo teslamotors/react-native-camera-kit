@@ -1,10 +1,15 @@
 import type React from 'react';
 import { useCallback, useState, useRef, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Image, Animated, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Image, Animated, ScrollView, type LayoutChangeEvent } from 'react-native';
 import Camera from '../../src/Camera';
 import { type CameraApi, CameraType, type CaptureData } from '../../src/types';
 import { Orientation } from '../../src';
-import { type FaceData, type OnFaceDetectedData } from '../../src/CameraProps';
+import {
+  type FaceData,
+  type FaceDetectionInstallState,
+  type OnFaceDetectedData,
+  type OnFaceDetectionInstallStatusData,
+} from '../../src/CameraProps';
 import SafeAreaView from './SafeAreaView';
 
 const flashImages = {
@@ -34,6 +39,9 @@ function median(values: number[]): number {
   return sortedValues.length % 2 ? sortedValues[half] : (sortedValues[half - 1] + sortedValues[half]) / 2;
 }
 
+// "Facing the camera" = head pointed within 15 degrees
+// AND the face center is within 20% of the preview center. Bounds are normalized 0–1 with
+// top-left origin, so the preview center is (0.5, 0.5) and faceCenter = corner + size/2.
 const FACING_THRESHOLD_DEG = 15;
 const CENTERING_TOLERANCE = 0.2;
 function isFacingCamera(face: FaceData): boolean {
@@ -109,14 +117,13 @@ function FaceFrame({ face, layout }: { face: FaceData; layout: { width: number; 
   );
 }
 
-function FaceStats({ faces }: { faces: readonly FaceData[] }) {
+function FaceStats({ faces }: { faces: FaceData[] }) {
   const face = faces[0];
   return (
     <View style={styles.statsBox} pointerEvents="none">
       <Text style={styles.statsText}>Faces: {faces.length}</Text>
       {face && (
         <>
-          <Text style={styles.statsText}>id: {face.id}</Text>
           <Text style={styles.statsText}>Yaw: {face.yaw.toFixed(1)}°</Text>
           <Text style={styles.statsText}>Pitch: {face.pitch.toFixed(1)}°</Text>
           <Text style={styles.statsText}>Roll: {face.roll.toFixed(1)}°</Text>
@@ -144,8 +151,9 @@ const CameraExample = ({ onBack, stress }: { onBack: () => void; stress?: boolea
   const [orientationAnim] = useState(new Animated.Value(3));
   const [resize, setResize] = useState<'contain' | 'cover'>('contain');
   const [faceDetection, setFaceDetection] = useState(false);
-  const [faces, setFaces] = useState<readonly FaceData[]>([]);
+  const [faces, setFaces] = useState<FaceData[]>([]);
   const [cameraLayout, setCameraLayout] = useState({ width: 0, height: 0 });
+  const [faceInstallState, setFaceInstallState] = useState<FaceDetectionInstallState | null>(null);
 
   useEffect(() => {
     if (!faceDetection) setFaces([]);
@@ -209,9 +217,14 @@ const CameraExample = ({ onBack, stress }: { onBack: () => void; stress?: boolea
     setFaces((prev) => (prev.length === 0 && next.length === 0 ? prev : next));
   }, []);
 
-  const onCameraLayout = useCallback((e: { nativeEvent: { layout: { width: number; height: number } } }) => {
-    const { width, height } = e.nativeEvent.layout;
-    setCameraLayout((prev) => (prev.width === width && prev.height === height ? prev : { width, height }));
+  const onCameraLayout = useCallback((e: LayoutChangeEvent) => {
+    const width = e.nativeEvent.layout.width;
+    const height = e.nativeEvent.layout.height;
+    setCameraLayout({ width, height });
+  }, []);
+
+  const onFaceDetectionInstallStatus = useCallback((e: OnFaceDetectionInstallStatusData) => {
+    setFaceInstallState(e.nativeEvent.state);
   }, []);
 
   const onCaptureImagePressed = async () => {
@@ -338,9 +351,10 @@ const CameraExample = ({ onBack, stress }: { onBack: () => void; stress?: boolea
             shutterPhotoSound
             maxPhotoQualityPrioritization="speed"
             faceDetectionEnabled={faceDetection}
-            faceDetectionThrottleMs={100}
+            faceDetectionThrottleMs={50}
             onLayout={onCameraLayout}
             onFaceDetected={onFaceDetected}
+            onFaceDetectionInstallStatus={onFaceDetectionInstallStatus}
             onCaptureButtonPressIn={() => {
               console.log('capture button pressed in');
             }}
@@ -384,6 +398,20 @@ const CameraExample = ({ onBack, stress }: { onBack: () => void; stress?: boolea
             ))}
             <FaceStats faces={faces} />
           </>
+        )}
+
+        {faceDetection && faceInstallState && faceInstallState !== 'ready' && (
+          <View style={styles.installBanner} pointerEvents="none">
+            <Text style={styles.installText}>
+              {faceInstallState === 'pending'
+                ? 'Preparing face detection…'
+                : faceInstallState === 'downloading'
+                ? 'Downloading face detection…'
+                : faceInstallState === 'installing'
+                ? 'Installing face detection…'
+                : 'Face detection unavailable'}
+            </Text>
+          </View>
         )}
       </View>
 
@@ -532,5 +560,19 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 11,
     fontVariant: ['tabular-nums'],
+  },
+  installBanner: {
+    position: 'absolute',
+    top: 30,
+    left: 20,
+    right: 20,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    padding: 12,
+    borderRadius: 6,
+  },
+  installText: {
+    color: 'white',
+    fontSize: 13,
+    textAlign: 'center',
   },
 });

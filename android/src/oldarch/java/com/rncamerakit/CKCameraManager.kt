@@ -55,6 +55,7 @@ class CKCameraManager(var context: ReactApplicationContext) : SimpleViewManager<
             CaptureButtonPressInEvent.EVENT_NAME to mapOf("registrationName" to "onCaptureButtonPressIn"),
             CaptureButtonPressOutEvent.EVENT_NAME to mapOf("registrationName" to "onCaptureButtonPressOut"),
             FaceDetectedEvent.EVENT_NAME to mapOf("registrationName" to "onFaceDetected"),
+            FaceDetectionInstallStatusEvent.EVENT_NAME to mapOf("registrationName" to "onFaceDetectionInstallStatus"),
         )
     }
 
