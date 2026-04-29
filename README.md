@@ -175,6 +175,8 @@ Additionally, the Camera can be used for barcode scanning
 
 Detect faces in real time. iOS uses Apple Vision; Android uses Google ML Kit.
 
+> **Android requires a Google Play Store device**
+
 ```tsx
 <Camera
   ...
@@ -187,7 +189,7 @@ Detect faces in real time. iOS uses Apple Vision; Android uses Google ML Kit.
   // Android only — track MLKit face module download progress
   onFaceDetectionInstallStatus={(event) => {
     // event.nativeEvent.state: FaceDetectionInstallState
-    // 'pending' | 'downloading' | 'installing' | 'ready' | 'failed'
+    // 'pending' | 'downloading' | 'installing' | 'ready' | 'failed' | 'unavailable'
   }}
 />
 ```
@@ -206,7 +208,7 @@ To have Play Services [pre-download the model in the background after the app is
 </application>
 ```
 
-> **Note:** Requires Google Play Services on the device.
+> **Note:** Requires Google Play Services on the device. On devices without Google Play Services, `onFaceDetectionInstallStatus` fires once with `'unavailable'`.
 
 ### Camera Props (Optional)
 

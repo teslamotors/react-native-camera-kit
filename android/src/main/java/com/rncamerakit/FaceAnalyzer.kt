@@ -6,6 +6,8 @@ import android.util.Log
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.common.moduleinstall.InstallStatusListener
 import com.google.android.gms.common.moduleinstall.ModuleInstall
 import com.google.android.gms.common.moduleinstall.ModuleInstallClient
@@ -62,6 +64,13 @@ class FaceAnalyzer(
     }
 
     private fun ensureModuleAndCreateDetector(context: Context) {
+        val status = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context)
+        if (status != ConnectionResult.SUCCESS) {
+            Log.w(TAG, "Google Play Services unavailable (status=$status); face detection disabled.")
+            onInstallStatus("unavailable")
+            return
+        }
+
         val newDetector = createDetector()
         val client = ModuleInstall.getClient(context).also { moduleClient = it }
 

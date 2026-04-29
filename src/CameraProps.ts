@@ -46,7 +46,13 @@ export type OnFaceDetectedData = {
   };
 };
 
-export type FaceDetectionInstallState = 'pending' | 'downloading' | 'installing' | 'ready' | 'failed';
+export type FaceDetectionInstallState =
+  | 'pending'
+  | 'downloading'
+  | 'installing'
+  | 'ready'
+  | 'failed'
+  | 'unavailable';
 
 export type OnFaceDetectionInstallStatusData = {
   nativeEvent: {
