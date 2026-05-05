@@ -19,6 +19,7 @@
     "release": "yarn clean && yarn build && yarn publish --verbose",
     "release:beta": "yarn clean && yarn build && yarn publish --tag beta --verbose",
     "release:local": "yarn clean && yarn build && tmp=$(mktemp) && yarn pack --filename $tmp.tar.gz && open -R $tmp.tar.gz",
+    "prepack": "rm -rf android/build build",
     "start": "watchman watch-del-all && node node_modules/react-native/local-cli/cli.js start",
     "codegen": "react-native codegen --verbose --path . --platform ios --source library && react-native codegen --verbose --path . --platform android --source library",
     "bootstrap": "cd example/ && bundle install && yarn && cd ios/ && bundle exec pod install",
@@ -31,7 +32,7 @@
   "react-native": "src/index",
   "files": [
     "android",
-    "build",
+    "!android/build",
     "dist",
     "ios",
     "src",
