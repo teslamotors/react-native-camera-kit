@@ -13,6 +13,7 @@ import com.google.android.gms.common.moduleinstall.ModuleInstall
 import com.google.android.gms.common.moduleinstall.ModuleInstallClient
 import com.google.android.gms.common.moduleinstall.ModuleInstallRequest
 import com.google.android.gms.common.moduleinstall.ModuleInstallStatusUpdate
+import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.Face
 import com.google.mlkit.vision.face.FaceDetection
@@ -143,18 +144,13 @@ class FaceAnalyzer(
 
     @SuppressLint("UnsafeExperimentalUsageError")
     @ExperimentalGetImage
-    override fun analyze(image: ImageProxy) {
-        val det = detector
-        val mediaImage = image.image
-        if (det == null || mediaImage == null) {
-            image.close()
-            return
-        }
+    fun analyzeWithoutClosing(image: ImageProxy): Task<*>? {
+        val det = detector ?: return null
+        val mediaImage = image.image ?: return null
 
         val now = System.currentTimeMillis()
         if (now - lastEmitMs < throttleMs) {
-            image.close()
-            return
+            return null
         }
         lastEmitMs = now
 
@@ -163,9 +159,19 @@ class FaceAnalyzer(
         val width = if (rotation == 90 || rotation == 270) image.height else image.width
         val height = if (rotation == 90 || rotation == 270) image.width else image.height
 
-        det.process(inputImage)
+        return det.process(inputImage)
             .addOnSuccessListener { faces -> dispatch(faces, width, height) }
-            .addOnCompleteListener { image.close() }
+    }
+
+    @SuppressLint("UnsafeExperimentalUsageError")
+    @ExperimentalGetImage
+    override fun analyze(image: ImageProxy) {
+        val task = analyzeWithoutClosing(image)
+        if (task == null) {
+            image.close()
+            return
+        }
+        task.addOnCompleteListener { image.close() }
     }
 
     private fun dispatch(faces: List<Face>, imgWidth: Int, imgHeight: Int) {

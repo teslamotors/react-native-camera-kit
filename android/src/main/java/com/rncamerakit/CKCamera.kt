@@ -45,6 +45,8 @@ import android.graphics.Rect
 import android.graphics.RectF
 import android.util.Size
 import com.facebook.react.uimanager.UIManagerHelper
+import com.google.android.gms.tasks.Task
+import com.google.android.gms.tasks.Tasks
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.rncamerakit.events.*
 
@@ -356,8 +358,11 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
 
         val useCases = mutableListOf(preview, imageCapture)
 
-        if (scanBarcode) {
-            val analyzer = QRCodeAnalyzer({ barcodes, imageSize ->
+        faceAnalyzer?.close()
+        faceAnalyzer = null
+
+        val barcodeAnalyzer: QRCodeAnalyzer? = if (scanBarcode) {
+            QRCodeAnalyzer({ barcodes, imageSize ->
                 if (barcodes.isEmpty()) return@QRCodeAnalyzer
 
                 // 1. Filter by allowed barcode formats
@@ -405,27 +410,27 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
                     onBarcodeRead(filteredBarcodes)
                 }
             }, scanThrottleDelay)
-            imageAnalyzer!!.setAnalyzer(cameraExecutor, analyzer)
-            useCases.add(imageAnalyzer)
-        }
+        } else null
 
-        faceAnalyzer?.close()
-        faceAnalyzer = null
-        if (faceDetectionEnabled) {
-            val analyzer = FaceAnalyzer(
+        faceAnalyzer = if (faceDetectionEnabled) {
+            FaceAnalyzer(
                 faceDetectionThrottleMs,
                 context,
                 { state -> onFaceDetectionInstallStatus(state) },
                 { payloads -> onFaceDetected(payloads) }
             )
-            faceAnalyzer = analyzer
-            useCases.add(
-                ImageAnalysis.Builder()
-                    .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                    .setTargetAspectRatio(previewAspectRatio)
-                    .build()
-                    .also { it.setAnalyzer(cameraExecutor, analyzer) }
-            )
+        } else null
+
+        val activeFaceAnalyzer = faceAnalyzer
+        if (barcodeAnalyzer != null || activeFaceAnalyzer != null) {
+            imageAnalyzer!!.setAnalyzer(cameraExecutor) { image ->
+                val tasks = mutableListOf<Task<*>>()
+                barcodeAnalyzer?.analyzeWithoutClosing(image)?.let { tasks.add(it) }
+                activeFaceAnalyzer?.analyzeWithoutClosing(image)?.let { tasks.add(it) }
+                if (tasks.isEmpty()) image.close()
+                else Tasks.whenAllComplete(tasks).addOnCompleteListener { image.close() }
+            }
+            useCases.add(imageAnalyzer)
         }
 
         // Must unbind the use-cases before rebinding them
