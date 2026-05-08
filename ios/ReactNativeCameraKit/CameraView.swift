@@ -53,6 +53,8 @@ public class CameraView: UIView {
     @objc public var faceDetectionEnabled = false
     @objc public var faceDetectionThrottleMs: Int = FaceDetector.defaultThrottleMs
     @objc public var onFaceDetected: RCTDirectEventBlock?
+    // Android-only; Never fired.
+    @objc public var onFaceDetectionInstallStatus: RCTDirectEventBlock?
 
     // other
     @objc public var onOrientationChange: RCTDirectEventBlock?
@@ -281,10 +283,10 @@ public class CameraView: UIView {
         }
 
         // Face detection
-        if changedProps.contains("faceDetectionEnabled") {
+        if changedProps.contains("faceDetectionEnabled") || changedProps.contains("onFaceDetected") {
             camera.isFaceDetectionEnabled(
                 faceDetectionEnabled,
-                onFaceDetected: { [weak self] payloads in
+                onFaceDetected: onFaceDetected == nil ? nil : { [weak self] payloads in
                     self?.onFaceDetected?(["faces": payloads.map { $0.asDictionary }])
                 })
         }

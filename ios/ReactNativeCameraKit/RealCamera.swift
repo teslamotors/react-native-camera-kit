@@ -476,7 +476,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     }
 
     func update(faceDetectionThrottleMs: Int) {
-        sessionQueue.async {
+        visionQueue.async {
             self.faceDetector.update(throttleMs: faceDetectionThrottleMs)
         }
     }
@@ -546,7 +546,10 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
     private func refreshVisionOrientation() {
         guard let position = videoDeviceInput?.device.position else { return }
-        currentVisionOrientation = visionOrientation(for: position)
+        let newOrientation = visionOrientation(for: position)
+        visionQueue.async {
+            self.currentVisionOrientation = newOrientation
+        }
     }
 
     // MARK: - AVCaptureVideoDataOutputSampleBufferDelegate
