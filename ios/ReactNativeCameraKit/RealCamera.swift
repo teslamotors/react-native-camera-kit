@@ -569,7 +569,27 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         }
 
         DispatchQueue.main.async {
-            self.onFaceDetected?(payloads)
+            let layer = self.cameraPreview.previewLayer
+            let layerSize = layer.bounds.size
+            guard layerSize.width > 0, layerSize.height > 0 else { return }
+            let frameRect = layer.layerRectConverted(
+                fromMetadataOutputRect: CGRect(x: 0, y: 0, width: 1, height: 1))
+            guard frameRect.width > 0, frameRect.height > 0 else { return }
+
+            let converted = payloads.map { p -> FaceDetectionPayload in
+                let layerX = frameRect.origin.x + p.boundsX * frameRect.width
+                let layerY = frameRect.origin.y + p.boundsY * frameRect.height
+                let layerW = p.boundsWidth * frameRect.width
+                let layerH = p.boundsHeight * frameRect.height
+                return FaceDetectionPayload(
+                    id: p.id, yaw: p.yaw, pitch: p.pitch, roll: p.roll,
+                    boundsX: Double(layerX / layerSize.width),
+                    boundsY: Double(layerY / layerSize.height),
+                    boundsWidth: Double(layerW / layerSize.width),
+                    boundsHeight: Double(layerH / layerSize.height)
+                )
+            }
+            self.onFaceDetected?(converted)
         }
     }
 

@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
+import androidx.camera.view.PreviewView
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.common.moduleinstall.InstallStatusListener
@@ -19,6 +20,7 @@ import com.google.mlkit.vision.face.Face
 import com.google.mlkit.vision.face.FaceDetection
 import com.google.mlkit.vision.face.FaceDetector
 import com.google.mlkit.vision.face.FaceDetectorOptions
+import kotlin.math.max
 
 data class FacePayload(
     val id: Int,
@@ -34,6 +36,7 @@ data class FacePayload(
 class FaceAnalyzer(
     @Volatile var throttleMs: Long,
     context: Context,
+    private val previewView: PreviewView,
     private val onInstallStatus: (state: String) -> Unit,
     private val onFaceDetected: (payloads: List<FacePayload>) -> Unit
 ) : ImageAnalysis.Analyzer {
@@ -175,9 +178,28 @@ class FaceAnalyzer(
     }
 
     private fun dispatch(faces: List<Face>, imgWidth: Int, imgHeight: Int) {
-        val w = imgWidth.toDouble().coerceAtLeast(1.0)
-        val h = imgHeight.toDouble().coerceAtLeast(1.0)
-        val payloads = faces.map { face -> build(face, w, h) }
+        val viewW = previewView.width.toFloat()
+        val viewH = previewView.height.toFloat()
+        if (viewW <= 0f || viewH <= 0f) return
+        val srcW = imgWidth.toFloat().coerceAtLeast(1f)
+        val srcH = imgHeight.toFloat().coerceAtLeast(1f)
+        val scale = max(viewW / srcW, viewH / srcH)
+        val offsetX = (viewW - srcW * scale) / 2f
+        val offsetY = (viewH - srcH * scale) / 2f
+
+        val payloads = faces.map { face ->
+            val box = face.boundingBox
+            FacePayload(
+                id = face.trackingId ?: nextLocalId.also { nextLocalId-- },
+                yaw = face.headEulerAngleY.toDouble(),
+                pitch = face.headEulerAngleX.toDouble(),
+                roll = face.headEulerAngleZ.toDouble(),
+                boundsX = ((offsetX + box.left * scale) / viewW).toDouble(),
+                boundsY = ((offsetY + box.top * scale) / viewH).toDouble(),
+                boundsWidth = (box.width() * scale / viewW).toDouble(),
+                boundsHeight = (box.height() * scale / viewH).toDouble(),
+            )
+        }
         onFaceDetected(payloads)
     }
 
@@ -186,21 +208,6 @@ class FaceAnalyzer(
         unregisterInstallListener()
         detector?.close()
         detector = null
-    }
-
-    private fun build(face: Face, w: Double, h: Double): FacePayload {
-        val box = face.boundingBox
-        val id = face.trackingId ?: nextLocalId.also { nextLocalId-- }
-        return FacePayload(
-            id = id,
-            yaw = face.headEulerAngleY.toDouble(),
-            pitch = face.headEulerAngleX.toDouble(),
-            roll = face.headEulerAngleZ.toDouble(),
-            boundsX = box.left / w,
-            boundsY = box.top / h,
-            boundsWidth = box.width() / w,
-            boundsHeight = box.height() / h,
-        )
     }
 
     companion object {

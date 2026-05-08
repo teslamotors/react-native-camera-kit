@@ -88,12 +88,18 @@ function CaptureButton({ onPress, children }: { onPress: () => void; children?: 
   );
 }
 
-function FaceFrame({ face, layout }: { face: FaceData; layout: { width: number; height: number } }) {
+function FaceFrame({
+  face,
+  layout,
+}: {
+  face: FaceData;
+  layout: { x: number; y: number; width: number; height: number };
+}) {
   if (!layout.width || !layout.height) return null;
   const facing = isFacingCamera(face);
   const color = facing ? '#22c55e' : '#facc15';
-  const left = face.boundsX * layout.width;
-  const top = face.boundsY * layout.height;
+  const left = layout.x + face.boundsX * layout.width;
+  const top = layout.y + face.boundsY * layout.height;
   const height = face.boundsHeight * layout.height;
   return (
     <>
@@ -152,7 +158,7 @@ const CameraExample = ({ onBack, stress }: { onBack: () => void; stress?: boolea
   const [resize, setResize] = useState<'contain' | 'cover'>('contain');
   const [faceDetection, setFaceDetection] = useState(false);
   const [faces, setFaces] = useState<FaceData[]>([]);
-  const [cameraLayout, setCameraLayout] = useState({ width: 0, height: 0 });
+  const [cameraLayout, setCameraLayout] = useState({ x: 0, y: 0, width: 0, height: 0 });
   const [faceInstallState, setFaceInstallState] = useState<FaceDetectionInstallState | null>(null);
 
   useEffect(() => {
@@ -218,9 +224,11 @@ const CameraExample = ({ onBack, stress }: { onBack: () => void; stress?: boolea
   }, []);
 
   const onCameraLayout = useCallback((e: LayoutChangeEvent) => {
+    const x = e.nativeEvent.layout.x;
+    const y = e.nativeEvent.layout.y;
     const width = e.nativeEvent.layout.width;
     const height = e.nativeEvent.layout.height;
-    setCameraLayout({ width, height });
+    setCameraLayout({ x, y, width, height });
   }, []);
 
   const onFaceDetectionInstallStatus = useCallback((e: OnFaceDetectionInstallStatusData) => {

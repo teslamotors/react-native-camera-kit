@@ -416,6 +416,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
             FaceAnalyzer(
                 faceDetectionThrottleMs,
                 context,
+                viewFinder,
                 { state -> onFaceDetectionInstallStatus(state) },
                 { payloads -> onFaceDetected(payloads) }
             )
