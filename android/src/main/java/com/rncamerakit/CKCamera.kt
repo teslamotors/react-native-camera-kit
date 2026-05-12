@@ -106,6 +106,8 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
     private var maxZoom: Double? = null
     private var zoomStartedAt = 1.0f
     private var pinchGestureStartedAt = 0.0f
+    private var flashMode: String = "auto"
+    private var torchMode: String = "off"
 
     // Barcode Props
     private var scanBarcode: Boolean = false
@@ -445,6 +447,10 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
 
             resetZoom(newCamera)
 
+            // Apply initial flash mode and torch mode settings after camera initialization
+            setFlashMode(flashMode)
+            setTorchMode(torchMode)
+
             // Attach the viewfinder's surface provider to preview use case
             preview?.setSurfaceProvider(viewFinder.surfaceProvider)
         } catch (exc: Exception) {
@@ -649,6 +655,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
 
 
     fun setFlashMode(mode: String?) {
+        flashMode = mode ?: "auto"
         val imageCapture = imageCapture ?: return
         val camera = camera ?: return
         when (mode) {
@@ -668,6 +675,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
     }
 
     fun setTorchMode(mode: String?) {
+        torchMode = mode ?: "off"
         val camera = camera ?: return
         when (mode) {
             "on" -> {
