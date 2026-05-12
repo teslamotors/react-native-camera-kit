@@ -27,7 +27,38 @@ export type OnZoom = {
   nativeEvent: {
     zoom: number;
   };
-}
+};
+
+export type FaceData = {
+  id: number;
+  yaw: number;
+  pitch: number;
+  roll: number;
+  boundsX: number;
+  boundsY: number;
+  boundsWidth: number;
+  boundsHeight: number;
+};
+
+export type OnFaceDetectedData = {
+  nativeEvent: {
+    faces: FaceData[];
+  };
+};
+
+export type FaceDetectionInstallState =
+  | 'pending'
+  | 'downloading'
+  | 'installing'
+  | 'ready'
+  | 'failed'
+  | 'unavailable';
+
+export type OnFaceDetectionInstallStatusData = {
+  nativeEvent: {
+    state: FaceDetectionInstallState;
+  };
+};
 
 export interface CameraProps extends ViewProps {
   // Behavior
@@ -120,4 +151,12 @@ export interface CameraProps extends ViewProps {
   onCaptureButtonPressIn?: ({ nativeEvent: {} }) => void;
   onCaptureButtonPressOut?: ({ nativeEvent: {} }) => void;
   allowedBarcodeTypes?: CodeFormat[];
+  /** Enable real-time face detection. iOS uses Apple Vision; Android uses MLKit */
+  faceDetectionEnabled?: boolean;
+  /** Throttle how often `onFaceDetected` emits. Defaults to 100 (~10 events/sec) */
+  faceDetectionThrottleMs?: number;
+  /** Fires per frame while face detection is active; bounds are normalized 0–1 in preview space */
+  onFaceDetected?: (event: OnFaceDetectedData) => void;
+  /** **Android only**. Fires while the MLKit face detection module is being downloaded by Play Services on first use */
+  onFaceDetectionInstallStatus?: (event: OnFaceDetectionInstallStatusData) => void;
 }

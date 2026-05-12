@@ -25,6 +25,7 @@
         <li><h3>Cross Platform (iOS and Android)</h3></li>
         <li><h3>Optimized for performance and high photo capture rate</h3></li>
         <li><h3>QR / Barcode scanning support</h3></li>
+        <li><h3>Face detection support</h3></li>
         <li><h3>Camera preview support in iOS simulator</h3></li>
       </ul>
     </td>
@@ -170,6 +171,45 @@ Additionally, the Camera can be used for barcode scanning
 />
 ```
 
+#### Face Detection
+
+Detect faces in real time. iOS uses Apple Vision; Android uses Google ML Kit.
+
+> **Android requires a Google Play Store device**
+
+```tsx
+<Camera
+  ...
+  faceDetectionEnabled={true}
+  faceDetectionThrottleMs={100} // optional, default 100ms
+  onFaceDetected={(event) => {
+    // event.nativeEvent.faces: FaceData[]
+    // each face: { id, yaw, pitch, roll, boundsX, boundsY, boundsWidth, boundsHeight }
+  }}
+  // Android only — track MLKit face module download progress
+  onFaceDetectionInstallStatus={(event) => {
+    // event.nativeEvent.state: FaceDetectionInstallState
+    // 'pending' | 'downloading' | 'installing' | 'ready' | 'failed' | 'unavailable'
+  }}
+/>
+```
+
+##### Android: pre-download the ML Kit model
+
+This library depends on the unbundled `play-services-mlkit-face-detection` variant — the model is downloaded by Google Play Services rather than bundled in the APK. By default the download happens on first use, and `onFaceDetectionInstallStatus` reports the progress.
+
+To have Play Services [pre-download the model in the background after the app is installed](https://developers.google.com/ml-kit/tips/installation-paths#how_to_download_models), add this to your app's `AndroidManifest.xml`:
+
+```xml
+<application ...>
+  <meta-data
+      android:name="com.google.mlkit.vision.DEPENDENCIES"
+      android:value="face" />
+</application>
+```
+
+> **Note:** Requires Google Play Services on the device. On devices without Google Play Services, `onFaceDetectionInstallStatus` fires once with `'unavailable'`.
+
 ### Camera Props (Optional)
 
 | Props                           | Type                                   | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                |
@@ -197,7 +237,7 @@ Additionally, the Camera can be used for barcode scanning
 | `resizeMode`                    | `'cover' / 'contain'`                  | Determines the scaling and cropping behavior of content within the view. `cover` (resizeAspectFill on iOS) scales the content to fill the view completely, potentially cropping content if its aspect ratio differs from the view. `contain` (resizeAspect on iOS) scales the content to fit within the view's bounds without cropping, ensuring all content is visible but may introduce letterboxing. Default behavior depends on the specific use case. |
 | `scanThrottleDelay`             | `number`                               | Duration between scan detection in milliseconds. Default 2000 (2s)                                                                                                                                                                                                                                                                                                                                                                                         |
 | `maxPhotoQualityPrioritization` | `'balanced'` / `'quality'` / `'speed'` | [iOS 13 and newer](https://developer.apple.com/documentation/avfoundation/avcapturephotooutput/3182995-maxphotoqualityprioritization). `'speed'` provides a 60-80% median capture time reduction vs 'quality' setting. Tested on iPhone 6S Max (66% faster) and iPhone 15 Pro Max (76% faster!). Default `balanced`                                                                                                                                        |
-| `iOsDeferredStart`              | `boolean`                              | iOS 26+ only. Enables `AVCaptureOutput.deferredStartEnabled` when supported to get the preview visible faster. Default `true`. When enabled, the first capture can be delayed by a few hundred milliseconds. Ignored on Android and on older iOS versions.                                                                                                                                                                                                   |
+| `iOsDeferredStart`              | `boolean`                              | iOS 26+ only. Enables `AVCaptureOutput.deferredStartEnabled` when supported to get the preview visible faster. Default `true`. When enabled, the first capture can be delayed by a few hundred milliseconds. Ignored on Android and on older iOS versions.                                                                                                                                                                                                 |
 | `onCaptureButtonPressIn`        | Function                               | Callback when iPhone capture button is pressed in or Android volume or camera button is pressed in. Ex: `onCaptureButtonPressIn={() => console.log("volume button pressed in")}`                                                                                                                                                                                                                                                                           |
 | `onCaptureButtonPressOut`       | Function                               | Callback when iPhone capture button is released or Android volume or camera button is released. Ex: `onCaptureButtonPressOut={() => console.log("volume button released")}`                                                                                                                                                                                                                                                                                |
 | **Barcode only**                |
@@ -207,6 +247,11 @@ Additionally, the Camera can be used for barcode scanning
 | `laserColor`                    | Color                                  | Color of barcode scanner laser visualization. Default: `red`                                                                                                                                                                                                                                                                                                                                                                                               |
 | `frameColor`                    | Color                                  | Color of barcode scanner frame visualization. Default: `yellow`                                                                                                                                                                                                                                                                                                                                                                                            |
 | `onReadCode`                    | Function                               | Callback when scanner successfully reads barcode. Returned event contains `codeStringValue`. Default: `null`. Ex: `onReadCode={(event) => console.log(event.nativeEvent.codeStringValue)}`                                                                                                                                                                                                                                                                 |
+| **Face detection**              |
+| `faceDetectionEnabled`          | `boolean`                              | Enable real-time face detection. Default: `false`                                                                                                                                                                                                                                                                                                                                                                                                          |
+| `faceDetectionThrottleMs`       | `number`                               | Minimum milliseconds between `onFaceDetected` emits. Default: `100`                                                                                                                                                                                                                                                                                                                                                                                        |
+| `onFaceDetected`                | Function                               | Callback while face detection is active, with one entry per detected face (empty array if none).                                                                                                                                                                                                                             |
+| `onFaceDetectionInstallStatus`  | Function                               | **Android only.** Callback while the MLKit face detection module is being downloaded by Google Play Services. See [Android: pre-download the ML Kit model](#android-pre-download-the-ml-kit-model) above to skip the first-run download.                                                                                                                        |
 
 ### Imperative API
 

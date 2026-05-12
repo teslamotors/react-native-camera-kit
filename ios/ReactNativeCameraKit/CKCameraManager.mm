@@ -33,6 +33,12 @@ RCT_EXPORT_VIEW_PROPERTY(frameColor, UIColor)
 RCT_EXPORT_VIEW_PROPERTY(barcodeFrameSize, NSDictionary)
 RCT_EXPORT_VIEW_PROPERTY(allowedBarcodeTypes, NSArray)
 
+RCT_EXPORT_VIEW_PROPERTY(faceDetectionEnabled, BOOL)
+RCT_EXPORT_VIEW_PROPERTY(faceDetectionThrottleMs, NSInteger)
+RCT_EXPORT_VIEW_PROPERTY(onFaceDetected, RCTDirectEventBlock)
+// Android-only; Never fired.
+RCT_EXPORT_VIEW_PROPERTY(onFaceDetectionInstallStatus, RCTDirectEventBlock)
+
 RCT_EXPORT_VIEW_PROPERTY(onOrientationChange, RCTDirectEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onCaptureButtonPressIn, RCTDirectEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onCaptureButtonPressOut, RCTDirectEventBlock)

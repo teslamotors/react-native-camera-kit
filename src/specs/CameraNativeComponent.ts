@@ -28,6 +28,19 @@ type OnZoom = {
     zoom: Double;
 }
 
+type OnFaceDetectedData = {
+    faces: {
+        id: Int32;
+        yaw: Double;
+        pitch: Double;
+        roll: Double;
+        boundsX: Double;
+        boundsY: Double;
+        boundsWidth: Double;
+        boundsHeight: Double;
+    }[];
+};
+
 // We have to use -1 until RN Fabric (New Arch for view components) supports optional values:
 // https://github.com/facebook/react-native/issues/49920#issuecomment-3237917813
 export interface NativeProps extends ViewProps {
@@ -59,6 +72,10 @@ export interface NativeProps extends ViewProps {
   onCaptureButtonPressIn?: DirectEventHandler<{}>;
   onCaptureButtonPressOut?: DirectEventHandler<{}>;
   allowedBarcodeTypes?: string[];
+  faceDetectionEnabled?: boolean;
+  faceDetectionThrottleMs?: WithDefault<Int32, -1>;
+  onFaceDetected?: DirectEventHandler<OnFaceDetectedData>;
+  onFaceDetectionInstallStatus?: DirectEventHandler<{ state: string }>;
 
   // not mentioned in props but available on the native side
   shutterAnimationDuration?: WithDefault<Int32, -1>;

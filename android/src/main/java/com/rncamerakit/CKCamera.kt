@@ -45,6 +45,8 @@ import android.graphics.Rect
 import android.graphics.RectF
 import android.util.Size
 import com.facebook.react.uimanager.UIManagerHelper
+import com.google.android.gms.tasks.Task
+import com.google.android.gms.tasks.Tasks
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.rncamerakit.events.*
 
@@ -83,6 +85,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
     private var preview: Preview? = null
     private var imageCapture: ImageCapture? = null
     private var imageAnalyzer: ImageAnalysis? = null
+    private var faceAnalyzer: FaceAnalyzer? = null
     private var orientationListener: OrientationEventListener? = null
     private var viewFinder: PreviewView = PreviewView(context)
     private var rectOverlay: RectOverlay = RectOverlay(context)
@@ -111,6 +114,10 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
     private var laserColor = Color.RED
     private var barcodeFrameSize: Size? = null
     private var allowedBarcodeTypes: Array<CodeFormat>? = null
+
+    // Face detection props
+    private var faceDetectionEnabled: Boolean = false
+    private var faceDetectionThrottleMs: Long = FaceAnalyzer.DEFAULT_THROTTLE_MS
 
     private fun getActivity() : Activity {
         return currentContext.currentActivity!!
@@ -142,9 +149,19 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
 
+        faceAnalyzer?.close()
+        faceAnalyzer = null
         cameraExecutor.shutdown()
         orientationListener?.disable()
         cameraProvider?.unbindAll()
+    }
+
+    override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
+        super.onWindowFocusChanged(hasWindowFocus)
+        if (hasWindowFocus && cameraProvider == null &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            viewFinder.post { setupCamera() }
+        }
     }
 
     override fun dispatchKeyEvent(event: KeyEvent?): Boolean {
@@ -341,8 +358,11 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
 
         val useCases = mutableListOf(preview, imageCapture)
 
-        if (scanBarcode) {
-            val analyzer = QRCodeAnalyzer({ barcodes, imageSize ->
+        faceAnalyzer?.close()
+        faceAnalyzer = null
+
+        val barcodeAnalyzer: QRCodeAnalyzer? = if (scanBarcode) {
+            QRCodeAnalyzer({ barcodes, imageSize ->
                 if (barcodes.isEmpty()) return@QRCodeAnalyzer
 
                 // 1. Filter by allowed barcode formats
@@ -390,7 +410,27 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
                     onBarcodeRead(filteredBarcodes)
                 }
             }, scanThrottleDelay)
-            imageAnalyzer!!.setAnalyzer(cameraExecutor, analyzer)
+        } else null
+
+        faceAnalyzer = if (faceDetectionEnabled) {
+            FaceAnalyzer(
+                faceDetectionThrottleMs,
+                context,
+                viewFinder,
+                { state -> onFaceDetectionInstallStatus(state) },
+                { payloads -> onFaceDetected(payloads) }
+            )
+        } else null
+
+        val activeFaceAnalyzer = faceAnalyzer
+        if (barcodeAnalyzer != null || activeFaceAnalyzer != null) {
+            imageAnalyzer!!.setAnalyzer(cameraExecutor) { image ->
+                val tasks = mutableListOf<Task<*>>()
+                barcodeAnalyzer?.analyzeWithoutClosing(image)?.let { tasks.add(it) }
+                activeFaceAnalyzer?.analyzeWithoutClosing(image)?.let { tasks.add(it) }
+                if (tasks.isEmpty()) image.close()
+                else Tasks.whenAllComplete(tasks).addOnCompleteListener { image.close() }
+            }
             useCases.add(imageAnalyzer)
         }
 
@@ -547,6 +587,27 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
             ?.dispatchEvent(ReadCodeEvent(surfaceId, id, barcodes.first().rawValue, codeFormat.code))
     }
 
+    private fun onFaceDetected(payloads: List<FacePayload>) {
+        // CameraX auto-mirrors the front-camera Preview but not ImageAnalysis,
+        // so flip X here to keep bounds in preview-space for JS consumers.
+        val mirrored = if (lensType == CameraSelector.LENS_FACING_FRONT) {
+            payloads.map { it.copy(boundsX = 1.0 - it.boundsX - it.boundsWidth) }
+        } else {
+            payloads
+        }
+        val surfaceId = UIManagerHelper.getSurfaceId(currentContext)
+        UIManagerHelper
+            .getEventDispatcherForReactTag(currentContext, id)
+            ?.dispatchEvent(FaceDetectedEvent(surfaceId, id, mirrored))
+    }
+
+    private fun onFaceDetectionInstallStatus(state: String) {
+        val surfaceId = UIManagerHelper.getSurfaceId(currentContext)
+        UIManagerHelper
+            .getEventDispatcherForReactTag(currentContext, id)
+            ?.dispatchEvent(FaceDetectionInstallStatusEvent(surfaceId, id, state))
+    }
+
     private fun onOrientationChange(orientation: Int) {
         val remappedOrientation = when (orientation) {
             Surface.ROTATION_0 -> RNCameraKitModule.PORTRAIT
@@ -672,6 +733,19 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
         val restartCamera = enabled != scanBarcode
         scanBarcode = enabled
         if (restartCamera) bindCameraUseCases()
+    }
+
+    fun setFaceDetectionEnabled(enabled: Boolean) {
+        val restartCamera = enabled != faceDetectionEnabled
+        faceDetectionEnabled = enabled
+        if (restartCamera) bindCameraUseCases()
+    }
+
+    fun setFaceDetectionThrottleMs(throttleMs: Int) {
+        val newThrottle = if (throttleMs < 0) FaceAnalyzer.DEFAULT_THROTTLE_MS else throttleMs.toLong()
+        if (faceDetectionThrottleMs == newThrottle) return
+        faceDetectionThrottleMs = newThrottle
+        faceAnalyzer?.throttleMs = newThrottle
     }
 
     fun setScanThrottleDelay(delayMs: Int) {
