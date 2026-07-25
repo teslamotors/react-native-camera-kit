@@ -1,6 +1,6 @@
 import React from 'react';
 import { findNodeHandle } from 'react-native';
-import { supportedCodeFormats, type CameraApi } from './types';
+import { supportedCodeFormats, type CameraApi, type CaptureOptions } from './types';
 import type { CameraProps } from './CameraProps';
 import NativeCamera from './specs/CameraNativeComponent';
 import NativeCameraKitModule from './specs/NativeCameraKitModule';
@@ -23,8 +23,8 @@ const Camera = React.forwardRef<CameraApi, CameraProps>((props, ref) => {
   props.resetFocusWhenMotionDetected = props.resetFocusWhenMotionDetected ?? true;
 
   React.useImperativeHandle(ref, () => ({
-    capture: async () => {
-      return await NativeCameraKitModule.capture({}, findNodeHandle(nativeRef.current) ?? undefined);
+    capture: async (options?: CaptureOptions) => {
+      return await NativeCameraKitModule.capture(options ?? {}, findNodeHandle(nativeRef.current) ?? undefined);
     },
     requestDeviceCameraAuthorization: async () => {
       return await NativeCameraKitModule.checkDeviceCameraAuthorizationStatus();

@@ -142,6 +142,20 @@ public enum ResizeMode: Int, CustomStringConvertible {
     }
 }
 
+public enum CaptureFormat: String {
+    case jpeg
+    case raw
+}
+
+public struct CaptureOptions {
+    let format: CaptureFormat
+
+    init(_ dictionary: NSDictionary?) {
+        let rawFormat = dictionary?["format"] as? String
+        format = CaptureFormat(rawValue: rawFormat ?? "jpeg") ?? .jpeg
+    }
+}
+
 @objc(CKSetupResult)
 enum SetupResult: Int {
     case notStarted

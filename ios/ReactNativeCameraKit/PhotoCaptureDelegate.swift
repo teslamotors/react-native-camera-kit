@@ -15,11 +15,15 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
     private let onCaptureSuccess: (_ uniqueID: Int64, _ imageData: Data, _ thumbnailData: Data?, _ dimensions: CMVideoDimensions) -> Void
     private let onCaptureError: (_ uniqueID: Int64, _ message: String) -> Void
 
+    let fileExtension: String
+
     init(with requestedPhotoSettings: AVCapturePhotoSettings,
+         fileExtension: String,
          onWillCapture: @escaping () -> Void,
          onCaptureSuccess: @escaping (_ uniqueID: Int64, _ imageData: Data, _ thumbnailData: Data?, _ dimensions: CMVideoDimensions) -> Void,
          onCaptureError: @escaping (_ uniqueID: Int64, _ errorMessage: String) -> Void) {
         self.requestedPhotoSettings = requestedPhotoSettings
+        self.fileExtension = fileExtension
         self.onWillCapture = onWillCapture
         self.onCaptureSuccess = onCaptureSuccess
         self.onCaptureError = onCaptureError

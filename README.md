@@ -257,9 +257,9 @@ To have Play Services [pre-download the model in the background after the app is
 
 _Note: Must be called on a valid camera ref_
 
-#### capture()
+#### capture(options?)
 
-Capture image as JPEG.
+Capture image as JPEG by default. On iOS devices that support RAW capture, pass `{ format: 'raw' }` to capture a DNG file.
 
 A temporary file is created. You _must_ move this file to a permanent location (e.g. the app's 'Documents' folder) if you need it beyond the current session of the app as it may be deleted when the user leaves the app. You can move files by using a file system library such as [react-native-fs](https://github.com/itinance/react-native-fs) or [expo-filesystem](https://docs.expo.io/versions/latest/sdk/filesystem/).
 (On Android we currently have an unsupported `outputPath` prop but it's subject to change at any time).
@@ -269,7 +269,12 @@ Note that the reason you're getting a URL despite it being a file is because And
 ```ts
 const { uri } = await this.camera.capture();
 // uri = 'file:///data/user/0/com.myorg.myapp/cache/ckcap123123123123.jpg'
+
+const { uri: rawUri } = await this.camera.capture({ format: 'raw' });
+// rawUri = 'file:///var/mobile/Containers/Data/Application/.../UUID.dng'
 ```
+
+`format: 'raw'` rejects if the active iOS camera does not expose any RAW pixel formats. Android RAW capture is not supported yet because the Android implementation currently uses CameraX `ImageCapture`, which only writes processed image formats.
 
 If you want to store it permanently, here's an example using [react-native-fs](https://github.com/itinance/react-native-fs):
 

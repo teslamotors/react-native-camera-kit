@@ -199,12 +199,18 @@ class SimulatorCamera: CameraProtocol {
     func update(faceDetectionThrottleMs: Int) {}
 
     func capturePicture(
+        options: CaptureOptions,
         onWillCapture: @escaping () -> Void,
         onSuccess:
             @escaping (_ imageData: Data, _ thumbnailData: Data?, _ dimensions: CMVideoDimensions)
             -> Void,
         onError: @escaping (_ message: String) -> Void
     ) {
+        if options.format == .raw {
+            onError("RAW photo capture is not supported by the simulator camera")
+            return
+        }
+
         onWillCapture()
 
         DispatchQueue.main.async {

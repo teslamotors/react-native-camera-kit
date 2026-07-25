@@ -349,11 +349,13 @@ public class CameraView: UIView {
 
     // MARK: Public
 
-    @objc public func capture(
+    public func capture(
+        options: CaptureOptions,
         onSuccess: @escaping (_ imageObject: [String: Any]) -> Void,
         onError: @escaping (_ error: String) -> Void
     ) {
         camera.capturePicture(
+            options: options,
             onWillCapture: { [weak self] in
                 // Flash/dim preview to indicate shutter action
                 DispatchQueue.main.async {
@@ -371,6 +373,7 @@ public class CameraView: UIView {
                         imageData: imageData,
                         thumbnailData: thumbnailData,
                         dimensions: dimensions,
+                        fileExtension: options.format == .raw ? "dng" : "jpg",
                         onSuccess: onSuccess,
                         onError: onError)
 
@@ -440,11 +443,12 @@ public class CameraView: UIView {
         imageData: Data,
         thumbnailData: Data?,
         dimensions: CMVideoDimensions,
+        fileExtension: String,
         onSuccess: @escaping (_ imageObject: [String: Any]) -> Void,
         onError: @escaping (_ error: String) -> Void
     ) {
         do {
-            let temporaryImageFileURL = try saveToTmpFolder(imageData)
+            let temporaryImageFileURL = try saveToTmpFolder(imageData, fileExtension: fileExtension)
 
             onSuccess([
                 "size": imageData.count,
@@ -462,7 +466,7 @@ public class CameraView: UIView {
         }
     }
 
-    private func saveToTmpFolder(_ data: Data) throws -> URL {
+    private func saveToTmpFolder(_ data: Data, fileExtension: String = "jpg") throws -> URL {
         let temporaryFileName = ProcessInfo.processInfo.globallyUniqueString
         // Store temporary photos in the 'caches' directory to support expo-file-system
         let cachesUrl = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
@@ -475,7 +479,7 @@ public class CameraView: UIView {
             "com.tesla.react-native-camera-kit", isDirectory: true)
         try FileManager.default.createDirectory(
             at: temporaryFolderURL, withIntermediateDirectories: true)
-        let temporaryFileURL = temporaryFolderURL.appendingPathComponent("\(temporaryFileName).jpg")
+        let temporaryFileURL = temporaryFolderURL.appendingPathComponent("\(temporaryFileName).\(fileExtension)")
 
         try data.write(to: temporaryFileURL, options: .atomic)
 

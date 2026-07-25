@@ -366,6 +366,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     }
 
     func capturePicture(
+        options: CaptureOptions,
         onWillCapture: @escaping () -> Void,
         onSuccess:
             @escaping (_ imageData: Data, _ thumbnailData: Data?, _ dimensions: CMVideoDimensions)
@@ -389,20 +390,38 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
                     photoOutputConnection.videoOrientation = videoPreviewLayerOrientation
                 }
 
-                let settings = AVCapturePhotoSettings(format: [
-                    AVVideoCodecKey: AVVideoCodecType.jpeg
-                ])
-                if #available(iOS 13.0, *) {
+                let settings: AVCapturePhotoSettings
+                let fileExtension: String
+
+                switch options.format {
+                case .raw:
+                    guard let rawPixelFormatType = self.photoOutput.availableRawPhotoPixelFormatTypes.first else {
+                        onError("RAW photo capture is not supported by this camera")
+                        return
+                    }
+                    settings = AVCapturePhotoSettings(
+                        rawPixelFormatType: rawPixelFormatType,
+                        processedFormat: nil)
+                    fileExtension = "dng"
+                case .jpeg:
+                    settings = AVCapturePhotoSettings(format: [
+                        AVVideoCodecKey: AVVideoCodecType.jpeg
+                    ])
+                    fileExtension = "jpg"
+                }
+
+                if #available(iOS 13.0, *), options.format != .raw {
                     settings.photoQualityPrioritization =
                         self.photoOutput.maxPhotoQualityPrioritization
                 }
 
-                if self.videoDeviceInput?.device.isFlashAvailable == true {
+                if options.format != .raw && self.videoDeviceInput?.device.isFlashAvailable == true {
                     settings.flashMode = self.flashMode.avFlashMode
                 }
 
                 let photoCaptureDelegate = PhotoCaptureDelegate(
                     with: settings,
+                    fileExtension: fileExtension,
                     onWillCapture: onWillCapture,
                     onCaptureSuccess: { uniqueID, imageData, thumbnailData, dimensions in
                         self.inProgressPhotoCaptureDelegates[uniqueID] = nil

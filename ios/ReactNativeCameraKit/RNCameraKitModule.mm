@@ -46,7 +46,7 @@ RCT_EXPORT_MODULE();
 
 RCT_EXPORT_METHOD(capture:(NSDictionary *)options tag:(nonnull NSNumber *)tag resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
     [self withCamera:tag block:^(CKCameraView *view) {
-        [CKCameraManager captureWithCamera:view options:[NSDictionary new] resolve:resolve reject:reject];
+        [CKCameraManager captureWithCamera:view options:options ?: [NSDictionary new] resolve:resolve reject:reject];
     } reject:reject methodName:@"capture"];
 }
  

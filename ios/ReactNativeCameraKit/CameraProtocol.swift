@@ -41,6 +41,7 @@ protocol CameraProtocol: AnyObject, FocusInterfaceViewDelegate {
     func update(faceDetectionThrottleMs: Int)
 
     func capturePicture(
+        options: CaptureOptions,
         onWillCapture: @escaping () -> Void,
         onSuccess:
             @escaping (_ imageData: Data, _ thumbnailData: Data?, _ dimensions: CMVideoDimensions)

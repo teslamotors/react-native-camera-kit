@@ -23,8 +23,9 @@ import React
                        options: NSDictionary,
                        resolve: @escaping RCTPromiseResolveBlock,
                        reject: @escaping RCTPromiseRejectBlock) {
-        camera.capture(onSuccess: { resolve($0) },
-                    onError: { reject("capture_error", $0, nil) })
+        camera.capture(options: CaptureOptions(options),
+                       onSuccess: { resolve($0) },
+                       onError: { reject("capture_error", $0, nil) })
     }
 
     @objc public static func checkDeviceCameraAuthorizationStatus(_ resolve: @escaping RCTPromiseResolveBlock,

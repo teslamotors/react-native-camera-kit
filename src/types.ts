@@ -54,6 +54,13 @@ export type ZoomMode = 'on' | 'off';
 
 export type ResizeMode = 'cover' | 'contain';
 
+export type CaptureFormat = 'jpeg' | 'raw';
+
+export type CaptureOptions = {
+  /** Capture format. `raw` returns DNG data on devices that support RAW capture. */
+  format?: CaptureFormat;
+};
+
 export type CaptureData = {
   uri: string;
   name: string;
@@ -67,7 +74,7 @@ export type CaptureData = {
 };
 
 export type CameraApi = {
-  capture: () => Promise<CaptureData>;
+  capture: (options?: CaptureOptions) => Promise<CaptureData>;
   requestDeviceCameraAuthorization: () => Promise<boolean>;
   checkDeviceCameraAuthorizationStatus: () => Promise<boolean>;
 };

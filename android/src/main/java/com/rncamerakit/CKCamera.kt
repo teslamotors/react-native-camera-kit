@@ -499,6 +499,11 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
     }
 
     fun capture(options: Map<String, Any>, promise: Promise) {
+        if (options["format"] == "raw") {
+            promise.reject("E_RAW_CAPTURE_UNSUPPORTED", "RAW capture is not supported on Android yet.")
+            return
+        }
+
         // Create the output file option to store the captured image in MediaStore
         val outputPath: String = when {
             outputPath != null -> outputPath!!
