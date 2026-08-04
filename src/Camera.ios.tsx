@@ -8,19 +8,22 @@ import NativeCameraKitModule from './specs/NativeCameraKitModule';
 const Camera = React.forwardRef<CameraApi, CameraProps>((props, ref) => {
   const nativeRef = React.useRef(null);
 
-  // RN doesn't support optional view props yet (sigh)
-  // so we have to use -1 to indicate 'undefined'
-  // All int/float/double props from src/specs/CameraNativeComponent.ts need be mentioned here
-  props.zoom = props.zoom ?? -1;
-  props.maxZoom = props.maxZoom ?? -1;
-  props.scanThrottleDelay = props.scanThrottleDelay ?? -1;
-  props.faceDetectionThrottleMs = props.faceDetectionThrottleMs ?? -1;
-  props.iOsDeferredStart = props.iOsDeferredStart ?? true;
-
-  props.allowedBarcodeTypes = props.allowedBarcodeTypes ?? supportedCodeFormats;
-
-  props.resetFocusTimeout = props.resetFocusTimeout ?? 0;
-  props.resetFocusWhenMotionDetected = props.resetFocusWhenMotionDetected ?? true;
+  // RN can't express optional int/float view props yet, so we default
+  // undefined -> -1 (and other sentinels). Build a NEW object instead of
+  // mutating `props`: React freezes element props in dev, so writing to them
+  // throws "Cannot add new property" once the module runs in strict mode
+  // (ES modules are always strict).
+  const transformedProps: CameraProps = {
+    ...props,
+    zoom: props.zoom ?? -1,
+    maxZoom: props.maxZoom ?? -1,
+    scanThrottleDelay: props.scanThrottleDelay ?? -1,
+    faceDetectionThrottleMs: props.faceDetectionThrottleMs ?? -1,
+    iOsDeferredStart: props.iOsDeferredStart ?? true,
+    allowedBarcodeTypes: props.allowedBarcodeTypes ?? supportedCodeFormats,
+    resetFocusTimeout: props.resetFocusTimeout ?? 0,
+    resetFocusWhenMotionDetected: props.resetFocusWhenMotionDetected ?? true,
+  };
 
   React.useImperativeHandle(ref, () => ({
     capture: async () => {
@@ -35,7 +38,13 @@ const Camera = React.forwardRef<CameraApi, CameraProps>((props, ref) => {
   }));
 
   // @ts-expect-error props for codegen differ a bit from the user-facing ones
-  return <NativeCamera style={{ minWidth: 100, minHeight: 100 }} ref={nativeRef} {...props} />;
+  return (
+    <NativeCamera
+      style={{ minWidth: 100, minHeight: 100 }}
+      ref={nativeRef}
+      {...transformedProps}
+    />
+  );
 });
 
 export default Camera;
