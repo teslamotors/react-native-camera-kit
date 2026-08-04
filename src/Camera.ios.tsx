@@ -27,7 +27,7 @@ const Camera = React.forwardRef<CameraApi, CameraProps>((props, ref) => {
       return await NativeCameraKitModule.capture({}, findNodeHandle(nativeRef.current) ?? undefined);
     },
     requestDeviceCameraAuthorization: async () => {
-      return await NativeCameraKitModule.checkDeviceCameraAuthorizationStatus();
+      return await NativeCameraKitModule.requestDeviceCameraAuthorization();
     },
     checkDeviceCameraAuthorizationStatus: async () => {
       return await NativeCameraKitModule.checkDeviceCameraAuthorizationStatus();
