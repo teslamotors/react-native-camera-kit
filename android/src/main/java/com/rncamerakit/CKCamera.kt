@@ -331,32 +331,35 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
         // CameraSelector
         val cameraSelector = CameraSelector.Builder().requireLensFacing(lensType).build()
 
-        // Preview
-        preview = Preview.Builder()
-                // We request aspect ratio but no resolution
-                .setTargetAspectRatio(previewAspectRatio)
-                // Set initial target rotation
-                .setTargetRotation(rotation)
-                .build()
+        val analyzing = scanBarcode || faceDetectionEnabled
+
+        // Avoid setTargetAspectRatio while analyzing: RN view size often forces an impossible
+        // CameraX maxSize on LIMITED cameras / emulator webcams.
+        val previewBuilder = Preview.Builder().setTargetRotation(rotation)
+        if (!analyzing) {
+            previewBuilder.setTargetAspectRatio(previewAspectRatio)
+        }
+        preview = previewBuilder.build()
 
         // ImageCapture
         imageCapture = ImageCapture.Builder()
             .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-            // We request aspect ratio but no resolution to match preview config, but letting
-            // CameraX optimize for whatever specific resolution best fits our use cases
             .setTargetAspectRatio(previewAspectRatio)
-            // Set initial target rotation, we will have to call this again if rotation changes
-            // during the lifecycle of this use case
             .setTargetRotation(rotation)
             .build()
 
-        // ImageAnalysis
+        // VGA is enough for ML Kit and binds on LIMITED hardware.
+        @Suppress("DEPRECATION")
         imageAnalyzer = ImageAnalysis.Builder()
             .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-            .setTargetAspectRatio(previewAspectRatio)
+            .setTargetResolution(Size(640, 480))
             .build()
 
-        val useCases = mutableListOf(preview, imageCapture)
+        // Analysis mode: Preview + ImageAnalysis only. ImageCapture as a 3rd stream breaks LIMITED cameras.
+        val useCases = mutableListOf<UseCase>(preview!!)
+        if (!analyzing) {
+            useCases.add(imageCapture!!)
+        }
 
         faceAnalyzer?.close()
         faceAnalyzer = null
@@ -431,7 +434,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
                 if (tasks.isEmpty()) image.close()
                 else Tasks.whenAllComplete(tasks).addOnCompleteListener { image.close() }
             }
-            useCases.add(imageAnalyzer)
+            useCases.add(imageAnalyzer!!)
         }
 
         // Must unbind the use-cases before rebinding them
@@ -732,13 +735,14 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
     fun setScanBarcode(enabled: Boolean) {
         val restartCamera = enabled != scanBarcode
         scanBarcode = enabled
-        if (restartCamera) bindCameraUseCases()
+        // Props can arrive before ProcessCameraProvider is ready; setupCamera() will bind later.
+        if (restartCamera && cameraProvider != null) bindCameraUseCases()
     }
 
     fun setFaceDetectionEnabled(enabled: Boolean) {
         val restartCamera = enabled != faceDetectionEnabled
         faceDetectionEnabled = enabled
-        if (restartCamera) bindCameraUseCases()
+        if (restartCamera && cameraProvider != null) bindCameraUseCases()
     }
 
     fun setFaceDetectionThrottleMs(throttleMs: Int) {
