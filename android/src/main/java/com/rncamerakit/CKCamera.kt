@@ -41,7 +41,7 @@ import kotlin.math.max
 import kotlin.math.min
 import android.graphics.Canvas
 import android.graphics.Paint
-import android.graphics.Rect
+import android.graphics.Matrix
 import android.graphics.RectF
 import android.util.Size
 import com.facebook.react.uimanager.UIManagerHelper
@@ -49,6 +49,7 @@ import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.rncamerakit.events.*
+import java.util.concurrent.RejectedExecutionException
 
 class RectOverlay constructor(context: Context) :
         View(context) {
@@ -114,6 +115,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
     private var laserColor = Color.RED
     private var barcodeFrameSize: Size? = null
     private var allowedBarcodeTypes: Array<CodeFormat>? = null
+    private var barcodeBindingGeneration: Long = 0
 
     // Face detection props
     private var faceDetectionEnabled: Boolean = false
@@ -147,6 +149,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
     }
 
     override fun onDetachedFromWindow() {
+        barcodeBindingGeneration++
         super.onDetachedFromWindow()
 
         faceAnalyzer?.close()
@@ -314,6 +317,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
 
     private fun bindCameraUseCases() {
         if (viewFinder.display == null) return
+        val bindingGeneration = ++barcodeBindingGeneration
 
         val previewWidth = viewFinder.getWidth();
         val previewHeight = viewFinder.getHeight();
@@ -362,54 +366,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
         faceAnalyzer = null
 
         val barcodeAnalyzer: QRCodeAnalyzer? = if (scanBarcode) {
-            QRCodeAnalyzer({ barcodes, imageSize ->
-                if (barcodes.isEmpty()) return@QRCodeAnalyzer
-
-                // 1. Filter by allowed barcode formats
-                val allowedTypes = convertAllowedBarcodeTypes()
-                val filteredByType = if (allowedTypes.isEmpty()) {
-                    barcodes
-                } else {
-                    barcodes.filter { barcode ->
-                        barcode.format in allowedTypes
-                    }
-                }
-
-                if (filteredByType.isEmpty()) return@QRCodeAnalyzer
-
-                val barcodeFrame = barcodeFrame
-                val vf = viewFinder
-
-                // 2. No frame? → behave like original code
-                if (barcodeFrame == null) {
-                    onBarcodeRead(filteredByType)
-                    return@QRCodeAnalyzer
-                }
-
-                val frameRect = barcodeFrame.frameRect
-
-                // 3. Calculate scaling factors (image is always rotated by 90 degrees)
-                val scaleX = vf.width.toFloat() / imageSize.height
-                val scaleY = vf.height.toFloat() / imageSize.width
-
-                // 4. filter barcodes inside the frame
-                val filteredBarcodes = filteredByType.filter { barcode ->
-                    val barcodeBoundingBox = barcode.boundingBox ?: return@filter false
-
-                    val scaledBarcodeBoundingBox = Rect(
-                        (barcodeBoundingBox.left * scaleX).toInt(),
-                        (barcodeBoundingBox.top * scaleY).toInt(),
-                        (barcodeBoundingBox.right * scaleX).toInt(),
-                        (barcodeBoundingBox.bottom * scaleY).toInt()
-                    )
-                    frameRect.contains(scaledBarcodeBoundingBox)
-                }
-
-                // 5. Emit if any left
-                if (filteredBarcodes.isNotEmpty()) {
-                    onBarcodeRead(filteredBarcodes)
-                }
-            }, scanThrottleDelay)
+            QRCodeAnalyzer.withFrameGeometry(::onBarcodesDetected, scanThrottleDelay)
         } else null
 
         faceAnalyzer = if (faceDetectionEnabled) {
@@ -424,12 +381,25 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
 
         val activeFaceAnalyzer = faceAnalyzer
         if (barcodeAnalyzer != null || activeFaceAnalyzer != null) {
-            imageAnalyzer!!.setAnalyzer(cameraExecutor) { image ->
-                val tasks = mutableListOf<Task<*>>()
-                barcodeAnalyzer?.analyzeWithoutClosing(image)?.let { tasks.add(it) }
-                activeFaceAnalyzer?.analyzeWithoutClosing(image)?.let { tasks.add(it) }
-                if (tasks.isEmpty()) image.close()
-                else Tasks.whenAllComplete(tasks).addOnCompleteListener { image.close() }
+            // PreviewView's transform is a UI-thread API. Snapshot it before
+            // dispatching inference to the existing camera executor.
+            imageAnalyzer!!.setAnalyzer(ContextCompat.getMainExecutor(context)) { image ->
+                if (bindingGeneration != barcodeBindingGeneration) {
+                    image.close()
+                    return@setAnalyzer
+                }
+                val geometry = snapshotBarcodePreview()
+                try {
+                    cameraExecutor.execute {
+                        val tasks = mutableListOf<Task<*>>()
+                        barcodeAnalyzer?.analyzeWithoutClosing(image, geometry)?.let { tasks.add(it) }
+                        activeFaceAnalyzer?.analyzeWithoutClosing(image)?.let { tasks.add(it) }
+                        if (tasks.isEmpty()) image.close()
+                        else Tasks.whenAllComplete(tasks).addOnCompleteListener { image.close() }
+                    }
+                } catch (_: RejectedExecutionException) {
+                    image.close()
+                }
             }
             useCases.add(imageAnalyzer)
         }
@@ -577,6 +547,46 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
         camera?.cameraControl?.startFocusAndMetering(builder.build())
         val focusRects = listOf(RectF(x-75, y-75, x+75, y+75))
         rectOverlay.drawRectBounds(focusRects)
+    }
+
+    internal fun snapshotBarcodePreview(): BarcodePreviewGeometry {
+        val frame = barcodeFrame
+            ?: return BarcodePreviewGeometry(barcodeBindingGeneration, null, null)
+        val selection = RectF(frame.frameRect)
+        val sensorToView = viewFinder.sensorToViewTransform
+            ?: return BarcodePreviewGeometry(barcodeBindingGeneration, null, selection)
+
+        // PreviewView and BarcodeFrame are siblings. Include their offsets and
+        // local view matrices so the comparison happens in BarcodeFrame space.
+        val previewToParent = Matrix(viewFinder.matrix).apply {
+            postTranslate(viewFinder.left.toFloat(), viewFinder.top.toFloat())
+        }
+        val frameToParent = Matrix(frame.matrix).apply {
+            postTranslate(frame.left.toFloat(), frame.top.toFloat())
+        }
+        val parentToFrame = Matrix()
+        if (!frameToParent.invert(parentToFrame)) {
+            return BarcodePreviewGeometry(barcodeBindingGeneration, null, selection)
+        }
+        val sensorToFrame = Matrix().apply {
+            setConcat(previewToParent, sensorToView)
+            postConcat(parentToFrame)
+        }
+        return BarcodePreviewGeometry(barcodeBindingGeneration, sensorToFrame, selection)
+    }
+
+    internal fun onBarcodesDetected(barcodes: List<Barcode>, geometry: BarcodeFrameGeometry) {
+        val submittedPreview = geometry.preview ?: return
+        // A rebind, unmount or layout change invalidates an in-flight selection.
+        if (!submittedPreview.matches(snapshotBarcodePreview())) return
+        val allowedTypes = convertAllowedBarcodeTypes()
+        val selected = barcodes.filter { barcode ->
+            (allowedTypes.isEmpty() || barcode.format in allowedTypes) &&
+                (!submittedPreview.hasFrame || barcode.boundingBox?.let {
+                    submittedPreview.contains(it, geometry)
+                } == true)
+        }
+        if (selected.isNotEmpty()) onBarcodeRead(selected)
     }
 
     private fun onBarcodeRead(barcodes: List<Barcode>) {

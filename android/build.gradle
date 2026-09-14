@@ -14,12 +14,14 @@ if (isNewArchitectureEnabled()) {
 }
 
 android {
+    testOptions { unitTests.includeAndroidResources = true }
     def agpVersion = com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION
     if (agpVersion.tokenize('.')[0].toInteger() >= 7) {
       namespace "com.rncamerakit"
     }
     compileSdkVersion = 34
     defaultConfig {
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         minSdkVersion = 24
         // noinspection ExpiredTargetSdkVersion
         targetSdkVersion = 34
@@ -46,6 +48,13 @@ android {
 }
 
 dependencies {
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.robolectric:robolectric:4.14.1'
+    testImplementation 'org.mockito:mockito-core:5.18.0'
+    androidTestImplementation 'androidx.test:runner:1.6.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+    androidTestImplementation 'com.google.zxing:core:3.5.3'
+
     implementation 'com.facebook.react:react-native:+'
     implementation group: 'com.drewnoakes', name: 'metadata-extractor', version: '2.18.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
