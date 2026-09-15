@@ -141,6 +141,9 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
+        if (cameraExecutor.isShutdown) {
+            cameraExecutor = Executors.newSingleThreadExecutor()
+        }
         if (hasPermissions()) {
             viewFinder.post { setupCamera() }
         }
