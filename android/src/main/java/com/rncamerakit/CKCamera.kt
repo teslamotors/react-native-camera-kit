@@ -274,6 +274,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
                     return@setOnTouchListener scaleDetector.onTouchEvent(event)
                 }
                 focusOnPoint(event.x, event.y)
+                onTapToFocus(event.x, event.y)
                 return@setOnTouchListener true
             }
 
@@ -720,6 +721,27 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
         UIManagerHelper
             .getEventDispatcherForReactTag(currentContext, id)
             ?.dispatchEvent(ZoomEvent(surfaceId, id, desiredOrCameraZoom))
+    }
+
+    // Reported alongside the tap-to-focus above so JS can overlay its own UI
+    // without having to intercept the touch and suppress focus and zoom.
+    // Normalized to 0..1 of the preview, matching the bounds onFaceDetected reports.
+    private fun onTapToFocus(x: Float, y: Float) {
+        val width = viewFinder.width
+        val height = viewFinder.height
+        if (width <= 0 || height <= 0) return
+
+        val surfaceId = UIManagerHelper.getSurfaceId(currentContext)
+        UIManagerHelper
+            .getEventDispatcherForReactTag(currentContext, id)
+            ?.dispatchEvent(
+                TapToFocusEvent(
+                    surfaceId,
+                    id,
+                    (x / width).toDouble().coerceIn(0.0, 1.0),
+                    (y / height).toDouble().coerceIn(0.0, 1.0),
+                )
+            )
     }
 
     fun setMaxZoom(factor: Double?) {

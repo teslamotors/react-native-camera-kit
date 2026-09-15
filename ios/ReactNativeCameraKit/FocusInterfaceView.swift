@@ -48,6 +48,11 @@ protocol FocusInterfaceViewDelegate: AnyObject {
 class FocusInterfaceView: UIView {
     weak var delegate: FocusInterfaceViewDelegate?
 
+    // Reported alongside the focus itself so JS can overlay its own UI without
+    // intercepting the touch, which would suppress focus and zoom.
+    // Coordinates are normalized to 0...1 of this view, which is full-size.
+    var onTap: ((_ x: CGFloat, _ y: CGFloat) -> Void)?
+
     private var resetFocusTimeout = 0
     private var resetFocusWhenMotionDetected = false
 
@@ -175,6 +180,10 @@ class FocusInterfaceView: UIView {
 
     @objc func focusAndExposeTap(_ gestureRecognizer: UIGestureRecognizer) {
         let touchPoint = gestureRecognizer.location(in: self)
+        if let onTap, bounds.width > 0, bounds.height > 0 {
+            onTap(min(max(touchPoint.x / bounds.width, 0), 1),
+                  min(max(touchPoint.y / bounds.height, 0), 1))
+        }
         delegate?.focus(at: touchPoint,
                         focusBehavior: .customFocus(resetFocusWhenMotionDetected: resetFocusWhenMotionDetected,
                                                     resetFocus: resetFocus,

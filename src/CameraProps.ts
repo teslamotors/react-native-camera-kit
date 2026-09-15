@@ -29,6 +29,15 @@ export type OnZoom = {
   };
 };
 
+export type OnTapToFocusData = {
+  nativeEvent: {
+    /** Horizontal position of the tap, normalized 0-1 across the preview's width */
+    x: number;
+    /** Vertical position of the tap, normalized 0-1 across the preview's height */
+    y: number;
+  };
+};
+
 export type FaceData = {
   id: number;
   yaw: number;
@@ -125,6 +134,27 @@ export interface CameraProps extends ViewProps {
    * ```
    */
   onZoom?: (event: OnZoom) => void;
+  /**
+   * Callback triggered when the user taps the preview to focus.
+   * Fires alongside the built-in tap-to-focus, so an overlay can be shown
+   * without replacing the camera's own gesture handling.
+   *
+   * Coordinates are normalized 0-1 in preview space, matching `onFaceDetected`.
+   * Requires `focusMode="on"` (the default), since that is when the
+   * tap-to-focus gesture is active.
+   *
+   * Note this is deliberately not called `onFocus`: `ViewProps` already
+   * declares that prop for accessibility focus.
+   * Example:
+   * ```
+   * <Camera
+   *   onTapToFocus={(e) => {
+   *     console.log('tapped at', e.nativeEvent.x, e.nativeEvent.y);
+   *   }}
+   * />
+   * ```
+   */
+  onTapToFocus?: (event: OnTapToFocusData) => void;
   /** **Android only**. Triggered when camera fails to initialize */
   onError?: (event: { nativeEvent: { errorMessage: string } }) => void;
   // Barcode only

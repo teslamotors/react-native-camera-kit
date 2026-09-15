@@ -355,6 +355,11 @@ const CameraExample = ({ onBack, stress }: { onBack: () => void; stress?: boolea
               console.log('zoom', e.nativeEvent.zoom);
               setZoom(e.nativeEvent.zoom);
             }}
+            onTapToFocus={(e) => {
+              // Fires alongside the camera's own tap-to-focus, so an overlay can
+              // react to the tap without suppressing focus and zoom
+              console.log('tapToFocus', e.nativeEvent.x, e.nativeEvent.y);
+            }}
             torchMode={torchMode ? 'on' : 'off'}
             shutterPhotoSound
             maxPhotoQualityPrioritization="speed"

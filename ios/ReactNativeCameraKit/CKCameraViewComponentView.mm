@@ -133,6 +133,17 @@ static id CKConvertFollyDynamicToId(const folly::dynamic &dyn) {
           ->onZoom({.zoom = [zoom doubleValue]});
     }
   }];
+  [_view setOnTapToFocus:^(NSDictionary *event) {
+    __typeof__(self) strongSelf = weakSelf;
+
+    if (strongSelf != nullptr && strongSelf->_eventEmitter != nullptr) {
+      id x = [event valueForKey:@"x"] == nil ? 0 : [event valueForKey:@"x"];
+      id y = [event valueForKey:@"y"] == nil ? 0 : [event valueForKey:@"y"];
+      std::dynamic_pointer_cast<const facebook::react::CKCameraEventEmitter>(
+          strongSelf->_eventEmitter)
+          ->onTapToFocus({.x = [x doubleValue], .y = [y doubleValue]});
+    }
+  }];
   [_view setOnCaptureButtonPressIn:^(NSDictionary *event) {
     __typeof__(self) strongSelf = weakSelf;
 

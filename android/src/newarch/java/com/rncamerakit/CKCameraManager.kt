@@ -57,6 +57,7 @@ class CKCameraManager(context: ReactApplicationContext) : SimpleViewManager<CKCa
             ReadCodeEvent.EVENT_NAME to mapOf("registrationName" to "onReadCode"),
             PictureTakenEvent.EVENT_NAME to mapOf("registrationName" to "onPictureTaken"),
             ZoomEvent.EVENT_NAME to mapOf("registrationName" to "onZoom"),
+            TapToFocusEvent.EVENT_NAME to mapOf("registrationName" to "onTapToFocus"),
             ErrorEvent.EVENT_NAME to mapOf("registrationName" to "onError"),
             CaptureButtonPressInEvent.EVENT_NAME to mapOf("registrationName" to "onCaptureButtonPressIn"),
             CaptureButtonPressOutEvent.EVENT_NAME to mapOf("registrationName" to "onCaptureButtonPressOut"),

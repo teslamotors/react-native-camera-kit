@@ -28,6 +28,11 @@ type OnZoom = {
     zoom: Double;
 }
 
+type OnTapToFocus = {
+    x: Double;
+    y: Double;
+};
+
 type OnFaceDetectedData = {
     faces: {
         id: Int32;
@@ -67,6 +72,7 @@ export interface NativeProps extends ViewProps {
   shutterPhotoSound?: boolean;
   onOrientationChange?: DirectEventHandler<OnOrientationChangeData>;
   onZoom?: DirectEventHandler<OnZoom>;
+  onTapToFocus?: DirectEventHandler<OnTapToFocus>;
   onError?: DirectEventHandler<{errorMessage: string }>;
   onReadCode?: DirectEventHandler<OnReadCodeData>;
   onCaptureButtonPressIn?: DirectEventHandler<{}>;

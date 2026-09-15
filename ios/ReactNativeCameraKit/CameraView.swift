@@ -59,6 +59,7 @@ public class CameraView: UIView {
     // other
     @objc public var onOrientationChange: RCTDirectEventBlock?
     @objc public var onZoom: RCTDirectEventBlock?
+    @objc public var onTapToFocus: RCTDirectEventBlock?
     @objc public var resetFocusTimeout = 0
     @objc public var resetFocusWhenMotionDetected = false
     @objc public var focusMode: FocusMode = .on
@@ -157,6 +158,9 @@ public class CameraView: UIView {
         addFullSizeSubview(focusInterfaceView)
 
         focusInterfaceView.delegate = camera
+        focusInterfaceView.onTap = { [weak self] x, y in
+            self?.onTapToFocus?(["x": x, "y": y])
+        }
 
         handleCameraPermission()
 
