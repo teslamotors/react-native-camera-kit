@@ -5,13 +5,18 @@ on:
   push:
     branches:
       - main
+      - master
   pull_request:
     types: [opened, synchronize, reopened]
 
 jobs:
   build-example-ios:
     name: build-example-ios
-    runs-on: macos-latest
+    runs-on: macos-15
+    env:
+      # Keep the iOS 26 SDK required by Camera Kit while avoiding the fmt
+      # compilation failure with the runner's newer default Xcode.
+      DEVELOPER_DIR: /Applications/Xcode_26.2.app/Contents/Developer
     steps:
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
