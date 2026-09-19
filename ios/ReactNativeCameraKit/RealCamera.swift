@@ -133,7 +133,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         // "AVCaptureSession beginConfiguration" from the com.apple.cameracapture subsystem
         DispatchQueue.main.async {
             self.cameraPreview.session = self.session
-            self.cameraPreview.previewLayer.videoGravity = .resizeAspect
+            self.applyResizeMode()
 
             self.startMotionUpdates()
 
@@ -364,12 +364,19 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
 
     func update(resizeMode: ResizeMode) {
         DispatchQueue.main.async {
-            switch resizeMode {
-            case .cover:
-                self.cameraPreview.previewLayer.videoGravity = .resizeAspectFill
-            case .contain:
-                self.cameraPreview.previewLayer.videoGravity = .resizeAspect
-            }
+            self.resizeMode = resizeMode
+            self.applyResizeMode()
+        }
+    }
+
+    /// Pushes `resizeMode` onto the preview layer. Called both when the prop changes and when the
+    /// session is set up, since setup can happen after the prop has already been delivered.
+    private func applyResizeMode() {
+        switch resizeMode {
+        case .cover:
+            cameraPreview.previewLayer.videoGravity = .resizeAspectFill
+        case .contain:
+            cameraPreview.previewLayer.videoGravity = .resizeAspect
         }
     }
 
