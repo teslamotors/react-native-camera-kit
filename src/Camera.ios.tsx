@@ -11,16 +11,22 @@ const Camera = React.forwardRef<CameraApi, CameraProps>((props, ref) => {
   // RN doesn't support optional view props yet (sigh)
   // so we have to use -1 to indicate 'undefined'
   // All int/float/double props from src/specs/CameraNativeComponent.ts need be mentioned here
-  props.zoom = props.zoom ?? -1;
-  props.maxZoom = props.maxZoom ?? -1;
-  props.scanThrottleDelay = props.scanThrottleDelay ?? -1;
-  props.faceDetectionThrottleMs = props.faceDetectionThrottleMs ?? -1;
-  props.iOsDeferredStart = props.iOsDeferredStart ?? true;
+  //
+  // These must land on a new object rather than on `props`: React freezes element.props in
+  // development, so assigning to `props` is silently dropped there while it works in release.
+  const nativeProps: CameraProps = {
+    ...props,
+    zoom: props.zoom ?? -1,
+    maxZoom: props.maxZoom ?? -1,
+    scanThrottleDelay: props.scanThrottleDelay ?? -1,
+    faceDetectionThrottleMs: props.faceDetectionThrottleMs ?? -1,
+    iOsDeferredStart: props.iOsDeferredStart ?? true,
 
-  props.allowedBarcodeTypes = props.allowedBarcodeTypes ?? supportedCodeFormats;
+    allowedBarcodeTypes: props.allowedBarcodeTypes ?? supportedCodeFormats,
 
-  props.resetFocusTimeout = props.resetFocusTimeout ?? 0;
-  props.resetFocusWhenMotionDetected = props.resetFocusWhenMotionDetected ?? true;
+    resetFocusTimeout: props.resetFocusTimeout ?? 0,
+    resetFocusWhenMotionDetected: props.resetFocusWhenMotionDetected ?? true,
+  };
 
   React.useImperativeHandle(ref, () => ({
     capture: async () => {
@@ -35,7 +41,7 @@ const Camera = React.forwardRef<CameraApi, CameraProps>((props, ref) => {
   }));
 
   // @ts-expect-error props for codegen differ a bit from the user-facing ones
-  return <NativeCamera style={{ minWidth: 100, minHeight: 100 }} ref={nativeRef} {...props} />;
+  return <NativeCamera style={{ minWidth: 100, minHeight: 100 }} ref={nativeRef} {...nativeProps} />;
 });
 
 export default Camera;
