@@ -5,6 +5,12 @@
 
 import UIKit
 
+/*
+ * A `width:height` ratio, as accepted by the `ratioOverlay` prop, eg. "16:9" or "4:5".
+ *
+ * Width comes first, so "4:5" describes a window that is taller than it is wide,
+ * and "16:9" one that is wider than it is tall.
+ */
 struct RatioOverlayData: CustomStringConvertible {
     let width: Float
     let height: Float
@@ -14,24 +20,50 @@ struct RatioOverlayData: CustomStringConvertible {
         let values = inputString.split(separator: ":")
 
         if values.count == 2,
-           let inputHeight = Float(values[0]),
-           let inputWidth = Float(values[1]),
-           inputHeight != 0,
-           inputWidth != 0 {
-            height = inputHeight
+           let inputWidth = Float(values[0]),
+           let inputHeight = Float(values[1]),
+           inputWidth > 0,
+           inputHeight > 0 {
             width = inputWidth
+            height = inputHeight
             ratio = width / height
         } else {
-            height = 0
             width = 0
+            height = 0
             ratio = 0
         }
+    }
+
+    /*
+     * The largest rect of this ratio that fits inside `size`, centered.
+     *
+     * Returns nil when there is nothing to draw, ie. the ratio was unparseable
+     * or the container has not been laid out yet.
+     */
+    func centeredWindow(fitting size: CGSize) -> CGRect? {
+        guard ratio > 0, size.width > 0, size.height > 0 else {
+            return nil
+        }
+
+        let targetRatio = CGFloat(ratio)
+        let containerRatio = size.width / size.height
+
+        // Aspect fit: the tighter of the two axes spans the container,
+        // the other one is derived from the requested ratio.
+        let windowSize = targetRatio > containerRatio
+            ? CGSize(width: size.width, height: size.width / targetRatio)
+            : CGSize(width: size.height * targetRatio, height: size.height)
+
+        return CGRect(x: (size.width - windowSize.width) / 2.0,
+                      y: (size.height - windowSize.height) / 2.0,
+                      width: windowSize.width,
+                      height: windowSize.height)
     }
 
     // MARK: CustomStringConvertible
 
     var description: String {
-        return "height:\(height) width:\(width) ratio:\(ratio)"
+        return "width:\(width) height:\(height) ratio:\(ratio)"
     }
 }
 
@@ -41,8 +73,10 @@ struct RatioOverlayData: CustomStringConvertible {
 class RatioOverlayView: UIView {
     private var ratioData: RatioOverlayData?
 
-    private let topView: UIView = UIView()
-    private let bottomView: UIView = UIView()
+    // The two bars framing the ratio window: above/below it when letterboxing,
+    // left/right of it when pillarboxing.
+    private let leadingBarView: UIView = UIView()
+    private let trailingBarView: UIView = UIView()
 
     // MARK: - Lifecycle
 
@@ -54,8 +88,8 @@ class RatioOverlayView: UIView {
         let color = overlayColor ?? UIColor.black.withAlphaComponent(0.3)
         setColor(color)
 
-        addSubview(topView)
-        addSubview(bottomView)
+        addSubview(leadingBarView)
+        addSubview(trailingBarView)
 
         setRatio(ratioString)
     }
@@ -82,15 +116,14 @@ class RatioOverlayView: UIView {
     }
 
     func setColor(_ color: UIColor) {
-        topView.backgroundColor = color
-        bottomView.backgroundColor = color
+        leadingBarView.backgroundColor = color
+        trailingBarView.backgroundColor = color
     }
 
     // MARK: - Private
 
-    // swiftlint:disable:next function_body_length
     private func setOverlayParts() {
-        guard let ratioData, ratioData.ratio != 0 else {
+        guard let window = ratioData?.centeredWindow(fitting: bounds.size) else {
             isHidden = true
 
             return
@@ -98,67 +131,26 @@ class RatioOverlayView: UIView {
 
         isHidden = false
 
-        var centerSize = CGSize.zero
-        var sideSize = CGSize.zero
-        var centerFrame: CGRect
-
-        if ratioData.width < ratioData.height {
-            centerSize.width = frame.size.width
-            centerSize.height = frame.size.height * CGFloat(ratioData.ratio)
-
-            sideSize.width = centerSize.width
-            sideSize.height = (frame.size.height - centerSize.height) / 2.0
-
-            topView.frame = CGRect(x: 0,
-                                   y: 0,
-                                   width: sideSize.width,
-                                   height: sideSize.height)
-            centerFrame = CGRect(x: 0,
-                          y: topView.frame.size.height + topView.frame.origin.y,
-                          width: centerSize.width,
-                          height: centerSize.height)
-            bottomView.frame = CGRect(x: 0,
-                                      y: centerFrame.size.height + centerFrame.origin.y,
-                                      width: sideSize.width,
-                                      height: sideSize.height)
-        } else if ratioData.width > ratioData.height {
-            centerSize.width = frame.size.width / CGFloat(ratioData.ratio)
-            centerSize.height = frame.size.height
-
-            sideSize.width = (frame.size.width - centerSize.width) / 2.0
-            sideSize.height = centerSize.height
-
-            topView.frame = CGRect(x: 0,
-                                   y: 0,
-                                   width: sideSize.width,
-                                   height: sideSize.height)
-            centerFrame = CGRect(x: topView.frame.size.width + topView.frame.origin.x,
-                          y: 0,
-                          width: centerSize.width,
-                          height: centerSize.height)
-            bottomView.frame = CGRect(x: centerFrame.size.width + centerFrame.origin.x,
-                                      y: 0,
-                                      width: sideSize.width,
-                                      height: sideSize.height)
-        } else { // ratio is 1:1
-            centerSize.width = frame.size.width
-            centerSize.height = frame.size.width
-
-            sideSize.width = centerSize.width
-            sideSize.height = (frame.size.height - centerSize.height) / 2.0
-
-            topView.frame = CGRect(x: 0,
-                                   y: 0,
-                                   width: sideSize.width,
-                                   height: sideSize.height)
-            centerFrame = CGRect(x: 0,
-                                  y: topView.frame.size.height + topView.frame.origin.y,
-                                  width: centerSize.width,
-                                  height: centerSize.height)
-            bottomView.frame = CGRect(x: 0,
-                                      y: centerFrame.size.height + centerFrame.origin.y,
-                                      width: sideSize.width,
-                                      height: sideSize.height)
+        if window.height < bounds.height {
+            // Letterbox: mask the strips above and below the ratio window.
+            leadingBarView.frame = CGRect(x: 0,
+                                          y: 0,
+                                          width: bounds.width,
+                                          height: window.minY)
+            trailingBarView.frame = CGRect(x: 0,
+                                           y: window.maxY,
+                                           width: bounds.width,
+                                           height: bounds.height - window.maxY)
+        } else {
+            // Pillarbox: mask the strips left and right of the ratio window.
+            leadingBarView.frame = CGRect(x: 0,
+                                          y: 0,
+                                          width: window.minX,
+                                          height: bounds.height)
+            trailingBarView.frame = CGRect(x: window.maxX,
+                                           y: 0,
+                                           width: bounds.width - window.maxX,
+                                           height: bounds.height)
         }
     }
 }
