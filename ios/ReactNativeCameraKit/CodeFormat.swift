@@ -76,3 +76,15 @@ enum CodeFormat: String, CaseIterable {
         }
     }
 }
+
+struct ScannedCode {
+    let value: String
+    let codeFormat: CodeFormat
+
+    var asDictionary: [String: Any] {
+        return [
+            "codeStringValue": value,
+            "codeFormat": codeFormat.rawValue,
+        ]
+    }
+}

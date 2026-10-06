@@ -152,9 +152,10 @@ const BarcodeExample = ({ onBack }: { onBack: () => void }) => {
           barcodeFrameSize={{ width: 300, height: 150 }}
           onReadCode={(event) => {
             Vibration.vibrate(100);
-            setBarcode(event.nativeEvent.codeStringValue);
+            setBarcode(event.nativeEvent.codes.map((code) => code.codeStringValue).join('\n'));
             console.log('barcode', event.nativeEvent.codeStringValue);
             console.log('codeFormat', event.nativeEvent.codeFormat);
+            console.log('codes', event.nativeEvent.codes);
           }}
         />
       </View>

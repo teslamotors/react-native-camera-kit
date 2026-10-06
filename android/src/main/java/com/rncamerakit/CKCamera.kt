@@ -580,11 +580,13 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
     }
 
     private fun onBarcodeRead(barcodes: List<Barcode>) {
-        val codeFormat = CodeFormat.fromBarcodeType(barcodes.first().format);
+        val codes = barcodes.map { barcode ->
+            ReadCodePayload(barcode.rawValue, CodeFormat.fromBarcodeType(barcode.format).code)
+        }
         val surfaceId = UIManagerHelper.getSurfaceId(currentContext)
         UIManagerHelper
             .getEventDispatcherForReactTag(currentContext, id)
-            ?.dispatchEvent(ReadCodeEvent(surfaceId, id, barcodes.first().rawValue, codeFormat.code))
+            ?.dispatchEvent(ReadCodeEvent(surfaceId, id, codes))
     }
 
     private fun onFaceDetected(payloads: List<FacePayload>) {

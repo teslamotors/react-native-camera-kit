@@ -44,7 +44,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     private var maxPhotoQualityPrioritization: MaxPhotoQualityPrioritization?
     private var resetFocus: (() -> Void)?
     private var focusFinished: (() -> Void)?
-    private var onBarcodeRead: ((_ barcode: String, _ codeFormat: CodeFormat) -> Void)?
+    private var onBarcodeRead: ((_ codes: [ScannedCode]) -> Void)?
     private var scannerFrameSize: CGRect? = nil
     private var barcodeFrameSize: CGSize? = nil
     private var onOrientationChange: RCTDirectEventBlock?
@@ -433,7 +433,7 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
     func isBarcodeScannerEnabled(
         _ isEnabled: Bool,
         supportedBarcodeTypes supportedBarcodeType: [CodeFormat],
-        onBarcodeRead: ((_ barcode: String, _ codeFormat: CodeFormat) -> Void)?
+        onBarcodeRead: ((_ codes: [ScannedCode]) -> Void)?
     ) {
         sessionQueue.async {
             self.onBarcodeRead = onBarcodeRead
@@ -526,18 +526,22 @@ class RealCamera: NSObject, CameraProtocol, AVCaptureMetadataOutputObjectsDelega
         _ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject],
         from connection: AVCaptureConnection
     ) {
-        // Try to retrieve the barcode from the metadata extracted
-        guard
-            let machineReadableCodeObject = metadataObjects.first
-                as? AVMetadataMachineReadableCodeObject,
-            let codeStringValue = machineReadableCodeObject.stringValue
-        else {
-            return
+        // Retrieve every barcode extracted from the frame, keeping AVFoundation's order
+        let codes: [ScannedCode] = metadataObjects.compactMap { metadataObject in
+            guard
+                let machineReadableCodeObject = metadataObject as? AVMetadataMachineReadableCodeObject,
+                let codeStringValue = machineReadableCodeObject.stringValue
+            else {
+                return nil
+            }
+            // Determine the barcode type and convert it to CodeFormat
+            let codeFormat = CodeFormat.fromAVMetadataObjectType(machineReadableCodeObject.type)
+            return ScannedCode(value: codeStringValue, codeFormat: codeFormat)
         }
-        // Determine the barcode type and convert it to CodeFormat
-        let barcodeType = CodeFormat.fromAVMetadataObjectType(machineReadableCodeObject.type)
 
-        onBarcodeRead?(codeStringValue, barcodeType)
+        guard !codes.isEmpty else { return }
+
+        onBarcodeRead?(codes)
     }
 
     // MARK: - Vision orientation

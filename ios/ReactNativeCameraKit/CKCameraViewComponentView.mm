@@ -104,10 +104,25 @@ static id CKConvertFollyDynamicToId(const folly::dynamic &dyn) {
           [event valueForKey:@"codeFormat"] == nil
               ? ""
               : std::string([[event valueForKey:@"codeFormat"] UTF8String]);
+      NSArray *codesArray = [event valueForKey:@"codes"] ?: @[];
+      std::vector<facebook::react::CKCameraEventEmitter::OnReadCodeCodes> codes;
+      codes.reserve(codesArray.count);
+      for (NSDictionary *code in codesArray) {
+        NSString *value = code[@"codeStringValue"];
+        NSString *format = code[@"codeFormat"];
+        codes.push_back({
+            .codeStringValue = value == nil ? "" : std::string([value UTF8String]),
+            .codeFormat = format == nil ? "" : std::string([format UTF8String]),
+        });
+      }
+      facebook::react::CKCameraEventEmitter::OnReadCode payload = {
+          .codeStringValue = codeStringValue,
+          .codeFormat = codeFormat,
+          .codes = std::move(codes),
+      };
       std::dynamic_pointer_cast<const facebook::react::CKCameraEventEmitter>(
           strongSelf->_eventEmitter)
-          ->onReadCode(
-              {.codeStringValue = codeStringValue, .codeFormat = codeFormat});
+          ->onReadCode(payload);
     }
   }];
   [_view setOnOrientationChange:^(NSDictionary *event) {

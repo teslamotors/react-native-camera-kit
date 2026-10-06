@@ -187,7 +187,7 @@ class SimulatorCamera: CameraProtocol {
     func isBarcodeScannerEnabled(
         _ isEnabled: Bool,
         supportedBarcodeTypes: [CodeFormat],
-        onBarcodeRead: ((_ barcode: String, _ codeFormat: CodeFormat) -> Void)?
+        onBarcodeRead: ((_ codes: [ScannedCode]) -> Void)?
     ) {}
     func update(scannerFrameSize: CGRect?) {}
 
