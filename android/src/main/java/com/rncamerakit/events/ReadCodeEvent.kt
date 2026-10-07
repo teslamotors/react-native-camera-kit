@@ -14,6 +14,14 @@ class ReadCodeEvent(
     viewId: Int,
     private val codes: List<ReadCodePayload>,
 ) : Event<ReadCodeEvent>(surfaceId, viewId) {
+    // Kept for source compatibility with the previous single-code signature
+    constructor(
+        surfaceId: Int,
+        viewId: Int,
+        codeStringValue: String?,
+        codeFormat: String,
+    ) : this(surfaceId, viewId, listOf(ReadCodePayload(codeStringValue, codeFormat)))
+
     override fun getEventName(): String = EVENT_NAME
 
     override fun getEventData(): WritableMap {
@@ -26,10 +34,10 @@ class ReadCodeEvent(
             array.pushMap(map)
         }
         // Top-level fields mirror the first code for backward compatibility
-        val first = codes.first()
+        val first = codes.firstOrNull()
         return Arguments.createMap().apply {
-            putString("codeFormat", first.codeFormat)
-            putString("codeStringValue", first.codeStringValue)
+            putString("codeFormat", first?.codeFormat)
+            putString("codeStringValue", first?.codeStringValue)
             putArray("codes", array)
         }
     }
