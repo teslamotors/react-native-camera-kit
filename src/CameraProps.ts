@@ -10,10 +10,18 @@ import {
 } from './types';
 import { Orientation } from './index';
 
+export type ReadCode = {
+  codeStringValue: string;
+  codeFormat: CodeFormat;
+};
+
 export type OnReadCodeData = {
   nativeEvent: {
+    /** First code detected in the frame (same as `codes[0]`) */
     codeStringValue: string;
     codeFormat: CodeFormat;
+    /** All codes detected in the same frame, e.g. when several QR codes are visible at once */
+    codes: ReadCode[];
   };
 };
 

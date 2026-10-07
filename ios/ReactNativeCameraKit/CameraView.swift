@@ -277,8 +277,8 @@ public class CameraView: UIView {
             camera.isBarcodeScannerEnabled(
                 scanBarcode,
                 supportedBarcodeTypes: convertedAllowedTypes,
-                onBarcodeRead: { [weak self] (barcode, codeFormat) in
-                    self?.onBarcodeRead(barcode: barcode, codeFormat: codeFormat)
+                onBarcodeRead: { [weak self] codes in
+                    self?.onBarcodeRead(codes: codes)
                 })
         }
 
@@ -482,16 +482,22 @@ public class CameraView: UIView {
         return temporaryFileURL
     }
 
-    private func onBarcodeRead(barcode: String, codeFormat: CodeFormat) {
+    private func onBarcodeRead(codes: [ScannedCode]) {
         // Throttle barcode detection
         let now = Date.timeIntervalSinceReferenceDate
-        guard lastBarcodeDetectedTime + Double(scanThrottleDelay) / 1000 < now else {
+        guard let first = codes.first,
+              lastBarcodeDetectedTime + Double(scanThrottleDelay) / 1000 < now else {
             return
         }
 
         lastBarcodeDetectedTime = now
 
-        onReadCode?(["codeStringValue": barcode, "codeFormat": codeFormat.rawValue])
+        // Top-level fields mirror the first code for backward compatibility
+        onReadCode?([
+            "codeStringValue": first.value,
+            "codeFormat": first.codeFormat.rawValue,
+            "codes": codes.map { $0.asDictionary },
+        ])
     }
 
     private func convertAllowedBarcodeTypes() -> [CodeFormat] {

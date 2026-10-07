@@ -18,6 +18,10 @@ import codegenNativeComponent from 'react-native/Libraries/Utilities/codegenNati
 type OnReadCodeData = {
     codeStringValue: string;
     codeFormat: string;
+    codes: {
+        codeStringValue: string;
+        codeFormat: string;
+    }[];
 };
 
 type OnOrientationChangeData = {
