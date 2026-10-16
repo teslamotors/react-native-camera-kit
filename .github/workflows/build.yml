@@ -44,4 +44,4 @@ jobs:
       - name: Install example
         run: yarn bootstrap-linux
       - name: Build
-        run: cd example/android && ./gradlew assembleDebug
+        run: cd example/android && ./gradlew assembleDebug :react-native-camera-kit:testDebugUnitTest
