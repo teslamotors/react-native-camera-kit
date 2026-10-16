@@ -32,24 +32,25 @@ class BarcodeFrame(context: Context) : View(context) {
         borderMargin = context.resources.getDimensionPixelSize(R.dimen.border_length)
     }
 
-    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-        calculateFrameRect()
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        // React Native can lay out a newly enabled frame without measuring it.
+        calculateFrameRect(w, h)
     }
 
-    private fun calculateFrameRect() {
+    private fun calculateFrameRect(viewWidth: Int = width, viewHeight: Int = height) {
         val marginHeight = 40
         val marginWidth = 40
         val frameMaxWidth = barcodeFrameSize.width * context.resources.displayMetrics.density
         val frameMaxHeight = barcodeFrameSize.height * context.resources.displayMetrics.density
         val frameMinWidth = 100
         val frameMinHeight = 100
-        frameWidth = max(frameMinWidth, min(frameMaxWidth.toInt(), measuredWidth - (marginWidth * 2)))
-        frameHeight = max(frameMinHeight, min(frameMaxHeight.toInt(), measuredHeight - (marginHeight * 2)))
-        frameRect.left = (measuredWidth / 2) - (frameWidth / 2)
-        frameRect.right = (measuredWidth / 2) + (frameWidth / 2)
-        frameRect.top = (measuredHeight / 2) - (frameHeight / 2)
-        frameRect.bottom = (measuredHeight / 2) + (frameHeight / 2)
+        frameWidth = max(frameMinWidth, min(frameMaxWidth.toInt(), viewWidth - (marginWidth * 2)))
+        frameHeight = max(frameMinHeight, min(frameMaxHeight.toInt(), viewHeight - (marginHeight * 2)))
+        frameRect.left = (viewWidth / 2) - (frameWidth / 2)
+        frameRect.right = (viewWidth / 2) + (frameWidth / 2)
+        frameRect.top = (viewHeight / 2) - (frameHeight / 2)
+        frameRect.bottom = (viewHeight / 2) + (frameHeight / 2)
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -89,6 +90,7 @@ class BarcodeFrame(context: Context) : View(context) {
     fun setFrameSize(size: Size?) {
         barcodeFrameSize = size ?: DEFAULT_SIZE
         calculateFrameRect()
+        invalidate()
     }
 
     companion object {
