@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - master
   pull_request:
     types: [opened, synchronize, reopened]
 
@@ -15,14 +16,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
       - name: Install modules
-        run: yarn
-      - name: Install Bundler
-        run: sudo gem install bundler
-      - name: Install gems
-        run: cd example && sudo bundle install
+        run: yarn install --frozen-lockfile
       - name: Install example
-        run: yarn bootstrap-linux
+        run: yarn --cwd example install --frozen-lockfile --ignore-scripts
       - name: Lint
         run: yarn lint
 
