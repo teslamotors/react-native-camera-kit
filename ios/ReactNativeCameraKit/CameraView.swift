@@ -129,7 +129,11 @@ public class CameraView: UIView {
 
     override init(frame: CGRect) {
         #if targetEnvironment(simulator)
+        if AVCaptureDevice.default(for: .video) == nil {
             camera = SimulatorCamera()
+        } else {
+            camera = RealCamera()
+        }
         #else
             camera = RealCamera()
         #endif
