@@ -31,8 +31,7 @@ class ScannerInterfaceView: UIView {
         super.init(frame: .zero)
 
         addSubview(frameView)
-
-        frameView.startAnimatingScanner()
+        // Patched: don't start the laser here. It starts when this view is shown (showFrame), see isHidden.
 
         [topOverlayView, bottomOverlayView, leftOverlayView, rightOverlayView].forEach {
             $0.backgroundColor = overlayColor
@@ -52,6 +51,18 @@ class ScannerInterfaceView: UIView {
         frameView.center = center
 
         updateOverlaySize(frameView.frame)
+    }
+
+    // Patched: run the laser only while the scanner frame is visible. CameraView sets isHidden from showFrame.
+    override var isHidden: Bool {
+        didSet {
+            guard isHidden != oldValue else { return }
+            if isHidden {
+                frameView.stopLaserAnimation()
+            } else {
+                frameView.startAnimatingScanner()
+            }
+        }
     }
 
     // MARK: - Public
