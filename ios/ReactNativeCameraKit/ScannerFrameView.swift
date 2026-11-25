@@ -10,6 +10,9 @@ import UIKit
  */
 class ScannerFrameView: UIView {
     private let laserView = UIView()
+    private let laserAnimationKey = "laser"
+    private var isLaserRunning = false
+    private var laserSize: CGSize = .zero
     private let frameViews: [UIView] = (0..<8).map { _ in UIView() }
 
     // MARK: - Lifecycle
@@ -37,20 +40,46 @@ class ScannerFrameView: UIView {
         frameViews.enumerated().forEach { (index, view) in
             view.frame = sizeForFramePart(at: index)
         }
+        // Patched: don't (re)start the laser from draw(_:). See startAnimatingScanner().
+    }
 
-        startAnimatingScanner()
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        // The laser's path depends on this view's size, so re-lay it out when the size changes.
+        if isLaserRunning && bounds.size != laserSize {
+            startAnimatingScanner()
+        }
     }
 
     // MARK: - Public
 
+    // Patched: animate the laser with an explicit Core Animation animation on its own layer.
+    // UIView.animate(withDuration:options: [.autoreverse, .repeat]) opens a UIView animation block; when it ran
+    // while UIKit was laying out a presenting sheet (the camera mounting inside a form sheet), UIKit captured
+    // the sheet's own transform into this infinite, auto-reversing animation. The sheet then "breathed" and
+    // stopped receiving touches. A layer animation can't capture other views' changes.
     func startAnimatingScanner() {
-        if laserView.frame.origin.y != 0 {
+        laserView.layer.removeAnimation(forKey: laserAnimationKey)
+        UIView.performWithoutAnimation {
             laserView.frame = CGRect(x: 2, y: 2, width: frame.size.width - 4, height: 2)
         }
 
-        UIView.animate(withDuration: 3, delay: 0, options: [.autoreverse, .repeat], animations: {
-            self.laserView.center = CGPoint(x: self.frame.size.width / 2, y: self.frame.size.height - 3)
-        })
+        let animation = CABasicAnimation(keyPath: "position.y")
+        animation.fromValue = laserView.layer.position.y
+        animation.toValue = frame.size.height - 3
+        animation.duration = 3
+        animation.autoreverses = true
+        animation.repeatCount = .infinity
+        animation.isRemovedOnCompletion = false
+        laserView.layer.add(animation, forKey: laserAnimationKey)
+
+        isLaserRunning = true
+        laserSize = bounds.size
+    }
+
+    func stopLaserAnimation() {
+        laserView.layer.removeAnimation(forKey: laserAnimationKey)
+        isLaserRunning = false
     }
 
     func stopAnimatingScanner() {
